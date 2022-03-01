@@ -74,8 +74,8 @@ void MemoryUtil::InsertType(const string &group, const string &type, const uint6
     bool findType = false;
     for (auto &info : infos) {
         string tempGroup = info.first;
-        auto &pairs = info.second;
         if (tempGroup == group) {
+            auto &pairs = info.second;
             for (auto pair : pairs) {
                 string tempType = pair.first;
                 if (tempType == type) {

@@ -167,10 +167,9 @@ void MemoryInfo::CalcGroup(const PairMatrixGroup &infos, StringMatrix result)
 bool MemoryInfo::GetMemoryInfoByPid(const int &pid, StringMatrix result)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "GetMemoryInfoByPid (%d) begin\n", pid);
-    bool success = false;
     PairMatrixGroup smapsInfo;
     unique_ptr<ParseSmapsInfo> parseSmapsInfo = make_unique<ParseSmapsInfo>();
-    success = parseSmapsInfo->GetInfo(MemoryFilter::APPOINT_PID, pid, smapsInfo);
+    bool success = parseSmapsInfo->GetInfo(MemoryFilter::APPOINT_PID, pid, smapsInfo);
     if (success) {
         BuildResult(smapsInfo, result);
         CalcGroup(smapsInfo, result);
