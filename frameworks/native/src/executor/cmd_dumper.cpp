@@ -36,10 +36,9 @@ DumpStatus CMDDumper::PreExecute(const std::shared_ptr<DumperParameter>& paramet
         return DumpStatus::DUMP_FAIL;
     }
     std::string cmd = ptrDumpCfg_->target_;
-    int pid;
     if (ptrDumpCfg_->args_ != nullptr) {
         if (ptrDumpCfg_->args_->HasPid()) {
-            pid = ptrDumpCfg_->args_->GetPid();
+            int pid = ptrDumpCfg_->args_->GetPid();
             ReplacePidInCmd(cmd, pid);
         }
     }

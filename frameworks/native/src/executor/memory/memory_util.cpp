@@ -51,7 +51,6 @@ bool MemoryUtil::IsNameLine(const string &str, string &name)
 bool MemoryUtil::GetTypeValue(const string &str, const vector<string> &tags, string &type, uint64_t &value)
 {
     type = "";
-    vector<string> key;
     string tempType = "";
     bool getSuccess = GetTypeAndValue(str, tempType, value);
     if (!getSuccess) {
@@ -102,10 +101,9 @@ void MemoryUtil::InsertGroupMap(const string &group, const string &type, const u
 
 void MemoryUtil::CalcGroup(const string &group, const string &type, const uint64_t &value, PairMatrixGroup &infos)
 {
-    bool foundGroup = false;
-    bool foundType = false;
-
     if (infos.size() > 0) {
+        bool foundGroup = false;
+        bool foundType = false;
         for (auto &info : infos) {
             string tempGroup = info.first;
             if (group == tempGroup) {
@@ -285,7 +283,6 @@ void MemoryUtil::InitMemUsage(MemInfoData::MemUsage &usage)
     usage.uss = 0;
     usage.pss = 0;
     usage.pid = 0;
-    std::string name = "";
 }
 
 bool MemoryUtil::GetTypeAndValue(const string &str, string &type, uint64_t &value)

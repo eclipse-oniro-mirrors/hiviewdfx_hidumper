@@ -51,7 +51,7 @@ DumpStatus FileStreamDumper::PreExecute(const std::shared_ptr<DumperParameter>& 
             arg_pid = ptrDumpCfg_->args_->HasPid();
             arg_cpuid = ptrDumpCfg_->args_->HasCpuId();
             pid = ptrDumpCfg_->args_->GetPid();
-            arg_cpuid = ptrDumpCfg_->args_->GetCpuId();
+            cpuid = ptrDumpCfg_->args_->GetCpuId();
         }
         BuildFileNames(target, arg_pid, pid, arg_cpuid, cpuid);
         need_loop_ = (ptrDumpCfg_->loop_ == DumperConstant::LOOP);

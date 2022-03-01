@@ -38,9 +38,8 @@ GetHardwareInfo::~GetHardwareInfo()
  */
 bool GetHardwareInfo::FindFilePaths(vector<string> &result)
 {
-    bool success = false;
     string cmd = "find /proc/device-tree/ -name \"no-map\"";
-    success = MemoryUtil::GetInstance().RunCMD(cmd, result);
+    bool success = MemoryUtil::GetInstance().RunCMD(cmd, result);
     return success;
 }
 

@@ -466,7 +466,7 @@ int ConfigUtils::GetDumpLevelByPid(int uid, const DumpCommonUtils::PidInfo &pidI
         ret = DumperConstant::LEVEL_HIGH;
     } else if (uid < APP_FIRST_UID) {
         ret = DumperConstant::LEVEL_MIDDLE;
-    } else if (uid >= APP_FIRST_UID) {
+    } else {
         ret = DumperConstant::LEVEL_LOW;
         if (uid == pidInfo.uid_) {
             ret = DumperConstant::LEVEL_MIDDLE;

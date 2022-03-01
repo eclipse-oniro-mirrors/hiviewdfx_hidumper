@@ -186,7 +186,7 @@ bool DumpCommonUtils::GetProcessNameByPid(int pid, std::string& name)
     }
     std::string filePath = filesysdir;
     std::string content;
-    if (!LoadStringFromFile(filesysdir, content)) {
+    if (!LoadStringFromFile(filePath, content)) {
         return false;
     }
     name = content;

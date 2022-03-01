@@ -187,9 +187,8 @@ string MemoryInfo::AddKbUnit(const uint64_t &value)
 bool MemoryInfo::GetSmapsInfoNoPid(const int &pid, PairMatrixGroup &result)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "GetSmapsInfoNoPid (%d) begin\n", pid);
-    bool success = false;
     unique_ptr<ParseSmapsInfo> parseSmapsInfo = make_unique<ParseSmapsInfo>();
-    success = parseSmapsInfo->GetInfo(MemoryFilter::NOT_SPECIFIED_PID, pid, result);
+    bool success = parseSmapsInfo->GetInfo(MemoryFilter::NOT_SPECIFIED_PID, pid, result);
     DUMPER_HILOGD(MODULE_SERVICE, "GetSmapsInfoNoPid (%d) end,result:(%d)\n", pid, success);
     return success;
 }
@@ -197,9 +196,8 @@ bool MemoryInfo::GetSmapsInfoNoPid(const int &pid, PairMatrixGroup &result)
 bool MemoryInfo::GetMeminfo(PairMatrix &result)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "GetMeminfo begin\n");
-    bool success = false;
     unique_ptr<ParseMeminfo> parseMeminfo = make_unique<ParseMeminfo>();
-    success = parseMeminfo->GetMeminfo(result);
+    bool success = parseMeminfo->GetMeminfo(result);
     DUMPER_HILOGD(MODULE_SERVICE, "GetMeminfo end\n");
     return success;
 }
@@ -208,9 +206,8 @@ bool MemoryInfo::GetHardWareUsage(StringMatrix result)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "GetHardWareUsage begin\n");
     uint64_t value;
-    bool success = false;
     unique_ptr<GetHardwareInfo> getHardwareInfo = make_unique<GetHardwareInfo>();
-    success = getHardwareInfo->GetHardwareUsage(value);
+    bool success = getHardwareInfo->GetHardwareUsage(value);
     if (success) {
         vector<string> hardware;
         string title = "Hardware Usage:";
@@ -227,9 +224,8 @@ bool MemoryInfo::GetCMAUsage(StringMatrix result)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "GetCMAUsage begin\n");
     uint64_t value = 0;
-    bool success = false;
     unique_ptr<GetCMAInfo> getCMAInfo = make_unique<GetCMAInfo>();
-    success = getCMAInfo->GetUsed(value);
+    bool success = getCMAInfo->GetUsed(value);
     if (success) {
         vector<string> cma;
         string title = "CMA Usage:";
@@ -246,9 +242,8 @@ bool MemoryInfo::GetKernelUsage(const PairMatrix &infos, StringMatrix result)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "GetKernelUsage begin");
     uint64_t value = 0;
-    bool success = false;
     unique_ptr<GetKernelInfo> getGetKernelInfo = make_unique<GetKernelInfo>();
-    success = getGetKernelInfo->GetKernel(infos, value);
+    bool success = getGetKernelInfo->GetKernel(infos, value);
     if (success) {
         vector<string> kernel;
         string title = "Kernel Usage:";
@@ -401,9 +396,8 @@ bool MemoryInfo::GetProcName(const int &pid, string &name)
 bool MemoryInfo::GetPids()
 {
     DUMPER_HILOGD(MODULE_SERVICE, "GetPids begin");
-    bool success = false;
     pids_.clear();
-    success = DumpCommonUtils::GetUserPids(pids_);
+    bool success = DumpCommonUtils::GetUserPids(pids_);
     if (!success) {
         DUMPER_HILOGE(MODULE_SERVICE, "GetPids error\n");
     }
@@ -480,8 +474,7 @@ MemoryInfo::MemProcessData MemoryInfo::GetMemProcess(const vector<int> &pids, co
         int pid = *iter;
         data.pid = pid;
         PairMatrixGroup smapsInfo;
-        bool getSmapsSuccess = false;
-        getSmapsSuccess = GetSmapsInfoNoPid(pid, smapsInfo);
+        bool getSmapsSuccess = GetSmapsInfoNoPid(pid, smapsInfo);
         if (getSmapsSuccess) {
             data.smapsInfo = smapsInfo;
             data.smapsSuccess = true;

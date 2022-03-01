@@ -62,7 +62,7 @@ bool ParseVmallocinfo::GetVmallocinfo(uint64_t &value)
     } else {
         DUMPER_HILOGE(MODULE_SERVICE, "File %s not found.\n", filename.c_str());
     }
-    return true;
+    return success;
 }
 } // namespace HiviewDFX
 } // namespace OHOS

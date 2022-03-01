@@ -39,10 +39,9 @@ DumpStatus MemoryDumper::PreExecute(const shared_ptr<DumperParameter> &parameter
 
 DumpStatus MemoryDumper::Execute()
 {
-    bool success = false;
     if (dumpDatas_ != nullptr && memoryInfo_ != nullptr) {
         if (pid_ >= 0) {
-            success = memoryInfo_->GetMemoryInfoByPid(pid_, dumpDatas_);
+            bool success = memoryInfo_->GetMemoryInfoByPid(pid_, dumpDatas_);
             if (success) {
                 status_ = DumpStatus::DUMP_OK;
             } else {

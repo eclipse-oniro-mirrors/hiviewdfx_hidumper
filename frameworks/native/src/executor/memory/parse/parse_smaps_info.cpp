@@ -46,14 +46,12 @@ ParseSmapsInfo::PairMatrixGroup ParseSmapsInfo::DataSort(const PairMatrixGroup &
         PairMatrix pairMatrix;
         for (auto pair : pairs) {
             string type = pair.first;
-            bool findTag = false;
             for (auto tag : tags) {
                 bool contain = StringUtils::GetInstance().IsContain(tag, "_Total");
                 if (contain) {
                     StringUtils::GetInstance().ReplaceAll(tag, "_Total", "");
                 }
                 if (tag == type) {
-                    findTag = true;
                     uint64_t value = pair.second;
                     pairMatrix.push_back(std::pair(type, value));
                     break;
