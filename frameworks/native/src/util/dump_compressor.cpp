@@ -36,6 +36,9 @@ DumpStatus DumpCompressor::Compress(CompressBuffer*& srcBuffer, CompressBuffer*&
     char buffOut[CHUNK] = { 0 };
 
     uint32_t bound = compressBound(srcBuffer->offset);
+    if (bound == 0) {
+        return DumpStatus::DUMP_FAIL;
+    }
     zDataSize_ = (bound < CHUNK) ? CHUNK : bound;
     zData_ = new unsigned char[zDataSize_];
     if (zData_ == nullptr) {
