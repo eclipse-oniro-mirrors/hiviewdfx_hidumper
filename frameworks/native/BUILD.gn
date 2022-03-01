@@ -1,0 +1,191 @@
+# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//base/hiviewdfx/hidumper/hidumper.gni")
+
+config("hidumper_include") {
+  include_dirs = [
+    ".",
+    "//third_party/json/single_include",
+    "//third_party/json/include",
+    "${hidumper_frameworks_path}/include",
+    "//utils/native/base/include",
+  ]
+}
+
+ohos_source_set("dump_main") {
+  sources = [
+    "dump_utils.cpp",
+    "src/util/config_data.cpp",
+    "src/util/config_utils.cpp",
+    "src/util/dump_compressor.cpp",
+    "src/util/string_utils.cpp",
+    "src/util/file_utils.cpp",
+    "src/common/option_args.cpp",
+    "src/common/dump_cfg.cpp",
+    "src/common/dumper_opts.cpp",
+    "src/common/dumper_parameter.cpp",
+    "src/executor/hidumper_executor.cpp",
+    "src/executor/cpu_dumper.cpp",
+    "src/executor/file_stream_dumper.cpp",
+    "src/executor/sa_dumper.cpp",
+    "src/executor/env_param_dumper.cpp",
+    "src/executor/cmd_dumper.cpp",
+    "src/executor/properties_dumper.cpp",
+    "src/executor/api_dumper.cpp",
+    "src/executor/version_dumper.cpp",
+    "src/executor/list_dumper.cpp",
+    "src/executor/column_rows_filter.cpp",
+    "src/executor/file_format_dump_filter.cpp",
+    "src/executor/fd_output.cpp",
+    "src/executor/zip_output.cpp",
+    "src/executor/dumper_group.cpp",
+    "src/executor/memory/parse/parse_meminfo.cpp",
+    "src/executor/memory/parse/parse_smaps_info.cpp",
+    "src/executor/memory/parse/parse_vmallocinfo.cpp",
+    "src/executor/memory/parse/parse_smaps_rollup_info.cpp",
+    "src/executor/memory/get_cma_info.cpp",
+    "src/executor/memory/get_hardware_info.cpp",
+    "src/executor/memory/get_kernel_info.cpp",
+    "src/executor/memory/get_process_info.cpp",
+    "src/executor/memory/get_ram_info.cpp",
+    "src/executor/memory/memory_filter.cpp",
+    "src/executor/memory/memory_info.cpp",
+    "src/executor/memory/memory_util.cpp",
+    "src/executor/memory_dumper.cpp",
+    "src/manager/dump_implement.cpp",
+    "src/factory/cpu_dumper_factory.cpp",
+    "src/factory/file_dumper_factory.cpp",
+    "src/factory/env_param_dumper_factory.cpp",
+    "src/factory/cmd_dumper_factory.cpp",
+    "src/factory/api_dumper_factory.cpp",
+    "src/factory/sa_dumper_factory.cpp",
+    "src/factory/version_dumper_factory.cpp",
+    "src/factory/list_dumper_factory.cpp",
+    "src/factory/properties_dumper_factory.cpp",
+    "src/factory/column_rows_filter_factory.cpp",
+    "src/factory/file_format_dump_filter_factory.cpp",
+    "src/factory/zip_output_factory.cpp",
+    "src/factory/fd_output_factory.cpp",
+    "src/factory/dumper_group_factory.cpp",
+    "src/factory/memory_dumper_factory.cpp",
+  ]
+
+  configs = [
+    "${hidumper_utils_path}:utils_config",
+    "${hidumper_service_path}:interface_include",
+    "${hidumper_service_path}:zidl_config",
+    "${hidumper_service_path}:service_config",
+    ":hidumper_include",
+  ]
+
+  deps = [
+    "//utils/native/base:utils",
+    "${hidumper_utils_path}:utils",
+    "//third_party/zlib:libz",
+    #"//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+  ]
+
+  external_deps = [
+    "appexecfwk_standard:libeventhandler",
+    "ces_standard:cesfwk_innerkits",
+    "hilog_native:libhilog",
+    "hisysevent_native:libhisysevent",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr_standard:samgr_proxy",
+    "startup_l2:syspara"
+  ]
+
+  subsystem_name = "hiviewdfx"
+
+  part_name = "hidumper"
+}
+
+ohos_shared_library("hidumperclient") {
+  install_enable = true
+  sources = [
+    "${hidumper_client_path}/native/dump_client_main.cpp",
+    "${hidumper_client_path}/native/dump_callback.cpp",
+    "dump_utils.cpp",
+  ]
+
+  configs = [
+    "${hidumper_utils_path}:utils_config",
+    "${hidumper_service_path}:interface_include",
+    "${hidumper_service_path}:zidl_config",
+    "${hidumper_service_path}:service_config",
+    ":hidumper_include",
+  ]
+
+  deps = [
+    "//utils/native/base:utils",
+    "${hidumper_utils_path}:utils",
+    "${hidumper_service_path}:hidumper_client",
+    #"//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+  ]
+
+  external_deps = [
+    "appexecfwk_standard:libeventhandler",
+    "ces_standard:cesfwk_innerkits",
+    "hilog_native:libhilog",
+    "hisysevent_native:libhisysevent",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr_standard:samgr_proxy",
+    "startup_l2:syspara"
+  ]
+
+  subsystem_name = "hiviewdfx"
+
+  part_name = "hidumper"
+}
+
+ohos_executable("hidumper") {
+  install_enable = true
+
+  sources = [
+    "${hidumper_client_path}/native/main.cpp",
+  ]
+
+  configs = [
+    "${hidumper_utils_path}:utils_config",
+    "${hidumper_service_path}:interface_include",
+    "${hidumper_service_path}:zidl_config",
+    "${hidumper_service_path}:service_config",
+    ":hidumper_include",
+  ]
+
+  deps = [
+    "//utils/native/base:utils",
+    #"//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+    "${hidumper_utils_path}:utils",
+    "${hidumper_service_path}:hidumper_client",
+    ":hidumperclient",
+  ]
+
+  external_deps = [
+    "appexecfwk_standard:libeventhandler",
+    "ces_standard:cesfwk_innerkits",
+    "hilog_native:libhilog",
+    "hisysevent_native:libhisysevent",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr_standard:samgr_proxy",
+    "startup_l2:syspara"
+  ]
+
+  subsystem_name = "hiviewdfx"
+
+  part_name = "hidumper"
+}
