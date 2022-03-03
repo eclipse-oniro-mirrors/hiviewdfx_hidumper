@@ -1,6 +1,6 @@
 {
     "name": "@ohos/hidumper",
-    "description": "HiChecker mode for application",
+    "description": "Dump system information for development and test",
     "version": "3.1",
     "license": "Apache License 2.0",
     "publishAs": "code-segment",
