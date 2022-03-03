@@ -39,7 +39,7 @@
                     "name": "//base/hiviewdfx/hidumper/interfaces/innerkits:lib_dump_usage",
                     "header": {
                       "header_files": [
-                        ".h"
+                        "dump_usage.h"
                       ],
                       "header_base": "//base/hiviewdfx/hidumper/interfaces/innerkits/include/"
                     }
