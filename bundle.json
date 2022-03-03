@@ -1,0 +1,51 @@
+{
+    "name": "@ohos/hidumper",
+    "description": "Dump system information for development and test",
+    "version": "3.1",
+    "license": "Apache License 2.0",
+    "publishAs": "code-segment",
+    "segment": {
+        "destPath": "base/hiviewdfx/hidumper"
+    },
+    "dirs": {},
+    "scripts": {},
+    "component": {
+        "name": "hidumper",
+        "subsystem": "hiviewdfx",
+        "adapted_system_type": [
+            "standard"
+        ],
+        "rom": "",
+        "ram": "",
+        "deps": {
+            "components": [
+                "ces_standard",
+                "eventhandler",
+                "hilog_native",
+                "hisysevent_native",
+                "ipc",
+                "safwk",
+                "samgr_standard"
+            ]
+        },
+        "build": {
+            "sub_component": [
+                "//base/hiviewdfx/hidumper:bin",
+                "//base/hiviewdfx/hidumper:service"
+            ],
+            "inner_kits": [
+                {
+                    "type": "so",
+                    "name": "//base/hiviewdfx/hidumper/interfaces/innerkits:lib_dump_usage",
+                    "header": {
+                      "header_files": [
+                        "dump_usage.h"
+                      ],
+                      "header_base": "//base/hiviewdfx/hidumper/interfaces/innerkits/include/"
+                    }
+                  }
+            ],
+            "test": [ "//base/hiviewdfx/hidumper/test:unittest" ]
+        }
+    }
+}
