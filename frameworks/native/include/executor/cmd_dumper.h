@@ -33,6 +33,7 @@ public:
 private:
     DumpStatus ReadLine();
     void ReplacePidInCmd(std::string& cmd, int pid);
+    void ReplaceCpuIdInCmd(std::string &cmd, int cpuId);
 
 private:
     std::string cmd_ = "";

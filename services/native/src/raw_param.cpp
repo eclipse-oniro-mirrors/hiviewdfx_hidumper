@@ -14,6 +14,7 @@
  */
 #include "raw_param.h"
 #include <cinttypes>
+#include <thread>
 #include <securec.h>
 #include <string_ex.h>
 #include <unistd.h>
@@ -248,15 +249,14 @@ void RawParam::ClientDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &rem
     if (dumpManagerService == nullptr) {
         return;
     }
-    auto handler = dumpManagerService->GetHandler();
-    if (handler == nullptr) {
-        return;
-    }
     DUMPER_HILOGD(MODULE_SERVICE, "enter|reqId=%{public}d", reqId_);
     deathed_ = true;
     sptr<IDumpCallbackBroker> callback = iface_cast<IDumpCallbackBroker>(remote.promote());
-    std::function<void()> unRegFunc = std::bind(&DumpManagerService::EraseCallback, dumpManagerService, callback);
-    handler->PostTask(unRegFunc, TASK_ERASE_CALLBACK);
+    std::make_unique<std::thread>([=] {
+        DUMPER_HILOGD(MODULE_SERVICE, "enter|erase callback thread start");
+        dumpManagerService->EraseCallback(callback);
+        DUMPER_HILOGD(MODULE_SERVICE, "leave|erase callback thread finish");
+    })->detach();
     DUMPER_HILOGD(MODULE_SERVICE, "leave|reqId=%{public}d", reqId_);
 }
 

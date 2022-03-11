@@ -16,6 +16,7 @@
 #include <cstdio>
 #include <thread>
 #include <unistd.h>
+#include "dump_utils.h"
 #include "securec.h"
 
 namespace OHOS {
@@ -26,7 +27,7 @@ const int PIPE_INIT = 0;
 const int PIPE_READ = 0;
 const int PIPE_WRITE = 1;
 const int LINE_LENGTH = 256;
-const char *SEPARATOR_TEMPLATE = "\n----------------------------------%04d---------------------------------\n";
+const char *SEPARATOR_TEMPLATE = "\n----------------------------------%s---------------------------------\n";
 
 using StringMatrix = std::shared_ptr<std::vector<std::vector<std::string>>>;
 
@@ -170,7 +171,8 @@ void SADumper::GetData(const std::string &name, const sptr<ISystemAbilityManager
     sptr<IRemoteObject> obj = sam->CheckSystemAbility(id);
     if (obj) {
         char line[LINE_LENGTH] = {};
-        int ret = sprintf_s(line, sizeof(line), SEPARATOR_TEMPLATE, id);
+        int ret = sprintf_s(line, sizeof(line), SEPARATOR_TEMPLATE,
+                            DumpUtils::ConvertSaIdToSaName(name).c_str());
         if (ret != -1) {
             MatrixWriter(result_).WriteLine(line);
             PipeReader reader(id, result_);
@@ -201,7 +203,7 @@ DumpStatus SADumper::Execute()
         return DumpStatus::DUMP_OK;
     }
 
-    int id = svcName_.empty() ? 0 : stoi(svcName_);
+    int id = DumpUtils::StrToId(svcName_);
     if (id == 0) {
         LOG_ERR("no such ability id '%s'\n", svcName_.c_str());
         return DumpStatus::DUMP_FAIL;

@@ -128,6 +128,7 @@ private:
     static const ItemCfg topIoDumper_[];
     static const ItemCfg mountsDumper_[];
     static const ItemCfg threadsDumper_[];
+    static const ItemCfg threadsPidDumper_[];
     static const ItemCfg smapDumper_[];
     static const ItemCfg mapDumper_[];
     static const ItemCfg blockChannelDumper_[];

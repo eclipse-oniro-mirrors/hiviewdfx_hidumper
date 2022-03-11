@@ -14,6 +14,9 @@
  */
 
 #include "executor/memory/get_cma_info.h"
+
+#include <cstdlib>
+
 #include "executor/cmd_dumper.h"
 #include "executor/memory/memory_util.h"
 #include "util/string_utils.h"
@@ -36,10 +39,11 @@ bool GetCMAInfo::GetUsed(uint64_t &value)
     vector<string> usedInfos;
     bool success = MemoryUtil::GetInstance().RunCMD(cmd, usedInfos);
     if (success) {
+        const int base = 10;
         for (size_t i = 0; i < usedInfos.size(); i++) {
             string used = usedInfos.at(i);
             if (StringUtils::GetInstance().IsNum(used)) {
-                value += stoi(usedInfos.at(i));
+                value += strtoull(usedInfos.at(i).c_str(), nullptr, base);
             } else {
                 DUMPER_HILOGE(MODULE_SERVICE, "CMA Get Used Data error\n");
                 return false;

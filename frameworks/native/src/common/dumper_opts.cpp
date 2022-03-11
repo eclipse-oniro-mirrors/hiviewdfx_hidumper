@@ -16,6 +16,7 @@
 #include <algorithm>
 #include "string_ex.h"
 #include "dump_controller.h"
+#include "dump_utils.h"
 #include "hilog_wrapper.h"
 #include "util/config_utils.h"
 namespace OHOS {
@@ -158,8 +159,7 @@ bool DumperOpts::CheckOptions(std::string& errStr) const
         return false;
     }
     for (size_t i = 0; i < abilitieNames_.size(); i++) {
-        int id = 0;
-        if (!StrToInt(abilitieNames_[i], id)) {
+        if (!DumpUtils::StrToId(abilitieNames_[i])) {
             errStr = abilitieNames_[i];
             return false;
         }

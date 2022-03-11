@@ -48,31 +48,19 @@ bool DumpUsage::GetMemInfo(const int &pid, MemInfoData::MemInfo &info)
 uint64_t DumpUsage::GetPss(const int &pid)
 {
     MemInfoData::MemInfo info;
-    if (GetMemInfo(pid, info)) {
-        return info.pss;
-    } else {
-        return 0;
-    }
+    return GetMemInfo(pid, info) ? info.pss : 0;
 }
 
 uint64_t DumpUsage::GetPrivateDirty(const int &pid)
 {
     MemInfoData::MemInfo info;
-    if (GetMemInfo(pid, info)) {
-        return info.privateDirty;
-    } else {
-        return 0;
-    }
+    return GetMemInfo(pid, info) ? info.privateDirty : 0;
 }
 
 uint64_t DumpUsage::GetSharedDirty(const int &pid)
 {
     MemInfoData::MemInfo info;
-    if (GetMemInfo(pid, info)) {
-        return info.sharedDirty;
-    } else {
-        return 0;
-    }
+    return GetMemInfo(pid, info) ? info.sharedDirty : 0;
 }
 
 float DumpUsage::GetCpuUsage(const int &pid)

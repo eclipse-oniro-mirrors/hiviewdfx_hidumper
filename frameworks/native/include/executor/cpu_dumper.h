@@ -68,6 +68,7 @@ private:
     void GetProcessDirFiles(const std::string& path, const std::string& file,
         std::vector<std::string>& files);
     void DumpProcInfo();
+    static bool SortProcInfo(std::shared_ptr<ProcInfo> &left, std::shared_ptr<ProcInfo> &right);
 
 private:
     static const std::string LOAD_AVG_FILE_PATH;

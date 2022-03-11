@@ -33,7 +33,7 @@ HiDumper主要包括以下几个主要模块：
 │   ├── native            # 客户端native代码
 ├── frameworks            # 框架代码
 │   ├── native            # 导出功能核心代码
-|   |   |── inlude        # 头文件目录
+|   |   |── include        # 头文件目录
 |   |   |── src           # 源文件目录
 |   |       |── common    # 通用功能代码
 |   |       |── executor  # 导出过程执行器代码

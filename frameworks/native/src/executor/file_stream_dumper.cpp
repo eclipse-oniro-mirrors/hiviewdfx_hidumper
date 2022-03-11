@@ -192,7 +192,7 @@ void FileStreamDumper::BuildFileNames(const std::string& target, bool arg_pid, i
                 continue;
             }
             std::string filename = dir_name + d_name;
-            
+
             if (arg_pid) {
                 ReplacePidInFilename(filename, pid);
             }

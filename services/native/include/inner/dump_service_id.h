@@ -16,7 +16,7 @@
 #define HIDUMPER_SERVICE_ID_H
 namespace OHOS {
 enum DumperAbilityId {
-    DFX_SYS_HIDUMPER_ABILITY_ID = 1202,
+    DFX_SYS_HIDUMPER_ABILITY_ID = 1212,
 };
 } // namespace OHOS
 #endif // HIDUMPER_SERVICE_ID_H

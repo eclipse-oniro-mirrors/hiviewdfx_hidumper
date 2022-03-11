@@ -396,6 +396,7 @@ bool MemoryInfo::GetPids()
 {
     DUMPER_HILOGD(MODULE_SERVICE, "GetPids begin");
     pids_.clear();
+    memUsages_.clear();
     bool success = DumpCommonUtils::GetUserPids(pids_);
     if (!success) {
         DUMPER_HILOGE(MODULE_SERVICE, "GetPids error\n");
@@ -531,7 +532,7 @@ void MemoryInfo::GetMemProcessGroup(const vector<int> &pids, PairMatrixGroup &re
     size_t size = pids.size() / threadNum;
     std::vector<future<MemoryInfo::MemProcessData>> futures;
     threadNum = 1;
-    for (int i = 0; i < threadNum; i++) {
+    for (size_t i = 0; i < threadNum; i++) {
         vector<int> groupPids;
         GetGroupOfPids(i, size, pids, groupPids);
         auto funture = std::async(std::launch::async, GetMemProcess, groupPids, i);
@@ -542,6 +543,7 @@ void MemoryInfo::GetMemProcessGroup(const vector<int> &pids, PairMatrixGroup &re
         MemProcessData data = futrue.get();
         if (data.usageSuccess) {
             memInfos.push_back(data.usage);
+            memUsages_.push_back(data.usage);
         }
         if (data.smapsSuccess) {
             MemoryUtil::GetInstance().ClacTotalByGroup(data.smapsInfo, result);
@@ -667,6 +669,7 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
         return DUMP_FAIL;
     }
 
+    GetSortedMemoryInfoNoPid(result);
     AddBlankLine(result);
     GetPssTotal(smapsResult_, result);
     AddBlankLine(result);
@@ -677,6 +680,35 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
     GetRamCategory(smapsResult_, meminfoResult, result);
     DUMPER_HILOGD(MODULE_SERVICE, "GetMemoryInfoNoPid end");
     return DUMP_OK;
+}
+
+void MemoryInfo::GetSortedMemoryInfoNoPid(StringMatrix result)
+{
+    DUMPER_HILOGD(MODULE_SERVICE, "GetSortedMemoryInfoNoPid begin");
+    AddBlankLine(result);
+    AddMemByProcessTitle(result);
+
+    std::sort(memUsages_.begin(), memUsages_.end(),
+        [] (MemInfoData::MemUsage &left, MemInfoData::MemUsage &right) {
+        if (right.pss != left.pss) {
+            return right.pss < left.pss;
+        }
+        if (right.vss != left.vss) {
+            return right.vss < left.vss;
+        }
+        if (right.rss != left.rss) {
+            return right.rss < left.rss;
+        }
+        if (right.uss != left.uss) {
+            return right.uss < left.uss;
+        }
+        return right.pid < left.pid;
+    });
+
+    MemUsageToMatrix(memUsages_, result);
+
+    memUsages_.clear();
+    DUMPER_HILOGD(MODULE_SERVICE, "GetSortedMemoryInfoNoPid end");
 }
 } // namespace HiviewDFX
 } // namespace OHOS

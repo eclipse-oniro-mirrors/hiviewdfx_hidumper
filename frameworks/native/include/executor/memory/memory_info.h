@@ -65,6 +65,7 @@ private:
     bool memProcessDone_ = false;
     bool addMemProcessTitle_ = false;
     std::vector<int> pids_;
+    std::vector<MemInfoData::MemUsage> memUsages_;
 
     PairMatrixGroup smapsResult_;
     void insertMemoryTitle(StringMatrix result);
@@ -96,6 +97,7 @@ private:
     void static InitMemUsage(MemInfoData::MemUsage &usage);
     void CalcGroup(const PairMatrixGroup &infos, StringMatrix result);
     void SetValue(const std::string &value, std::vector<std::string> &lines, std::vector<std::string> &values);
+    void GetSortedMemoryInfoNoPid(StringMatrix result);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

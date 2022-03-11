@@ -34,10 +34,10 @@ enum DumpStatus {
     do { \
         struct timeval tp; \
         gettimeofday(&tp, nullptr); \
-        struct tm *p = localtime(&tp.tv_sec); \
-        if (p != nullptr) { \
-            fprintf(stdout, "[%04d%02d%02d %02d:%02d:%02d]", p->tm_year + 1900, 1 + p->tm_mon, p->tm_mday, \
-                    p->tm_hour, p->tm_min, p->tm_sec); \
+        struct tm curTime = {0}; \
+        if (localtime_r(&tp.tv_sec, &curTime) != nullptr) { \
+            fprintf(stdout, "[%04d%02d%02d %02d:%02d:%02d]", curTime.tm_year + 1900, 1 + curTime.tm_mon, \
+                    curTime.tm_mday, curTime.tm_hour, curTime.tm_min, curTime.tm_sec); \
         } \
     } while (0)
 

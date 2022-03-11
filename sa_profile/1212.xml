@@ -18,7 +18,7 @@
         <libpath>/system/lib/libhidumperservice.z.so</libpath>
     </loadlibs>
     <systemability>
-       <name>1202</name>
+       <name>1212</name>
        <libpath>/system/lib/libhidumperservice.z.so</libpath>
        <run-on-create>true</run-on-create>
        <distributed>false</distributed>

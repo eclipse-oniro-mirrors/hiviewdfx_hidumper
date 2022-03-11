@@ -20,7 +20,6 @@
 #include "delayed_sp_singleton.h"
 #include "dump_common_utils.h"
 #include "dump_broker_stub.h"
-#include "dump_event_handler.h"
 #include "idump_callback_broker.h"
 namespace OHOS {
 namespace HiviewDFX {
@@ -50,14 +49,12 @@ public:
     {
         return started_;
     }
-    std::shared_ptr<DumpEventHandler> GetHandler() const;
 #ifdef DUMP_TEST_MODE // for mock test
     void SetTestMainFunc(DumpManagerServiceTestMainFunc testMainFunc);
 #endif // for mock test
 private:
     friend DelayedSpSingleton<DumpManagerService>;
 private:
-    bool Init();
     std::shared_ptr<RawParam> AddRequestRawParam(std::vector<std::u16string> &args,
         int outfd, const sptr<IDumpCallbackBroker> callback);
     void EraseRequestRawParam(const std::shared_ptr<RawParam> rawParam);
@@ -68,8 +65,6 @@ private:
     void RequestMain(const std::shared_ptr<RawParam> rawParam);
 private:
     std::mutex mutex_;
-    std::shared_ptr<AppExecFwk::EventRunner> eventRunner_;
-    std::shared_ptr<DumpEventHandler> handler_;
     bool started_ {false};
     bool blockRequest_ {false};
     uint32_t requestIndex_ {0};
