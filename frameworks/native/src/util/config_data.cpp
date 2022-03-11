@@ -151,9 +151,9 @@ const ConfigData::ItemCfg ConfigData::kernelCpufreqDumper_[] = {
     {
         .name_ = "dumper_kernel_cpu_freq",
         .desc_ = "KERNEL CPUFREQ",
-        .target_ = "/sys/devices/system/cpu/cpu%cpuid/cpufreq",
+        .target_ = "cat /sys/devices/system/cpu/cpu%cpuid/cpufreq/cpuinfo_cur_freq",
         .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
+        .class_ = DumperConstant::CMD_DUMPER,
         .level_ = DumperConstant::NONE,
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
@@ -171,9 +171,9 @@ const ConfigData::ItemCfg ConfigData::kernelCpufreqDumper_[] = {
     {
         .name_ = "",
         .desc_ = "",
-        .target_ = "/sys/devices/system/cpu/cpu%cpuid/cpufreq/cpuinfo_max_freq",
+        .target_ = "cat /sys/devices/system/cpu/cpu%cpuid/cpufreq/cpuinfo_max_freq",
         .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
+        .class_ = DumperConstant::CMD_DUMPER,
         .level_ = DumperConstant::NONE,
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
@@ -240,9 +240,9 @@ const ConfigData::ItemCfg ConfigData::cpuFreqDumper_[] = {
     {
         .name_ = "dumper_cpu_freq",
         .desc_ = "CPU Frequency",
-        .target_ = "/sys/devices/system/cpu/cpu%cpuid/cpufreq",
+        .target_ = "cat /sys/devices/system/cpu/cpu%cpuid/cpufreq/cpuinfo_cur_freq",
         .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
+        .class_ = DumperConstant::CMD_DUMPER,
         .level_ = DumperConstant::NONE,
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
@@ -260,9 +260,9 @@ const ConfigData::ItemCfg ConfigData::cpuFreqDumper_[] = {
     {
         .name_ = "",
         .desc_ = "",
-        .target_ = "/sys/devices/system/cpu/cpu%cpuid/cpufreq/cpuinfo_max_freq",
+        .target_ = "cat /sys/devices/system/cpu/cpu%cpuid/cpufreq/cpuinfo_max_freq",
         .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
+        .class_ = DumperConstant::CMD_DUMPER,
         .level_ = DumperConstant::NONE,
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
@@ -487,7 +487,7 @@ const ConfigData::ItemCfg ConfigData::crashDumper_[] = {
     {
         .name_ = "dumper_crash",
         .desc_ = "Crash Log",
-        .target_ = "/data/log/faultlog/temp",
+        .target_ = "/data/log/faultlog/faultlogger",
         .section_ = "",
         .class_ = DumperConstant::FILE_DUMPER,
         .level_ = DumperConstant::NONE,
@@ -1077,7 +1077,7 @@ const ConfigData::ItemCfg ConfigData::storageStateDumper_[] = {
     {
         .name_ = "dumper_storage_state",
         .desc_ = "Storage State",
-        .target_ = "storaged -u –p",
+        .target_ = "storaged -u -p",
         .section_ = "",
         .class_ = DumperConstant::CMD_DUMPER,
         .level_ = DumperConstant::NONE,
@@ -1193,6 +1193,29 @@ const ConfigData::ItemCfg ConfigData::threadsDumper_[] = {
         .name_ = "dumper_threads",
         .desc_ = "Processes/Threads List",
         .target_ = "ps -efT",
+        .section_ = "",
+        .class_ = DumperConstant::CMD_DUMPER,
+        .level_ = DumperConstant::NONE,
+        .loop_ = DumperConstant::NONE,
+        .filterCfg_ = "",
+    },
+    {
+        .name_ = "",
+        .desc_ = "",
+        .target_ = "",
+        .section_ = "",
+        .class_ = DumperConstant::FD_OUTPUT,
+        .level_ = DumperConstant::NONE,
+        .loop_ = DumperConstant::NONE,
+        .filterCfg_ = "",
+    },
+};
+
+const ConfigData::ItemCfg ConfigData::threadsPidDumper_[] = {
+    {
+        .name_ = "dumper_threads_pid",
+        .desc_ = "Processes/Threads List",
+        .target_ = "ps -efT -p %pid",
         .section_ = "",
         .class_ = DumperConstant::CMD_DUMPER,
         .level_ = DumperConstant::NONE,
@@ -1601,6 +1624,10 @@ const ConfigData::DumperCfg ConfigData::dumpers_[] = {
      .desc_ = threadsDumper_[0].desc_,
      .list_ = threadsDumper_,
      .size_ = ARRAY_SIZE(threadsDumper_)},
+    {.name_ = threadsPidDumper_[0].name_,
+     .desc_ = threadsPidDumper_[0].desc_,
+     .list_ = threadsPidDumper_,
+     .size_ = ARRAY_SIZE(threadsPidDumper_)},
     {.name_ = smapDumper_[0].name_,
      .desc_ = smapDumper_[0].desc_,
      .list_ = smapDumper_,
@@ -1743,6 +1770,7 @@ const std::string ConfigData::processesGroupMini_eng_[] = {
 };
 
 const std::string ConfigData::processesPidGroupMini_[] = {
+    "dumper_threads_pid",
     "dumper_map",
     "dumper_block_channel",
     "dumper_excute_time",

@@ -35,7 +35,7 @@ public:
     using PairMatrixGroup = std::vector<std::pair<std::string, PairMatrix>>;
 
     std::string KB_UNIT_ = " kB";
-    int BYTE_TO_KB_ = 1024;
+    uint64_t BYTE_TO_KB_ = 1024;
 
     bool IsPss(const std::string &conent);
     bool GetRamValue(const std::vector<std::string> &ramInfo, uint64_t &value);

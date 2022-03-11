@@ -76,7 +76,7 @@ bool StringUtils::IsNum(string str)
 bool StringUtils::Compare(const string &str, const vector<string> &strs)
 {
     bool success = false;
-    for (string tempStr : strs) {
+    for (const string tempStr : strs) {
         if (str == tempStr) {
             success = true;
         }
@@ -87,7 +87,7 @@ bool StringUtils::Compare(const string &str, const vector<string> &strs)
 void StringUtils::HexToDec(const string &str, uint64_t &value)
 {
     size_t l = str.length();
-    for (int i = 0; i < l; i++) {
+    for (size_t i = 0; i < l; i++) {
         if (str[i] >= '0' && str[i] <= '9')
             value += (str[i] - '0') * pow(HEX_STR, l - 1 - i);
         else

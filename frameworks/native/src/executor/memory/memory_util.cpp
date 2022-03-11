@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include "executor/memory/memory_util.h"
+#include <cstdlib>
 #include <iostream>
 #include <thread>
 #include <vector>
@@ -287,21 +288,13 @@ void MemoryUtil::InitMemUsage(MemInfoData::MemUsage &usage)
 
 bool MemoryUtil::GetTypeAndValue(const string &str, string &type, uint64_t &value)
 {
-    string::size_type typePos;
-    string::size_type valuePos;
-
-    typePos = str.find(":");
+    string::size_type typePos = str.find(":");
     if (typePos != str.npos) {
         type = str.substr(0, typePos);
-        if (!type.empty()) {
-            valuePos = str.find(" kB");
-            if (valuePos != str.npos) {
-                string valueStr = str.substr(typePos + 1, valuePos - 3);
-                StringUtils::GetInstance().ReplaceAll(valueStr, " ", "");
-                value = atol(valueStr.c_str());
-                return true;
-            }
-        }
+        string valueStr = str.substr(typePos + 1);
+        const int base = 10;
+        value = strtoull(valueStr.c_str(), nullptr, base);
+        return true;
     }
     return false;
 }

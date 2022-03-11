@@ -13,8 +13,10 @@
  * limitations under the License.
  */
 #include "executor/list_dumper.h"
-#include "util/config_utils.h"
+
+#include "dump_utils.h"
 #include "manager/dump_implement.h"
+#include "util/config_utils.h"
 namespace OHOS {
 namespace HiviewDFX {
 const std::string ListDumper::ABILITY_HEADER = "System ability list:";
@@ -52,6 +54,7 @@ DumpStatus ListDumper::Execute()
         }
         std::vector<std::u16string> abilities = sma->ListSystemAbilities();
         std::transform(abilities.begin(), abilities.end(), std::back_inserter(list), Str16ToStr8);
+        std::transform(list.begin(), list.end(), list.begin(), DumpUtils::ConvertSaIdToSaName);
     } else if (target_ == ConfigUtils::STR_SYSTEM) {
         header = SYSTEM_HEADER;
         ConfigUtils::GetSectionNames(ConfigUtils::CONFIG_GROUP_SYSTEM_, list);

@@ -153,7 +153,7 @@ bool GetHardwareInfo::GetHardwareUsage(uint64_t &totalValue)
             if (threadNum == 0) {
                 threadNum = 1;
             }
-            int groupSize = (size - 1) / threadNum + 1;
+            size_t groupSize = (size - 1) / threadNum + 1;
 
             std::vector<future<uint64_t>> results;
 

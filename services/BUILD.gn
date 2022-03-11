@@ -54,8 +54,8 @@ ohos_source_set("zidl_client") {
   ]
 
   external_deps = [
-    "appexecfwk_standard:libeventhandler",
     "ces_standard:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
     "ipc:ipc_core",
@@ -88,8 +88,8 @@ ohos_source_set("zidl_service") {
   ]
 
   external_deps = [
-    "appexecfwk_standard:libeventhandler",
     "ces_standard:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
     "ipc:ipc_core",
@@ -124,8 +124,8 @@ ohos_source_set("hidumper_client") {
   ]
 
   external_deps = [
-    "appexecfwk_standard:libeventhandler",
     "ces_standard:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
     "ipc:ipc_core",
@@ -142,7 +142,6 @@ ohos_source_set("hidumper_client") {
 ohos_shared_library("hidumperservice") {
   install_enable = true
   sources = [
-    "native/src/dump_event_handler.cpp",
     "native/src/dump_manager_service.cpp",
     "native/src/raw_param.cpp",
     "native/src/dump_common_utils.cpp",
@@ -165,8 +164,8 @@ ohos_shared_library("hidumperservice") {
   ]
 
   external_deps = [
-    "appexecfwk_standard:libeventhandler",
     "ces_standard:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
     "ipc:ipc_core",
@@ -230,8 +229,8 @@ ohos_executable("hidumperd") {
   ]
 
   external_deps = [
-    "appexecfwk_standard:libeventhandler",
     "ces_standard:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
     "ipc:ipc_core",

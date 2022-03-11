@@ -31,9 +31,11 @@
 #include "datetime_ex.h"
 #include "securec.h"
 #include "string_ex.h"
+
+#include "system_ability_definition.h"
+
 namespace OHOS {
 namespace HiviewDFX {
-
 void DumpUtils::IgnorePipeQuit()
 {
     signal(SIGPIPE, SIG_IGN); // protect from pipe quit
@@ -67,18 +69,6 @@ void DumpUtils::BoostPriority()
     SetAdj(TOP_OOM_ADJ);
 }
 
-bool DumpUtils::String2Uint32(const std::string &str, uint32_t &val)
-{
-    char *ptr = nullptr;
-    const int base = 10; // Numerical base
-    long lVal = strtol(str.c_str(), &ptr, base);
-    if (*ptr != '\0' || lVal < 0 || lVal > INT32_MAX) {
-        return false;
-    }
-    val = static_cast<uint32_t>(lVal);
-    return true;
-}
-
 std::string DumpUtils::ErrnoToMsg(const int &error)
 {
     const int bufSize = 128;
@@ -91,12 +81,12 @@ int DumpUtils::FdToRead(const std::string &file)
 {
     char path[PATH_MAX] = {0};
     if (realpath(file.c_str(), path) == nullptr) {
-        LOG_ERR("no such file %s\n", path);
+        LOG_ERR("no such file. path=[%s], file=[%s]\n", path, file.c_str());
         return -1;
     }
 
     if (file != std::string(path)) {
-        LOG_ERR("fail to check consistency.");
+        LOG_ERR("fail to check consistency. path=[%s], file=[%s]\n", path, file.c_str());
         return -1;
     }
 
@@ -127,9 +117,8 @@ int DumpUtils::FdToWrite(const std::string &file)
             LOG_ERR("open %s %s\n", fileName.c_str(), ErrnoToMsg(errno).c_str());
         }
         return fd;
-    } else {
-        return -1;
     }
+    return -1;
 }
 
 bool DumpUtils::FileWriteable(const std::string &file)
@@ -171,74 +160,30 @@ void DumpUtils::RemoveDuplicateString(std::vector<std::string> &strList)
     strList = tmpVtr;
 }
 
-bool DumpUtils::WaitPid(pid_t pid, uint32_t timeoutMs, int *status)
-{
-    sigset_t childMask, parentMask;
-    int64_t tempTimeoutMs = static_cast<int64_t>(timeoutMs);
-    if (timeoutMs > 0) {
-        sigemptyset(&childMask);
-        sigaddset(&childMask, SIGCHLD); // monitor child
-        if (sigprocmask(SIG_BLOCK, &childMask, &parentMask) == -1) {
-            LOG_ERR("sigprocmask failed: %s\n", ErrnoToMsg(errno).c_str());
-            return false;
-        }
-        timespec ts;
-        ts.tv_sec = tempTimeoutMs / SEC_TO_MILLISEC;
-        ts.tv_nsec = (tempTimeoutMs % SEC_TO_MILLISEC) * SEC_TO_MILLISEC * SEC_TO_MILLISEC;
-        int ret = TEMP_FAILURE_RETRY(sigtimedwait(&childMask, nullptr, &ts));
-        int oldErrno = errno;
-        if (sigprocmask(SIG_SETMASK, &parentMask, nullptr) == -1) {
-            LOG_ERR("sigprocmask failed: %s\n", ErrnoToMsg(errno).c_str());
-            if (ret == 0) {
-                return false;
-            }
-        }
-        if (ret == -1) {
-            errno = oldErrno;
-            if (errno == EAGAIN) {
-                errno = ETIMEDOUT;
-            } else {
-                LOG_ERR("sigtimedwait failed: %s\n", ErrnoToMsg(errno).c_str());
-            }
-            return false;
-        }
-    }
-    if (waitpid(pid, status, (timeoutMs == 0) ? 0 : WNOHANG) != pid) {
-        LOG_ERR("wait error(%s)\n", ErrnoToMsg(errno).c_str());
-        return false;
-    }
-    return true;
-}
-
-void DumpUtils::LiveWithParent()
-{
-    prctl(PR_SET_PDEATHSIG, SIGKILL); // father died child die
-}
-
-bool DumpUtils::StrToCmdBuf(const std::string &cmd, std::vector<const char *> &argVtr, std::vector<std::string> &cmdVtr)
-{
-    SplitStr(cmd, DumpUtils::SPACE, cmdVtr);
-    size_t size = cmdVtr.size();
-    if (size == 0) {
-        LOG_ERR("empty cmd.\n");
-        return false;
-    }
-    argVtr.resize(size + 1);
-    for (size_t i = 0; i < size; i++) { // combine command array
-        argVtr[i] = cmdVtr[i].data();
-    }
-    argVtr[size] = nullptr; // end of command.
-    return true;
-}
-
 int DumpUtils::StrToId(const std::string &name)
 {
-    int id;
-    if (!StrToInt(name, id)) { // Decimal string
-        return 0;              // invalid ability ID
+    int id = 0;
+    auto iter = std::find_if(saNameMap_.begin(), saNameMap_.end(), [&](const std::pair<int, std::string> &item) {
+        return name.compare(item.second) == 0;
+    });
+    if (iter == saNameMap_.end()) {
+        if (!StrToInt(name, id)) { // Decimal string
+            return 0; // invalid ability ID
+        }
+    } else {
+        id = iter->first;
     }
     return id;
 }
 
+std::string DumpUtils::ConvertSaIdToSaName(const std::string &saIdStr)
+{
+    int saId = StrToId(saIdStr);
+    auto iter = saNameMap_.find(saId);
+    if (iter == saNameMap_.end()) {
+        return saIdStr;
+    }
+    return iter->second;
+}
 } // namespace HiviewDFX
 } // namespace OHOS

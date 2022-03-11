@@ -22,9 +22,6 @@ namespace HiviewDFX {
 #ifndef TEMP_FAILURE_RETRY
 #define TEMP_FAILURE_RETRY
 #endif
-#ifndef PAGE_SIZE
-#define PAGE_SIZE 4096
-#endif
 class DumpUtils {
 public:
     // system operations
@@ -35,24 +32,20 @@ public:
     static void BoostPriority();
 
     // string operations
-    static bool String2Uint32(const std::string &str, uint32_t &val);
     static void RemoveDuplicateString(std::vector<std::string> &vector);
 
     // file operations
     static bool FileWriteable(const std::string &file);
     static int FdToRead(const std::string &file);
     static int FdToWrite(const std::string &file);
-    
+
     // process operations
-    static bool WaitPid(pid_t pid, uint32_t timeoutMs, int *status);
     static bool CheckProcessAlive(uint32_t pid);
-    static void LiveWithParent();
-    static bool StrToCmdBuf(const std::string &cmd, std::vector<const char *> &argVtr,
-                            std::vector<std::string> &cmdVtr);
-    
+
     // ability string to ID
     static int StrToId(const std::string &name); // 0:invalid
-
+    static std::string ConvertSaIdToSaName(const std::string &saIdStr);
+    
     static constexpr int TOP_PRIORITY = -20;
     static constexpr int TOP_OOM_ADJ = -1000;
     static constexpr char FILE_CUR_OOM_ADJ[] = "/proc/self/oom_score_adj";
@@ -61,7 +54,6 @@ public:
 private:
     static std::string ErrnoToMsg(const int &error);
 };
-
 } // namespace HiviewDFX
 } // namespace OHOS
 #endif

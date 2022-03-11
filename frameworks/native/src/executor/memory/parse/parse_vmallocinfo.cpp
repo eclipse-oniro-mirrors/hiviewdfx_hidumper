@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include "executor/memory/parse/parse_vmallocinfo.h"
+#include <cstdlib>
 #include <fstream>
 #include <sstream>
 #include "executor/memory/memory_util.h"
@@ -38,7 +39,8 @@ void ParseVmallocinfo::CaclVmalloclValue(const string &str, uint64_t &totalValue
     while (ss >> word) {
         words.push_back(word);
     }
-    value = atol(words.at(1).c_str());
+    const int base = 10;
+    value = strtoull(words.at(1).c_str(), nullptr, base);
     totalValue += value;
 }
 

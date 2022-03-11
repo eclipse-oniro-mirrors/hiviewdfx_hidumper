@@ -52,8 +52,8 @@ config("module_private_config") {
 }
 
 deps_ex = [
-  "appexecfwk_standard:libeventhandler",
   "ces_standard:cesfwk_innerkits",
+  "eventhandler:libeventhandler",
   "ipc:ipc_core",
   "hiviewdfx_hilog_native:libhilog",
   "safwk:system_ability_fwk",
@@ -70,7 +70,6 @@ ohos_unittest("HidumperServiceTest") {
     "hidumper_service_test.cpp",
     "hidumper_test_default_callback.cpp",
     "${hidumper_service_path}/native/src/dump_common_utils.cpp",
-    "${hidumper_service_path}/native/src/dump_event_handler.cpp",
     "${hidumper_service_path}/native/src/dump_manager_client.cpp",
     "${hidumper_service_path}/native/src/dump_manager_service.cpp",
     "${hidumper_service_path}/native/src/raw_param.cpp",

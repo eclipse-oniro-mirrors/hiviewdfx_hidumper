@@ -97,8 +97,8 @@ ohos_source_set("dump_main") {
   ]
 
   external_deps = [
-    "appexecfwk_standard:libeventhandler",
     "ces_standard:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
     "ipc:ipc_core",
@@ -136,8 +136,8 @@ ohos_shared_library("hidumperclient") {
   ]
 
   external_deps = [
-    "appexecfwk_standard:libeventhandler",
     "ces_standard:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
     "ipc:ipc_core",
@@ -175,8 +175,8 @@ ohos_executable("hidumper") {
   ]
 
   external_deps = [
-    "appexecfwk_standard:libeventhandler",
     "ces_standard:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
     "ipc:ipc_core",

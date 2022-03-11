@@ -41,6 +41,10 @@ DumpStatus CMDDumper::PreExecute(const std::shared_ptr<DumperParameter>& paramet
             int pid = ptrDumpCfg_->args_->GetPid();
             ReplacePidInCmd(cmd, pid);
         }
+        if (ptrDumpCfg_->args_->HasCpuId()) {
+            int cpuId = ptrDumpCfg_->args_->GetCpuId();
+            ReplaceCpuIdInCmd(cmd, cpuId);
+        }
     }
     cmd_ = cmd;
     needLoop_ = (ptrDumpCfg_->loop_ == DumperConstant::LOOP);
@@ -159,6 +163,15 @@ void CMDDumper::ReplacePidInCmd(std::string &cmd, int pid)
     size_t pos = cmd.find("%pid");
     if (pos != std::string::npos) {
         cmd = cmd.replace(pos, strlen("%pid"), std::to_string(pid));
+        cmd_ = cmd;
+    }
+}
+
+void CMDDumper::ReplaceCpuIdInCmd(std::string &cmd, int cpuId)
+{
+    size_t pos = cmd.find("%cpuid");
+    if (pos != std::string::npos) {
+        cmd = cmd.replace(pos, strlen("%cpuid"), std::to_string(cpuId));
         cmd_ = cmd;
     }
 }

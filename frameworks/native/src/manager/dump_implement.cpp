@@ -373,7 +373,7 @@ void DumpImplement::CmdHelp()
     const char *str =
         "usage:\n"
         "  -h                          |help text for the tool\n"
-        "  -t timeout                  |timeout period in seconds (0 for no timeout)\n"
+        "  -t [timeout]                |timeout period in seconds (0 for no timeout)\n"
         "  -lc                         |a list of system information clusters\n"
         "  -ls                         |a list of system abilities\n"
         "  -c                          |all system information clusters\n"
@@ -456,7 +456,7 @@ DumpStatus DumpImplement::DumpDatas(const std::vector<std::shared_ptr<HidumperEx
     auto callback = dumpParameter->getClientCallback();
 
     std::string groupName = "";
-    std::vector<int> loopStack;
+    std::vector<size_t> loopStack;
     const size_t executorSum = executors.size();
     for (size_t index = 0; index < executorSum; index++) {
         callback->UpdateProgress(executors.size(), index);

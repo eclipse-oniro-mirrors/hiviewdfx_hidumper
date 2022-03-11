@@ -93,7 +93,7 @@ DumpStatus DumpCompressor::FillBuffer(int& flush, CompressBuffer*& srcBuffer, ch
     size_t const toRead, size_t& src_pos, size_t srcBufferOffset)
 {
     bool flag = (srcBufferOffset - src_pos) < toRead;
-    memset_s(buffIn, CHUNK, 0, CHUNK);
+    (void)memset_s(buffIn, CHUNK, 0, CHUNK);
 
     if (flag) {
         if (memmove_s(buffIn, CHUNK, srcBuffer->content + src_pos, srcBufferOffset - src_pos) != EOK) {

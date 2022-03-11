@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 #include "executor/cpu_dumper.h"
-#include <unistd.h>
 #include <dirent.h>
 #include "file_ex.h"
 #include "datetime_ex.h"
@@ -230,7 +229,8 @@ DumpStatus CPUDumper::ReadCPUInfo()
 void CPUDumper::SetCPUInfo(long unsigned &info, const std::string &strInfo)
 {
     if (IsNumericStr(strInfo)) {
-        info = atol(strInfo.c_str());
+        const int base = 10;
+        info = strtoul(strInfo.c_str(), nullptr, base);
     } else {
         DUMPER_HILOGE(MODULE_COMMON, "info is %{public}s not Numeric.", strInfo.c_str());
         info = 0;
@@ -383,22 +383,44 @@ void CPUDumper::GetProcessDirFiles(const std::string &path, const std::string &f
 
 void CPUDumper::DumpProcInfo()
 {
+    std::vector<std::shared_ptr<ProcInfo>> sortedInfos;
+    sortedInfos.assign(curProcs_.begin(), curProcs_.end());
+    std::sort(sortedInfos.begin(), sortedInfos.end(), SortProcInfo);
+
     AddStrLineToDumpInfo("Details of Processes:");
     AddStrLineToDumpInfo("    PID   Total Usage	   User Space    Kernel Space    Page Fault Minor"
                          "    Page Fault Major    Name");
-    for (size_t i = 0; i < curProcs_.size(); i++) {
+    for (size_t i = 0; i < sortedInfos.size(); i++) {
         char format[PROC_CPU_LENGTH] = {0};
         int ret = sprintf_s(format, PROC_CPU_LENGTH,
                             "    %-5s    %3d%%             %3d%%"
                             "           %3d%%            %8s            %8s        %-15s",
-                            (curProcs_[i]->pid).c_str(), curProcs_[i]->totalUsage, curProcs_[i]->userSpaceUsage,
-                            curProcs_[i]->sysSpaceUsage, (curProcs_[i]->minflt).c_str(), (curProcs_[i]->majflt).c_str(),
-                            (curProcs_[i]->comm).c_str());
+                            (sortedInfos[i]->pid).c_str(), sortedInfos[i]->totalUsage,
+                            sortedInfos[i]->userSpaceUsage, sortedInfos[i]->sysSpaceUsage,
+                            (sortedInfos[i]->minflt).c_str(), (sortedInfos[i]->majflt).c_str(),
+                            (sortedInfos[i]->comm).c_str());
         if (ret < 0) {
             continue;
         }
         AddStrLineToDumpInfo(std::string(format));
     }
+}
+
+bool CPUDumper::SortProcInfo(std::shared_ptr<ProcInfo> &left, std::shared_ptr<ProcInfo> &right)
+{
+    if (right->totalUsage != left->totalUsage) {
+        return right->totalUsage < left->totalUsage;
+    }
+    if (right->userSpaceUsage != left->userSpaceUsage) {
+        return right->userSpaceUsage < left->userSpaceUsage;
+    }
+    if (right->sysSpaceUsage != left->sysSpaceUsage) {
+        return right->sysSpaceUsage < left->sysSpaceUsage;
+    }
+    if (right->pid.length() != left->pid.length()) {
+        return right->pid.length() < left->pid.length();
+    }
+    return (right->pid.compare(left->pid) < 0);
 }
 
 float CPUDumper::GetCpuUsage(int pid)
