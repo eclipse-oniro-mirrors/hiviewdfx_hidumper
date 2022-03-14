@@ -62,9 +62,9 @@ const MemoryFilter::MemGroup MemoryFilter::memGroups_[] = {
 
 bool MemoryFilter::ParseMemoryGroup(const string &content, const string &name, string &group)
 {
-    int groupSize = sizeof(MemoryFilter::memGroups_) / sizeof(MemoryFilter::MemGroup);
+    size_t groupSize = sizeof(MemoryFilter::memGroups_) / sizeof(MemoryFilter::MemGroup);
 
-    for (int i = 0; i < groupSize; i++) {
+    for (size_t i = 0; i < groupSize; i++) {
         MemoryFilter::MemGroup memGroup = MemoryFilter::memGroups_[i];
         string rule = memGroup.matchRule_;
         vector<string> files = memGroup.matchFile_;

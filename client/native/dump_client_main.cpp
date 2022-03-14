@@ -39,8 +39,8 @@ int DumpClientMain::Main(int argc, char* argv[], int outFd)
             LOG_ERR("argument(%d) is null.\n", i);
             return DumpStatus::DUMP_INVALID_ARG;
         }
-        int len = strlen(argv[i]);
-        if (len <= 0) {
+        size_t len = strlen(argv[i]);
+        if (len == 0) {
             LOG_ERR("argument(%d) is empty.\n", i);
             return DumpStatus::DUMP_INVALID_ARG;
         }
