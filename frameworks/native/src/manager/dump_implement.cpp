@@ -269,7 +269,7 @@ DumpStatus DumpImplement::SetCmdParameter(int argc, char *argv[], DumperOpts &op
 std::string DumpImplement::GetTime()
 {
     struct timeval curTime;
-    gettimeofday(&curTime, NULL);
+    gettimeofday(&curTime, nullptr);
     int milli = curTime.tv_usec / 1000;
 
     char buffer[80] = {0};

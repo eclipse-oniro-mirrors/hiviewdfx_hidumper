@@ -14,7 +14,7 @@
 import("//build/ohos.gni")
 
 group("bin") {
-  deps = [ "frameworks/native:hidumper", "services:hidumperd" ]
+  deps = [ "frameworks/native:hidumper" ]
 }
 group("service") {
   deps = [
