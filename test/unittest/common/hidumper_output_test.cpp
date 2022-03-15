@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include <gtest/gtest.h>
+#include "directory_ex.h"
 #include "executor/zip_output.h"
 #include "executor/fd_output.h"
 
@@ -30,14 +31,16 @@ public:
     void TearDown();
 
 protected:
-    static constexpr auto& FILE_STAT = "/proc/stat";
+    static const std::string FILE_ROOT;
 };
 
 void HidumperOutputTest::SetUpTestCase(void)
 {
+    ForceCreateDirectory(FILE_ROOT);
 }
 void HidumperOutputTest::TearDownTestCase(void)
 {
+    ForceRemoveDirectory(FILE_ROOT);
 }
 void HidumperOutputTest::SetUp(void)
 {
@@ -45,6 +48,8 @@ void HidumperOutputTest::SetUp(void)
 void HidumperOutputTest::TearDown(void)
 {
 }
+
+const std::string HidumperOutputTest::FILE_ROOT = "/data/local/tmp/hidumper_test/";
 
 /**
  * @tc.name: HidumperOutputTest001
@@ -70,7 +75,7 @@ HWTEST_F(HidumperOutputTest, HidumperOutputTest001, TestSize.Level3)
     }
 
     DumperOpts opts;
-    opts.path_ = "/test/GZ_HidumperOutputTest001.gz";
+    opts.path_ = FILE_ROOT + "GZ_HidumperOutputTest001.gz";
     parameter->SetOpts(opts);
 
     auto config = std::make_shared<DumpCfg>();
@@ -111,7 +116,7 @@ HWTEST_F(HidumperOutputTest, HidumperOutputTest002, TestSize.Level3)
     }
 
     DumperOpts opts;
-    opts.path_ = "/test/GZ_HidumperOutputTest002.gz";
+    opts.path_ = FILE_ROOT + "GZ_HidumperOutputTest002.gz";
     parameter->SetOpts(opts);
 
     DumpStatus ret = zip_output->PreExecute(parameter, dump_datas);
@@ -153,7 +158,7 @@ HWTEST_F(HidumperOutputTest, HidumperOutputTest003, TestSize.Level3)
     }
 
     DumperOpts opts;
-    opts.path_ = "/test/GZ_HidumperOutputTest003.gz";
+    opts.path_ = FILE_ROOT + "GZ_HidumperOutputTest003.gz";
     parameter->SetOpts(opts);
 
     DumpStatus ret = zip_output->PreExecute(parameter, dump_datas);
@@ -195,7 +200,7 @@ HWTEST_F(HidumperOutputTest, HidumperOutputTest004, TestSize.Level3)
     }
 
     DumperOpts opts;
-    opts.path_ = "/test/GZ_HidumperOutputTest004.gz";
+    opts.path_ = FILE_ROOT + "GZ_HidumperOutputTest004.gz";
     parameter->SetOpts(opts);
 
     DumpStatus ret = zip_output->PreExecute(parameter, dump_datas);
@@ -242,7 +247,7 @@ HWTEST_F(HidumperOutputTest, HidumperOutputTest005, TestSize.Level3)
     }
 
     DumperOpts opts;
-    opts.path_ = "/test/GZ_HidumperOutputTest005.gz";
+    opts.path_ = FILE_ROOT + "GZ_HidumperOutputTest005.gz";
     parameter->SetOpts(opts);
 
     DumpStatus ret = zip_output->PreExecute(parameter, dump_datas);
@@ -273,7 +278,7 @@ HWTEST_F(HidumperOutputTest, HidumperOutputTest006, TestSize.Level3)
     dump_datas->push_back(line_vector);
 
     DumperOpts opts;
-    opts.path_ = "/test/GZ_HidumperOutputTest006.gz";
+    opts.path_ = FILE_ROOT + "GZ_HidumperOutputTest006.gz";
     parameter->SetOpts(opts);
 
     DumpStatus ret = zip_output->PreExecute(parameter, dump_datas);
