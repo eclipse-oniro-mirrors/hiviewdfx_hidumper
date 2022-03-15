@@ -14,15 +14,15 @@
 import("//build/ohos.gni")
 
 group("bin") {
-  deps = [ "frameworks/native:hidumper", "services:hidumperd" ]
+  deps = [ "frameworks/native:hidumper" ]
 }
 group("service") {
   deps = [
-    "services:hidumperservice",
-    "sa_profile:hidumper_service_sa_profile",
-    "services:hidumper_service.rc",
-    "services:infos_config",
     "frameworks/native:hidumperclient",
     "interfaces/innerkits:lib_dump_usage",
+    "sa_profile:hidumper_service_sa_profile",
+    "services:hidumper_service.rc",
+    "services:hidumperservice",
+    "services:infos_config",
   ]
 }

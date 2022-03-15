@@ -14,9 +14,7 @@
 import("//base/hiviewdfx/hidumper/hidumper.gni")
 
 config("interface_include") {
-  include_dirs = [
-    "${hidumper_interface}/innerkits/include",
-  ]
+  include_dirs = [ "${hidumper_interface}/innerkits/include" ]
 }
 
 config("service_config") {
@@ -48,9 +46,9 @@ ohos_source_set("zidl_client") {
   ]
 
   deps = [
-    "//utils/native/base:utils",
     #"//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
     "${hidumper_utils_path}:utils",
+    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -60,8 +58,9 @@ ohos_source_set("zidl_client") {
     "hisysevent_native:libhisysevent",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
+
     #"samgr_L2:samgr_proxy",
-    "samgr_standard:samgr_proxy"
+    "samgr_standard:samgr_proxy",
   ]
 
   subsystem_name = "${hidumper_subsystem_name}"
@@ -82,9 +81,9 @@ ohos_source_set("zidl_service") {
   ]
 
   deps = [
-    "//utils/native/base:utils",
     #"//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
     "${hidumper_utils_path}:utils",
+    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -94,8 +93,9 @@ ohos_source_set("zidl_service") {
     "hisysevent_native:libhisysevent",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
+
     #"samgr_L2:samgr_proxy",
-    "samgr_standard:samgr_proxy"
+    "samgr_standard:samgr_proxy",
   ]
 
   subsystem_name = "${hidumper_subsystem_name}"
@@ -104,9 +104,7 @@ ohos_source_set("zidl_service") {
 }
 
 ohos_source_set("hidumper_client") {
-  sources = [
-    "native/src/dump_manager_client.cpp",
-  ]
+  sources = [ "native/src/dump_manager_client.cpp" ]
 
   configs = [
     "${hidumper_utils_path}:utils_config",
@@ -117,10 +115,11 @@ ohos_source_set("hidumper_client") {
   ]
 
   deps = [
-    "//utils/native/base:utils",
+    "${hidumper_service_path}:zidl_client",
+
     #"//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
     "${hidumper_utils_path}:utils",
-    "${hidumper_service_path}:zidl_client",
+    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -130,8 +129,9 @@ ohos_source_set("hidumper_client") {
     "hisysevent_native:libhisysevent",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
+
     #"samgr_L2:samgr_proxy",
-    "samgr_standard:samgr_proxy"
+    "samgr_standard:samgr_proxy",
   ]
 
   subsystem_name = "${hidumper_subsystem_name}"
@@ -142,9 +142,9 @@ ohos_source_set("hidumper_client") {
 ohos_shared_library("hidumperservice") {
   install_enable = true
   sources = [
+    "native/src/dump_common_utils.cpp",
     "native/src/dump_manager_service.cpp",
     "native/src/raw_param.cpp",
-    "native/src/dump_common_utils.cpp",
   ]
 
   configs = [
@@ -156,11 +156,12 @@ ohos_shared_library("hidumperservice") {
   ]
 
   deps = [
-    "//utils/native/base:utils",
+    "${hidumper_frameworks_path}:dump_main",
+    "${hidumper_service_path}:zidl_service",
+
     #"//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
     "${hidumper_utils_path}:utils",
-    "${hidumper_service_path}:zidl_service",
-    "${hidumper_frameworks_path}:dump_main",
+    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -170,8 +171,9 @@ ohos_shared_library("hidumperservice") {
     "hisysevent_native:libhisysevent",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
+
     #"samgr_L2:samgr_proxy",
-    "samgr_standard:samgr_proxy"
+    "samgr_standard:samgr_proxy",
   ]
 
   subsystem_name = "${hidumper_subsystem_name}"
@@ -182,7 +184,6 @@ ohos_shared_library("hidumperservice") {
 ############################################################################
 
 ohos_prebuilt_etc("hidumper_service.rc") {
-
   source = "native/etc/hidumper_service.cfg"
 
   relative_install_dir = "init"
@@ -196,48 +197,6 @@ ohos_prebuilt_etc("infos_config") {
   source = "native/etc/infos_config.json"
 
   relative_install_dir = "hidumper"
-
-  subsystem_name = "${hidumper_subsystem_name}"
-
-  part_name = "${hidumper_part_name}"
-}
-
-############################################################################
-# Debug Used : hidumperd
-############################################################################
-
-ohos_executable("hidumperd") {
-  install_enable = true
-
-  sources = [
-    "main.cpp",
-  ]
-
-  configs = [
-    "${hidumper_frameworks_path}:hidumper_include",
-    ":interface_include",
-    "${hidumper_service_path}:service_config",
-    "${hidumper_service_path}:zidl_config",
-    "${hidumper_utils_path}:utils_config",
-  ]
-
-  deps = [
-    "//utils/native/base:utils",
-    #"//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
-    "${hidumper_utils_path}:utils",
-    "${hidumper_service_path}:hidumperservice",
-  ]
-
-  external_deps = [
-    "ces_standard:cesfwk_innerkits",
-    "eventhandler:libeventhandler",
-    "hilog_native:libhilog",
-    "hisysevent_native:libhisysevent",
-    "ipc:ipc_core",
-    "safwk:system_ability_fwk",
-    #"samgr_L2:samgr_proxy",
-    "samgr_standard:samgr_proxy"
-  ]
 
   subsystem_name = "${hidumper_subsystem_name}"
 
