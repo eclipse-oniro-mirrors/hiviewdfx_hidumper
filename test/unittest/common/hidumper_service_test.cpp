@@ -29,7 +29,7 @@ using namespace OHOS::HiviewDFX;
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
-static const int TEST_LOOP = 10000;
+static const int TEST_LOOP = 100;
 static const int TASK_WAITTIME_MAX = 10000;
 static const int TASK_REQUEST_MAX = 1000;
 static const int TASK_WAIT_ONETIME = 100;
@@ -298,7 +298,6 @@ HWTEST_F (HidumperServiceTest, HidumperServiceTest007, TestSize.Level3)
             usleep(TASK_WAIT_ONETIME);
             continue;
         } else if (res == DumpStatus::DUMP_REQUEST_MAX) {
-            std::cout << "request max, times = " << i << std::endl;
             usleep(TASK_WAIT_ONETIME);
             continue;
         }

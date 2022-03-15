@@ -126,8 +126,8 @@ DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<Dumpe
             LOG_ERR("argument(%d) is null.\n", i);
             return DumpStatus::DUMP_FAIL;
         }
-        int len = strlen(argv[i]);
-        if (len <= 0) {
+        size_t len = strlen(argv[i]);
+        if (len == 0) {
             LOG_ERR("argument(%d) is empty.\n", i);
             return DumpStatus::DUMP_FAIL;
         }
@@ -189,7 +189,7 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
                                               {"zip", no_argument, 0, 0},
                                               {"test", no_argument, 0, 0},
                                               {0, 0, 0, 0}};
-        int longOptionsSize = sizeof(longOptions) / sizeof(option);
+        size_t longOptionsSize = sizeof(longOptions) / sizeof(option);
         int c = getopt_long(argc, argv, optStr, longOptions, &optionIndex);
         if (c == -1) {
             break;
@@ -269,7 +269,7 @@ DumpStatus DumpImplement::SetCmdParameter(int argc, char *argv[], DumperOpts &op
 std::string DumpImplement::GetTime()
 {
     struct timeval curTime;
-    gettimeofday(&curTime, NULL);
+    gettimeofday(&curTime, nullptr);
     int milli = curTime.tv_usec / 1000;
 
     char buffer[80] = {0};
