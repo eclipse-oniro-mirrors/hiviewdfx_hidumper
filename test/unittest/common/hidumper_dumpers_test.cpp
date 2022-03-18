@@ -34,7 +34,7 @@ public:
 protected:
     static constexpr auto& FILE_CPUINFO = "/proc/cpuinfo";
     static constexpr auto DEFAULT_PID = 1;
-    static constexpr auto DEFAULT_UID = 1;
+    static constexpr auto DEFAULT_UID = 0;
 };
 
 void HidumperDumpersTest::SetUpTestCase(void)
