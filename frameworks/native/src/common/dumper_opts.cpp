@@ -195,7 +195,7 @@ void DumperOpts::Dump() const
         isDumpCpuUsage_, cpuUsagePid_);
     DUMPER_HILOGD(MODULE_COMMON, "debug|isDumpLog=%{public}d", isDumpLog_);
     for (size_t i = 0; i < logArgs_.size(); i++) {
-        DUMPER_HILOGD(MODULE_COMMON, "debug|    logArgs[%{public}d]_=%{public}s", i, logArgs_[i].c_str());
+        DUMPER_HILOGD(MODULE_COMMON, "debug|    logArgs[%{public}zu]_=%{public}s", i, logArgs_[i].c_str());
     }
     DUMPER_HILOGD(MODULE_COMMON, "debug|isDumpMem=%{public}d, memPid=%{public}d", isDumpMem_, memPid_);
     DUMPER_HILOGD(MODULE_COMMON, "debug|isDumpStorage=%{public}d", isDumpStorage_);
@@ -204,13 +204,13 @@ void DumperOpts::Dump() const
         " isDumpService=%{public}d, isDumpSystemAbility=%{public}d, isDumpSystem=%{public}d",
         isDumpList_, isDumpService_, isDumpSystemAbility_, isDumpSystem_);
     for (size_t i = 0; i < systemArgs_.size(); i++) {
-        DUMPER_HILOGD(MODULE_COMMON, "debug|    systemArgs[%{public}d]=%{public}s", i, systemArgs_[i].c_str());
+        DUMPER_HILOGD(MODULE_COMMON, "debug|    systemArgs[%{public}zu]=%{public}s", i, systemArgs_[i].c_str());
     }
     for (size_t i = 0; i < abilitieNames_.size(); i++) {
-        DUMPER_HILOGD(MODULE_COMMON, "debug|    abilitieNames[%{public}d]=%{public}s", i, abilitieNames_[i].c_str());
+        DUMPER_HILOGD(MODULE_COMMON, "debug|    abilitieNames[%{public}zu]=%{public}s", i, abilitieNames_[i].c_str());
     }
     for (size_t i = 0; i < abilitieArgs_.size(); i++) {
-        DUMPER_HILOGD(MODULE_COMMON, "debug|    abilitieArgs[%{public}d]=%{public}s", i, abilitieArgs_[i].c_str());
+        DUMPER_HILOGD(MODULE_COMMON, "debug|    abilitieArgs[%{public}zu]=%{public}s", i, abilitieArgs_[i].c_str());
     }
     DUMPER_HILOGD(MODULE_COMMON, "debug|isDumpProcesses=%{public}d, processPid=%{public}d",
         isDumpProcesses_, processPid_);
