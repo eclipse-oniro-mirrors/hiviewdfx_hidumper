@@ -430,7 +430,8 @@ bool MemoryInfo::GetVss(const int &pid, uint64_t &value)
         LOG_ERR("file %s not found.\n", filename.c_str());
     }
 
-    DUMPER_HILOGD(MODULE_SERVICE, "GetVss pid:(%d) end,success:(%d),value:(%"PRIu64")", pid, success, value);
+    DUMPER_HILOGD(MODULE_SERVICE, "GetVss pid:(%d) end,success:(%d),value:(%" PRIu64")",
+                pid, success, value);
     return success;
 }
 
