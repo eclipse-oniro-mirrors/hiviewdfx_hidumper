@@ -64,7 +64,8 @@ DumpStatus ConfigUtils::GetDumperConfigs()
 
     DumpCommonUtils::GetPidInfos(pidInfos_);
     DumpCommonUtils::GetCpuInfos(cpuInfos_);
-    DUMPER_HILOGD(MODULE_COMMON, "debug|pidInfos=%{public}d, cpuInfos=%{public}d", pidInfos_.size(), cpuInfos_.size());
+    DUMPER_HILOGD(MODULE_COMMON, "debug|pidInfos=%{public}zu, cpuInfos=%{public}zu",
+        pidInfos_.size(), cpuInfos_.size());
 
     std::vector<std::shared_ptr<DumpCfg>> dumpCfgs;
 
@@ -86,7 +87,7 @@ DumpStatus ConfigUtils::GetDumperConfigs()
     HandleDumpAppendix(dumpCfgs);
     HandleDumpTest(dumpCfgs);
 
-    DUMPER_HILOGD(MODULE_COMMON, "debug|dumpCfgs=%{public}d", dumpCfgs.size());
+    DUMPER_HILOGD(MODULE_COMMON, "debug|dumpCfgs=%{public}zu", dumpCfgs.size());
 
     dumperParam_->SetExecutorConfigList(dumpCfgs);
 

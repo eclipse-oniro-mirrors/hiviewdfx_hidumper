@@ -157,15 +157,15 @@ void OptionArgs::Dump() const
     }
     if (HasStrList()) {
         for (size_t i = 0; i < list_.size(); i++) {
-            DUMPER_HILOGD(MODULE_COMMON, "debug|    list[%{public}d]=%{public}s", i, list_[i].c_str());
+            DUMPER_HILOGD(MODULE_COMMON, "debug|    list[%{public}zu]=%{public}s", i, list_[i].c_str());
         }
     }
     if (HasNamesAndArgs()) {
         for (size_t i = 0; i < names_.size(); i++) {
-            DUMPER_HILOGD(MODULE_COMMON, "debug|    names[%{public}d]=%{public}s", i, names_[i].c_str());
+            DUMPER_HILOGD(MODULE_COMMON, "debug|    names[%{public}zu]=%{public}s", i, names_[i].c_str());
         }
         for (size_t i = 0; i < args_.size(); i++) {
-            DUMPER_HILOGD(MODULE_COMMON, "debug|    args[%{public}d]=%{public}s", i, args_[i].c_str());
+            DUMPER_HILOGD(MODULE_COMMON, "debug|    args[%{public}zu]=%{public}s", i, args_[i].c_str());
         }
     }
 }

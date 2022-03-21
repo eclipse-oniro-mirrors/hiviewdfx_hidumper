@@ -61,7 +61,7 @@ bool RawParam::Init(std::vector<std::u16string> &args)
     if (deathRecipient_ == nullptr) {
         deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new ClientDeathRecipient(reqId_, canceled_));
     }
-    DUMPER_HILOGD(MODULE_SERVICE, "debug|argc=%{public}d", args.size());
+    DUMPER_HILOGD(MODULE_SERVICE, "debug|argc=%{public}zu", args.size());
     for (size_t i = 0; i < args.size(); i++) {
         argValues_[i] = std::make_unique<ArgValue>();
         if (sprintf_s(argValues_[i]->value, SINGLE_ARG_MAXLEN, "%s", Str16ToStr8(args[i]).c_str()) < 0) {
@@ -274,7 +274,7 @@ void RawParam::EraseCallback(const sptr<IDumpCallbackBroker> &callback)
     size_t eraseNum = callbackSet_.erase(callback);
     if (eraseNum != 0) {
         canceled_ = true;
-        DUMPER_HILOGD(MODULE_SERVICE, "debug|reqId=%{public}d, eraseNum=%{public}d", reqId_, eraseNum);
+        DUMPER_HILOGD(MODULE_SERVICE, "debug|reqId=%{public}d, eraseNum=%{public}zu", reqId_, eraseNum);
         object->RemoveDeathRecipient(deathRecipient_);
     }
     DUMPER_HILOGD(MODULE_SERVICE, "leave|reqId=%{public}d, canceled=%{public}d", reqId_, canceled_);

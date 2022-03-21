@@ -86,7 +86,7 @@ DumpStatus DumpImplement::Main(int argc, char *argv[], const std::shared_ptr<Raw
 
     ConfigUtils::GetDumperConfigs(ptrDumperParameter);
     std::vector<std::shared_ptr<DumpCfg>> &configs = ptrDumperParameter->GetExecutorConfigList();
-    DUMPER_HILOGD(MODULE_COMMON, "debug|Main configs size is %{public}d", configs.size());
+    DUMPER_HILOGD(MODULE_COMMON, "debug|Main configs size is %{public}zu", configs.size());
     if (configs.size() == 0) {
         DUMPER_HILOGE(MODULE_COMMON, "Executor config list is empty, so can not dump.");
         return DumpStatus::DUMP_FAIL;
@@ -432,7 +432,7 @@ void DumpImplement::setExecutorList(std::vector<std::shared_ptr<HidumperExecutor
         }
 
         if (ptrExecutorFactory.get() == nullptr) {
-            DUMPER_HILOGE(MODULE_COMMON, "configs[%{public}d].class_ is %{public}d", i, configs[i]->class_);
+            DUMPER_HILOGE(MODULE_COMMON, "configs[%{public}zu].class_ is %{public}d", i, configs[i]->class_);
             continue;
         }
         std::shared_ptr<HidumperExecutor> ptrExecutor = ptrExecutorFactory->CreateExecutor();
