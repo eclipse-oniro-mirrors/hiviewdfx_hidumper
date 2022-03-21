@@ -401,7 +401,7 @@ bool MemoryInfo::GetPids()
     if (!success) {
         DUMPER_HILOGE(MODULE_SERVICE, "GetPids error\n");
     }
-    DUMPER_HILOGD(MODULE_SERVICE, "GetPids end,success:(%d),pids_.size:(%d)", success, pids_.size());
+    DUMPER_HILOGD(MODULE_SERVICE, "GetPids end,success:(%d),pids_.size:(%lu)", success, pids_.size());
     return success;
 }
 
@@ -430,7 +430,7 @@ bool MemoryInfo::GetVss(const int &pid, uint64_t &value)
         LOG_ERR("file %s not found.\n", filename.c_str());
     }
 
-    DUMPER_HILOGD(MODULE_SERVICE, "GetVss pid:(%d) end,success:(%d),value:(%lld)", pid, success, value);
+    DUMPER_HILOGD(MODULE_SERVICE, "GetVss pid:(%d) end,success:(%d),value:(%lu)", pid, success, value);
     return success;
 }
 

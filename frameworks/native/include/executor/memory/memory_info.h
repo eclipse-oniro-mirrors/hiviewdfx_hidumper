@@ -52,7 +52,7 @@ private:
 
     const int LINE_WIDTH_ = 14;
     const int RAM_WIDTH_ = 16;
-    const int TYPE_SIZE = 2;
+    const size_t TYPE_SIZE = 2;
     const char SEPARATOR_ = '-';
     const char BLANK_ = ' ';
     const static int NAME_SIZE_ = 2;
