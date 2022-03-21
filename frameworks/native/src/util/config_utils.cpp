@@ -65,7 +65,7 @@ DumpStatus ConfigUtils::GetDumperConfigs()
     DumpCommonUtils::GetPidInfos(pidInfos_);
     DumpCommonUtils::GetCpuInfos(cpuInfos_);
     DUMPER_HILOGD(MODULE_COMMON, "debug|pidInfos=%{public}zu, cpuInfos=%{public}zu",
-                pidInfos_.size(), cpuInfos_.size());
+                                pidInfos_.size(), cpuInfos_.size());
 
     std::vector<std::shared_ptr<DumpCfg>> dumpCfgs;
 

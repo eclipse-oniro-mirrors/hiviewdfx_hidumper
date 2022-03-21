@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 #include "executor/memory/memory_info.h"
+#include <cinttypes>
 #include <thread>
 #include <future>
 #include <fstream>
