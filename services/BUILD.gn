@@ -143,6 +143,7 @@ ohos_shared_library("hidumperservice") {
   install_enable = true
   sources = [
     "native/src/dump_common_utils.cpp",
+    "native/src/dump_log_manager.cpp",
     "native/src/dump_manager_service.cpp",
     "native/src/raw_param.cpp",
   ]

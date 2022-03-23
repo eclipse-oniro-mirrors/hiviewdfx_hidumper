@@ -23,6 +23,7 @@
 #include <unistd.h>
 
 #include "common.h"
+#include "dump_log_manager.h"
 #include "hilog_wrapper.h"
 #include "manager/dump_implement.h"
 #include "raw_param.h"
@@ -110,6 +111,8 @@ int32_t DumpManagerService::Request(std::vector<std::u16string> &args, int outfd
     DUMPER_HILOGD(MODULE_SERVICE, "debug|sum=%{public}d", sum);
     if (sum >= REQUEST_MAX) {
         return DumpStatus::DUMP_REQUEST_MAX;
+    } else if (sum == 0) {
+        DumpLogManager::Init();
     }
     DUMPER_HILOGD(MODULE_SERVICE, "enter|");
     const std::shared_ptr<RawParam> rawParam = AddRequestRawParam(args, outfd, callback);
@@ -214,6 +217,8 @@ void DumpManagerService::RequestMain(const std::shared_ptr<RawParam> rawParam)
     rawParam->UpdateStatus(IDumpCallbackBroker::STATUS_DUMP_STARTED, true);
     int argC = rawParam->GetArgc();
     char **argV = rawParam->GetArgv();
+    std::string folder = DumpLogManager::CreateTmpFolder(rawParam->GetRequestId());
+    rawParam->SetFolder(folder);
     uint32_t status;
     if ((argC > 0) && (argV != nullptr)) {
         DUMPER_HILOGD(MODULE_SERVICE, "debug|enter task, argC=%{public}d", argC);
@@ -232,6 +237,8 @@ void DumpManagerService::RequestMain(const std::shared_ptr<RawParam> rawParam)
     } else {
         status = IDumpCallbackBroker::STATUS_DUMP_ERROR;
     }
+    DumpLogManager::EraseTmpFolder(rawParam->GetRequestId());
+    DumpLogManager::EraseLogs();
     rawParam->CloseOutputFd();
     rawParam->UpdateStatus(status, true);
     EraseRequestRawParam(rawParam);
