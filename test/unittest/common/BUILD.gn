@@ -11,8 +11,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/test.gni")
 import("//base/hiviewdfx/hidumper/hidumper.gni")
+import("//build/test.gni")
 
 module_output_path = "hiviewdfx/hidumper"
 
@@ -57,9 +57,10 @@ deps_ex = [
   "ipc:ipc_core",
   "hiviewdfx_hilog_native:libhilog",
   "safwk:system_ability_fwk",
+
   # "samgr_L2:samgr_proxy",
   "samgr_standard:samgr_proxy",
-  "startup_l2:syspara"
+  "startup_l2:syspara",
 ]
 
 ##############################unittest##########################################
@@ -67,8 +68,6 @@ ohos_unittest("HidumperServiceTest") {
   module_out_path = module_output_path
 
   sources = [
-    "hidumper_service_test.cpp",
-    "hidumper_test_default_callback.cpp",
     "${hidumper_service_path}/native/src/dump_common_utils.cpp",
     "${hidumper_service_path}/native/src/dump_log_manager.cpp",
     "${hidumper_service_path}/native/src/dump_manager_client.cpp",
@@ -77,7 +76,9 @@ ohos_unittest("HidumperServiceTest") {
     "${hidumper_service_path}/zidl/src/dump_broker_proxy.cpp",
     "${hidumper_service_path}/zidl/src/dump_broker_stub.cpp",
     "${hidumper_service_path}/zidl/src/dump_callback_broker_proxy.cpp",
-    "${hidumper_service_path}/zidl/src/dump_callback_broker_stub.cpp"
+    "${hidumper_service_path}/zidl/src/dump_callback_broker_stub.cpp",
+    "hidumper_service_test.cpp",
+    "hidumper_test_default_callback.cpp",
   ]
 
   configs = [
@@ -96,9 +97,7 @@ ohos_unittest("HidumperServiceTest") {
 ohos_unittest("HidumperDumpersTest") {
   module_out_path = module_output_path
 
-  sources = [
-    "hidumper_dumpers_test.cpp",
-   ]
+  sources = [ "hidumper_dumpers_test.cpp" ]
 
   configs = [
     "${hidumper_utils_path}:utils_config",
@@ -119,9 +118,7 @@ ohos_unittest("HidumperDumpersTest") {
 ohos_unittest("HidumperOutputTest") {
   module_out_path = module_output_path
 
-  sources = [
-    "hidumper_output_test.cpp"
-   ]
+  sources = [ "hidumper_output_test.cpp" ]
 
   configs = [
     "${hidumper_utils_path}:utils_config",
@@ -143,14 +140,14 @@ ohos_unittest("HidumperConfigUtilsTest") {
   module_out_path = module_output_path
 
   sources = [
-      "hidumper_configutils_test.cpp",
-      "${source_path}/src/common/dump_cfg.cpp",
-      "${source_path}/src/common/dumper_parameter.cpp",
-      "${source_path}/src/common/option_args.cpp",
-      "${source_path}/src/util/config_data.cpp",
-      "${source_path}/src/util/config_utils.cpp",
-      "${hidumper_service_path}/native/src/dump_common_utils.cpp",
-    ]
+    "${hidumper_service_path}/native/src/dump_common_utils.cpp",
+    "${source_path}/src/common/dump_cfg.cpp",
+    "${source_path}/src/common/dumper_parameter.cpp",
+    "${source_path}/src/common/option_args.cpp",
+    "${source_path}/src/util/config_data.cpp",
+    "${source_path}/src/util/config_utils.cpp",
+    "hidumper_configutils_test.cpp",
+  ]
 
   configs = [
     "${hidumper_utils_path}:utils_config",
@@ -172,10 +169,10 @@ group("unittest") {
 
   deps += [
     # deps file
-    ":HidumperServiceTest",
+    ":HidumperConfigUtilsTest",
     ":HidumperDumpersTest",
     ":HidumperOutputTest",
-    ":HidumperConfigUtilsTest",
+    ":HidumperServiceTest",
   ]
 }
 ###############################################################################
