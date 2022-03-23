@@ -492,10 +492,10 @@ DumpStatus DumpImplement::DumpDatas(const std::vector<std::shared_ptr<HidumperEx
             loopStack.clear(); // clear now.
         }
     }
-    callback->UpdateProgress(executors.size(), executors.size());
     for (auto executor : executors) {
         executor->Reset();
     }
+    callback->UpdateProgress(executors.size(), executors.size());
     return DumpStatus::DUMP_OK;
 }
 

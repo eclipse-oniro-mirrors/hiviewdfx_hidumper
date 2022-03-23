@@ -214,25 +214,42 @@ void RawParam::SetTitle(const std::string &path)
     path_ = path;
 }
 
+void RawParam::SetFolder(const std::string &folder)
+{
+    folder_ = folder;
+}
+
+std::string RawParam::GetFolder()
+{
+    return folder_;
+}
+
 void RawParam::UpdateProgress(uint32_t total, uint32_t current)
 {
     if ((!progressEnabled_) || (outfd_ < 0) || (total < 1) || (total < current)) {
         return;
     }
-    progressCurrent_ = (current > progressCurrent_) ? current : progressCurrent_;
-    uint64_t progress = (uint64_t(100) * progressCurrent_) / total;
+    UpdateProgress((uint64_t(FINISH) * current) / total);
+}
+
+void RawParam::UpdateProgress(uint64_t progress)
+{
+    if ((!progressEnabled_) || (outfd_ < 0) || (progress > FINISH)) {
+        return;
+    }
+    progress_ = std::max(progress, progress_);
     progressTick_ = (progressTick_ + 1) % sizeof(PROGRESS_TICK);
     if (SHOW_PROGRESS_BAR) {
         char barbuf[PROGRESS_LENGTH + 1] = {0};
-        for (size_t i = 0; ((i < progress) && (i < PROGRESS_LENGTH)); i++) {
+        for (size_t i = 0; ((i < progress_) && (i < PROGRESS_LENGTH)); i++) {
             barbuf[i] = PROGRESS_STYLE;
         }
-        dprintf(
-            outfd_, "\033[?25l\r[%-100s],%2" PRIu64 "%%,[%c]\033[?25h", barbuf, progress, PROGRESS_TICK[progressTick_]);
+        dprintf(outfd_, "\033[?25l\r[%-100s],%2" PRIu64 "%%,[%c]\033[?25h",
+            barbuf, progress_, PROGRESS_TICK[progressTick_]);
     } else {
-        dprintf(outfd_, "\033[?25l\r%2" PRIu64 "%%,[%c]\033[?25h", progress, PROGRESS_TICK[progressTick_]);
+        dprintf(outfd_, "\033[?25l\r%2" PRIu64 "%%,[%c]\033[?25h", progress_, PROGRESS_TICK[progressTick_]);
     }
-    if (progress == FINISH) {
+    if (progress_ == FINISH) {
         dprintf(outfd_, "%s", path_.c_str());
     }
 }

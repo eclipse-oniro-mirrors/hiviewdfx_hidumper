@@ -70,6 +70,7 @@ ohos_unittest("HidumperServiceTest") {
     "hidumper_service_test.cpp",
     "hidumper_test_default_callback.cpp",
     "${hidumper_service_path}/native/src/dump_common_utils.cpp",
+    "${hidumper_service_path}/native/src/dump_log_manager.cpp",
     "${hidumper_service_path}/native/src/dump_manager_client.cpp",
     "${hidumper_service_path}/native/src/dump_manager_service.cpp",
     "${hidumper_service_path}/native/src/raw_param.cpp",
