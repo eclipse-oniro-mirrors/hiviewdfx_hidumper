@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2021 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,26 +12,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "dump_callback.h"
-#include "hilog_wrapper.h"
+#ifndef ZIP_FOLDER_OUTPUT_H
+#define ZIP_FOLDER_OUTPUT_H
+#include "hidumper_executor.h"
 namespace OHOS {
 namespace HiviewDFX {
-DumpCallback::DumpCallback()
-{
-}
-
-DumpCallback::~DumpCallback()
-{
-}
-
-void DumpCallback::OnStatusChanged(uint32_t status)
-{
-    DUMPER_HILOGD(MODULE_COMMON, "debug|status=%{public}zu", status);
-}
-
-sptr<DumpCallback> DumpCallback::CreateCallback()
-{
-    return sptr<DumpCallback>(new DumpCallback());
-}
+class ZipFolderOutput : public HidumperExecutor {
+public:
+    ZipFolderOutput();
+    ~ZipFolderOutput();
+public:
+    DumpStatus PreExecute(const std::shared_ptr<DumperParameter>& parameter,
+        StringMatrix dumpDatas) override;
+    DumpStatus Execute() override;
+    DumpStatus AfterExecute() override;
+    void Reset() override;
+private:
+    StringMatrix dumpDatas_;
+    std::shared_ptr<DumperParameter> param_;
+    std::string logDefaultPath_;
+    int fd_;
+};
 } // namespace HiviewDFX
 } // namespace OHOS
+#endif // ZIP_FOLDER_OUTPUT_H

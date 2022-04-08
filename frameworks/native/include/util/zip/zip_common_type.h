@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2021 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,26 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "dump_callback.h"
-#include "hilog_wrapper.h"
+#ifndef HIDUMPER_UTIL_ZIP_COMMON_TYPE_H
+#define HIDUMPER_UTIL_ZIP_COMMON_TYPE_H
+#include <functional>
 namespace OHOS {
 namespace HiviewDFX {
-DumpCallback::DumpCallback()
-{
-}
-
-DumpCallback::~DumpCallback()
-{
-}
-
-void DumpCallback::OnStatusChanged(uint32_t status)
-{
-    DUMPER_HILOGD(MODULE_COMMON, "debug|status=%{public}zu", status);
-}
-
-sptr<DumpCallback> DumpCallback::CreateCallback()
-{
-    return sptr<DumpCallback>(new DumpCallback());
-}
+const int UNSET_PROGRESS = -1;
+using ZipTickNotify = std::function<bool(int progress, int subprogress)>;
 } // namespace HiviewDFX
 } // namespace OHOS
+#endif // HIDUMPER_UTIL_ZIP_COMMON_TYPE_H

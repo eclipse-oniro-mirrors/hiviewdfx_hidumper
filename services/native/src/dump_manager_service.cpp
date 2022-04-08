@@ -202,13 +202,8 @@ uint32_t DumpManagerService::GetRequestId()
 
 int32_t DumpManagerService::StartRequest(const std::shared_ptr<RawParam> rawParam)
 {
-    int32_t ret = DumpStatus::DUMP_OK;
-    std::make_unique<std::thread>([=] {
-        DUMPER_HILOGD(MODULE_SERVICE, "enter|thread start");
-        RequestMain(rawParam);
-        DUMPER_HILOGD(MODULE_SERVICE, "leave|thread finish");
-    })->detach();
-    return ret;
+    RequestMain(rawParam);
+    return DumpStatus::DUMP_OK;
 }
 
 void DumpManagerService::RequestMain(const std::shared_ptr<RawParam> rawParam)

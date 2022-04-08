@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 #include "factory/zip_output_factory.h"
-#include "executor/zip_output.h"
+#include "executor/zipfolder_output.h"
 
 namespace OHOS {
 namespace HiviewDFX {
 std::shared_ptr<HidumperExecutor> ZipOutputFactory::CreateExecutor()
 {
-    return std::make_shared<ZipOutput>();
+    return std::make_shared<ZipFolderOutput>();
 }
 } // namespace HiviewDFX
 } // namespace OHOS

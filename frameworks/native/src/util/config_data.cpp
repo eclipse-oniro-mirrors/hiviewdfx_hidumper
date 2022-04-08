@@ -48,6 +48,7 @@ const std::string ConfigData::CONFIG_GROUP_SYSTEM_SYSTEM = ConfigData::CONFIG_GR
 const std::string ConfigData::CONFIG_GROUP_PROCESSES = ConfigData::CONFIG_GROUP_ + "processes";
 const std::string ConfigData::CONFIG_GROUP_PROCESSES_ENG = ConfigData::CONFIG_GROUP_ + "processesEng";
 const std::string ConfigData::CONFIG_GROUP_PROCESSES_PID = ConfigData::CONFIG_GROUP_ + "pid_processes";
+const std::string ConfigData::CONFIG_GROUP_PROCESSES_PID_ENG = ConfigData::CONFIG_GROUP_ + "pid_processesEng";
 const std::string ConfigData::CONFIG_GROUP_FAULT_LOG = ConfigData::CONFIG_GROUP_ + "faultlog";
 const std::string ConfigData::CONFIG_GROUP_STACK = ConfigData::CONFIG_GROUP_ + "stack";
 const std::string ConfigData::CONFIG_GROUP_TEST = ConfigData::CONFIG_GROUP_ + "test";
@@ -1756,6 +1757,10 @@ const std::string ConfigData::processesPidGroup_[] = {
     "groupmini_pid_expand_processesGroup",
 };
 
+const std::string ConfigData::processesPidGroup_eng_[] = {
+    "groupmini_pid_expand_processesGroup_eng",
+};
+
 const std::string ConfigData::processesGroupMini_[] = {
     "dumper_block_channel",
     "dumper_excute_time",
@@ -1770,6 +1775,13 @@ const std::string ConfigData::processesGroupMini_eng_[] = {
 };
 
 const std::string ConfigData::processesPidGroupMini_[] = {
+    "dumper_threads_pid",
+    "dumper_block_channel",
+    "dumper_excute_time",
+    "dumper_mount_info",
+};
+
+const std::string ConfigData::processesPidGroupMini_eng_[] = {
     "dumper_threads_pid",
     "dumper_map",
     "dumper_block_channel",
@@ -1898,7 +1910,7 @@ const ConfigData::GroupCfg ConfigData::groups_[] = {
         .name_ = ConfigData::CONFIG_GROUP_PROCESSES_ENG,
         .desc_ = "group of processes dumper by eng ",
         .list_ = processesGroup_eng_,
-        .size_ = ARRAY_SIZE(processesGroup_),
+        .size_ = ARRAY_SIZE(processesGroup_eng_),
         .type_ = DumperConstant::NONE,
         .expand_ = false,
     },
@@ -1907,6 +1919,14 @@ const ConfigData::GroupCfg ConfigData::groups_[] = {
         .desc_ = "group of processes pid dumper",
         .list_ = processesPidGroup_,
         .size_ = ARRAY_SIZE(processesPidGroup_),
+        .type_ = DumperConstant::NONE,
+        .expand_ = false,
+    },
+    {
+        .name_ = ConfigData::CONFIG_GROUP_PROCESSES_PID_ENG,
+        .desc_ = "group of processes pid dumper by eng",
+        .list_ = processesPidGroup_eng_,
+        .size_ = ARRAY_SIZE(processesPidGroup_eng_),
         .type_ = DumperConstant::NONE,
         .expand_ = false,
     },
@@ -1936,7 +1956,7 @@ const ConfigData::GroupCfg ConfigData::groups_[] = {
     },
     {
         .name_ = "groupmini_expand_processesGroup",
-        .desc_ = "mini-group for of test dumper",
+        .desc_ = "mini-group for of processes dumper",
         .list_ = processesGroupMini_,
         .size_ = ARRAY_SIZE(processesGroupMini_),
         .type_ = DumperConstant::GROUPTYPE_PID,
@@ -1944,7 +1964,7 @@ const ConfigData::GroupCfg ConfigData::groups_[] = {
     },
     {
         .name_ = "groupmini_expand_processesGroup_eng",
-        .desc_ = "mini-group for of test dumper eng",
+        .desc_ = "mini-group for of processes dumper by eng",
         .list_ = processesGroupMini_eng_,
         .size_ = ARRAY_SIZE(processesGroupMini_eng_),
         .type_ = DumperConstant::GROUPTYPE_PID,
@@ -1952,15 +1972,23 @@ const ConfigData::GroupCfg ConfigData::groups_[] = {
     },
     {
         .name_ = "groupmini_pid_expand_processesGroup",
-        .desc_ = "mini-group for of test dumper",
+        .desc_ = "mini-group for of processes dumper",
         .list_ = processesPidGroupMini_,
         .size_ = ARRAY_SIZE(processesPidGroupMini_),
         .type_ = DumperConstant::GROUPTYPE_PID,
         .expand_ = true,
     },
     {
+        .name_ = "groupmini_pid_expand_processesGroup_eng",
+        .desc_ = "mini-group for of processes dumper by eng",
+        .list_ = processesPidGroupMini_eng_,
+        .size_ = ARRAY_SIZE(processesPidGroupMini_eng_),
+        .type_ = DumperConstant::GROUPTYPE_PID,
+        .expand_ = true,
+    },
+    {
         .name_ = "groupmini_cpuid_expand_systemBaseGroup",
-        .desc_ = "mini-group for of test dumper",
+        .desc_ = "mini-group for of base dumper",
         .list_ = systemBaseCpuIdGroupMini_,
         .size_ = ARRAY_SIZE(systemBaseCpuIdGroupMini_),
         .type_ = DumperConstant::GROUPTYPE_CPUID,
@@ -1968,7 +1996,7 @@ const ConfigData::GroupCfg ConfigData::groups_[] = {
     },
     {
         .name_ = "groupmini_cpuid_expand_systemSystemGroup",
-        .desc_ = "mini-group for of test dumper",
+        .desc_ = "mini-group for of system dumper",
         .list_ = systemSystemCpuIdGroupMini_,
         .size_ = ARRAY_SIZE(systemSystemCpuIdGroupMini_),
         .type_ = DumperConstant::GROUPTYPE_CPUID,
