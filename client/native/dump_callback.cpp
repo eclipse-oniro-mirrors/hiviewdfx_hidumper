@@ -26,7 +26,7 @@ DumpCallback::~DumpCallback()
 
 void DumpCallback::OnStatusChanged(uint32_t status)
 {
-    DUMPER_HILOGD(MODULE_COMMON, "debug|status=%{public}zu", status);
+    DUMPER_HILOGD(MODULE_COMMON, "debug|status=%{public}u", status);
 }
 
 sptr<DumpCallback> DumpCallback::CreateCallback()
