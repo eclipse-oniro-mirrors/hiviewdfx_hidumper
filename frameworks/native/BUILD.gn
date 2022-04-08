@@ -26,37 +26,21 @@ config("hidumper_include") {
 ohos_source_set("dump_main") {
   sources = [
     "dump_utils.cpp",
-    "src/util/config_data.cpp",
-    "src/util/config_utils.cpp",
-    "src/util/dump_compressor.cpp",
-    "src/util/string_utils.cpp",
-    "src/util/file_utils.cpp",
-    "src/util/zip_utils.cpp",
-    "src/util/zip/zip_writer.cpp",
-    "src/common/option_args.cpp",
     "src/common/dump_cfg.cpp",
     "src/common/dumper_opts.cpp",
     "src/common/dumper_parameter.cpp",
-    "src/executor/hidumper_executor.cpp",
-    "src/executor/cpu_dumper.cpp",
-    "src/executor/file_stream_dumper.cpp",
-    "src/executor/sa_dumper.cpp",
-    "src/executor/env_param_dumper.cpp",
-    "src/executor/cmd_dumper.cpp",
-    "src/executor/properties_dumper.cpp",
+    "src/common/option_args.cpp",
     "src/executor/api_dumper.cpp",
-    "src/executor/version_dumper.cpp",
-    "src/executor/list_dumper.cpp",
+    "src/executor/cmd_dumper.cpp",
     "src/executor/column_rows_filter.cpp",
-    "src/executor/file_format_dump_filter.cpp",
-    "src/executor/fd_output.cpp",
-    "src/executor/zip_output.cpp",
-    "src/executor/zipfolder_output.cpp",
+    "src/executor/cpu_dumper.cpp",
     "src/executor/dumper_group.cpp",
-    "src/executor/memory/parse/parse_meminfo.cpp",
-    "src/executor/memory/parse/parse_smaps_info.cpp",
-    "src/executor/memory/parse/parse_vmallocinfo.cpp",
-    "src/executor/memory/parse/parse_smaps_rollup_info.cpp",
+    "src/executor/env_param_dumper.cpp",
+    "src/executor/fd_output.cpp",
+    "src/executor/file_format_dump_filter.cpp",
+    "src/executor/file_stream_dumper.cpp",
+    "src/executor/hidumper_executor.cpp",
+    "src/executor/list_dumper.cpp",
     "src/executor/memory/get_cma_info.cpp",
     "src/executor/memory/get_hardware_info.cpp",
     "src/executor/memory/get_kernel_info.cpp",
@@ -65,23 +49,39 @@ ohos_source_set("dump_main") {
     "src/executor/memory/memory_filter.cpp",
     "src/executor/memory/memory_info.cpp",
     "src/executor/memory/memory_util.cpp",
+    "src/executor/memory/parse/parse_meminfo.cpp",
+    "src/executor/memory/parse/parse_smaps_info.cpp",
+    "src/executor/memory/parse/parse_smaps_rollup_info.cpp",
+    "src/executor/memory/parse/parse_vmallocinfo.cpp",
     "src/executor/memory_dumper.cpp",
-    "src/manager/dump_implement.cpp",
-    "src/factory/cpu_dumper_factory.cpp",
-    "src/factory/file_dumper_factory.cpp",
-    "src/factory/env_param_dumper_factory.cpp",
-    "src/factory/cmd_dumper_factory.cpp",
+    "src/executor/properties_dumper.cpp",
+    "src/executor/sa_dumper.cpp",
+    "src/executor/version_dumper.cpp",
+    "src/executor/zip_output.cpp",
+    "src/executor/zipfolder_output.cpp",
     "src/factory/api_dumper_factory.cpp",
+    "src/factory/cmd_dumper_factory.cpp",
+    "src/factory/column_rows_filter_factory.cpp",
+    "src/factory/cpu_dumper_factory.cpp",
+    "src/factory/dumper_group_factory.cpp",
+    "src/factory/env_param_dumper_factory.cpp",
+    "src/factory/fd_output_factory.cpp",
+    "src/factory/file_dumper_factory.cpp",
+    "src/factory/file_format_dump_filter_factory.cpp",
+    "src/factory/list_dumper_factory.cpp",
+    "src/factory/memory_dumper_factory.cpp",
+    "src/factory/properties_dumper_factory.cpp",
     "src/factory/sa_dumper_factory.cpp",
     "src/factory/version_dumper_factory.cpp",
-    "src/factory/list_dumper_factory.cpp",
-    "src/factory/properties_dumper_factory.cpp",
-    "src/factory/column_rows_filter_factory.cpp",
-    "src/factory/file_format_dump_filter_factory.cpp",
     "src/factory/zip_output_factory.cpp",
-    "src/factory/fd_output_factory.cpp",
-    "src/factory/dumper_group_factory.cpp",
-    "src/factory/memory_dumper_factory.cpp",
+    "src/manager/dump_implement.cpp",
+    "src/util/config_data.cpp",
+    "src/util/config_utils.cpp",
+    "src/util/dump_compressor.cpp",
+    "src/util/file_utils.cpp",
+    "src/util/string_utils.cpp",
+    "src/util/zip/zip_writer.cpp",
+    "src/util/zip_utils.cpp",
   ]
 
   configs = [
@@ -93,9 +93,10 @@ ohos_source_set("dump_main") {
   ]
 
   deps = [
-    "//utils/native/base:utils",
     "${hidumper_utils_path}:utils",
     "//third_party/zlib:libz",
+    "//utils/native/base:utils",
+
     #"//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
   ]
 
@@ -107,7 +108,7 @@ ohos_source_set("dump_main") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
-    "startup_l2:syspara"
+    "startup_l2:syspara",
   ]
 
   subsystem_name = "hiviewdfx"
@@ -118,8 +119,8 @@ ohos_source_set("dump_main") {
 ohos_shared_library("hidumperclient") {
   install_enable = true
   sources = [
-    "${hidumper_client_path}/native/dump_client_main.cpp",
     "${hidumper_client_path}/native/dump_callback.cpp",
+    "${hidumper_client_path}/native/dump_client_main.cpp",
     "dump_utils.cpp",
   ]
 
@@ -132,9 +133,10 @@ ohos_shared_library("hidumperclient") {
   ]
 
   deps = [
-    "//utils/native/base:utils",
-    "${hidumper_utils_path}:utils",
     "${hidumper_service_path}:hidumper_client",
+    "${hidumper_utils_path}:utils",
+    "//utils/native/base:utils",
+
     #"//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
   ]
 
@@ -146,7 +148,7 @@ ohos_shared_library("hidumperclient") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
-    "startup_l2:syspara"
+    "startup_l2:syspara",
   ]
 
   subsystem_name = "hiviewdfx"
@@ -157,9 +159,7 @@ ohos_shared_library("hidumperclient") {
 ohos_executable("hidumper") {
   install_enable = true
 
-  sources = [
-    "${hidumper_client_path}/native/main.cpp",
-  ]
+  sources = [ "${hidumper_client_path}/native/main.cpp" ]
 
   configs = [
     "${hidumper_utils_path}:utils_config",
@@ -170,11 +170,12 @@ ohos_executable("hidumper") {
   ]
 
   deps = [
-    "//utils/native/base:utils",
+    ":hidumperclient",
+    "${hidumper_service_path}:hidumper_client",
+
     #"//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
     "${hidumper_utils_path}:utils",
-    "${hidumper_service_path}:hidumper_client",
-    ":hidumperclient",
+    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -185,7 +186,7 @@ ohos_executable("hidumper") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
-    "startup_l2:syspara"
+    "startup_l2:syspara",
   ]
 
   subsystem_name = "hiviewdfx"
