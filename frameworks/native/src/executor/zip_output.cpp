@@ -41,7 +41,7 @@ DumpStatus ZipOutput::PreExecute(const std::shared_ptr<DumperParameter>& paramet
 
     // init myself once
     if (mFilePath_.empty()) {
-        FileUtils().GetInstance().CreateFolder(ZIP_FOLER);
+        FileUtils().GetInstance().CreateFolder(ZIP_FOLDER);
         mFilePath_ =  parameter->GetOpts().path_;
         srcBuffer_ = std::make_shared<CompressBuffer>();
         destBuffer_ = std::make_shared<CompressBuffer>();

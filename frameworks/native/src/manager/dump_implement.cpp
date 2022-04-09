@@ -302,7 +302,7 @@ DumpStatus DumpImplement::ParseLongCmdOption(DumperOpts &opts_, const struct opt
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "storage")) {
         opts_.isDumpStorage_ = true;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "zip")) {
-        path_ = ZIP_FOLER + GetTime() + ".zip";
+        path_ = ZIP_FOLDER + GetTime() + ".zip";
         opts_.path_ = path_;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "test")) {
         opts_.isTest_ = true;

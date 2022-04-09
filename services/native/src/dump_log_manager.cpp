@@ -19,7 +19,7 @@
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
-static const std::string TMP_FOLER = "/data/local/tmp/dumper/tmp/";
+static const std::string TMP_FOLDER = "/data/local/tmp/dumper/tmp/";
 static const int LOGFILE_MAX = 10;
 } // namespace
 DumpLogManager::DumpLogManager()
@@ -34,9 +34,9 @@ bool DumpLogManager::Init()
 {
     DUMPER_HILOGD(MODULE_COMMON, "Init enter|");
 
-    ForceRemoveDirectory(TMP_FOLER);
-    ForceCreateDirectory(TMP_FOLER);
-    ForceCreateDirectory(ZIP_FOLER);
+    ForceRemoveDirectory(TMP_FOLDER);
+    ForceCreateDirectory(TMP_FOLDER);
+    ForceCreateDirectory(ZIP_FOLDER);
     EraseLogs();
 
     DUMPER_HILOGD(MODULE_COMMON, "Init leave|");
@@ -45,7 +45,7 @@ bool DumpLogManager::Init()
 
 void DumpLogManager::Uninit()
 {
-    ForceRemoveDirectory(TMP_FOLER);
+    ForceRemoveDirectory(TMP_FOLDER);
     EraseLogs();
 }
 
@@ -54,7 +54,7 @@ void DumpLogManager::EraseLogs()
     DUMPER_HILOGD(MODULE_COMMON, "EraseLogs enter|");
 
     std::vector<std::string> allFiles;
-    GetDirFiles(ZIP_FOLER, allFiles);
+    GetDirFiles(ZIP_FOLDER, allFiles);
 
     std::vector<std::string> zipFiles;
     for (std::string str : allFiles) {
@@ -65,7 +65,7 @@ void DumpLogManager::EraseLogs()
             "str=[%{public}s], filePath=[%{public}s], fileName=[%{public}s], fileExt=[%{public}s]",
             str.c_str(), filePath.c_str(), fileName.c_str(), fileExt.c_str());
 
-        if ((filePath != ZIP_FOLER) || (fileExt != ZIP_FILEEXT)) {
+        if ((filePath != ZIP_FOLDER) || (fileExt != ZIP_FILEEXT)) {
             DUMPER_HILOGD(MODULE_COMMON, "EraseLogs debug|skip, str=[%{public}s]", str.c_str());
             continue;
         }
@@ -95,7 +95,7 @@ std::string DumpLogManager::CreateTmpFolder(uint32_t id)
 {
     DUMPER_HILOGD(MODULE_COMMON, "CreateTmpFolder enter|id=%{public}d", id);
 
-    std::string ret = IncludeTrailingPathDelimiter(TMP_FOLER + std::to_string(id));
+    std::string ret = IncludeTrailingPathDelimiter(TMP_FOLDER + std::to_string(id));
     bool res = ForceCreateDirectory(ret);
 
     DUMPER_HILOGD(MODULE_COMMON, "CreateTmpFolder leave|ret=%{public}s, res=[%{public}d]", ret.c_str(), res);
@@ -106,7 +106,7 @@ bool DumpLogManager::EraseTmpFolder(uint32_t id)
 {
     DUMPER_HILOGD(MODULE_COMMON, "EraseTmpFolder enter|id=%{public}d", id);
 
-    std::string folder = IncludeTrailingPathDelimiter(TMP_FOLER + std::to_string(id));
+    std::string folder = IncludeTrailingPathDelimiter(TMP_FOLDER + std::to_string(id));
     bool ret = ForceRemoveDirectory(folder);
 
     DUMPER_HILOGD(MODULE_COMMON, "EraseTmpFolder leave|ret=[%{public}d]", ret);

@@ -19,27 +19,11 @@ namespace OHOS {
 namespace HiviewDFX {
 class DumpCallback : public DumpCallbackBrokerStub {
 public:
-    explicit DumpCallback(int outFd);
+    DumpCallback();
     virtual ~DumpCallback();
 public:
     void OnStatusChanged(uint32_t status) override;
-    bool WaitCompleted();
-    static sptr<DumpCallback> CreateCallback(int outFd);
-private:
-    class RemoteDeathRecipient : public IRemoteObject::DeathRecipient {
-    public:
-        explicit RemoteDeathRecipient(uint32_t& status);
-        virtual ~RemoteDeathRecipient() = default;
-    public:
-        virtual void OnRemoteDied(const wptr<IRemoteObject>& remote);
-    private:
-        uint32_t& status_;
-    };
-    sptr<IRemoteObject::DeathRecipient> deathRecipient_;
-    int outFd_;
-    uint32_t status_;
-    static const int WAIT_START_MAX; // wait 3 second for STATUS_INIT
-    static const int WATT_COMPLETE;
+    static sptr<DumpCallback> CreateCallback();
 };
 } // namespace HiviewDFX
 } // namespace OHOS
