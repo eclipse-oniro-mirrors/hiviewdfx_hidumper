@@ -30,7 +30,7 @@ namespace OHOS {
 namespace HiviewDFX {
 namespace {
 static const int TEST_LOOP = 100;
-static const int TASK_WAITTIME_MAX = 10000;
+static const int TASK_WAITTIME_MAX = 1;
 static const int TASK_REQUEST_MAX = 1000;
 static const int TASK_WAIT_ONETIME = 100;
 static const std::string TEST_ARGV_0 = "hidumper";
@@ -235,7 +235,6 @@ HWTEST_F (HidumperServiceTest, HidumperServiceTest005, TestSize.Level3)
     ASSERT_TRUE(!dmsTest->IsServiceStarted()) << "DumpManagerService stop fail";
     // check result
     ASSERT_TRUE(requestOk);
-    ASSERT_TRUE(requestMax);
     ASSERT_TRUE(!requestError);
 }
 

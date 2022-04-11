@@ -86,7 +86,7 @@ DumpStatus DumpImplement::Main(int argc, char *argv[], const std::shared_ptr<Raw
 
     ConfigUtils::GetDumperConfigs(ptrDumperParameter);
     std::vector<std::shared_ptr<DumpCfg>> &configs = ptrDumperParameter->GetExecutorConfigList();
-    DUMPER_HILOGD(MODULE_COMMON, "debug|Main configs size is %{public}d", configs.size());
+    DUMPER_HILOGD(MODULE_COMMON, "debug|Main configs size is %{public}zu", configs.size());
     if (configs.size() == 0) {
         DUMPER_HILOGE(MODULE_COMMON, "Executor config list is empty, so can not dump.");
         return DumpStatus::DUMP_FAIL;
@@ -302,7 +302,7 @@ DumpStatus DumpImplement::ParseLongCmdOption(DumperOpts &opts_, const struct opt
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "storage")) {
         opts_.isDumpStorage_ = true;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "zip")) {
-        path_ = ZIP_FOLER + GetTime() + ".zip";
+        path_ = ZIP_FOLDER + GetTime() + ".zip";
         opts_.path_ = path_;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "test")) {
         opts_.isTest_ = true;
@@ -432,7 +432,7 @@ void DumpImplement::setExecutorList(std::vector<std::shared_ptr<HidumperExecutor
         }
 
         if (ptrExecutorFactory.get() == nullptr) {
-            DUMPER_HILOGE(MODULE_COMMON, "configs[%{public}d].class_ is %{public}d", i, configs[i]->class_);
+            DUMPER_HILOGE(MODULE_COMMON, "configs[%{public}zu].class_ is %{public}d", i, configs[i]->class_);
             continue;
         }
         std::shared_ptr<HidumperExecutor> ptrExecutor = ptrExecutorFactory->CreateExecutor();
@@ -492,10 +492,10 @@ DumpStatus DumpImplement::DumpDatas(const std::vector<std::shared_ptr<HidumperEx
             loopStack.clear(); // clear now.
         }
     }
-    callback->UpdateProgress(executors.size(), executors.size());
     for (auto executor : executors) {
         executor->Reset();
     }
+    callback->UpdateProgress(executors.size(), executors.size());
     return DumpStatus::DUMP_OK;
 }
 

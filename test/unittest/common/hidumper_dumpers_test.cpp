@@ -319,7 +319,7 @@ HWTEST_F(HidumperDumpersTest, HidumperDumpers011, TestSize.Level3)
     auto cmd_dumper = make_shared<CMDDumper>();
     auto config = std::make_shared<DumpCfg>();
     config->name_ = "CmdDumperTest";
-    std::string cmd = "hilog -x";
+    std::string cmd = "ps -ef";
     config->target_ = cmd;
     config->loop_ = DumperConstant::LOOP;
     cmd_dumper->SetDumpConfig(config);
@@ -348,7 +348,7 @@ HWTEST_F(HidumperDumpersTest, HidumperDumpers012, TestSize.Level3)
     auto cmd_dumper = make_shared<CMDDumper>();
     auto config = std::make_shared<DumpCfg>();
     config->name_ = "CmdDumperTest";
-    std::string cmd = "hilog -x";
+    std::string cmd = "ps -ef";
     config->target_ = cmd;
     config->loop_ = DumperConstant::NONE;
     cmd_dumper->SetDumpConfig(config);

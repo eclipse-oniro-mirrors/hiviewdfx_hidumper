@@ -241,4 +241,4 @@ bool DumpCommonUtils::GetProcessInfo(int pid, PidInfo &info)
     return false;
 }
 } // namespace HiviewDFX
-}  // namespace OHOS
+} // namespace OHOS

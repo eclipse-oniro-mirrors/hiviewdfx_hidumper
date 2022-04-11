@@ -61,8 +61,12 @@ enum DumperConstant {
     GROUPTYPE_END,   // group type end
     LOOP,
 };
-const std::string ZIP_FOLER = "/data/dumper/";
-const std::string ENG_MODE = "Release";
+
+const std::string LOG_DEFAULT = "log.txt";
+const std::string ZIP_FILEEXT = "zip";
+const std::string ZIP_FOLDER = "/data/dumper/";
+
+const std::string RELEASE_MODE = "Release";
 } // namespace HiviewDFX
 } // namespace OHOS
 #endif // HIDUMPER_SERVICES_DUMPER_CONSTANT_H
