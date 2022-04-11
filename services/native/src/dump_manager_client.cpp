@@ -122,4 +122,4 @@ void DumpManagerClient::DumpManagerDeathRecipient::OnRemoteDied(const wptr<IRemo
     DumpManagerClient::GetInstance().ResetProxy(remote);
 }
 } // namespace HiviewDFX
-}  // namespace OHOS
+} // namespace OHOS

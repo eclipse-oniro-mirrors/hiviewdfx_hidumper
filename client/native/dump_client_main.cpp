@@ -60,7 +60,7 @@ int DumpClientMain::Main(int argc, char* argv[], int outFd)
         return -1;
     }
     DumpUtils::IgnoreStdoutCache();
-    auto cb = DumpCallback::CreateCallback(outFd);
+    auto cb = DumpCallback::CreateCallback();
     int32_t ret = dumpManagerClient.Request(args, outFd, cb);
     if (ret < DumpStatus::DUMP_OK) {
         if (ret != DumpStatus::DUMP_INVALID_ARG) {
@@ -68,11 +68,9 @@ int DumpClientMain::Main(int argc, char* argv[], int outFd)
         }
         return ret;
     }
-    cb->WaitCompleted();
     if (!dumpManagerClient.IsConnected()) {
         (void)dprintf(outFd, "service error\n");
     }
-    (void)dprintf(outFd, "\n");
     return ret;
 }
 } // namespace HiviewDFX

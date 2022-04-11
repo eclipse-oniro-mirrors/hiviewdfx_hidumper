@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include "util/config_utils.h"
+#include "directory_ex.h"
 #include "hilog_wrapper.h"
 #include "dump_common_utils.h"
 #include "dump_utils.h"
@@ -23,6 +24,9 @@ namespace HiviewDFX {
 namespace {
 constexpr int ROOT_UID = 0;
 constexpr int APP_FIRST_UID = 10000;
+static const std::string SMAPS_PATH = "smaps/";
+static const std::string SMAPS_PATH_START = "/proc/";
+static const std::string SMAPS_PATH_END = "/smaps";
 } // namespace
 
 ConfigUtils::ConfigUtils(const std::shared_ptr<DumperParameter> &param) : dumperParam_(param)
@@ -64,7 +68,8 @@ DumpStatus ConfigUtils::GetDumperConfigs()
 
     DumpCommonUtils::GetPidInfos(pidInfos_);
     DumpCommonUtils::GetCpuInfos(cpuInfos_);
-    DUMPER_HILOGD(MODULE_COMMON, "debug|pidInfos=%{public}d, cpuInfos=%{public}d", pidInfos_.size(), cpuInfos_.size());
+    DUMPER_HILOGD(MODULE_COMMON, "debug|pidInfos=%{public}zu, cpuInfos=%{public}zu",
+        pidInfos_.size(), cpuInfos_.size());
 
     std::vector<std::shared_ptr<DumpCfg>> dumpCfgs;
 
@@ -86,7 +91,7 @@ DumpStatus ConfigUtils::GetDumperConfigs()
     HandleDumpAppendix(dumpCfgs);
     HandleDumpTest(dumpCfgs);
 
-    DUMPER_HILOGD(MODULE_COMMON, "debug|dumpCfgs=%{public}d", dumpCfgs.size());
+    DUMPER_HILOGD(MODULE_COMMON, "debug|dumpCfgs=%{public}zu", dumpCfgs.size());
 
     dumperParam_->SetExecutorConfigList(dumpCfgs);
 
@@ -380,16 +385,24 @@ bool ConfigUtils::HandleDumpProcesses(std::vector<std::shared_ptr<DumpCfg>> &dum
     currentPidInfos_.clear();
     MergePidInfos(currentPidInfos_, dumperOpts.processPid_);
 
+    std::string mode = GetBuildType();
     std::shared_ptr<OptionArgs> args;
-    if (dumperOpts.processPid_ < 0) {
-        std::string mode = GetBuildType();
-        if ((mode == ENG_MODE) && path.empty()) {
+    if (mode == RELEASE_MODE) { // release mode
+        if (dumperOpts.processPid_ < 0) {
+            GetConfig(CONFIG_GROUP_PROCESSES, dumpCfgs, args);
+        } else {
+            GetConfig(CONFIG_GROUP_PROCESSES_PID, dumpCfgs, args);
+        }
+    } else { // engine mode
+        if (dumperOpts.processPid_ < 0) {
             GetConfig(CONFIG_GROUP_PROCESSES_ENG, dumpCfgs, args);
         } else {
-            GetConfig(CONFIG_GROUP_PROCESSES, dumpCfgs, args);
+            GetConfig(CONFIG_GROUP_PROCESSES_PID_ENG, dumpCfgs, args);
         }
-    } else {
-        GetConfig(CONFIG_GROUP_PROCESSES_PID, dumpCfgs, args);
+
+        if (dumperOpts.IsDumpZip()) {
+            CopySmaps();
+        }
     }
 
     currentPidInfos_.clear();
@@ -709,6 +722,41 @@ void ConfigUtils::SetSection(std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs, co
         }
         SetSection(dumpCfg->childs_, section, nest + 1);
     }
+}
+
+bool ConfigUtils::CopySmaps()
+{
+    DUMPER_HILOGD(MODULE_COMMON, "CopySmaps enter|");
+
+    std::shared_ptr<RawParam> callback = dumperParam_->getClientCallback();
+    if (callback == nullptr) {
+        DUMPER_HILOGD(MODULE_COMMON, "CopySmaps leave|callback");
+        return false;
+    }
+
+    callback->SetProgressEnabled(true);
+    std::string logFolder = callback->GetFolder();
+    int uid = dumperParam_->GetUid();
+    for (auto &pidInfo : currentPidInfos_) {
+        int newLevel = GetDumpLevelByPid(uid, pidInfo);
+        if (newLevel == DumperConstant::LEVEL_NONE) {
+            continue;
+        }
+        if (callback->IsCanceled()) {
+            DUMPER_HILOGD(MODULE_COMMON, "CopySmaps debug|Canceled");
+            break;
+        }
+        callback->UpdateProgress(0);
+        std::string pid = std::to_string(pidInfo.pid_);
+        std::string desfolder = logFolder + SMAPS_PATH + pidInfo.name_ + "-" + pid;
+        std::string src = SMAPS_PATH_START + pid + SMAPS_PATH_END;
+        std::string des = desfolder + SMAPS_PATH_END;
+        ForceCreateDirectory(IncludeTrailingPathDelimiter(desfolder));
+        DumpUtils::CopyFile(src, des);
+    }
+
+    DUMPER_HILOGD(MODULE_COMMON, "CopySmaps leave|true");
+    return true;
 }
 } // namespace HiviewDFX
 } // namespace OHOS

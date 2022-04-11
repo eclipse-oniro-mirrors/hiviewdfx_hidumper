@@ -19,7 +19,10 @@
 #include <fcntl.h>
 #include <poll.h>
 #include <set>
+#include <sys/stat.h>
 #include <unistd.h>
+#include <fstream>
+#include <iostream>
 
 #include <sys/prctl.h>
 #include <sys/resource.h>
@@ -33,6 +36,7 @@
 #include "string_ex.h"
 
 #include "system_ability_definition.h"
+#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -81,18 +85,19 @@ int DumpUtils::FdToRead(const std::string &file)
 {
     char path[PATH_MAX] = {0};
     if (realpath(file.c_str(), path) == nullptr) {
-        LOG_ERR("no such file. path=[%s], file=[%s]\n", path, file.c_str());
+        DUMPER_HILOGD(MODULE_COMMON, "realpath, no such file. path=[%{public}s], file=[%{public}s]",
+            path, file.c_str());
         return -1;
     }
 
     if (file != std::string(path)) {
-        LOG_ERR("fail to check consistency. path=[%s], file=[%s]\n", path, file.c_str());
-        return -1;
+        DUMPER_HILOGI(MODULE_COMMON, "fail to check consistency. path=[%{public}s], file=[%{public}s]",
+            path, file.c_str());
     }
 
     int fd = TEMP_FAILURE_RETRY(open(path, O_RDONLY | O_CLOEXEC | O_NONBLOCK));
     if (fd == -1) {
-        LOG_ERR("open %s %s\n", path, ErrnoToMsg(errno).c_str());
+        DUMPER_HILOGD(MODULE_COMMON, "open [%{public}s] %{public}s", path, ErrnoToMsg(errno).c_str());
     }
     return fd;
 }
@@ -102,7 +107,7 @@ int DumpUtils::FdToWrite(const std::string &file)
     std::string split = "/";
     auto pos = file.find_last_of(split);
     if (pos == std::string::npos) {
-        LOG_ERR("file path:%s error\n", file.c_str());
+        DUMPER_HILOGD(MODULE_COMMON, "file path:[%{public}s] error", file.c_str());
         return -1;
     }
     std::string tempPath = file.substr(0, pos + 1);
@@ -114,10 +119,13 @@ int DumpUtils::FdToWrite(const std::string &file)
         int fd = TEMP_FAILURE_RETRY(open(fileName.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC | O_NOFOLLOW,
                                          S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH));
         if (fd == -1) {
-            LOG_ERR("open %s %s\n", fileName.c_str(), ErrnoToMsg(errno).c_str());
+            DUMPER_HILOGD(MODULE_COMMON, "open [%{public}s] %{public}s",
+                fileName.c_str(), ErrnoToMsg(errno).c_str());
         }
         return fd;
     }
+    DUMPER_HILOGD(MODULE_COMMON, "realpath, no such file. path=[%{public}s], tempPath=[%{public}s]",
+        path, tempPath.c_str());
     return -1;
 }
 
@@ -184,6 +192,35 @@ std::string DumpUtils::ConvertSaIdToSaName(const std::string &saIdStr)
         return saIdStr;
     }
     return iter->second;
+}
+
+bool DumpUtils::DirectoryExists(const std::string &path)
+{
+    struct stat fileInfo;
+    if (stat(path.c_str(), &fileInfo) == 0) {
+        return S_ISDIR(fileInfo.st_mode);
+    }
+    return false;
+}
+
+bool DumpUtils::PathIsValid(const std::string &path)
+{
+    return access(path.c_str(), F_OK) == 0;
+}
+
+bool DumpUtils::CopyFile(const std::string &src, const std::string &des)
+{
+    std::ifstream fin(src);
+    std::ofstream fout(des);
+    if ((!fin.is_open()) || (!fout.is_open())) {
+        return false;
+    }
+    fout << fin.rdbuf();
+    if (fout.fail()) {
+        fout.clear();
+    }
+    fout.flush();
+    return true;
 }
 } // namespace HiviewDFX
 } // namespace OHOS

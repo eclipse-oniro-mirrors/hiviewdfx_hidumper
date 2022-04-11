@@ -45,7 +45,11 @@ public:
     // ability string to ID
     static int StrToId(const std::string &name); // 0:invalid
     static std::string ConvertSaIdToSaName(const std::string &saIdStr);
-    
+
+    static bool DirectoryExists(const std::string &path);
+    static bool PathIsValid(const std::string &path);
+    static bool CopyFile(const std::string &src, const std::string &des);
+
     static constexpr int TOP_PRIORITY = -20;
     static constexpr int TOP_OOM_ADJ = -1000;
     static constexpr char FILE_CUR_OOM_ADJ[] = "/proc/self/oom_score_adj";

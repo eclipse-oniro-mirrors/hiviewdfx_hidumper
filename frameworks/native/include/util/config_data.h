@@ -51,6 +51,7 @@ public:
     static const std::string CONFIG_GROUP_PROCESSES;
     static const std::string CONFIG_GROUP_PROCESSES_ENG;
     static const std::string CONFIG_GROUP_PROCESSES_PID;
+    static const std::string CONFIG_GROUP_PROCESSES_PID_ENG;
     static const std::string CONFIG_GROUP_FAULT_LOG;
     static const std::string CONFIG_GROUP_STACK;
     static const std::string CONFIG_GROUP_TEST;
@@ -155,12 +156,14 @@ private:
     static const std::string processesGroup_[];
     static const std::string processesGroup_eng_[];
     static const std::string processesPidGroup_[];
+    static const std::string processesPidGroup_eng_[];
     static const std::string faultLogGroup_[];
     static const std::string stackGroup_[];
     static const std::string testGroup_[];
     static const std::string processesGroupMini_[];
     static const std::string processesGroupMini_eng_[];
     static const std::string processesPidGroupMini_[];
+    static const std::string processesPidGroupMini_eng_[];
     static const std::string systemBaseCpuIdGroupMini_[];
     static const std::string systemSystemCpuIdGroupMini_[];
     static const std::string systemSystemPidGroupMini_[];

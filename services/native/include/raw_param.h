@@ -42,12 +42,15 @@ public:
     void SetProgressEnabled(bool enable);
     bool IsProgressEnabled() const;
     void UpdateProgress(uint32_t total, uint32_t current);
+    void UpdateProgress(uint64_t progress);
     int& GetOutputFd();
     void CloseOutputFd();
     void EraseCallback(const sptr<IDumpCallbackBroker>& callback);
     bool Init(std::vector<std::u16string>& args);
     void Uninit();
     void SetTitle(const std::string &path);
+    void SetFolder(const std::string &folder);
+    std::string GetFolder();
 #ifdef DUMP_TEST_MODE // for mock test
     const sptr<IDumpCallbackBroker> GetCallback();
 #endif // for mock test
@@ -87,8 +90,9 @@ private:
     std::set<const sptr<IDumpCallbackBroker>, classcomp> callbackSet_;
     bool progressEnabled_ {false};
     uint32_t progressTick_ {0};
-    uint32_t progressCurrent_ {0};
+    uint64_t progress_ {0};
     std::string path_;
+    std::string folder_;
     const uint64_t FINISH = 100;
 };
 } // namespace HiviewDFX

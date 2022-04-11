@@ -93,7 +93,7 @@ DumpStatus ListDumper::AfterExecute()
         std::vector<std::string> line = result_->at(lineIndex);
         for (size_t itemIndex = 0; itemIndex < line.size(); itemIndex++) {
             std::string item = line[itemIndex];
-            DUMPER_HILOGD(MODULE_COMMON, "debug|item[%{public}d, %{public}d]=[%{public}s]",
+            DUMPER_HILOGD(MODULE_COMMON, "debug|item[%{public}zu, %{public}zu]=[%{public}s]",
                 lineIndex, itemIndex, item.c_str());
         }
     }

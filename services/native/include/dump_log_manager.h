@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2021 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,26 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "dump_callback.h"
-#include "hilog_wrapper.h"
+#ifndef HIDUMPER_SERVICES_DUMP_LOG_MANAGER_H
+#define HIDUMPER_SERVICES_DUMP_LOG_MANAGER_H
+#include <string>
 namespace OHOS {
 namespace HiviewDFX {
-DumpCallback::DumpCallback()
-{
-}
-
-DumpCallback::~DumpCallback()
-{
-}
-
-void DumpCallback::OnStatusChanged(uint32_t status)
-{
-    DUMPER_HILOGD(MODULE_COMMON, "debug|status=%{public}u", status);
-}
-
-sptr<DumpCallback> DumpCallback::CreateCallback()
-{
-    return sptr<DumpCallback>(new DumpCallback());
-}
+class DumpLogManager {
+public:
+    DumpLogManager();
+    ~DumpLogManager();
+public:
+    static bool Init();
+    static void Uninit();
+    static void EraseLogs();
+    static std::string CreateTmpFolder(uint32_t id);
+    static bool EraseTmpFolder(uint32_t id);
+};
 } // namespace HiviewDFX
 } // namespace OHOS
+#endif // HIDUMPER_SERVICES_DUMP_LOG_MANAGER_H
