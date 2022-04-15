@@ -166,7 +166,7 @@ DumpStatus SADumper::GetData(const std::string &name, const sptr<ISystemAbilityM
         return DumpStatus::DUMP_FAIL;
     }
     sptr<IRemoteObject> sa = sam->CheckSystemAbility(id);
-    if (!sa) {
+    if (sa == nullptr) {
         DUMPER_HILOGD(MODULE_SERVICE, "no such system ability %{public}s\n", name.c_str());
         return DumpStatus::DUMP_FAIL;
     }
@@ -187,7 +187,7 @@ DumpStatus SADumper::GetData(const std::string &name, const sptr<ISystemAbilityM
 DumpStatus SADumper::Execute()
 {
     sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (!sam) {
+    if (sam == nullptr) {
         DUMPER_HILOGD(MODULE_SERVICE, "get samgr fail!");
         return DumpStatus::DUMP_FAIL;
     }
@@ -197,7 +197,7 @@ DumpStatus SADumper::Execute()
     }
     for (size_t i = 0; i < names_.size(); ++i) {
         if (GetData(names_[i], sam) != DumpStatus::DUMP_OK) {
-            return DumpStatus::DUMP_FAIL;
+            DUMPER_HILOGD(MODULE_SERVICE, "system ability:%{public}s execute fail!\n", names_[i].c_str());
         }
     }
     return DumpStatus::DUMP_OK;
