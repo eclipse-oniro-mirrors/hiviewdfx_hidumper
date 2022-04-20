@@ -150,87 +150,57 @@ SADumper::~SADumper(void)
 DumpStatus SADumper::PreExecute(const std::shared_ptr<DumperParameter> &parameter, StringMatrix dump_datas)
 {
     result_ = dump_datas;
-    size_t size = ptrDumpCfg_->args_->GetNameList().size();
-    if (size > 1) {
-        names_ = ptrDumpCfg_->args_->GetNameList();
-    } else if (size == 1) {
-        svcName_ = ptrDumpCfg_->args_->GetNameList().front();
-    }
-
+    names_ = ptrDumpCfg_->args_->GetNameList();
     StringVector args = ptrDumpCfg_->args_->GetArgList();
-    if (!args.empty()) {
+    if (!args.empty() && names_.size() == 1) {
         std::transform(args.begin(), args.end(), std::back_inserter(args_), Str8ToStr16);
     }
-
     return DumpStatus::DUMP_OK;
 }
 
-void SADumper::GetData(const std::string &name, const sptr<ISystemAbilityManager> &sam)
+DumpStatus SADumper::GetData(const std::string &name, const sptr<ISystemAbilityManager> &sam)
 {
-    int id = stoi(name);
-    sptr<IRemoteObject> obj = sam->CheckSystemAbility(id);
-    if (obj) {
-        char line[LINE_LENGTH] = {};
-        int ret = sprintf_s(line, sizeof(line), SEPARATOR_TEMPLATE,
-                            DumpUtils::ConvertSaIdToSaName(name).c_str());
-        if (ret != -1) {
-            MatrixWriter(result_).WriteLine(line);
-            PipeReader reader(id, result_);
-            reader.Run();
-            U16StringVector args;
-            obj->Dump(reader.GetWritePipe(), args);
-            reader.Stop();
-        }
+    int id = DumpUtils::StrToId(name);
+    if (id == 0) {
+        DUMPER_HILOGD(MODULE_SERVICE, "no such ability id '%{public}s'\n", name.c_str());
+        return DumpStatus::DUMP_FAIL;
     }
+    sptr<IRemoteObject> sa = sam->CheckSystemAbility(id);
+    if (sa == nullptr) {
+        DUMPER_HILOGD(MODULE_SERVICE, "no such system ability %{public}s\n", name.c_str());
+        return DumpStatus::DUMP_FAIL;
+    }
+    char line[LINE_LENGTH] = {};
+    (void)sprintf_s(line, sizeof(line), SEPARATOR_TEMPLATE,
+                    DumpUtils::ConvertSaIdToSaName(name).c_str());
+
+    MatrixWriter(result_).WriteLine(line);
+    PipeReader reader(id, result_);
+    reader.Run();
+    if (sa->Dump(reader.GetWritePipe(), args_) != ERR_OK) {
+        DUMPER_HILOGD(MODULE_SERVICE, "system ability:%{public}s dump fail!\n", name.c_str());
+    }
+    reader.Stop();
+    return DumpStatus::DUMP_OK;
 }
 
 DumpStatus SADumper::Execute()
 {
     sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (!sam) {
-        LOG_ERR("get null sa mgr for ability id '%s'\n", svcName_.c_str());
+    if (sam == nullptr) {
+        DUMPER_HILOGD(MODULE_SERVICE, "get samgr fail!");
         return DumpStatus::DUMP_FAIL;
     }
-
-    if (svcName_.empty()) {
-        if (names_.empty()) {
-            U16StringVector vct = sam->ListSystemAbilities();
-            std::transform(vct.begin(), vct.end(), std::back_inserter(names_), Str16ToStr8);
+    if (names_.empty()) {
+        U16StringVector vct = sam->ListSystemAbilities();
+        std::transform(vct.begin(), vct.end(), std::back_inserter(names_), Str16ToStr8);
+    }
+    for (size_t i = 0; i < names_.size(); ++i) {
+        if (GetData(names_[i], sam) != DumpStatus::DUMP_OK) {
+            DUMPER_HILOGD(MODULE_SERVICE, "system ability:%{public}s execute fail!\n", names_[i].c_str());
         }
-        for (size_t i = 0, l = names_.size(); i < l; ++i) {
-            GetData(names_[i], sam);
-        }
-        return DumpStatus::DUMP_OK;
     }
-
-    int id = DumpUtils::StrToId(svcName_);
-    if (id == 0) {
-        LOG_ERR("no such ability id '%s'\n", svcName_.c_str());
-        return DumpStatus::DUMP_FAIL;
-    }
-
-    sptr<IRemoteObject> sa = sam->CheckSystemAbility(id);
-    if (!sa) {
-        LOG_ERR("no such system ability %s\n", svcName_.c_str());
-        return DumpStatus::DUMP_FAIL;
-    }
-
-    PipeReader reader(id, result_);
-    if (!reader.GetWritePipe()) {
-        LOG_ERR("pipe create failed.\n");
-        return DumpStatus::DUMP_FAIL;
-    }
-
-    DumpStatus result = DumpStatus::DUMP_OK;
-
-    reader.Run();
-    if (FAILED(sa->Dump(reader.GetWritePipe(), args_))) {
-        LOG_ERR("dump failed, system ability %s \n", svcName_.c_str());
-        result = DumpStatus::DUMP_FAIL;
-    }
-    reader.Stop();
-
-    return result;
+    return DumpStatus::DUMP_OK;
 }
 
 DumpStatus SADumper::AfterExecute()

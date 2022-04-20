@@ -33,11 +33,10 @@ public:
 
 private:
     StringMatrix result_;
-    std::string svcName_;
     StringVector names_;
     U16StringVector args_;
 
-    void GetData(const std::string &name, const sptr<ISystemAbilityManager> &sam);
+    DumpStatus GetData(const std::string &name, const sptr<ISystemAbilityManager> &sam);
 };
 } // namespace HiviewDFX
 } // namespace OHOS
