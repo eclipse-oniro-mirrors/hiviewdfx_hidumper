@@ -14,34 +14,11 @@
  */
 #ifndef CPU_DUMPER_H
 #define CPU_DUMPER_H
-
+#include "dump_cpu_info_util.h"
 #include "hidumper_executor.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-struct CPUInfo {
-    long unsigned uTime; // user space cpu time
-    long unsigned nTime; // adjust process priority cpu time
-    long unsigned sTime; // kernel space cpu time
-    long unsigned iTime; // idle cpu time
-    long unsigned iowTime; // io wait cpu time
-    long unsigned irqTime; // hard interrupt cpu time
-    long unsigned sirqTime; // soft interrupt cpu time
-};
-
-struct ProcInfo {
-    std::shared_ptr<ProcInfo> next;
-    std::string pid;
-    std::string comm;
-    long unsigned uTime;
-    long unsigned sTime;
-    long unsigned userSpaceUsage;
-    long unsigned sysSpaceUsage;
-    long unsigned totalUsage;
-    std::string minflt;
-    std::string majflt;
-};
-
 class CPUDumper : public HidumperExecutor {
 public:
     CPUDumper();
@@ -54,19 +31,13 @@ public:
 
 private:
     DumpStatus DumpCpuUsageData();
-    DumpStatus ReadCPUInfo();
-    DumpStatus ReadProcInfo();
-    DumpStatus ReadSpecProcInfo(int pid);
     DumpStatus ReadLoadAvgInfo(const std::string& filePath, std::string& info);
     bool GetDateAndTime(std::string& dateTime);
     void CreateDumpTimeString(const std::string& startTime, const std::string& endTime,
         std::string& timeStr);
-    void SetCPUInfo(long unsigned& info, const std::string& strInfo);
     void AddStrLineToDumpInfo(const std::string& strLine);
     void CreateCPUStatString(std::string& str);
     std::shared_ptr<ProcInfo> GetOldProc(const std::string& pid);
-    void GetProcessDirFiles(const std::string& path, const std::string& file,
-        std::vector<std::string>& files);
     void DumpProcInfo();
     static bool SortProcInfo(std::shared_ptr<ProcInfo> &left, std::shared_ptr<ProcInfo> &right);
 
@@ -74,22 +45,9 @@ private:
     static const std::string LOAD_AVG_FILE_PATH;
     static const size_t LOAD_AVG_INFO_COUNT;
     static const int TM_START_YEAR;
-    static const std::string PROC_STAT_FILE_PATH;
-    static const useconds_t DUMP_DELAY_MICROSECOND;
     static const int DEC_SYSTEM_VALUE;
     static const int PROC_CPU_LENGTH;
-    static const int CPU_STAT_USER_TIME_INDEX;
-    static const int CPU_STAT_NICE_TIME_INDEX;
-    static const int CPU_STAT_SYS_TIME_INDEX;
-    static const int CPU_STAT_IDLE_TIME_INDEX;
-    static const int CPU_STAT_IOW_TIME_INDEX;
-    static const int CPU_STAT_IRQ_TIME_INDEX;
-    static const int CPU_STAT_SIRQ_TIME_INDEX;
     static const long unsigned HUNDRED_PERCENT_VALUE;
-    static const int PROC_INFO_USER_TIME_INDEX;
-    static const int PROC_INFO_SYS_TIME_INDEX;
-    static const int PROC_INFO_MINOR_FAULT_INDEX;
-    static const int PROC_INFO_MAJOR_FAULT_INDEX;
 
     StringMatrix dumpCPUDatas_;
     bool isDumpCpuUsage_ = false;

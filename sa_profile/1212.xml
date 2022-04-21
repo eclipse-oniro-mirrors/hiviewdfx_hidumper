@@ -15,11 +15,11 @@
 <info>
     <process>hidumper_service</process>
     <loadlibs>
-        <libpath>/system/lib/libhidumperservice.z.so</libpath>
+        <libpath>libhidumperservice.z.so</libpath>
     </loadlibs>
     <systemability>
        <name>1212</name>
-       <libpath>/system/lib/libhidumperservice.z.so</libpath>
+       <libpath>libhidumperservice.z.so</libpath>
        <run-on-create>true</run-on-create>
        <distributed>false</distributed>
        <dump-level>1</dump-level>

@@ -80,7 +80,7 @@ void DumpLogManager::EraseLogs()
         return (right.compare(left) > 0);
     });
 
-    int sum = zipFiles.size() - LOGFILE_MAX;
+    int sum = static_cast<int>(zipFiles.size()) - LOGFILE_MAX;
     DUMPER_HILOGD(MODULE_COMMON, "EraseLogs debug|sum=%{public}d", sum);
     for (int i = 0; i < sum; i++) {
         std::string &str = zipFiles[i];

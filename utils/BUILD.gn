@@ -23,6 +23,7 @@ config("utils_config") {
 ohos_source_set("utils") {
   sources = [
     "native/src/permission.cpp",
+    "native/src/dump_cpu_info_util.cpp",
   ]
 
   configs = [ ":utils_config" ]

@@ -69,6 +69,7 @@ ohos_unittest("HidumperServiceTest") {
 
   sources = [
     "${hidumper_service_path}/native/src/dump_common_utils.cpp",
+    "${hidumper_service_path}/native/src/dump_event_handler.cpp",
     "${hidumper_service_path}/native/src/dump_log_manager.cpp",
     "${hidumper_service_path}/native/src/dump_manager_client.cpp",
     "${hidumper_service_path}/native/src/dump_manager_service.cpp",
@@ -77,6 +78,7 @@ ohos_unittest("HidumperServiceTest") {
     "${hidumper_service_path}/zidl/src/dump_broker_stub.cpp",
     "${hidumper_service_path}/zidl/src/dump_callback_broker_proxy.cpp",
     "${hidumper_service_path}/zidl/src/dump_callback_broker_stub.cpp",
+    "${hidumper_utils_path}/native/src/dump_cpu_info_util.cpp",
     "hidumper_service_test.cpp",
     "hidumper_test_default_callback.cpp",
   ]
