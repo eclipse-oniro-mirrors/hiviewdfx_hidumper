@@ -52,7 +52,7 @@ ohos_source_set("zidl_client") {
   ]
 
   external_deps = [
-    "ces_standard:cesfwk_innerkits",
+    "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
@@ -87,7 +87,7 @@ ohos_source_set("zidl_service") {
   ]
 
   external_deps = [
-    "ces_standard:cesfwk_innerkits",
+    "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
@@ -123,7 +123,7 @@ ohos_source_set("hidumper_client") {
   ]
 
   external_deps = [
-    "ces_standard:cesfwk_innerkits",
+    "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
@@ -166,7 +166,7 @@ ohos_shared_library("hidumperservice") {
   ]
 
   external_deps = [
-    "ces_standard:cesfwk_innerkits",
+    "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
