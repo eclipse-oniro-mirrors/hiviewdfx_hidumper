@@ -322,6 +322,7 @@ void MemoryInfo::GetRamUsage(const PairMatrixGroup &smapsinfos, const PairMatrix
     StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, freeTitle);
     free.push_back(freeTitle);
     free.push_back(AddKbUnit(ram.free));
+    free.push_back(" (" + to_string(ram.cachedInfo) + " cached + " + to_string(ram.freeInfo) + " free)");
     result->push_back(free);
 
     vector<string> used;
@@ -329,6 +330,7 @@ void MemoryInfo::GetRamUsage(const PairMatrixGroup &smapsinfos, const PairMatrix
     StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, usedTitle);
     used.push_back(usedTitle);
     used.push_back(AddKbUnit(ram.used));
+    used.push_back(" (" + to_string(ram.totalPss) + " total pss + " + to_string(ram.kernelUsed) + " kernel)");
     result->push_back(used);
 
     vector<string> lost;

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 #include "dump_event_handler.h"
-#include "dump_cpu_info_util.h"
+#include "util/dump_cpu_info_util.h"
 #include "dump_manager_service.h"
 #include "hilog_wrapper.h"
 namespace OHOS {

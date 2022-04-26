@@ -14,7 +14,7 @@
  */
 #ifndef CPU_DUMPER_H
 #define CPU_DUMPER_H
-#include "dump_cpu_info_util.h"
+#include "util/dump_cpu_info_util.h"
 #include "hidumper_executor.h"
 
 namespace OHOS {

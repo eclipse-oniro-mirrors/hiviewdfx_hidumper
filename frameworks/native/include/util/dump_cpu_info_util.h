@@ -14,7 +14,6 @@
  */
 #ifndef HIDUMPER_UTILS_DUMP_CPU_INFO_H
 #define HIDUMPER_UTILS_DUMP_CPU_INFO_H
-#include <mutex>
 #include <string>
 #include <vector>
 #include "singleton.h"
@@ -31,7 +30,6 @@ struct CPUInfo {
 };
 
 struct ProcInfo {
-    std::shared_ptr<ProcInfo> next;
     std::string pid;
     std::string comm;
     long unsigned uTime;
@@ -82,13 +80,10 @@ private:
     static const int CONSTANT_NUM_10 = 10;
     static const int DUMP_TIME_INTERVAL = 5;
 
-    mutable std::mutex mutexLock_;
     std::shared_ptr<CPUInfo> curCPUInfo_;
     std::shared_ptr<CPUInfo> oldCPUInfo_;
     std::vector<std::shared_ptr<ProcInfo>> curProcs_;
     std::vector<std::shared_ptr<ProcInfo>> oldProcs_;
-    std::shared_ptr<ProcInfo> curSpecProc_;
-    std::shared_ptr<ProcInfo> oldSpecProc_;
     int dumpTimeSec_;
 };
 } // namespace HiviewDFX

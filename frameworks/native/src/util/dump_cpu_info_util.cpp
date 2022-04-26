@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "dump_cpu_info_util.h"
-#include <ctime>
+#include "util/dump_cpu_info_util.h"
 #include <dirent.h>
 #include "file_ex.h"
 #include "string_ex.h"
+#include "hilog_wrapper.h"
 namespace OHOS {
 namespace HiviewDFX {
 const std::string DumpCpuInfoUtil::LOAD_AVG_FILE_PATH = "/proc/loadavg";
@@ -24,24 +24,23 @@ const std::string DumpCpuInfoUtil::PROC_STAT_FILE_PATH = "/proc/stat";
 const std::string DumpCpuInfoUtil::SPACE = " ";
 DumpCpuInfoUtil::DumpCpuInfoUtil()
 {
+    DUMPER_HILOGD(MODULE_COMMON, "create debug|");
     curCPUInfo_ = std::make_shared<CPUInfo>();
     oldCPUInfo_ = std::make_shared<CPUInfo>();
-    curSpecProc_ = std::make_shared<ProcInfo>();
-    oldSpecProc_ = std::make_shared<ProcInfo>();
 }
 
 DumpCpuInfoUtil::~DumpCpuInfoUtil()
 {
+    DUMPER_HILOGD(MODULE_COMMON, "release debug|");
     curCPUInfo_.reset();
     oldCPUInfo_.reset();
     curProcs_.clear();
     oldProcs_.clear();
-    curSpecProc_.reset();
-    oldSpecProc_.reset();
 }
 
 void DumpCpuInfoUtil::UpdateCpuInfo()
 {
+    DUMPER_HILOGD(MODULE_COMMON, "UpdateCpuInfo debug|");
     CopyCpuInfo(oldCPUInfo_, curCPUInfo_);
     GetCurCPUInfo(curCPUInfo_);
     oldProcs_.assign(curProcs_.begin(), curProcs_.end());

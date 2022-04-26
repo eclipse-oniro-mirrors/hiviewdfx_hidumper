@@ -25,10 +25,14 @@ public:
     ~GetRamInfo();
 
     struct Ram {
-        uint64_t total;
-        uint64_t free;
-        uint64_t used;
-        uint64_t lost;
+        uint64_t total {0};
+        uint64_t free {0};
+        uint64_t used {0};
+        uint64_t lost {0};
+        uint64_t totalPss {0};
+        uint64_t kernelUsed {0};
+        uint64_t cachedInfo {0};
+        uint64_t freeInfo {0};
     };
 
     using PairMatrix = std::vector<std::pair<std::string, uint64_t>>;
@@ -46,8 +50,8 @@ private:
     uint64_t GetCachedInfo(const PairMatrix &infos);
     uint64_t GetTotalRam(const PairMatrix &infos);
     uint64_t GetZramTotalInfo(const PairMatrix &infos);
-    uint64_t GetUsedRam(const PairMatrixGroup &smapsInfo, const PairMatrix &meminfo);
-    uint64_t GetFreeRam(const PairMatrix &meminfo);
+    uint64_t GetUsedRam(const PairMatrixGroup &smapsInfo, const PairMatrix &meminfo, Ram &ram);
+    uint64_t GetFreeRam(const PairMatrix &meminfo, Ram &ram);
     uint64_t GetLostRam(const PairMatrixGroup &smapsInfo, const PairMatrix &meminfo);
 };
 } // namespace HiviewDFX
