@@ -15,7 +15,6 @@
 #ifndef HIDUMPER_SERVICES_CONFIG_DATA_H
 #define HIDUMPER_SERVICES_CONFIG_DATA_H
 #include <string>
-#include <vector>
 namespace OHOS {
 namespace HiviewDFX {
 class ConfigData {

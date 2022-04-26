@@ -114,15 +114,19 @@ uint64_t GetRamInfo::GetZramTotalInfo(const PairMatrix &infos)
     return totalValue;
 }
 
-uint64_t GetRamInfo::GetUsedRam(const PairMatrixGroup &smapsInfo, const PairMatrix &meminfo)
+uint64_t GetRamInfo::GetUsedRam(const PairMatrixGroup &smapsInfo, const PairMatrix &meminfo, Ram &ram)
 {
-    uint64_t totalValue = GetTotalPss(smapsInfo) + GetKernelUsedInfo(meminfo);
+    ram.totalPss = GetTotalPss(smapsInfo);
+    ram.kernelUsed = GetKernelUsedInfo(meminfo);
+    uint64_t totalValue = ram.totalPss + ram.kernelUsed;
     return totalValue;
 }
 
-uint64_t GetRamInfo::GetFreeRam(const PairMatrix &meminfo)
+uint64_t GetRamInfo::GetFreeRam(const PairMatrix &meminfo, Ram &ram)
 {
-    uint64_t totalValue = GetCachedInfo(meminfo) + GetFreeInfo(meminfo);
+    ram.cachedInfo = GetCachedInfo(meminfo);
+    ram.freeInfo = GetFreeInfo(meminfo);
+    uint64_t totalValue = ram.cachedInfo + ram.freeInfo;
     return totalValue;
 }
 
@@ -136,16 +140,12 @@ uint64_t GetRamInfo::GetLostRam(const PairMatrixGroup &smapsInfo, const PairMatr
 
 GetRamInfo::Ram GetRamInfo::GetRam(const PairMatrixGroup &smapsInfo, const PairMatrix &meminfo)
 {
-    uint64_t total = GetTotalRam(meminfo);
-    uint64_t used = GetUsedRam(smapsInfo, meminfo);
-    uint64_t free = GetFreeRam(meminfo);
-    uint64_t lost = GetLostRam(smapsInfo, meminfo);
-
     Ram ram;
-    ram.total = total;
-    ram.used = used;
-    ram.free = free;
-    ram.lost = lost;
+
+    ram.total = GetTotalRam(meminfo);
+    ram.used = GetUsedRam(smapsInfo, meminfo, ram);
+    ram.free = GetFreeRam(meminfo, ram);
+    ram.lost = GetLostRam(smapsInfo, meminfo);
 
     return ram;
 }

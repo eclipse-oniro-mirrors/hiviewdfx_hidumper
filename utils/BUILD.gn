@@ -21,9 +21,7 @@ config("utils_config") {
 }
 
 ohos_source_set("utils") {
-  sources = [
-    "native/src/permission.cpp",
-  ]
+  sources = [ "native/src/permission.cpp" ]
 
   configs = [ ":utils_config" ]
 

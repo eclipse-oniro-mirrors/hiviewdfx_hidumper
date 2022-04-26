@@ -29,7 +29,10 @@ public:
     DumpStatus AfterExecute() override;
 
 private:
-    void GetFormat();
+    static void FilterControlChar(std::string &str);
+
+private:
+    StringMatrix dumpDatas_;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

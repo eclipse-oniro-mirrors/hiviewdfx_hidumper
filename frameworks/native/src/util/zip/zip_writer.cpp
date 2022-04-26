@@ -26,7 +26,7 @@ static const int kBaseYear = 1900;
 static const uLong LANGUAGE_ENCODING_FLAG = 0x1 << 11;
 } // namespace
 
-ZipWriter::ZipWriter(const std::string &zipFilePath) : zipFilePath_(zipFilePath)
+ZipWriter::ZipWriter(const std::string &zipFilePath) : zipFilePath_(zipFilePath), zipFile_(nullptr)
 {
     DUMPER_HILOGD(MODULE_COMMON, "create|zipFilePath=[%{public}s]", zipFilePath_.c_str());
 }
@@ -132,18 +132,18 @@ bool ZipWriter::FlushItems(const ZipTickNotify notify)
 bool ZipWriter::SetTimeToZipFileInfo(zip_fileinfo &zipInfo)
 {
     auto nowTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    auto localTime = localtime(&nowTime);
-    if (localTime == nullptr) {
+    struct tm localTime = {0};
+    if (localtime_r(&nowTime, &localTime) == nullptr) {
         DUMPER_HILOGE(MODULE_COMMON, "SetTimeToZipFileInfo error|nullptr");
         return false;
     }
 
-    zipInfo.tmz_date.tm_year = (int)localTime->tm_year + kBaseYear;
-    zipInfo.tmz_date.tm_mon = (int)localTime->tm_mon;
-    zipInfo.tmz_date.tm_mday = (int)localTime->tm_mday;
-    zipInfo.tmz_date.tm_hour = (int)localTime->tm_hour;
-    zipInfo.tmz_date.tm_min = (int)localTime->tm_min;
-    zipInfo.tmz_date.tm_sec = (int)localTime->tm_sec;
+    zipInfo.tmz_date.tm_year = static_cast<uInt>(localTime.tm_year + kBaseYear);
+    zipInfo.tmz_date.tm_mon = static_cast<uInt>(localTime.tm_mon);
+    zipInfo.tmz_date.tm_mday = static_cast<uInt>(localTime.tm_mday);
+    zipInfo.tmz_date.tm_hour = static_cast<uInt>(localTime.tm_hour);
+    zipInfo.tmz_date.tm_min = static_cast<uInt>(localTime.tm_min);
+    zipInfo.tmz_date.tm_sec = static_cast<uInt>(localTime.tm_sec);
     return true;
 }
 
@@ -187,7 +187,7 @@ bool ZipWriter::AddFileContentToZip(zipFile zip_file, std::string &file_path)
     bool ret = true;
     char buf[kZipBufSize];
     while (!feof(fp)) {
-        int readSum = fread(buf, 1, kZipBufSize, fp);
+        size_t readSum = fread(buf, 1, kZipBufSize, fp);
         if (readSum < 1) {
             continue;
         }

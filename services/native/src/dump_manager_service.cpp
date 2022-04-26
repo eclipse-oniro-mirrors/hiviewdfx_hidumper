@@ -54,6 +54,16 @@ void DumpManagerService::OnStart()
         DUMPER_HILOGE(MODULE_SERVICE, "error|it's ready, nothing to do.");
         return;
     }
+
+    if (!Init()) {
+        DUMPER_HILOGE(MODULE_SERVICE, "error|init fail, nothing to do.");
+        return;
+    }
+
+    if (eventRunner_ != nullptr) {
+        eventRunner_->Run();
+    }
+
     if (!Publish(DelayedSpSingleton<DumpManagerService>::GetInstance())) {
         DUMPER_HILOGE(MODULE_SERVICE, "error|register to system ability manager failed.");
         return;
@@ -134,12 +144,33 @@ void DumpManagerService::EraseCallback(const sptr<IDumpCallbackBroker> &callback
     DUMPER_HILOGD(MODULE_SERVICE, "leave|");
 }
 
+std::shared_ptr<DumpEventHandler> DumpManagerService::GetHandler() const
+{
+    return handler_;
+}
+
 #ifdef DUMP_TEST_MODE // for mock test
 void DumpManagerService::SetTestMainFunc(DumpManagerServiceTestMainFunc testMainFunc)
 {
     testMainFunc_ = testMainFunc;
 }
 #endif // for mock test
+
+bool DumpManagerService::Init()
+{
+    if (!eventRunner_) {
+        eventRunner_ = AppExecFwk::EventRunner::Create(DUMPMGR_SERVICE_NAME);
+        if (eventRunner_ == nullptr) {
+            DUMPER_HILOGE(MODULE_SERVICE, "error|create EventRunner");
+            return false;
+        }
+    }
+    if (!handler_) {
+        handler_ = std::make_shared<DumpEventHandler>(eventRunner_, dumpManagerService);
+    }
+    handler_->SendEvent(DumpEventHandler::MSG_GET_CPU_INFO_ID, DumpEventHandler::GET_CPU_INFO_DELAY_TIME);
+    return true;
+}
 
 int DumpManagerService::GetRequestSum()
 {
