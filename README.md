@@ -2,7 +2,7 @@
 
   - [Introduction](#section11660541593)
   - [Directory Structure](#section161941989596)
-  - [Usage]#(section1312121216216)
+  - [Usage](#section1312121216216)
     - [How to Use](#section129654513264)
   - [Repositories Involved](#section1371113476307)
 
