@@ -46,7 +46,6 @@ ohos_source_set("zidl_client") {
   ]
 
   deps = [
-    #"//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
     "${hidumper_utils_path}:utils",
     "//utils/native/base:utils",
   ]
@@ -81,7 +80,6 @@ ohos_source_set("zidl_service") {
   ]
 
   deps = [
-    #"//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
     "${hidumper_utils_path}:utils",
     "//utils/native/base:utils",
   ]
@@ -116,8 +114,6 @@ ohos_source_set("hidumper_client") {
 
   deps = [
     "${hidumper_service_path}:zidl_client",
-
-    #"//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
     "${hidumper_utils_path}:utils",
     "//utils/native/base:utils",
   ]
@@ -160,8 +156,6 @@ ohos_shared_library("hidumperservice") {
   deps = [
     "${hidumper_frameworks_path}:dump_main",
     "${hidumper_service_path}:zidl_service",
-
-    #"//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
     "${hidumper_utils_path}:utils",
     "//utils/native/base:utils",
   ]

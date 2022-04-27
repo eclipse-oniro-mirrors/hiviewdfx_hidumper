@@ -97,8 +97,6 @@ ohos_source_set("dump_main") {
     "${hidumper_utils_path}:utils",
     "//third_party/zlib:libz",
     "//utils/native/base:utils",
-
-    #"//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
   ]
 
   external_deps = [
@@ -137,8 +135,6 @@ ohos_shared_library("hidumperclient") {
     "${hidumper_service_path}:hidumper_client",
     "${hidumper_utils_path}:utils",
     "//utils/native/base:utils",
-
-    #"//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
   ]
 
   external_deps = [
@@ -173,8 +169,6 @@ ohos_executable("hidumper") {
   deps = [
     ":hidumperclient",
     "${hidumper_service_path}:hidumper_client",
-
-    #"//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
     "${hidumper_utils_path}:utils",
     "//utils/native/base:utils",
   ]
