@@ -17,7 +17,7 @@ import("//build/test.gni")
 
 module_output_path = "hidumper/"
 
-ohos_fuzztest("SADump") {
+ohos_fuzztest("SADumpFuzzTest") {
   module_out_path = module_output_path
   fuzz_config_file = "//base/hiviewdfx/hidumper/test/fuzztest/sadump_fuzzer"
   include_dirs = [ "./" ]
@@ -33,7 +33,5 @@ ohos_fuzztest("SADump") {
 group("fuzztest") {
   testonly = true
   deps = []
-  deps += [
-    ":SADump",
-  ]
+  deps += [ ":SADumpFuzzTest" ]
 }

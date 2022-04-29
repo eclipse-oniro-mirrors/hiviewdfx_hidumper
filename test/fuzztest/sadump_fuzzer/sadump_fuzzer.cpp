@@ -19,7 +19,7 @@
 #include <cstdint>
 #include <string>
 namespace OHOS {
-bool SADumpTest(const uint8_t* data, size_t size)
+bool SADumpFuzzTest(const uint8_t* data, size_t size)
 {
     if (size == 0 || data == nullptr) {
         return true;
@@ -34,6 +34,6 @@ bool SADumpTest(const uint8_t* data, size_t size)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
     /* Run your code on data */
-    OHOS::SADumpTest(data, size);
+    OHOS::SADumpFuzzTest(data, size);
     return 0;
 }
