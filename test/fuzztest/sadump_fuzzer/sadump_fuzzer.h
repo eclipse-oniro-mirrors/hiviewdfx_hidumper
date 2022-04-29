@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef SA_DUMP_FUZZER
-#define SA_DUMP_FUZZER
+#ifndef HIDUMPER_SA_DUMP_FUZZER
+#define HIDUMPER_SA_DUMP_FUZZER
 
 #include <climits>
 #include <cstdint>
