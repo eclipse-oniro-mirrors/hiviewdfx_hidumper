@@ -16,13 +16,6 @@
 #ifndef HIDUMPER_SA_DUMP_FUZZER
 #define HIDUMPER_SA_DUMP_FUZZER
 
-#include <climits>
-#include <cstdint>
-#include <cstdio>
-#include <cstdlib>
-#include <fcntl.h>
-#include <unistd.h>
-
 #define FUZZ_PROJECT_NAME "sadump_fuzzer"
 
 #endif
