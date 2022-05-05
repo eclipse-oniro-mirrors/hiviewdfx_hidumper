@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-#include "sadump_fuzzer.h"
-
 #include <cstddef>
 #include <cstdint>
 #include <string>
