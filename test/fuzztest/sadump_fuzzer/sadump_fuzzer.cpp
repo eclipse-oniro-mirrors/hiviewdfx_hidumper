@@ -18,16 +18,15 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
-namespace OHOS {
-const std::string BASE_CMD = "hidumper -s ";
 
+namespace OHOS {
 bool SADumpFuzzTest(const uint8_t* data, size_t size)
 {
     if (size == 0 || data == nullptr) {
         return true;
     }
     std::string randomData(reinterpret_cast<const char*>(data), size);
-    system((BASE_CMD + randomData).c_str());
+    system(("hidumper -s " + randomData).c_str());
     return true;
 }
 } // namespace OHOS
