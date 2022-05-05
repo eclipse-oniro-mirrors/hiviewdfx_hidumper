@@ -48,7 +48,10 @@
                     }
                   }
             ],
-            "test": [ "//base/hiviewdfx/hidumper/test:unittest" ]
+            "test": [ 
+                "//base/hiviewdfx/hidumper/test:unittest",
+                "//base/hiviewdfx/hidumper/test:fuzztest"
+            ]
         }
     }
 }
