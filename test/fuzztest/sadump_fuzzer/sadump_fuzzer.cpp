@@ -19,7 +19,7 @@
 #include <cstdint>
 #include <string>
 namespace OHOS {
-static constexpr std::string BASE_CMD = "hidumper -s ";
+const std::string BASE_CMD = "hidumper -s ";
 
 bool SADumpFuzzTest(const uint8_t* data, size_t size)
 {
