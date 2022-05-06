@@ -251,14 +251,14 @@ void DumpCpuInfoUtil::CopyProcInfo(std::shared_ptr<ProcInfo> &tar, const std::sh
 bool DumpCpuInfoUtil::CheckFrequentDumpping()
 {
     time_t curTime;
-    struct tm *ptrCurtime;
+    struct tm ptrCurtime = {0};
     (void)time(&curTime);
-    ptrCurtime = gmtime(&curTime);
-    int interval = ptrCurtime->tm_sec - dumpTimeSec_;
+    gmtime_r(&curTime, &ptrCurtime);
+    int interval = ptrCurtime.tm_sec - dumpTimeSec_;
     if (interval > 0 && interval < DUMP_TIME_INTERVAL) {
         return true;
     }
-    dumpTimeSec_ = ptrCurtime->tm_sec;
+    dumpTimeSec_ = ptrCurtime.tm_sec;
     return false;
 }
 } // namespace HiviewDFX

@@ -171,9 +171,12 @@ DumpStatus SADumper::GetData(const std::string &name, const sptr<ISystemAbilityM
         return DumpStatus::DUMP_FAIL;
     }
     char line[LINE_LENGTH] = {};
-    (void)sprintf_s(line, sizeof(line), SEPARATOR_TEMPLATE,
+    int ret = sprintf_s(line, sizeof(line), SEPARATOR_TEMPLATE,
                     DumpUtils::ConvertSaIdToSaName(name).c_str());
-
+    if (ret < 0) {
+        DUMPER_HILOGD(MODULE_SERVICE, "print separator line fail!");
+        return DumpStatus::DUMP_FAIL;
+    }
     MatrixWriter(result_).WriteLine(line);
     PipeReader reader(id, result_);
     reader.Run();
