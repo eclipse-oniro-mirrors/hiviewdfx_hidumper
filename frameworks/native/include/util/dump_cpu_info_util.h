@@ -84,7 +84,7 @@ private:
     std::shared_ptr<CPUInfo> oldCPUInfo_;
     std::vector<std::shared_ptr<ProcInfo>> curProcs_;
     std::vector<std::shared_ptr<ProcInfo>> oldProcs_;
-    int dumpTimeSec_;
+    int dumpTimeSec_ = 0;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
