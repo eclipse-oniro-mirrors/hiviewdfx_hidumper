@@ -123,52 +123,46 @@ bool ParseSmapsInfo::GetValue(const MemoryFilter::MemoryType &memType, const str
 bool ParseSmapsInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int &pid, PairMatrixGroup &result)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "ParseSmapsInfo: GetInfo pid:(%d) begin.\n", pid);
+
     result.clear();
-    string lineContent;
+
     string filename = "/proc/" + to_string(pid) + "/smaps";
     ifstream in(filename);
-    if (in) {
-        PairMatrixGroup tempResult;
-
-        vector<string> strs;
-        while (getline(in, lineContent)) {
-            strs.push_back(lineContent);
-        }
-
-        for (auto str : strs) {
-            string content = str;
-            string type = "";
-            string group = "";
-            string name = "";
-            bool isNameLine = MemoryUtil::GetInstance().IsNameLine(content, name);
-            if (isNameLine) {
-                MemoryFilter::GetInstance().ParseMemoryGroup(content, name, group);
-                if (!group.empty()) {
-                    memGroup_ = group;
-                } else {
-                    memGroup_ = "other";
-                }
-            } else {
-                uint64_t value = 0;
-                bool getValueSuccess = GetValue(memType, content, type, value);
-                if (getValueSuccess) {
-                    MemoryUtil::GetInstance().CalcGroup(memGroup_, type, value, tempResult);
-                }
-            }
-        }
-
-        if (memType == MemoryFilter::GetInstance().MemoryType::APPOINT_PID) {
-            result = DataSort(tempResult, MemoryFilter::GetInstance().TITLE_HAS_PID_);
-        } else {
-            result = DataSort(tempResult, MemoryFilter::GetInstance().TITLE_NO_PID_);
-        }
-        in.close();
-        DUMPER_HILOGD(MODULE_SERVICE, "ParseSmapsInfo: GetInfo pid:(%d) end,success!\n", pid);
-        return true;
-    } else {
+    if (!in) {
         DUMPER_HILOGE(MODULE_SERVICE, "File %s not found.\n", filename.c_str());
         return false;
     }
+
+    PairMatrixGroup tempResult;
+
+    string content;
+    while (getline(in, content)) {
+        string name;
+        bool isNameLine = MemoryUtil::GetInstance().IsNameLine(content, name);
+        if (isNameLine) {
+            string group;
+            MemoryFilter::GetInstance().ParseMemoryGroup(content, name, group);
+            memGroup_ = (!group.empty()) ? group : "other";
+        } else {
+            string type;
+            uint64_t value = 0;
+            bool getValueSuccess = GetValue(memType, content, type, value);
+            if (getValueSuccess) {
+                MemoryUtil::GetInstance().CalcGroup(memGroup_, type, value, tempResult);
+            }
+        }
+    }
+
+    in.close();
+
+    if (memType == MemoryFilter::GetInstance().MemoryType::APPOINT_PID) {
+        result = DataSort(tempResult, MemoryFilter::GetInstance().TITLE_HAS_PID_);
+    } else {
+        result = DataSort(tempResult, MemoryFilter::GetInstance().TITLE_NO_PID_);
+    }
+
+    DUMPER_HILOGD(MODULE_SERVICE, "ParseSmapsInfo: GetInfo pid:(%d) end,success!\n", pid);
+    return true;
 }
 } // namespace HiviewDFX
 } // namespace OHOS

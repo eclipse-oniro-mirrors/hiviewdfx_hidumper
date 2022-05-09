@@ -344,6 +344,7 @@ DumpStatus DumpImplement::ParseShortCmdOption(int c, DumperOpts &opts_, int argc
             if (timeOutStatus != DumpStatus::DUMP_OK) {
                 return timeOutStatus;
             }
+            opts_.timeout_ = (opts_.timeout_ == 0) ? INT32_MAX : opts_.timeout_;
             break;
         }
         default: {

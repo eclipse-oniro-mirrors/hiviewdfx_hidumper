@@ -46,25 +46,26 @@ void ParseVmallocinfo::CaclVmalloclValue(const string &str, uint64_t &totalValue
 
 bool ParseVmallocinfo::GetVmallocinfo(uint64_t &value)
 {
-    bool success = false;
-    string filename = "/proc/vmallocinfo";
     value = 0;
+
+    string filename = "/proc/vmallocinfo";
     ifstream in(filename);
-    string str;
-    vector<string> strs;
-    if (in) {
-        while (getline(in, str)) {
-            strs.push_back(str);
-        }
-        for (auto str : strs) {
-            CaclVmalloclValue(str, value);
-        }
-        in.close();
-        success = true;
-    } else {
+    if (!in) {
         DUMPER_HILOGE(MODULE_SERVICE, "File %s not found.\n", filename.c_str());
+        return false;
     }
-    return success;
+
+    string str;
+    while (getline(in, str)) {
+        if (str.find("pages=") == string::npos) {
+            continue;
+        }
+        CaclVmalloclValue(str, value);
+    }
+
+    in.close();
+
+    return true;
 }
 } // namespace HiviewDFX
 } // namespace OHOS

@@ -90,7 +90,7 @@ private:
     void AddBlankLine(StringMatrix result);
     void MemUsageToMatrix(const std::vector<MemInfoData::MemUsage> &memInfos, StringMatrix result);
     void DeletePid(std::vector<int> &pids, const int &pid);
-    void AddMemByProcessTitle(StringMatrix result);
+    void AddMemByProcessTitle(StringMatrix result, std::string sortType);
     bool static GetVss(const int &pid, uint64_t &value);
     bool static GetProcName(const int &pid, std::string &name);
     void static InitMemInfo(MemInfoData::MemInfo &memInfo);

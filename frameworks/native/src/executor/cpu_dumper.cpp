@@ -325,20 +325,27 @@ bool CPUDumper::SortProcInfo(std::shared_ptr<ProcInfo> &left, std::shared_ptr<Pr
 
 float CPUDumper::GetCpuUsage(int pid)
 {
+    oldCPUInfo_ = std::make_shared<CPUInfo>();
+    if (!DumpCpuInfoUtil::GetInstance().GetCurCPUInfo(oldCPUInfo_)) {
+        DUMPER_HILOGE(MODULE_COMMON, "Get old cpu info failed!.");
+        return DumpStatus::DUMP_FAIL;
+    }
+    oldSpecProc_ = std::make_shared<ProcInfo>();
+    if (!DumpCpuInfoUtil::GetInstance().GetCurSpecProcInfo(pid, oldSpecProc_)) {
+        DUMPER_HILOGE(MODULE_COMMON, "Get old process %{public}d info failed!.", pid);
+        return DumpStatus::DUMP_FAIL;
+    }
+
+    sleep(1);
+
+    curCPUInfo_ = std::make_shared<CPUInfo>();
     if (!DumpCpuInfoUtil::GetInstance().GetCurCPUInfo(curCPUInfo_)) {
         DUMPER_HILOGE(MODULE_COMMON, "Get current cpu info failed!.");
         return DumpStatus::DUMP_FAIL;
     }
-    if (!DumpCpuInfoUtil::GetInstance().GetOldCPUInfo(oldCPUInfo_)) {
-        DUMPER_HILOGE(MODULE_COMMON, "Get old cpu info failed!.");
-        return DumpStatus::DUMP_FAIL;
-    }
+    curSpecProc_ = std::make_shared<ProcInfo>();
     if (!DumpCpuInfoUtil::GetInstance().GetCurSpecProcInfo(pid, curSpecProc_)) {
         DUMPER_HILOGE(MODULE_COMMON, "Get current process %{public}d info failed!.", pid);
-        return DumpStatus::DUMP_FAIL;
-    }
-    if (!DumpCpuInfoUtil::GetInstance().GetOldSpecProcInfo(pid, oldSpecProc_)) {
-        DUMPER_HILOGE(MODULE_COMMON, "Get old process %{public}d info failed!.", pid);
         return DumpStatus::DUMP_FAIL;
     }
 
