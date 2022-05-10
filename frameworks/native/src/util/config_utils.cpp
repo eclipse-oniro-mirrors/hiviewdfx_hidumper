@@ -76,16 +76,16 @@ DumpStatus ConfigUtils::GetDumperConfigs()
     currentPidInfo_.Reset();
     currentPidInfos_.clear();
 
+    HandleDumpSystem(dumpCfgs);
     HandleDumpCpuFreq(dumpCfgs);  // cpuid
     HandleDumpCpuUsage(dumpCfgs); // pid
-    HandleDumpLog(dumpCfgs);
     HandleDumpMem(dumpCfgs);
+    HandleDumpLog(dumpCfgs);
     HandleDumpStorage(dumpCfgs);
     HandleDumpNet(dumpCfgs);
     HandleDumpList(dumpCfgs);
     HandleDumpAbility(dumpCfgs);
     HandleDumpService(dumpCfgs);
-    HandleDumpSystem(dumpCfgs);
     HandleDumpProcesses(dumpCfgs);
     HandleDumpFaultLog(dumpCfgs);
     HandleDumpAppendix(dumpCfgs);
@@ -260,6 +260,7 @@ bool ConfigUtils::HandleDumpSystem(std::vector<std::shared_ptr<DumpCfg>> &dumpCf
         std::shared_ptr<OptionArgs> args;
         GetConfig(CONFIG_GROUP_SYSTEM_BASE, dumpCfgs, args);
         GetConfig(CONFIG_GROUP_SYSTEM_SYSTEM, dumpCfgs, args);
+        isDumpSystemSystem = true;
         return true;
     }
 
@@ -268,6 +269,9 @@ bool ConfigUtils::HandleDumpSystem(std::vector<std::shared_ptr<DumpCfg>> &dumpCf
     for (size_t i = 0; i < dumperOpts.systemArgs_.size(); i++) {
         std::string name = CONFIG_GROUP_SYSTEM_ + dumperOpts.systemArgs_[i];
         GetConfig(name, dumpCfgs, args);
+        if (name == CONFIG_GROUP_SYSTEM_SYSTEM) {
+            isDumpSystemSystem = true;
+        }
     }
 
     currentPidInfos_.clear();
@@ -279,6 +283,11 @@ bool ConfigUtils::HandleDumpCpuFreq(std::vector<std::shared_ptr<DumpCfg>> &dumpC
 {
     const DumperOpts &dumperOpts = dumperParam_->GetOpts();
     if (!dumperOpts.isDumpCpuFreq_) {
+        return false;
+    }
+
+    DUMPER_HILOGD(MODULE_COMMON, "debug|isDumpSystem=%{public}d", isDumpSystemSystem);
+    if (isDumpSystemSystem) {
         return false;
     }
 
@@ -301,6 +310,12 @@ bool ConfigUtils::HandleDumpCpuUsage(std::vector<std::shared_ptr<DumpCfg>> &dump
         return false;
     }
 
+    DUMPER_HILOGD(MODULE_COMMON, "debug|isDumpSystem=%{public}d, cpuUsagePid=%{public}d",
+        isDumpSystemSystem, dumperOpts.cpuUsagePid_);
+    if (isDumpSystemSystem && (dumperOpts.cpuUsagePid_ < 0)) {
+        return false;
+    }
+
     DUMPER_HILOGD(MODULE_COMMON, "debug|cpu usage");
     currentPidInfo_.Reset();
     currentPidInfos_.clear();
@@ -318,6 +333,12 @@ bool ConfigUtils::HandleDumpMem(std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs)
 {
     const DumperOpts &dumperOpts = dumperParam_->GetOpts();
     if (!dumperOpts.isDumpMem_) {
+        return false;
+    }
+
+    DUMPER_HILOGD(MODULE_COMMON, "debug|isDumpSystem=%{public}d, memPid=%{public}d",
+        isDumpSystemSystem, dumperOpts.memPid_);
+    if (isDumpSystemSystem && (dumperOpts.memPid_ < 0)) {
         return false;
     }
 

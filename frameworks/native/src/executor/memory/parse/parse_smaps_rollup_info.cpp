@@ -30,78 +30,70 @@ ParseSmapsRollupInfo::~ParseSmapsRollupInfo()
 }
 
 
-void ParseSmapsRollupInfo::GetValue(const vector<string> strs, MemInfoData::MemInfo &memInfo)
+void ParseSmapsRollupInfo::GetValue(const string &str, MemInfoData::MemInfo &memInfo)
 {
-    MemoryUtil::GetInstance().InitMemInfo(memInfo);
-    for (auto str : strs) {
-        string type = "";
+    if (StringUtils::GetInstance().IsBegin(str, "R")) {
+        string type;
         uint64_t value = 0;
-        bool success = false;
-        if (StringUtils::GetInstance().IsBegin(str, "R")) {
-            success = MemoryUtil::GetInstance().GetTypeAndValue(str, type, value);
-            if (success) {
-                if (type == "Rss") {
-                    memInfo.rss = value;
-                    continue;
-                }
-            }
-            continue;
-        } else if (StringUtils::GetInstance().IsBegin(str, "P")) {
-            success = MemoryUtil::GetInstance().GetTypeAndValue(str, type, value);
-            if (success) {
-                if (type == "Pss") {
-                    memInfo.pss = value;
-                    continue;
-                } else if (type == "Private_Clean") {
-                    memInfo.privateDirty = value;
-                    continue;
-                } else if (type == "Private_Dirty") {
-                    memInfo.privateDirty = value;
-                    continue;
-                }
-            }
-            continue;
-        } else if (StringUtils::GetInstance().IsBegin(str, "S")) {
-            success = MemoryUtil::GetInstance().GetTypeAndValue(str, type, value);
-            if (success) {
-                if (type == "Shared_Clean") {
-                    memInfo.sharedClean = value;
-                    continue;
-                } else if (type == "Shared_Dirty") {
-                    memInfo.sharedDirty = value;
-                    continue;
-                } else if (type == "Swap") {
-                    memInfo.swap = value;
-                    continue;
-                } else if (type == "SwapPss") {
-                    memInfo.swapPss = value;
-                    continue;
-                }
-            }
-            continue;
+        bool success = MemoryUtil::GetInstance().GetTypeAndValue(str, type, value);
+        if (!success) {
+            return;
+        }
+        if (type == "Rss") {
+            memInfo.rss = value;
+        }
+    } else if (StringUtils::GetInstance().IsBegin(str, "P")) {
+        string type;
+        uint64_t value = 0;
+        bool success = MemoryUtil::GetInstance().GetTypeAndValue(str, type, value);
+        if (!success) {
+            return;
+        }
+        if (type == "Pss") {
+            memInfo.pss = value;
+        } else if (type == "Private_Clean") {
+            memInfo.privateDirty = value;
+        } else if (type == "Private_Dirty") {
+            memInfo.privateDirty = value;
+        }
+    } else if (StringUtils::GetInstance().IsBegin(str, "S")) {
+        string type;
+        uint64_t value = 0;
+        bool success = MemoryUtil::GetInstance().GetTypeAndValue(str, type, value);
+        if (!success) {
+            return;
+        }
+        if (type == "Shared_Clean") {
+            memInfo.sharedClean = value;
+        } else if (type == "Shared_Dirty") {
+            memInfo.sharedDirty = value;
+        } else if (type == "Swap") {
+            memInfo.swap = value;
+        } else if (type == "SwapPss") {
+            memInfo.swapPss = value;
         }
     }
 }
 
 bool ParseSmapsRollupInfo::GetMemInfo(const int &pid, MemInfoData::MemInfo &memInfo)
 {
-    string lineContent;
     string filename = "/proc/" + to_string(pid) + "/smaps_rollup";
-    bool success = false;
     ifstream in(filename);
-    vector<string> strs;
-    if (in) {
-        while (getline(in, lineContent)) {
-            strs.push_back(lineContent);
-        }
-        GetValue(strs, memInfo);
-        success = true;
-        in.close();
-    } else {
-        success = false;
+    if (!in) {
         DUMPER_HILOGE(MODULE_SERVICE, "File %s not found.\n", filename.c_str());
+        return false;
     }
-    return success;
+
+    MemoryUtil::GetInstance().InitMemInfo(memInfo);
+
+    string lineContent;
+    while (getline(in, lineContent)) {
+        GetValue(lineContent, memInfo);
+    }
+
+    in.close();
+
+    return true;
 }
 } // namespace HiviewDFX
 } // namespace OHOS

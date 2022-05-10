@@ -49,6 +49,9 @@ void DumpCpuInfoUtil::UpdateCpuInfo()
 
 bool DumpCpuInfoUtil::GetCurCPUInfo(std::shared_ptr<CPUInfo> &cpuInfo)
 {
+    if (cpuInfo == nullptr) {
+        return false;
+    }
     std::string statRawData;
     if (!LoadStringFromFile(PROC_STAT_FILE_PATH, statRawData)) {
         return false;
@@ -61,6 +64,10 @@ bool DumpCpuInfoUtil::GetCurCPUInfo(std::shared_ptr<CPUInfo> &cpuInfo)
     statRawData = statRawData.substr(0, pos);
     std::vector<std::string> cpuStates;
     SplitStr(statRawData, SPACE, cpuStates);
+    if (cpuStates.size() <= static_cast<size_t>(CPU_STAT_SIRQ_TIME_INDEX)) {
+        return false;
+    }
+
     SetCPUInfo(cpuInfo->uTime, cpuStates[CPU_STAT_USER_TIME_INDEX]);
     SetCPUInfo(cpuInfo->nTime, cpuStates[CPU_STAT_NICE_TIME_INDEX]);
     SetCPUInfo(cpuInfo->sTime, cpuStates[CPU_STAT_SYS_TIME_INDEX]);
@@ -96,11 +103,12 @@ bool DumpCpuInfoUtil::GetCurProcInfo(std::vector<std::shared_ptr<ProcInfo>> &pro
             continue;
         }
 
-        std::shared_ptr<ProcInfo> ptrProcInfo = std::make_shared<ProcInfo>();
         // Get comm name, (xxx) in stat file.
         std::vector<std::string> comms;
         GetSubStrBetween(rawData, "(", ")", comms);
-        ptrProcInfo->comm = comms[0];
+        if (comms.empty()) {
+            continue;
+        }
 
         /**
          * @brief (xxx xxx xx) contain ' ' will effect function SplitStr,
@@ -109,7 +117,12 @@ bool DumpCpuInfoUtil::GetCurProcInfo(std::vector<std::shared_ptr<ProcInfo>> &pro
         rawData = ReplaceStr(rawData, comms[0], "()");
         std::vector<std::string> procInfosStr;
         SplitStr(rawData, SPACE, procInfosStr);
+        if (procInfosStr.size() <= static_cast<size_t>(PROC_INFO_SYS_TIME_INDEX)) {
+            continue;
+        }
 
+        std::shared_ptr<ProcInfo> ptrProcInfo = std::make_shared<ProcInfo>();
+        ptrProcInfo->comm = comms[0];
         ptrProcInfo->pid = procInfosStr[0];
         SetCPUInfo(ptrProcInfo->uTime, procInfosStr[PROC_INFO_USER_TIME_INDEX]);
         SetCPUInfo(ptrProcInfo->sTime, procInfosStr[PROC_INFO_SYS_TIME_INDEX]);
@@ -146,6 +159,10 @@ void DumpCpuInfoUtil::GetProcessDirFiles(const std::string &path, const std::str
 
 bool DumpCpuInfoUtil::GetCurSpecProcInfo(int pid, std::shared_ptr<ProcInfo> &specProc)
 {
+    if (specProc == nullptr) {
+        return false;
+    }
+
     std::string filePath = "/proc/" + std::to_string(pid) + "/stat";
     std::string rawData;
     if (!LoadStringFromFile(filePath, rawData)) {
@@ -155,7 +172,9 @@ bool DumpCpuInfoUtil::GetCurSpecProcInfo(int pid, std::shared_ptr<ProcInfo> &spe
     // Get comm name, (xxx) in stat file.
     std::vector<std::string> comms;
     GetSubStrBetween(rawData, "(", ")", comms);
-    specProc->comm = comms[0];
+    if (comms.empty()) {
+        return false;
+    }
 
     /**
      * @brief (xxx xxx xx) contain ' ' will effect function SplitStr,
@@ -164,7 +183,11 @@ bool DumpCpuInfoUtil::GetCurSpecProcInfo(int pid, std::shared_ptr<ProcInfo> &spe
     rawData = ReplaceStr(rawData, comms[0], "()");
     std::vector<std::string> procInfosStr;
     SplitStr(rawData, SPACE, procInfosStr);
+    if (procInfosStr.size() <= static_cast<size_t>(PROC_INFO_SYS_TIME_INDEX)) {
+        return false;
+    }
 
+    specProc->comm = comms[0];
     specProc->pid = procInfosStr[0];
     SetCPUInfo(specProc->uTime, procInfosStr[PROC_INFO_USER_TIME_INDEX]);
     SetCPUInfo(specProc->sTime, procInfosStr[PROC_INFO_SYS_TIME_INDEX]);
@@ -197,6 +220,9 @@ bool DumpCpuInfoUtil::GetOldSpecProcInfo(int pid, std::shared_ptr<ProcInfo> &spe
 {
     if (!CheckFrequentDumpping()) {
         for (size_t i = 0; i < curProcs_.size(); i++) {
+            if (curProcs_[i] == nullptr) {
+                continue;
+            }
             if (!IsNumericStr(curProcs_[i]->pid)) {
                 return false;
             }
@@ -211,6 +237,9 @@ bool DumpCpuInfoUtil::GetOldSpecProcInfo(int pid, std::shared_ptr<ProcInfo> &spe
         }
     } else {
         for (size_t i = 0; i < oldProcs_.size(); i++) {
+            if (oldProcs_[i] == nullptr) {
+                continue;
+            }
             if (!IsNumericStr(oldProcs_[i]->pid)) {
                 return false;
             }
@@ -229,6 +258,10 @@ bool DumpCpuInfoUtil::GetOldSpecProcInfo(int pid, std::shared_ptr<ProcInfo> &spe
 
 void DumpCpuInfoUtil::CopyCpuInfo(std::shared_ptr<CPUInfo> &tar, const std::shared_ptr<CPUInfo> &source)
 {
+    if ((tar == nullptr) || (source == nullptr)) {
+        return;
+    }
+
     tar->uTime = source->uTime;
     tar->nTime = source->nTime;
     tar->sTime = source->sTime;
@@ -240,6 +273,10 @@ void DumpCpuInfoUtil::CopyCpuInfo(std::shared_ptr<CPUInfo> &tar, const std::shar
 
 void DumpCpuInfoUtil::CopyProcInfo(std::shared_ptr<ProcInfo> &tar, const std::shared_ptr<ProcInfo> &source)
 {
+    if ((tar == nullptr) || (source == nullptr)) {
+        return;
+    }
+
     tar->pid = source->pid;
     tar->comm = source->comm;
     tar->uTime = source->uTime;

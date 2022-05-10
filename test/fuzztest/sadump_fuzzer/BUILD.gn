@@ -15,7 +15,7 @@ import("//base/hiviewdfx/hidumper/hidumper.gni")
 import("//build/config/features.gni")
 import("//build/test.gni")
 
-module_output_path = "hidumper/"
+module_output_path = "hiviewdfx/hidumper"
 
 ohos_fuzztest("SADumpFuzzTest") {
   module_out_path = module_output_path

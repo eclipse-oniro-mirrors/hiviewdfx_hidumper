@@ -53,25 +53,21 @@ void ParseMeminfo::SetData(const string &str, PairMatrix &result)
  */
 bool ParseMeminfo::GetMeminfo(PairMatrix &result)
 {
-    bool success = false;
     string filename = "/proc/meminfo";
-    vector<string> strings;
     ifstream in(filename);
-    string str;
-    if (in) {
-        while (getline(in, str)) {
-            strings.push_back(str);
-        }
-        for (auto str : strings) {
-            SetData(str, result);
-        }
-        success = true;
-        in.close();
-    } else {
+    if (!in) {
         DUMPER_HILOGE(MODULE_SERVICE, "File %s not found.\n", filename.c_str());
+        return false;
     }
 
-    return success;
+    string str;
+    while (getline(in, str)) {
+        SetData(str, result);
+    }
+
+    in.close();
+
+    return true;
 }
 } // namespace HiviewDFX
 } // namespace OHOS

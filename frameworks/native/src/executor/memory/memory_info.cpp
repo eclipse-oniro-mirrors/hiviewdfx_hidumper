@@ -411,27 +411,27 @@ bool MemoryInfo::GetPids()
 bool MemoryInfo::GetVss(const int &pid, uint64_t &value)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "GetVss pid:(%d) begin", pid);
+
     string filename = "/proc/" + to_string(pid) + "/statm";
     ifstream in(filename);
-    bool success = false;
-    if (in) {
-        string lineContent;
-        getline(in, lineContent);
-        if (!lineContent.empty()) {
-            uint64_t tempValue;
-            int ret = sscanf_s(lineContent.c_str(), "%lld^*", &tempValue);
-            if (ret != -1) {
-                value = tempValue * VSS_BIT;
-                success = true;
-            } else {
-                success = false;
-            }
-        }
-        in.close();
-    } else {
-        success = false;
+    if (!in) {
         LOG_ERR("file %s not found.\n", filename.c_str());
+        return false;
     }
+
+    bool success = false;
+    string lineContent;
+    getline(in, lineContent);
+    if (!lineContent.empty()) {
+        uint64_t tempValue = 0;
+        int ret = sscanf_s(lineContent.c_str(), "%lld^*", &tempValue);
+        if (ret != -1) {
+            value = tempValue * VSS_BIT;
+            success = true;
+        }
+    }
+
+    in.close();
 
     DUMPER_HILOGD(MODULE_SERVICE, "GetVss pid:(%d) end,success:(%d),value:(%" PRIu64")",
                 pid, success, value);
@@ -600,11 +600,11 @@ void MemoryInfo::MemUsageToMatrix(const vector<MemInfoData::MemUsage> &memInfos,
     DUMPER_HILOGD(MODULE_SERVICE, "MemUsageToMatrix end");
 }
 
-void MemoryInfo::AddMemByProcessTitle(StringMatrix result)
+void MemoryInfo::AddMemByProcessTitle(StringMatrix result, string sortType)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "AddMemByProcessTitle begin");
     vector<string> process;
-    string processTitle = "Total Memory Usage by Process:";
+    string processTitle = "Total Memory Usage by " + sortType + ":";
     process.push_back(processTitle);
     result->push_back(process);
 
@@ -650,7 +650,7 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
     }
 
     if (!addMemProcessTitle_) {
-        AddMemByProcessTitle(result);
+        AddMemByProcessTitle(result, "PID");
         addMemProcessTitle_ = true;
         return DUMP_MORE_DATA;
     }
@@ -690,7 +690,7 @@ void MemoryInfo::GetSortedMemoryInfoNoPid(StringMatrix result)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "GetSortedMemoryInfoNoPid begin");
     AddBlankLine(result);
-    AddMemByProcessTitle(result);
+    AddMemByProcessTitle(result, "Size");
 
     std::sort(memUsages_.begin(), memUsages_.end(),
         [] (MemInfoData::MemUsage &left, MemInfoData::MemUsage &right) {

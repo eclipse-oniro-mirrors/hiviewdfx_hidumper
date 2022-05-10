@@ -46,9 +46,9 @@ const std::string ConfigData::CONFIG_GROUP_SYSTEM_ = ConfigData::CONFIG_GROUP_SY
 const std::string ConfigData::CONFIG_GROUP_SYSTEM_BASE = ConfigData::CONFIG_GROUP_SYSTEM_ + "base";
 const std::string ConfigData::CONFIG_GROUP_SYSTEM_SYSTEM = ConfigData::CONFIG_GROUP_SYSTEM_ + "system";
 const std::string ConfigData::CONFIG_GROUP_PROCESSES = ConfigData::CONFIG_GROUP_ + "processes";
-const std::string ConfigData::CONFIG_GROUP_PROCESSES_ENG = ConfigData::CONFIG_GROUP_ + "processesEng";
+const std::string ConfigData::CONFIG_GROUP_PROCESSES_ENG = ConfigData::CONFIG_GROUP_ + "eng_processes";
 const std::string ConfigData::CONFIG_GROUP_PROCESSES_PID = ConfigData::CONFIG_GROUP_ + "pid_processes";
-const std::string ConfigData::CONFIG_GROUP_PROCESSES_PID_ENG = ConfigData::CONFIG_GROUP_ + "pid_processesEng";
+const std::string ConfigData::CONFIG_GROUP_PROCESSES_PID_ENG = ConfigData::CONFIG_GROUP_ + "pid_eng_processes";
 const std::string ConfigData::CONFIG_GROUP_FAULT_LOG = ConfigData::CONFIG_GROUP_ + "faultlog";
 const std::string ConfigData::CONFIG_GROUP_STACK = ConfigData::CONFIG_GROUP_ + "stack";
 const std::string ConfigData::CONFIG_GROUP_TEST = ConfigData::CONFIG_GROUP_ + "test";
@@ -1725,7 +1725,7 @@ const std::string ConfigData::systemAbilityGroup_[] = {
 
 const std::string ConfigData::systemBaseGroup_[] = {
     "dumper_base_info",           "dumper_kernel_version", "dumper_command_line",
-    "dumper_kernel_wake_sources", "dumper_uptime",         "groupmini_cpuid_expand_systemBaseGroup",
+    "dumper_kernel_wake_sources", "dumper_uptime",
 };
 
 const std::string ConfigData::systemBaseCpuIdGroupMini_[] = {

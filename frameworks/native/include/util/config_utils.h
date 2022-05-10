@@ -80,6 +80,7 @@ private:
     std::vector<DumpCommonUtils::CpuInfo> cpuInfos_;
     std::vector<DumpCommonUtils::PidInfo> currentPidInfos_;
     DumpCommonUtils::PidInfo currentPidInfo_;
+    bool isDumpSystemSystem {false};
 };
 } // namespace HiviewDFX
 } // namespace OHOS

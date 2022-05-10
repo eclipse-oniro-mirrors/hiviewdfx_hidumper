@@ -28,7 +28,7 @@ public:
     bool GetMemInfo(const int &pid, MemInfoData::MemInfo &memInfo);
 
 private:
-    void GetValue(const std::vector<std::string> strs, MemInfoData::MemInfo &memInfo);
+    void GetValue(const std::string &str, MemInfoData::MemInfo &memInfo);
     bool GetTypeAndValue(const std::string &str, std::string &type, uint64_t &value);
 };
 } // namespace HiviewDFX

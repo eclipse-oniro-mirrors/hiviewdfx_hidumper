@@ -250,7 +250,7 @@ void RawParam::UpdateProgress(uint64_t progress)
         dprintf(outfd_, "\033[?25l\r%2" PRIu64 "%%,[%c]\033[?25h", progress_, PROGRESS_TICK[progressTick_]);
     }
     if (progress_ == FINISH) {
-        dprintf(outfd_, "%s", path_.c_str());
+        dprintf(outfd_, "%s\n", path_.c_str());
     }
 }
 
