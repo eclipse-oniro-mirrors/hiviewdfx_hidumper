@@ -51,7 +51,7 @@ uint64_t GetRamInfo::GetPairMatrixValue(const PairMatrix &infos, const vector<st
                 totalValue -= it->second;
             } else {
                 totalValue += it->second;
-            }   
+            }
         }
     }
     return totalValue;

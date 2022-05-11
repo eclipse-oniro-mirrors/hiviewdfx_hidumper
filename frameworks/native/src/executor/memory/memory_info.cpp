@@ -558,7 +558,7 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
     if (!dumpSmapsOnStart_) {
         dumpSmapsOnStart_ = true;
         std::vector<int> pids(pids_);
-        std::thread dumpSmapsThread([=](){
+        std::thread dumpSmapsThread([=]() {
             for (auto pid : pids) {
                 GetSmapsInfoNoPid(pid, smapsResult_);
             }
