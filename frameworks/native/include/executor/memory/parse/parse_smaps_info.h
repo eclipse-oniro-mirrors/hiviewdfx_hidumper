@@ -33,13 +33,7 @@ public:
 private:
     std::string memGroup_ = "";
 
-    bool ParseSmaps(const MemoryFilter::MemoryType &memType, int &pid, PairMatrixGroup &result);
     bool GetValue(const MemoryFilter::MemoryType &memType, const std::string &str, std::string &type, uint64_t &value);
-    void ClacByGroup(const PairMatrixGroup &infos, PairMatrixGroup &result);
-
-    void CalcGroup(const std::string &group, const std::string &type, const uint64_t &value, PairMatrixGroup &infos);
-    void InsertGroup(const std::string &group, const std::string &type, const uint64_t &value, PairMatrixGroup &infos);
-    void InsertType(const std::string &group, const std::string &type, const uint64_t &value, PairMatrixGroup &infos);
     bool GetHasPidValue(const std::string &str, std::string &type, uint64_t &value);
     bool GetNoPidValue(const std::string &str, std::string &type, uint64_t &value);
 };

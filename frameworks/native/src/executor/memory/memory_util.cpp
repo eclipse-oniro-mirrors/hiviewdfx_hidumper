@@ -85,16 +85,6 @@ void MemoryUtil::CalcGroup(const string &group, const string &type, const uint64
     }
 }
 
-bool MemoryUtil::IsPss(const string &type)
-{
-    for (auto str : MemoryFilter::GetInstance().CALC_PSS_TOTAL_) {
-        if (type == str) {
-            return true;
-        }
-    }
-    return false;
-}
-
 void MemoryUtil::SpringMatrixTransToVector(const CMDDumper::StringMatrix dumpDatas, vector<string> &result)
 {
     for (size_t i = 0; i < dumpDatas->size(); i++) {
@@ -137,68 +127,6 @@ size_t MemoryUtil::GetMaxThreadNum(const int &threadNum)
         maxThreadNum = 1;
     }
     return maxThreadNum;
-}
-
-/**
- * @description: Get the key and determine whether to add or subtract
- * @param {string} &str-string
- * @param {string} &key-get the key
- * @return {bool}-true:subtract,false-add
- */
-bool MemoryUtil::GetKey(std::string &str)
-{
-    bool subtract = false;
-    if (StringUtils::GetInstance().IsBegin(str, "-")) {
-        StringUtils::GetInstance().ReplaceAll(str, "-", "");
-        subtract = true;
-    }
-    return subtract;
-}
-
-/**
- * @description: Calculate the sum according to group
- * @param {PairMatrixGroup} &infos-To calculate the information
- * @param {PairMatrixGroup} &result-Result of calculation
- * @return {*}
- */
-/**
-void MemoryUtil::ClacTotalByGroup(const PairMatrixGroup &infos, PairMatrixGroup &result)
-{
-    if (infos.size() > 0) {
-        if (result.size() == 0) {
-            result.assign(infos.begin(), infos.end());
-        } else {
-            for (size_t i = 0; i < infos.size(); i++) {
-                auto info = infos.at(i);
-                string group = info.first;
-                auto pairMatrix = info.second;
-                for (auto pair : pairMatrix) {
-                    string type = pair.first;
-                    uint64_t value = pair.second;
-                    MemoryUtil::GetInstance().CalcGroup(group, type, value, result);
-                }
-            }
-        }
-    }
-}
-**/
-
-void MemoryUtil::ShowGroup(const PairMatrixGroup &infos)
-{
-    for (auto info : infos) {
-        string group = info.first;
-        auto pairs = info.second;
-        for (auto pair : pairs) {
-            cout << "group:" << group << ",type:" << pair.first << ",value:" << pair.second << endl;
-        }
-    }
-}
-
-void MemoryUtil::ShowPairMatrix(const PairMatrix &infos)
-{
-    for (auto info : infos) {
-        cout << "type:" << info.first << ",value:" << info.second << endl;
-    }
 }
 
 void MemoryUtil::InitMemInfo(MemInfoData::MemInfo &memInfo)

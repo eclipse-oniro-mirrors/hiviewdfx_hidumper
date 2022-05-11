@@ -38,20 +38,10 @@ public:
     std::string KB_UNIT_ = " kB";
     uint64_t BYTE_TO_KB_ = 1024;
 
-    bool IsPss(const std::string &conent);
-    bool GetRamValue(const std::vector<std::string> &ramInfo, uint64_t &value);
-    bool GetMemMatchType(const std::string &content, std::string &type);
     void CalcGroup(const std::string &group, const std::string &type, const uint64_t &value, PairMatrixGroup &infos);
-    void InsertGroupMap(const std::string &group, const std::string &type, const uint64_t &value,
-                        PairMatrixGroup &infos);
-    void GetMeminfoMatchType(const std::string &content, std::string &type);
-    void GetGroupOfPids(const int &index, const int &size, const std::vector<int> &pids, std::vector<int> &groupResult);
     bool RunCMD(const std::string &cmd, std::vector<std::string> &result);
     size_t GetMaxThreadNum(const int &threadNum);
-    bool GetKey(std::string &str);
     bool IsNameLine(const std::string &str, std::string &name);
-    void ShowGroup(const PairMatrixGroup &infos);
-    void ShowPairMatrix(const PairMatrix &infos);
     bool GetTypeValue(const std::string &str, const std::vector<std::string> &tag, std::string &type, uint64_t &value);
     void InitMemInfo(MemInfoData::MemInfo &memInfo);
     void InitMemUsage(MemInfoData::MemUsage &usage);
@@ -59,7 +49,6 @@ public:
 
 private:
     void SpringMatrixTransToVector(const CMDDumper::StringMatrix dumpDatas, std::vector<std::string> &result);
-    void InsertType(const std::string &group, const std::string &type, const uint64_t &value, PairMatrixGroup &infos);
 };
 } // namespace HiviewDFX
 } // namespace OHOS
