@@ -99,9 +99,9 @@ void MemoryInfo::BuildResult(const PairMatrixGroup &infos, StringMatrix result)
         StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, group);
         tempResult.push_back(group);
 
-        auto valueMap = info.second;
-        for (string tag : MemoryFilter::GetInstance().VALUE_WITH_PID) {
-            map<string, uint64_t>::iterator it = valueMap.find(tag);
+        auto &valueMap = info.second;
+        for (const auto &tag : MemoryFilter::GetInstance().VALUE_WITH_PID) {
+            auto it = valueMap.find(tag);
             if (it != valueMap.end()) {
                 string value = to_string(it->second);
                 StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, value);
@@ -130,7 +130,7 @@ void MemoryInfo::CalcGroup(const PairMatrixGroup &infos, StringMatrix result)
     MemInfoData::MemInfo meminfo;
     MemoryUtil::GetInstance().InitMemInfo(meminfo);
     for (auto &info : infos) {
-        auto valueMap = info.second;
+        auto &valueMap = info.second;
         for (auto &it : valueMap) {
             if (it.first == "Pss") {
                 meminfo.pss += it.second;
@@ -283,10 +283,10 @@ void MemoryInfo::GetPssTotal(const PairMatrixGroup &infos, StringMatrix result)
     for (auto &info : infos) {
         vector<string> pss;
         string group = info.first;
-        auto valueMap = info.second;
+        auto &valueMap = info.second;
         uint64_t pssValue = 0;
-        for (auto str : MemoryFilter::GetInstance().CALC_PSS_TOTAL_) {
-            map<string, uint64_t>::iterator it = valueMap.find(str);
+        for (const auto &str : MemoryFilter::GetInstance().CALC_PSS_TOTAL_) {
+            auto it = valueMap.find(str);
             if (it != valueMap.end()) {
                 pssValue += it->second;
             }

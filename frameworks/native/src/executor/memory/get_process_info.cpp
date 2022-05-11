@@ -34,9 +34,9 @@ uint64_t GetProcessInfo::GetProcess(const PairMatrixGroup &infos)
 {
     uint64_t totalValue = 0;
     for (auto &info : infos) {
-        auto valueMap = info.second;
-        for (auto str : MemoryFilter::GetInstance().CALC_PROCESS_TOTAL_) {
-            map<string, uint64_t>::iterator it = valueMap.find(str);
+        auto &valueMap = info.second;
+        for (const auto &str : MemoryFilter::GetInstance().CALC_PROCESS_TOTAL_) {
+            auto it = valueMap.find(str);
             if (it != valueMap.end()) {
                 totalValue += it->second;
             }

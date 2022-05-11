@@ -30,9 +30,9 @@ uint64_t GetRamInfo::GetPairMatrixGroupValue(const PairMatrixGroup &infos, const
 {
     uint64_t totalValue = 0;
     for (auto &info : infos) {
-        auto valueMap = info.second;
-        for (auto str : keys) {
-            map<string, uint64_t>::iterator it = valueMap.find(str);
+        auto &valueMap = info.second;
+        for (const auto &str : keys) {
+            auto it = valueMap.find(str);
             if (it != valueMap.end()) {
                 totalValue += it->second;
             }
@@ -44,8 +44,8 @@ uint64_t GetRamInfo::GetPairMatrixGroupValue(const PairMatrixGroup &infos, const
 uint64_t GetRamInfo::GetPairMatrixValue(const PairMatrix &infos, const vector<string> strs)
 {
     uint64_t totalValue = 0;
-    for (auto str : strs) {
-        map<string, uint64_t>::const_iterator it = infos.find(str);
+    for (const auto &str : strs) {
+        auto it = infos.find(str);
         if (it != infos.end()) {
             if (str == "Mapped") {
                 totalValue -= it->second;

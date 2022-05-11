@@ -36,8 +36,8 @@ GetKernelInfo::~GetKernelInfo()
  */
 bool GetKernelInfo::GetKernel(const PairMatrix &infos, uint64_t &totalValue)
 {
-    for (auto str : MemoryFilter::GetInstance().CALC_KERNEL_TOTAL_) {
-        map<string, uint64_t>::const_iterator it = infos.find(str);
+    for (const auto &str : MemoryFilter::GetInstance().CALC_KERNEL_TOTAL_) {
+        auto it = infos.find(str);
         if (it != infos.end()) {
             totalValue += it->second;
         }
