@@ -15,6 +15,7 @@
 
 #ifndef PARSE_MEMINFO_H
 #define PARSE_MEMINFO_H
+#include <map>
 #include <string>
 #include <vector>
 
@@ -25,7 +26,7 @@ public:
     ParseMeminfo();
     ~ParseMeminfo();
 
-    using PairMatrix = std::vector<std::pair<std::string, uint64_t>>;
+    using PairMatrix = std::map<std::string, uint64_t>;
     bool GetMeminfo(PairMatrix &meminfo);
 
 private:

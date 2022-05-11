@@ -93,17 +93,20 @@ void MemoryInfo::insertMemoryTitle(StringMatrix result)
 void MemoryInfo::BuildResult(const PairMatrixGroup &infos, StringMatrix result)
 {
     insertMemoryTitle(result);
-    for (auto info : infos) {
+    for (auto &info : infos) {
         vector<string> tempResult;
         string group = info.first;
         StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, group);
         tempResult.push_back(group);
 
-        auto pairs = info.second;
-        for (auto pair : pairs) {
-            string value = to_string(pair.second);
-            StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, value);
-            tempResult.push_back(value);
+        auto valueMap = info.second;
+        for (string tag : MemoryFilter::GetInstance().VALUE_WITH_PID) {
+            map<string, uint64_t>::iterator it = valueMap.find(tag);
+            if (it != valueMap.end()) {
+                string value = to_string(it->second);
+                StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, value);
+                tempResult.push_back(value);
+            }
         }
         result->push_back(tempResult);
     }
@@ -126,25 +129,23 @@ void MemoryInfo::CalcGroup(const PairMatrixGroup &infos, StringMatrix result)
 
     MemInfoData::MemInfo meminfo;
     MemoryUtil::GetInstance().InitMemInfo(meminfo);
-    for (auto info : infos) {
-        auto pairs = info.second;
-        for (auto pair : pairs) {
-            string key = pair.first;
-            uint64_t value = pair.second;
-            if (key == "Pss") {
-                meminfo.pss += value;
-            } else if (key == "Shared_Clean") {
-                meminfo.sharedClean += value;
-            } else if (key == "Shared_Dirty") {
-                meminfo.sharedDirty += value;
-            } else if (key == "Private_Clean") {
-                meminfo.privateClean += value;
-            } else if (key == "Private_Dirty") {
-                meminfo.privateDirty += value;
-            } else if (key == "Swap") {
-                meminfo.swap += value;
-            } else if (key == "SwapPss") {
-                meminfo.swapPss += value;
+    for (auto &info : infos) {
+        auto valueMap = info.second;
+        for (auto &it : valueMap) {
+            if (it.first == "Pss") {
+                meminfo.pss += it.second;
+            } else if (it.first == "Shared_Clean") {
+                meminfo.sharedClean += it.second;
+            } else if (it.first == "Shared_Dirty") {
+                meminfo.sharedDirty += it.second;
+            } else if (it.first == "Private_Clean") {
+                meminfo.privateClean += it.second;
+            } else if (it.first == "Private_Dirty") {
+                meminfo.privateDirty += it.second;
+            } else if (it.first == "Swap") {
+                meminfo.swap += it.second;
+            } else if (it.first == "SwapPss") {
+                meminfo.swapPss += it.second;
             }
         }
     }
@@ -279,16 +280,15 @@ void MemoryInfo::GetPssTotal(const PairMatrixGroup &infos, StringMatrix result)
     vector<string> title;
     title.push_back("Total PSS by Category:");
     result->push_back(title);
-    for (auto info : infos) {
+    for (auto &info : infos) {
         vector<string> pss;
         string group = info.first;
-        auto pairs = info.second;
+        auto valueMap = info.second;
         uint64_t pssValue = 0;
-        for (auto pair : pairs) {
-            string type = pair.first;
-            uint64_t value = pair.second;
-            if (MemoryUtil::GetInstance().IsPss(type)) {
-                pssValue += value;
+        for (auto str : MemoryFilter::GetInstance().CALC_PSS_TOTAL_) {
+            map<string, uint64_t>::iterator it = valueMap.find(str);
+            if (it != valueMap.end()) {
+                pssValue += it->second;
             }
         }
 
@@ -469,134 +469,40 @@ bool MemoryInfo::GetMemByProcessPid(const int &pid, MemInfoData::MemUsage &usage
     return success;
 }
 
-MemoryInfo::MemProcessData MemoryInfo::GetMemProcess(const vector<int> &pids, const int &threadId)
-{
-    DUMPER_HILOGD(MODULE_SERVICE, "GetMemProcess begin\n");
-    MemProcessData data;
-    if (pids.size() > 0) {
-        auto iter = pids.begin();
-        int pid = *iter;
-        data.pid = pid;
-        PairMatrixGroup smapsInfo;
-        bool getSmapsSuccess = GetSmapsInfoNoPid(pid, smapsInfo);
-        if (getSmapsSuccess) {
-            data.smapsInfo = smapsInfo;
-            data.smapsSuccess = true;
-            MemInfoData::MemUsage usage;
-            MemoryUtil::GetInstance().InitMemUsage(usage);
-            bool getProcessSuccess = GetMemByProcessPid(pid, usage);
-            if (getProcessSuccess) {
-                data.usage = usage;
-                data.usageSuccess = true;
-            } else {
-                DUMPER_HILOGE(MODULE_SERVICE, "GetMemProcess process ussage (%d) ERROR\n", pid);
-            }
-        } else {
-            DUMPER_HILOGE(MODULE_SERVICE, "GetMemProcess Smaps (%d) ERROR\n", pid);
-        }
-    }
-    DUMPER_HILOGD(MODULE_SERVICE, "GetMemProcess end");
-    return data;
-}
-
-void MemoryInfo::GetGroupOfPids(const int &index, const int &size, const std::vector<int> &pids,
-                                std::vector<int> &groupPids)
-{
-    for (size_t i = index * size; i <= (index + 1) * size - 1; i++) {
-        if (i <= pids.size() - 1) {
-            groupPids.push_back(pids.at(i));
-        }
-    }
-}
-
-void MemoryInfo::DeletePid(vector<int> &pids, const int &pid)
-{
-    vector<int>::iterator iter;
-    for (iter = pids.begin(); iter != pids.end();) {
-        if (*iter == pid) {
-            iter = pids.erase(iter);
-            break;
-        }
-    }
-}
-
-void MemoryInfo::GetMemProcessGroup(const vector<int> &pids, PairMatrixGroup &result,
-                                    vector<MemInfoData::MemUsage> &memInfos)
-{
-    DUMPER_HILOGD(MODULE_SERVICE, "GetMemProcessGroup begin");
-    size_t threadNum = MemoryUtil::GetInstance().GetMaxThreadNum(MemoryFilter::GetInstance().SMAPS_THREAD_NUM_);
-    if (threadNum == 0) {
-        threadNum = 1;
-    }
-
-    if (threadNum > pids.size()) {
-        threadNum = pids.size();
-    }
-
-    size_t size = pids.size() / threadNum;
-    std::vector<future<MemoryInfo::MemProcessData>> futures;
-    threadNum = 1;
-    for (size_t i = 0; i < threadNum; i++) {
-        vector<int> groupPids;
-        GetGroupOfPids(i, size, pids, groupPids);
-        auto funture = std::async(std::launch::async, GetMemProcess, groupPids, i);
-        futures.emplace_back(std::move(funture));
-    }
-
-    for (auto &futrue : futures) {
-        MemProcessData data = futrue.get();
-        if (data.usageSuccess) {
-            memInfos.push_back(data.usage);
-            memUsages_.push_back(data.usage);
-        }
-        if (data.smapsSuccess) {
-            MemoryUtil::GetInstance().ClacTotalByGroup(data.smapsInfo, result);
-        }
-        DeletePid(pids_, data.pid);
-    }
-
-    if (pids_.size() == 0) {
-        memProcessDone_ = true;
-    }
-    DUMPER_HILOGD(MODULE_SERVICE, "GetMemProcessGroup end");
-}
-
-void MemoryInfo::MemUsageToMatrix(const vector<MemInfoData::MemUsage> &memInfos, StringMatrix result)
+void MemoryInfo::MemUsageToMatrix(const MemInfoData::MemUsage &memUsage, StringMatrix result)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "MemUsageToMatrix begin");
-    for (auto memUsage : memInfos) {
-        vector<string> strs;
-        string pid = to_string(memUsage.pid);
-        StringUtils::GetInstance().SetWidth(PID_WIDTH_, BLANK_, true, pid);
-        strs.push_back(pid);
+    vector<string> strs;
+    string pid = to_string(memUsage.pid);
+    StringUtils::GetInstance().SetWidth(PID_WIDTH_, BLANK_, true, pid);
+    strs.push_back(pid);
 
-        string name = memUsage.name;
-        StringUtils::GetInstance().ReplaceAll(name, " ", "");
-        StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, name);
-        strs.push_back(name);
+    string name = memUsage.name;
+    StringUtils::GetInstance().ReplaceAll(name, " ", "");
+    StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, name);
+    strs.push_back(name);
 
-        uint64_t pss = memUsage.pss;
-        string totalPss = AddKbUnit(pss);
-        StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, true, totalPss);
-        strs.push_back(totalPss);
+    uint64_t pss = memUsage.pss;
+    string totalPss = AddKbUnit(pss);
+    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, true, totalPss);
+    strs.push_back(totalPss);
 
-        uint64_t vss = memUsage.vss;
-        string totalVss = AddKbUnit(vss);
-        StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, true, totalVss);
-        strs.push_back(totalVss);
+    uint64_t vss = memUsage.vss;
+    string totalVss = AddKbUnit(vss);
+    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, true, totalVss);
+    strs.push_back(totalVss);
 
-        uint64_t rss = memUsage.rss;
-        string totalRss = AddKbUnit(rss);
-        StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, true, totalRss);
-        strs.push_back(totalRss);
+    uint64_t rss = memUsage.rss;
+    string totalRss = AddKbUnit(rss);
+    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, true, totalRss);
+    strs.push_back(totalRss);
 
-        uint64_t uss = memUsage.uss;
-        string totalUss = AddKbUnit(uss);
-        StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, true, totalUss);
-        strs.push_back(totalUss);
+    uint64_t uss = memUsage.uss;
+    string totalUss = AddKbUnit(uss);
+    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, true, totalUss);
+    strs.push_back(totalUss);
 
-        result->emplace_back(strs);
-    }
+    result->emplace_back(strs);
     DUMPER_HILOGD(MODULE_SERVICE, "MemUsageToMatrix end");
 }
 
@@ -640,41 +546,50 @@ void MemoryInfo::AddMemByProcessTitle(StringMatrix result, string sortType)
 DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "GetMemoryInfoNoPid begin");
-    if (!getPidDone_) {
-        pidSuccess_ = GetPids();
-        getPidDone_ = true;
-    }
-
-    if (!pidSuccess_) {
-        return DUMP_FAIL;
-    }
-
-    if (!addMemProcessTitle_) {
+    if (!isReady_) {
         AddMemByProcessTitle(result, "PID");
-        addMemProcessTitle_ = true;
+        if (!GetPids()) {
+            return DUMP_FAIL;
+        }
+        isReady_ = true;
         return DUMP_MORE_DATA;
     }
 
-    PairMatrixGroup pairMatrixGroup;
-    if (!memProcessDone_) {
-        vector<MemInfoData::MemUsage> memUsages;
-        GetMemProcessGroup(pids_, pairMatrixGroup, memUsages);
-        if (memUsages.size() > 0) {
-            MemUsageToMatrix(memUsages, result);
+    if (!dumpSmapsOnStart_) {
+        dumpSmapsOnStart_ = true;
+        std::vector<int> pids(pids_);
+        std::thread dumpSmapsThread([=](){
+            for (auto pid : pids) {
+                GetSmapsInfoNoPid(pid, smapsResult_);
+            }
+            dumpSmapsOnEnd_ = true;
+        });
+        dumpSmapsThread.detach();
+    }
+    MemInfoData::MemUsage usage;
+    MemoryUtil::GetInstance().InitMemUsage(usage);
+    if (pids_.size() > 0) {
+        if (GetMemByProcessPid(pids_.front(), usage)) {
+            memUsages_.push_back(usage);
+            MemUsageToMatrix(usage, result);
+            pids_.erase(pids_.begin());
+        } else {
+            DUMPER_HILOGE(MODULE_SERVICE, "Get smaps_rollup error! pid = %{public}d\n", pids_.front());
         }
-        MemoryUtil::GetInstance().ClacTotalByGroup(pairMatrixGroup, smapsResult_);
         return DUMP_MORE_DATA;
     }
 
     PairMatrix meminfoResult;
-    bool getMemSuccess = GetMeminfo(meminfoResult);
-    if (!getMemSuccess) {
-        DUMPER_HILOGE(MODULE_SERVICE, "Get MEM ERROR\n");
+    if (!GetMeminfo(meminfoResult)) {
+        DUMPER_HILOGE(MODULE_SERVICE, "Get meminfo error\n");
         return DUMP_FAIL;
     }
 
     GetSortedMemoryInfoNoPid(result);
     AddBlankLine(result);
+
+    while (!dumpSmapsOnEnd_);
+
     GetPssTotal(smapsResult_, result);
     AddBlankLine(result);
 
@@ -682,6 +597,7 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
     AddBlankLine(result);
 
     GetRamCategory(smapsResult_, meminfoResult, result);
+    smapsResult_.clear();
     DUMPER_HILOGD(MODULE_SERVICE, "GetMemoryInfoNoPid end");
     return DUMP_OK;
 }
@@ -709,8 +625,9 @@ void MemoryInfo::GetSortedMemoryInfoNoPid(StringMatrix result)
         return right.pid < left.pid;
     });
 
-    MemUsageToMatrix(memUsages_, result);
-
+    for (auto memUsage : memUsages_) {
+        MemUsageToMatrix(memUsage, result);
+    }
     memUsages_.clear();
     DUMPER_HILOGD(MODULE_SERVICE, "GetSortedMemoryInfoNoPid end");
 }

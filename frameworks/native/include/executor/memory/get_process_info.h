@@ -14,6 +14,7 @@
  */
 #ifndef GET_PROCESS_INFO_H
 #define GET_PROCESS_INFO_H
+#include <map>
 #include <string>
 #include <vector>
 #include <memory>
@@ -24,8 +25,8 @@ public:
     GetProcessInfo();
     ~GetProcessInfo();
 
-    using PairMatrix = std::vector<std::pair<std::string, uint64_t>>;
-    using PairMatrixGroup = std::vector<std::pair<std::string, PairMatrix>>;
+    using PairMatrix = std::map<std::string, uint64_t>;
+    using PairMatrixGroup = std::map<std::string, PairMatrix>;
     uint64_t GetProcess(const PairMatrixGroup &infos);
 
 private:

@@ -14,6 +14,7 @@
  */
 #ifndef GET_RAM_INFO_H
 #define GET_RAM_INFO_H
+#include <map>
 #include <string>
 #include <vector>
 #include <memory>
@@ -35,8 +36,8 @@ public:
         uint64_t freeInfo {0};
     };
 
-    using PairMatrix = std::vector<std::pair<std::string, uint64_t>>;
-    using PairMatrixGroup = std::vector<std::pair<std::string, PairMatrix>>;
+    using PairMatrix = std::map<std::string, uint64_t>;
+    using PairMatrixGroup = std::map<std::string, PairMatrix>;
 
     Ram GetRam(const PairMatrixGroup &smapsInfo, const PairMatrix &meminfo);
 

@@ -15,6 +15,7 @@
 #ifndef GET_KERNEL_INFO_H
 #define GET_KERNEL_INFO_H
 
+#include <map>
 #include <string>
 #include <vector>
 namespace OHOS {
@@ -24,7 +25,7 @@ public:
     GetKernelInfo();
     ~GetKernelInfo();
 
-    using PairMatrix = std::vector<std::pair<std::string, uint64_t>>;
+    using PairMatrix = std::map<std::string, uint64_t>;
     bool GetKernel(const PairMatrix &info, uint64_t &totalValue);
 
 private:

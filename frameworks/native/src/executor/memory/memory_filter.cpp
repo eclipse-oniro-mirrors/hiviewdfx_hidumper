@@ -27,69 +27,22 @@ MemoryFilter::~MemoryFilter()
 {
 }
 
-const MemoryFilter::MemGroup MemoryFilter::memGroups_[] = {
-    {
-        .group_ = "so",
-        .matchRule_ = "end",
-        .matchFile_ = {".so", ".so.1"},
-    },
-    {
-        .group_ = "heap",
-        .matchRule_ = "begin",
-        .matchFile_ = {"[heap]"},
-    },
-    {
-        .group_ = "native",
-        .matchRule_ = "begin",
-        .matchFile_ = {"/system/bin/"},
-    },
-    {
-        .group_ = "stack",
-        .matchRule_ = "begin",
-        .matchFile_ = {"[stack]"},
-    },
-    {
-        .group_ = "ark js heap",
-        .matchRule_ = "begin",
-        .matchFile_ = {"[anon:Object Space]"},
-    },
-    {
-        .group_ = "native heap",
-        .matchRule_ = "begin",
-        .matchFile_ = {"[anon:native_heap:musl"},
-    },
-};
-
-bool MemoryFilter::ParseMemoryGroup(const string &content, const string &name, string &group)
+bool MemoryFilter::ParseMemoryGroup(const string &name, string &group)
 {
-    size_t groupSize = sizeof(MemoryFilter::memGroups_) / sizeof(MemoryFilter::MemGroup);
-
-    for (size_t i = 0; i < groupSize; i++) {
-        MemoryFilter::MemGroup memGroup = MemoryFilter::memGroups_[i];
-        string rule = memGroup.matchRule_;
-        vector<string> files = memGroup.matchFile_;
-
-        for (auto file : files) {
-            if (rule == "contain") {
-                if (StringUtils::GetInstance().IsContain(name, file)) {
-                    group = memGroup.group_;
-                    break;
-                }
-            } else if (rule == "end") {
-                if (StringUtils::GetInstance().IsEnd(name, file)) {
-                    group = memGroup.group_;
-                    break;
-                }
-            } else if (rule == "begin") {
-                if (StringUtils::GetInstance().IsBegin(name, file)) {
-                    group = memGroup.group_;
-                    break;
-                }
-            }
-        }
-        if (!group.empty()) {
-            break;
-        }
+    if (StringUtils::GetInstance().IsBegin(name, "/system/lib")) {
+        group = "so";
+    } else if (StringUtils::GetInstance().IsBegin(name, "/system/bin/")) {
+        group = "native";
+    } else if (StringUtils::GetInstance().IsBegin(name, "[heap]")) {
+        group = "heap";
+    } else if (StringUtils::GetInstance().IsBegin(name, "[stack]")) {
+        group = "stack";
+    } else if (StringUtils::GetInstance().IsBegin(name, "[anon:native_heap:musl")) {
+        group = "native heap";
+    } else if (StringUtils::GetInstance().IsBegin(name, "[anon:Object Space]")) {
+        group = "ark js heap";
+    } else {
+        group = "other";
     }
     return true;
 }

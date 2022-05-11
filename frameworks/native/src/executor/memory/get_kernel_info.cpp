@@ -36,18 +36,10 @@ GetKernelInfo::~GetKernelInfo()
  */
 bool GetKernelInfo::GetKernel(const PairMatrix &infos, uint64_t &totalValue)
 {
-    for (auto info : infos) {
-        string key = info.first;
-        for (auto str : MemoryFilter::GetInstance().CALC_KERNEL_TOTAL_) {
-            bool sub = MemoryUtil::GetInstance().GetKey(str);
-            if (key == str) {
-                uint64_t value = info.second;
-                if (sub) {
-                    totalValue -= value;
-                } else {
-                    totalValue += value;
-                }
-            }
+    for (auto str : MemoryFilter::GetInstance().CALC_KERNEL_TOTAL_) {
+        map<string, uint64_t>::const_iterator it = infos.find(str);
+        if (it != infos.end()) {
+            totalValue += it->second;
         }
     }
 

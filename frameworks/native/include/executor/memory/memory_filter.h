@@ -34,16 +34,11 @@ public:
         NOT_SPECIFIED_PID,
     };
 
-    struct MemGroup {
-        const std::string &group_;
-        const std::string &matchRule_;
-        const std::vector<std::string> &matchFile_;
-    };
-
-    const static MemGroup memGroups_[];
-
     int SMAPS_THREAD_NUM_ = 5;
     int HARDWARE_USAGE_THREAD_NUM_ = 5;
+
+    const std::vector<std::string> VALUE_WITH_PID = {"Pss", "Shared_Clean", "Shared_Dirty", "Private_Clean",
+                                                     "Private_Dirty", "Swap", "SwapPss"};
 
     const std::vector<std::string> TITLE_HAS_PID_ = {"Pss_Total",     "Shared_Clean", "Shared_Dirty", "Private_Clean",
                                                      "Private_Dirty", "Swap_Total",   "SwapPss_Total"};
@@ -64,13 +59,13 @@ public:
     std::vector<std::string> CALC_TOTAL_SWAP_PSS_ = {"SwapPss"};
     std::vector<std::string> CALC_KERNEL_USED_ = {"Shmem", "Slab", "VmallocUsed", "PageTables", "KernelStack"};
     std::vector<std::string> CALC_FREE_ = {"MemFree"};
-    std::vector<std::string> CALC_CACHED_ = {"Buffers", "Cached", "-Mapped"};
+    std::vector<std::string> CALC_CACHED_ = {"Buffers", "Cached", "Mapped"};
     std::vector<std::string> CALC_TOTAL_ = {"MemTotal"};
     std::vector<std::string> CALC_ZARM_TOTAL_;
     std::vector<std::string> HAS_PID_ORDER_ = {"Pss",           "Shared_Clean", "Shared_Dirty", "Private_Clean",
                                                "Private_Dirty", "Swap",         "SwapPss"};
     std::vector<std::string> NO_PID_ORDER_ = {"Pss"};
-    bool ParseMemoryGroup(const std::string &content, const std::string &name, std::string &group);
+    bool ParseMemoryGroup(const std::string &name, std::string &group);
 
 private:
 };

@@ -33,21 +33,12 @@ GetProcessInfo::~GetProcessInfo()
 uint64_t GetProcessInfo::GetProcess(const PairMatrixGroup &infos)
 {
     uint64_t totalValue = 0;
-    for (auto info : infos) {
-        auto pairs = info.second;
-        for (auto pair : pairs) {
-            string key = pair.first;
-            for (auto str : MemoryFilter::GetInstance().CALC_PROCESS_TOTAL_) {
-                bool sub = MemoryUtil::GetInstance().GetKey(str);
-                if (key == str) {
-                    uint64_t value = pair.second;
-                    if (sub) {
-                        totalValue -= value;
-                    } else {
-                        totalValue += value;
-                    }
-                    break;
-                }
+    for (auto &info : infos) {
+        auto valueMap = info.second;
+        for (auto str : MemoryFilter::GetInstance().CALC_PROCESS_TOTAL_) {
+            map<string, uint64_t>::iterator it = valueMap.find(str);
+            if (it != valueMap.end()) {
+                totalValue += it->second;
             }
         }
     }

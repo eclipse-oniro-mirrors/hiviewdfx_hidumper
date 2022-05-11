@@ -29,40 +29,6 @@ ParseSmapsInfo::~ParseSmapsInfo()
 {
 }
 
-/**
- * @description: Data sorting
- * @param {PairMatrixGroup} &infos-Data to be sorted
- * @param {vector<std::string>} tags-Sort order
- * @return {PairMatrixGroup}-Sorted results
- */
-ParseSmapsInfo::PairMatrixGroup ParseSmapsInfo::DataSort(const PairMatrixGroup &infos,
-                                                         const std::vector<std::string> &tags)
-{
-    PairMatrixGroup result;
-
-    for (auto info : infos) {
-        string group = info.first;
-        auto pairs = info.second;
-        PairMatrix pairMatrix;
-        for (auto pair : pairs) {
-            string type = pair.first;
-            for (auto tag : tags) {
-                bool contain = StringUtils::GetInstance().IsContain(tag, "_Total");
-                if (contain) {
-                    StringUtils::GetInstance().ReplaceAll(tag, "_Total", "");
-                }
-                if (tag == type) {
-                    uint64_t value = pair.second;
-                    pairMatrix.push_back(std::pair(type, value));
-                    break;
-                }
-            }
-        }
-        result.push_back(std::pair(group, pairMatrix));
-    }
-    return result;
-}
-
 bool ParseSmapsInfo::GetHasPidValue(const string &str, string &type, uint64_t &value)
 {
     bool success = false;
@@ -104,8 +70,6 @@ bool ParseSmapsInfo::GetNoPidValue(const string &str, string &type, uint64_t &va
 
 bool ParseSmapsInfo::GetValue(const MemoryFilter::MemoryType &memType, const string &str, string &type, uint64_t &value)
 {
-    type = "";
-    value = 0;
     if (memType == MemoryFilter::MemoryType::APPOINT_PID) {
         return GetHasPidValue(str, type, value);
     } else {
@@ -123,9 +87,6 @@ bool ParseSmapsInfo::GetValue(const MemoryFilter::MemoryType &memType, const str
 bool ParseSmapsInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int &pid, PairMatrixGroup &result)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "ParseSmapsInfo: GetInfo pid:(%d) begin.\n", pid);
-
-    result.clear();
-
     string filename = "/proc/" + to_string(pid) + "/smaps";
     ifstream in(filename);
     if (!in) {
@@ -133,34 +94,20 @@ bool ParseSmapsInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int 
         return false;
     }
 
-    PairMatrixGroup tempResult;
-
     string content;
     while (getline(in, content)) {
         string name;
-        bool isNameLine = MemoryUtil::GetInstance().IsNameLine(content, name);
-        if (isNameLine) {
-            string group;
-            MemoryFilter::GetInstance().ParseMemoryGroup(content, name, group);
-            memGroup_ = (!group.empty()) ? group : "other";
-        } else {
+        if (StringUtils::GetInstance().IsEnd(content, "B")) {
             string type;
             uint64_t value = 0;
-            bool getValueSuccess = GetValue(memType, content, type, value);
-            if (getValueSuccess) {
-                MemoryUtil::GetInstance().CalcGroup(memGroup_, type, value, tempResult);
+            if (GetValue(memType, content, type, value)) {
+                MemoryUtil::GetInstance().CalcGroup(memGroup_, type, value, result);
             }
+        } else if (MemoryUtil::GetInstance().IsNameLine(content, name)) {
+            MemoryFilter::GetInstance().ParseMemoryGroup(name, memGroup_);
         }
     }
-
     in.close();
-
-    if (memType == MemoryFilter::GetInstance().MemoryType::APPOINT_PID) {
-        result = DataSort(tempResult, MemoryFilter::GetInstance().TITLE_HAS_PID_);
-    } else {
-        result = DataSort(tempResult, MemoryFilter::GetInstance().TITLE_NO_PID_);
-    }
-
     DUMPER_HILOGD(MODULE_SERVICE, "ParseSmapsInfo: GetInfo pid:(%d) end,success!\n", pid);
     return true;
 }

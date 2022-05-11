@@ -14,6 +14,7 @@
  */
 #ifndef PARSE_SMAPS_INFO_H
 #define PARSE_SMAPS_INFO_H
+#include <map>
 #include <string>
 #include <vector>
 #include "executor/memory/memory_filter.h"
@@ -24,8 +25,8 @@ public:
     ParseSmapsInfo();
     ~ParseSmapsInfo();
 
-    using PairMatrix = std::vector<std::pair<std::string, uint64_t>>;
-    using PairMatrixGroup = std::vector<std::pair<std::string, PairMatrix>>;
+    using PairMatrix = std::map<std::string, uint64_t>;
+    using PairMatrixGroup = std::map<std::string, PairMatrix>;
 
     bool GetInfo(const MemoryFilter::MemoryType &memType, const int &pid, PairMatrixGroup &result);
 
@@ -41,8 +42,6 @@ private:
     void InsertType(const std::string &group, const std::string &type, const uint64_t &value, PairMatrixGroup &infos);
     bool GetHasPidValue(const std::string &str, std::string &type, uint64_t &value);
     bool GetNoPidValue(const std::string &str, std::string &type, uint64_t &value);
-
-    PairMatrixGroup DataSort(const PairMatrixGroup &infos, const std::vector<std::string> &tags);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

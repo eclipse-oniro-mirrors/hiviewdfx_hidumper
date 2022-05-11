@@ -14,6 +14,7 @@
  */
 #ifndef MEMORY_UTIL_H
 #define MEMORY_UTIL_H
+#include <map>
 #include <string>
 #include <vector>
 #include <memory>
@@ -31,8 +32,8 @@ public:
     MemoryUtil(MemoryUtil const &) = delete;
     void operator=(MemoryUtil const &) = delete;
 
-    using PairMatrix = std::vector<std::pair<std::string, uint64_t>>;
-    using PairMatrixGroup = std::vector<std::pair<std::string, PairMatrix>>;
+    using PairMatrix = std::map<std::string, uint64_t>;
+    using PairMatrixGroup = std::map<std::string, PairMatrix>;
 
     std::string KB_UNIT_ = " kB";
     uint64_t BYTE_TO_KB_ = 1024;
@@ -49,7 +50,6 @@ public:
     size_t GetMaxThreadNum(const int &threadNum);
     bool GetKey(std::string &str);
     bool IsNameLine(const std::string &str, std::string &name);
-    void ClacTotalByGroup(const PairMatrixGroup &infos, PairMatrixGroup &result);
     void ShowGroup(const PairMatrixGroup &infos);
     void ShowPairMatrix(const PairMatrix &infos);
     bool GetTypeValue(const std::string &str, const std::vector<std::string> &tag, std::string &type, uint64_t &value);

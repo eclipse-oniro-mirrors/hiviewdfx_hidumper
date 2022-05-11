@@ -40,9 +40,8 @@ void ParseMeminfo::SetData(const string &str, PairMatrix &result)
 {
     string type = "";
     uint64_t value = 0;
-    bool success = MemoryUtil::GetInstance().GetTypeValue(str, MemoryFilter::GetInstance().MEMINFO_TAG_, type, value);
-    if (success) {
-        result.push_back(make_pair(type, value));
+    if (MemoryUtil::GetInstance().GetTypeValue(str, MemoryFilter::GetInstance().MEMINFO_TAG_, type, value)) {
+        result.insert(pair<string, uint64_t>(type, value));
     }
 }
 

@@ -29,21 +29,12 @@ GetRamInfo::~GetRamInfo()
 uint64_t GetRamInfo::GetPairMatrixGroupValue(const PairMatrixGroup &infos, const vector<string> keys)
 {
     uint64_t totalValue = 0;
-    for (auto info : infos) {
-        auto iter = info.second;
-        for (auto inIter : iter) {
-            string key = inIter.first;
-            for (auto str : keys) {
-                bool sub = MemoryUtil::GetInstance().GetKey(str);
-                if (key == str) {
-                    uint64_t value = inIter.second;
-                    if (sub) {
-                        totalValue -= value;
-                    } else {
-                        totalValue += value;
-                    }
-                    break;
-                }
+    for (auto &info : infos) {
+        auto valueMap = info.second;
+        for (auto str : keys) {
+            map<string, uint64_t>::iterator it = valueMap.find(str);
+            if (it != valueMap.end()) {
+                totalValue += it->second;
             }
         }
     }
@@ -53,22 +44,16 @@ uint64_t GetRamInfo::GetPairMatrixGroupValue(const PairMatrixGroup &infos, const
 uint64_t GetRamInfo::GetPairMatrixValue(const PairMatrix &infos, const vector<string> strs)
 {
     uint64_t totalValue = 0;
-    for (auto info : infos) {
-        string key = info.first;
-        for (auto str : strs) {
-            bool sub = MemoryUtil::GetInstance().GetKey(str);
-            if (key == str) {
-                uint64_t value = info.second;
-                if (sub) {
-                    totalValue -= value;
-                } else {
-                    totalValue += value;
-                }
-                break;
-            }
+    for (auto str : strs) {
+        map<string, uint64_t>::const_iterator it = infos.find(str);
+        if (it != infos.end()) {
+            if (str == "Mapped") {
+                totalValue -= it->second;
+            } else {
+                totalValue += it->second;
+            }   
         }
     }
-
     return totalValue;
 }
 
