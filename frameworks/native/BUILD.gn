@@ -107,7 +107,7 @@ ohos_source_set("dump_main") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
-    "startup_l2:syspara",
+    "init:libbegetutil",
   ]
 
   subsystem_name = "hiviewdfx"
@@ -145,7 +145,7 @@ ohos_shared_library("hidumperclient") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
-    "startup_l2:syspara",
+    "init:libbegetutil",
   ]
 
   subsystem_name = "hiviewdfx"
@@ -181,7 +181,7 @@ ohos_executable("hidumper") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
-    "startup_l2:syspara",
+    "init:libbegetutil",
   ]
 
   subsystem_name = "hiviewdfx"

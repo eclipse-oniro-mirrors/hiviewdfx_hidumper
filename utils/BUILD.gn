@@ -27,7 +27,7 @@ ohos_source_set("utils") {
 
   deps = [ "//utils/native/base:utils" ]
 
-  external_deps = [ "startup_l2:syspara" ]
+  external_deps = [ "init:libbegetutil" ]
 
   subsystem_name = "${hidumper_subsystem_name}"
 
