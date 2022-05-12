@@ -29,8 +29,8 @@ public:
     ~MemoryInfo();
 
     using StringMatrix = std::shared_ptr<std::vector<std::vector<std::string>>>;
-    using PairMatrix = std::map<std::string, uint64_t>;
-    using PairMatrixGroup = std::map<std::string, PairMatrix>;
+    using ValueMap = std::map<std::string, uint64_t>;
+    using GroupMap = std::map<std::string, ValueMap>;
 
     bool GetMemoryInfoByPid(const int &pid, StringMatrix result);
     DumpStatus GetMemoryInfoNoPid(StringMatrix result);
@@ -59,22 +59,22 @@ private:
     std::vector<int> pids_;
     std::vector<MemInfoData::MemUsage> memUsages_;
 
-    PairMatrixGroup smapsResult_;
+    GroupMap smapsResult_;
     void insertMemoryTitle(StringMatrix result);
-    void BuildResult(const PairMatrixGroup &infos, StringMatrix result);
+    void BuildResult(const GroupMap &infos, StringMatrix result);
 
     std::string AddKbUnit(const uint64_t &value);
     bool static GetMemByProcessPid(const int &pid, MemInfoData::MemUsage &usage);
-    bool static GetSmapsInfoNoPid(const int &pid, PairMatrixGroup &result);
-    bool GetMeminfo(PairMatrix &result);
+    bool static GetSmapsInfoNoPid(const int &pid, GroupMap &result);
+    bool GetMeminfo(ValueMap &result);
     bool GetHardWareUsage(StringMatrix result);
     bool GetCMAUsage(StringMatrix result);
-    bool GetKernelUsage(const PairMatrix &infos, StringMatrix result);
-    void GetProcesses(const PairMatrixGroup &infos, StringMatrix result);
+    bool GetKernelUsage(const ValueMap &infos, StringMatrix result);
+    void GetProcesses(const GroupMap &infos, StringMatrix result);
     bool GetPids();
-    void GetPssTotal(const PairMatrixGroup &infos, StringMatrix result);
-    void GetRamUsage(const PairMatrixGroup &smapsinfos, const PairMatrix &meminfo, StringMatrix result);
-    void GetRamCategory(const PairMatrixGroup &smapsinfos, const PairMatrix &meminfos, StringMatrix result);
+    void GetPssTotal(const GroupMap &infos, StringMatrix result);
+    void GetRamUsage(const GroupMap &smapsinfos, const ValueMap &meminfo, StringMatrix result);
+    void GetRamCategory(const GroupMap &smapsinfos, const ValueMap &meminfos, StringMatrix result);
     void AddBlankLine(StringMatrix result);
     void MemUsageToMatrix(const MemInfoData::MemUsage &memUsage, StringMatrix result);
     void AddMemByProcessTitle(StringMatrix result, std::string sortType);
@@ -82,7 +82,7 @@ private:
     bool static GetProcName(const int &pid, std::string &name);
     void static InitMemInfo(MemInfoData::MemInfo &memInfo);
     void static InitMemUsage(MemInfoData::MemUsage &usage);
-    void CalcGroup(const PairMatrixGroup &infos, StringMatrix result);
+    void CalcGroup(const GroupMap &infos, StringMatrix result);
     void SetValue(const std::string &value, std::vector<std::string> &lines, std::vector<std::string> &values);
     void GetSortedMemoryInfoNoPid(StringMatrix result);
 };

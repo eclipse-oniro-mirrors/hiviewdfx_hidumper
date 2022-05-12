@@ -26,7 +26,7 @@ GetRamInfo::~GetRamInfo()
 {
 }
 
-uint64_t GetRamInfo::GetPairMatrixGroupValue(const PairMatrixGroup &infos, const vector<string> keys)
+uint64_t GetRamInfo::GetGroupMapValue(const GroupMap &infos, const vector<string> keys)
 {
     uint64_t totalValue = 0;
     for (auto &info : infos) {
@@ -41,7 +41,7 @@ uint64_t GetRamInfo::GetPairMatrixGroupValue(const PairMatrixGroup &infos, const
     return totalValue;
 }
 
-uint64_t GetRamInfo::GetPairMatrixValue(const PairMatrix &infos, const vector<string> strs)
+uint64_t GetRamInfo::GetValueMapValue(const ValueMap &infos, const vector<string> strs)
 {
     uint64_t totalValue = 0;
     for (const auto &str : strs) {
@@ -57,49 +57,49 @@ uint64_t GetRamInfo::GetPairMatrixValue(const PairMatrix &infos, const vector<st
     return totalValue;
 }
 
-uint64_t GetRamInfo::GetTotalPss(const PairMatrixGroup &infos)
+uint64_t GetRamInfo::GetTotalPss(const GroupMap &infos)
 {
-    uint64_t totalValue = GetPairMatrixGroupValue(infos, MemoryFilter::GetInstance().CALC_TOTAL_PSS_);
+    uint64_t totalValue = GetGroupMapValue(infos, MemoryFilter::GetInstance().CALC_TOTAL_PSS_);
     return totalValue;
 }
 
-uint64_t GetRamInfo::GetTotalSwapPss(const PairMatrixGroup &infos)
+uint64_t GetRamInfo::GetTotalSwapPss(const GroupMap &infos)
 {
-    uint64_t totalValue = GetPairMatrixGroupValue(infos, MemoryFilter::GetInstance().CALC_TOTAL_SWAP_PSS_);
+    uint64_t totalValue = GetGroupMapValue(infos, MemoryFilter::GetInstance().CALC_TOTAL_SWAP_PSS_);
     return totalValue;
 }
 
-uint64_t GetRamInfo::GetFreeInfo(const PairMatrix &infos)
+uint64_t GetRamInfo::GetFreeInfo(const ValueMap &infos)
 {
-    uint64_t totalValue = GetPairMatrixValue(infos, MemoryFilter::GetInstance().CALC_FREE_);
+    uint64_t totalValue = GetValueMapValue(infos, MemoryFilter::GetInstance().CALC_FREE_);
     return totalValue;
 }
 
-uint64_t GetRamInfo::GetKernelUsedInfo(const PairMatrix &infos)
+uint64_t GetRamInfo::GetKernelUsedInfo(const ValueMap &infos)
 {
-    uint64_t totalValue = GetPairMatrixValue(infos, MemoryFilter::GetInstance().CALC_KERNEL_USED_);
+    uint64_t totalValue = GetValueMapValue(infos, MemoryFilter::GetInstance().CALC_KERNEL_USED_);
     return totalValue;
 }
 
-uint64_t GetRamInfo::GetCachedInfo(const PairMatrix &infos)
+uint64_t GetRamInfo::GetCachedInfo(const ValueMap &infos)
 {
-    uint64_t totalValue = GetPairMatrixValue(infos, MemoryFilter::GetInstance().CALC_CACHED_);
+    uint64_t totalValue = GetValueMapValue(infos, MemoryFilter::GetInstance().CALC_CACHED_);
     return totalValue;
 }
 
-uint64_t GetRamInfo::GetTotalRam(const PairMatrix &infos)
+uint64_t GetRamInfo::GetTotalRam(const ValueMap &infos)
 {
-    uint64_t totalValue = GetPairMatrixValue(infos, MemoryFilter::GetInstance().CALC_TOTAL_);
+    uint64_t totalValue = GetValueMapValue(infos, MemoryFilter::GetInstance().CALC_TOTAL_);
     return totalValue;
 }
 
-uint64_t GetRamInfo::GetZramTotalInfo(const PairMatrix &infos)
+uint64_t GetRamInfo::GetZramTotalInfo(const ValueMap &infos)
 {
-    uint64_t totalValue = GetPairMatrixValue(infos, MemoryFilter::GetInstance().CALC_ZARM_TOTAL_);
+    uint64_t totalValue = GetValueMapValue(infos, MemoryFilter::GetInstance().CALC_ZARM_TOTAL_);
     return totalValue;
 }
 
-uint64_t GetRamInfo::GetUsedRam(const PairMatrixGroup &smapsInfo, const PairMatrix &meminfo, Ram &ram)
+uint64_t GetRamInfo::GetUsedRam(const GroupMap &smapsInfo, const ValueMap &meminfo, Ram &ram)
 {
     ram.totalPss = GetTotalPss(smapsInfo);
     ram.kernelUsed = GetKernelUsedInfo(meminfo);
@@ -107,7 +107,7 @@ uint64_t GetRamInfo::GetUsedRam(const PairMatrixGroup &smapsInfo, const PairMatr
     return totalValue;
 }
 
-uint64_t GetRamInfo::GetFreeRam(const PairMatrix &meminfo, Ram &ram)
+uint64_t GetRamInfo::GetFreeRam(const ValueMap &meminfo, Ram &ram)
 {
     ram.cachedInfo = GetCachedInfo(meminfo);
     ram.freeInfo = GetFreeInfo(meminfo);
@@ -115,7 +115,7 @@ uint64_t GetRamInfo::GetFreeRam(const PairMatrix &meminfo, Ram &ram)
     return totalValue;
 }
 
-uint64_t GetRamInfo::GetLostRam(const PairMatrixGroup &smapsInfo, const PairMatrix &meminfo)
+uint64_t GetRamInfo::GetLostRam(const GroupMap &smapsInfo, const ValueMap &meminfo)
 {
     uint64_t totalValue = GetTotalRam(meminfo) - (GetTotalPss(smapsInfo) - GetTotalSwapPss(smapsInfo))
                       - GetFreeInfo(meminfo) - GetCachedInfo(meminfo) - GetKernelUsedInfo(meminfo)
@@ -123,7 +123,7 @@ uint64_t GetRamInfo::GetLostRam(const PairMatrixGroup &smapsInfo, const PairMatr
     return totalValue;
 }
 
-GetRamInfo::Ram GetRamInfo::GetRam(const PairMatrixGroup &smapsInfo, const PairMatrix &meminfo)
+GetRamInfo::Ram GetRamInfo::GetRam(const GroupMap &smapsInfo, const ValueMap &meminfo)
 {
     Ram ram;
 

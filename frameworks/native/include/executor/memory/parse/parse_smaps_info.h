@@ -25,10 +25,10 @@ public:
     ParseSmapsInfo();
     ~ParseSmapsInfo();
 
-    using PairMatrix = std::map<std::string, uint64_t>;
-    using PairMatrixGroup = std::map<std::string, PairMatrix>;
+    using ValueMap = std::map<std::string, uint64_t>;
+    using GroupMap = std::map<std::string, ValueMap>;
 
-    bool GetInfo(const MemoryFilter::MemoryType &memType, const int &pid, PairMatrixGroup &result);
+    bool GetInfo(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &result);
 
 private:
     std::string memGroup_ = "";

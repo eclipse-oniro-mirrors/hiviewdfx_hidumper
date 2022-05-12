@@ -33,10 +33,10 @@ ParseMeminfo::~ParseMeminfo()
 /**
  * @description: SetData
  * @param {string} &str-String to be inserted into result
- * @param {PairMatrix} &result-Returned results
+ * @param {ValueMap} &result-Returned results
  * @return void
  */
-void ParseMeminfo::SetData(const string &str, PairMatrix &result)
+void ParseMeminfo::SetData(const string &str, ValueMap &result)
 {
     string type = "";
     uint64_t value = 0;
@@ -47,10 +47,10 @@ void ParseMeminfo::SetData(const string &str, PairMatrix &result)
 
 /**
  * @description: Get the data from meminfo
- * @param {PairMatrix} &meminfo - the meminfo result
+ * @param {ValueMap} &meminfo - the meminfo result
  * @return bool-true:success,false-fail
  */
-bool ParseMeminfo::GetMeminfo(PairMatrix &result)
+bool ParseMeminfo::GetMeminfo(ValueMap &result)
 {
     string filename = "/proc/meminfo";
     ifstream in(filename);

@@ -25,9 +25,9 @@ public:
     GetProcessInfo();
     ~GetProcessInfo();
 
-    using PairMatrix = std::map<std::string, uint64_t>;
-    using PairMatrixGroup = std::map<std::string, PairMatrix>;
-    uint64_t GetProcess(const PairMatrixGroup &infos);
+    using ValueMap = std::map<std::string, uint64_t>;
+    using GroupMap = std::map<std::string, ValueMap>;
+    uint64_t GetProcess(const GroupMap &infos);
 
 private:
 };

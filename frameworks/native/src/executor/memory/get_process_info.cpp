@@ -27,10 +27,10 @@ GetProcessInfo::~GetProcessInfo()
 
 /**
  * @description: get the value of process usage
- * @param {PairMatrixGroup} &infos-Smaps information
+ * @param {GroupMap} &infos-Smaps information
  * @return {uint64_t}-the value of
  */
-uint64_t GetProcessInfo::GetProcess(const PairMatrixGroup &infos)
+uint64_t GetProcessInfo::GetProcess(const GroupMap &infos)
 {
     uint64_t totalValue = 0;
     for (auto &info : infos) {

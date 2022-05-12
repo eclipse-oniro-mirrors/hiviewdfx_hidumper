@@ -25,8 +25,8 @@ public:
     GetKernelInfo();
     ~GetKernelInfo();
 
-    using PairMatrix = std::map<std::string, uint64_t>;
-    bool GetKernel(const PairMatrix &info, uint64_t &totalValue);
+    using ValueMap = std::map<std::string, uint64_t>;
+    bool GetKernel(const ValueMap &info, uint64_t &totalValue);
 
 private:
 };

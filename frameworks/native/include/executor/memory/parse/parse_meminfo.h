@@ -26,11 +26,11 @@ public:
     ParseMeminfo();
     ~ParseMeminfo();
 
-    using PairMatrix = std::map<std::string, uint64_t>;
-    bool GetMeminfo(PairMatrix &meminfo);
+    using ValueMap = std::map<std::string, uint64_t>;
+    bool GetMeminfo(ValueMap &meminfo);
 
 private:
-    void SetData(const std::string &str, PairMatrix &result);
+    void SetData(const std::string &str, ValueMap &result);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

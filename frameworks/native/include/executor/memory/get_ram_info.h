@@ -36,24 +36,24 @@ public:
         uint64_t freeInfo {0};
     };
 
-    using PairMatrix = std::map<std::string, uint64_t>;
-    using PairMatrixGroup = std::map<std::string, PairMatrix>;
+    using ValueMap = std::map<std::string, uint64_t>;
+    using GroupMap = std::map<std::string, ValueMap>;
 
-    Ram GetRam(const PairMatrixGroup &smapsInfo, const PairMatrix &meminfo);
+    Ram GetRam(const GroupMap &smapsInfo, const ValueMap &meminfo);
 
 private:
-    uint64_t GetPairMatrixGroupValue(const PairMatrixGroup &infos, const std::vector<std::string> keys);
-    uint64_t GetPairMatrixValue(const PairMatrix &infos, const std::vector<std::string> strs);
-    uint64_t GetTotalPss(const PairMatrixGroup &infos);
-    uint64_t GetTotalSwapPss(const PairMatrixGroup &infos);
-    uint64_t GetFreeInfo(const PairMatrix &infos);
-    uint64_t GetKernelUsedInfo(const PairMatrix &infos);
-    uint64_t GetCachedInfo(const PairMatrix &infos);
-    uint64_t GetTotalRam(const PairMatrix &infos);
-    uint64_t GetZramTotalInfo(const PairMatrix &infos);
-    uint64_t GetUsedRam(const PairMatrixGroup &smapsInfo, const PairMatrix &meminfo, Ram &ram);
-    uint64_t GetFreeRam(const PairMatrix &meminfo, Ram &ram);
-    uint64_t GetLostRam(const PairMatrixGroup &smapsInfo, const PairMatrix &meminfo);
+    uint64_t GetGroupMapValue(const GroupMap &infos, const std::vector<std::string> keys);
+    uint64_t GetValueMapValue(const ValueMap &infos, const std::vector<std::string> strs);
+    uint64_t GetTotalPss(const GroupMap &infos);
+    uint64_t GetTotalSwapPss(const GroupMap &infos);
+    uint64_t GetFreeInfo(const ValueMap &infos);
+    uint64_t GetKernelUsedInfo(const ValueMap &infos);
+    uint64_t GetCachedInfo(const ValueMap &infos);
+    uint64_t GetTotalRam(const ValueMap &infos);
+    uint64_t GetZramTotalInfo(const ValueMap &infos);
+    uint64_t GetUsedRam(const GroupMap &smapsInfo, const ValueMap &meminfo, Ram &ram);
+    uint64_t GetFreeRam(const ValueMap &meminfo, Ram &ram);
+    uint64_t GetLostRam(const GroupMap &smapsInfo, const ValueMap &meminfo);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

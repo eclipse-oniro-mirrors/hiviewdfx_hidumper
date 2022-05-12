@@ -30,11 +30,11 @@ GetKernelInfo::~GetKernelInfo()
 
 /**
  * @description: Get the usage of kernel
- * @param {PairMatrix} &infos-the meminfo
+ * @param {ValueMap} &infos-the meminfo
  * @param {uint64_t} &value-the usage of kernel
  * @return {bool} - true:success,false-fail
  */
-bool GetKernelInfo::GetKernel(const PairMatrix &infos, uint64_t &totalValue)
+bool GetKernelInfo::GetKernel(const ValueMap &infos, uint64_t &totalValue)
 {
     for (const auto &str : MemoryFilter::GetInstance().CALC_KERNEL_TOTAL_) {
         auto it = infos.find(str);

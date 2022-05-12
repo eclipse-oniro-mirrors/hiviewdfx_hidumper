@@ -81,10 +81,10 @@ bool ParseSmapsInfo::GetValue(const MemoryFilter::MemoryType &memType, const str
  * @description: Parse smaps file
  * @param {MemoryType} &memType-APPOINT_PID-Specify the PID,NOT_SPECIFIED_PID-No PID is specified
  * @param {int} &pid-Pid
- * @param {PairMatrixGroup} &result-The result of parsing
+ * @param {GroupMap} &result-The result of parsing
  * @return bool-true:parse success,false-parse fail
  */
-bool ParseSmapsInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int &pid, PairMatrixGroup &result)
+bool ParseSmapsInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &result)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "ParseSmapsInfo: GetInfo pid:(%d) begin.\n", pid);
     string filename = "/proc/" + to_string(pid) + "/smaps";

@@ -70,7 +70,7 @@ bool MemoryUtil::GetTypeValue(const string &str, const vector<string> &tags, str
     return true;
 }
 
-void MemoryUtil::CalcGroup(const string &group, const string &type, const uint64_t &value, PairMatrixGroup &infos)
+void MemoryUtil::CalcGroup(const string &group, const string &type, const uint64_t &value, GroupMap &infos)
 {
     if (infos.find(group) == infos.end()) {
         map<string, uint64_t> valueMap;
@@ -85,7 +85,7 @@ void MemoryUtil::CalcGroup(const string &group, const string &type, const uint64
     }
 }
 
-void MemoryUtil::SpringMatrixTransToVector(const CMDDumper::StringMatrix dumpDatas, vector<string> &result)
+void MemoryUtil::StringMatrixTransToVector(const CMDDumper::StringMatrix dumpDatas, vector<string> &result)
 {
     for (size_t i = 0; i < dumpDatas->size(); i++) {
         vector<string> line = dumpDatas->at(i);
@@ -104,7 +104,7 @@ bool MemoryUtil::RunCMD(const string &cmd, vector<string> &result)
     shared_ptr<CMDDumper> cmdDumper = make_shared<CMDDumper>();
     DumpStatus status = cmdDumper->GetCmdInterface(cmd, dumpDatas);
     if (status == DumpStatus::DUMP_OK) {
-        SpringMatrixTransToVector(dumpDatas, result);
+        StringMatrixTransToVector(dumpDatas, result);
     } else {
         return false;
     }

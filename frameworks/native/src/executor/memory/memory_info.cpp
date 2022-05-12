@@ -90,7 +90,7 @@ void MemoryInfo::insertMemoryTitle(StringMatrix result)
     result->push_back(line4);
 }
 
-void MemoryInfo::BuildResult(const PairMatrixGroup &infos, StringMatrix result)
+void MemoryInfo::BuildResult(const GroupMap &infos, StringMatrix result)
 {
     insertMemoryTitle(result);
     for (auto &info : infos) {
@@ -122,7 +122,7 @@ void MemoryInfo::SetValue(const string &value, vector<string> &lines, vector<str
     values.push_back(tempValue);
 }
 
-void MemoryInfo::CalcGroup(const PairMatrixGroup &infos, StringMatrix result)
+void MemoryInfo::CalcGroup(const GroupMap &infos, StringMatrix result)
 {
     string separator = "-";
     StringUtils::GetInstance().SetWidth(LINE_WIDTH_, SEPARATOR_, false, separator);
@@ -169,7 +169,7 @@ void MemoryInfo::CalcGroup(const PairMatrixGroup &infos, StringMatrix result)
 bool MemoryInfo::GetMemoryInfoByPid(const int &pid, StringMatrix result)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "GetMemoryInfoByPid (%d) begin\n", pid);
-    PairMatrixGroup smapsInfo;
+    GroupMap smapsInfo;
     unique_ptr<ParseSmapsInfo> parseSmapsInfo = make_unique<ParseSmapsInfo>();
     bool success = parseSmapsInfo->GetInfo(MemoryFilter::APPOINT_PID, pid, smapsInfo);
     if (success) {
@@ -185,7 +185,7 @@ string MemoryInfo::AddKbUnit(const uint64_t &value)
     return to_string(value) + MemoryUtil::GetInstance().KB_UNIT_;
 }
 
-bool MemoryInfo::GetSmapsInfoNoPid(const int &pid, PairMatrixGroup &result)
+bool MemoryInfo::GetSmapsInfoNoPid(const int &pid, GroupMap &result)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "GetSmapsInfoNoPid (%d) begin\n", pid);
     unique_ptr<ParseSmapsInfo> parseSmapsInfo = make_unique<ParseSmapsInfo>();
@@ -194,7 +194,7 @@ bool MemoryInfo::GetSmapsInfoNoPid(const int &pid, PairMatrixGroup &result)
     return success;
 }
 
-bool MemoryInfo::GetMeminfo(PairMatrix &result)
+bool MemoryInfo::GetMeminfo(ValueMap &result)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "GetMeminfo begin\n");
     unique_ptr<ParseMeminfo> parseMeminfo = make_unique<ParseMeminfo>();
@@ -239,7 +239,7 @@ bool MemoryInfo::GetCMAUsage(StringMatrix result)
     return success;
 }
 
-bool MemoryInfo::GetKernelUsage(const PairMatrix &infos, StringMatrix result)
+bool MemoryInfo::GetKernelUsage(const ValueMap &infos, StringMatrix result)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "GetKernelUsage begin");
     uint64_t value = 0;
@@ -257,7 +257,7 @@ bool MemoryInfo::GetKernelUsage(const PairMatrix &infos, StringMatrix result)
     return success;
 }
 
-void MemoryInfo::GetProcesses(const PairMatrixGroup &infos, StringMatrix result)
+void MemoryInfo::GetProcesses(const GroupMap &infos, StringMatrix result)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "GetProcesses begin");
     uint64_t value = 0;
@@ -274,7 +274,7 @@ void MemoryInfo::GetProcesses(const PairMatrixGroup &infos, StringMatrix result)
     DUMPER_HILOGD(MODULE_SERVICE, "GetProcesses end");
 }
 
-void MemoryInfo::GetPssTotal(const PairMatrixGroup &infos, StringMatrix result)
+void MemoryInfo::GetPssTotal(const GroupMap &infos, StringMatrix result)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "GetPssTotal begin");
     vector<string> title;
@@ -304,7 +304,7 @@ void MemoryInfo::GetPssTotal(const PairMatrixGroup &infos, StringMatrix result)
     }
 }
 
-void MemoryInfo::GetRamUsage(const PairMatrixGroup &smapsinfos, const PairMatrix &meminfo, StringMatrix result)
+void MemoryInfo::GetRamUsage(const GroupMap &smapsinfos, const ValueMap &meminfo, StringMatrix result)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "GetRamUsage begin");
     unique_ptr<GetRamInfo> getRamInfo = make_unique<GetRamInfo>();
@@ -342,7 +342,7 @@ void MemoryInfo::GetRamUsage(const PairMatrixGroup &smapsinfos, const PairMatrix
     DUMPER_HILOGD(MODULE_SERVICE, "GetRamUsage end");
 }
 
-void MemoryInfo::GetRamCategory(const PairMatrixGroup &smapsInfos, const PairMatrix &meminfos, StringMatrix result)
+void MemoryInfo::GetRamCategory(const GroupMap &smapsInfos, const ValueMap &meminfos, StringMatrix result)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "GetRamCategory begin");
     vector<string> title;
@@ -445,20 +445,16 @@ bool MemoryInfo::GetMemByProcessPid(const int &pid, MemInfoData::MemUsage &usage
     MemInfoData::MemInfo memInfo;
     MemoryUtil::GetInstance().InitMemInfo(memInfo);
     unique_ptr<ParseSmapsRollupInfo> getSmapsRollup = make_unique<ParseSmapsRollupInfo>();
-    bool getRollupSuccess = getSmapsRollup->GetMemInfo(pid, memInfo);
-    if (getRollupSuccess) {
+    if (getSmapsRollup->GetMemInfo(pid, memInfo)) {
         uint64_t vss = 0;
-        bool getVssSuccess = GetVss(pid, vss);
-        if (getVssSuccess) {
+        if (GetVss(pid, vss)) {
             usage.vss = vss;
-            uint64_t uss = memInfo.privateClean + memInfo.privateDirty;
-            usage.uss = uss;
+            usage.uss = memInfo.privateClean + memInfo.privateDirty;
             usage.rss = memInfo.rss;
             usage.pss = memInfo.pss;
 
             string name;
-            bool getNameSuccess = GetProcName(pid, name);
-            if (getNameSuccess) {
+            if (GetProcName(pid, name)) {
                 usage.name = name;
             }
             usage.pid = pid;
@@ -572,14 +568,14 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
         if (GetMemByProcessPid(pids_.front(), usage)) {
             memUsages_.push_back(usage);
             MemUsageToMatrix(usage, result);
-            pids_.erase(pids_.begin());
         } else {
             DUMPER_HILOGE(MODULE_SERVICE, "Get smaps_rollup error! pid = %{public}d\n", pids_.front());
         }
+        pids_.erase(pids_.begin());
         return DUMP_MORE_DATA;
     }
 
-    PairMatrix meminfoResult;
+    ValueMap meminfoResult;
     if (!GetMeminfo(meminfoResult)) {
         DUMPER_HILOGE(MODULE_SERVICE, "Get meminfo error\n");
         return DUMP_FAIL;
@@ -597,6 +593,7 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
     AddBlankLine(result);
 
     GetRamCategory(smapsResult_, meminfoResult, result);
+    memUsages_.clear();
     smapsResult_.clear();
     DUMPER_HILOGD(MODULE_SERVICE, "GetMemoryInfoNoPid end");
     return DUMP_OK;
@@ -625,10 +622,9 @@ void MemoryInfo::GetSortedMemoryInfoNoPid(StringMatrix result)
         return right.pid < left.pid;
     });
 
-    for (auto memUsage : memUsages_) {
+    for (auto &memUsage : memUsages_) {
         MemUsageToMatrix(memUsage, result);
     }
-    memUsages_.clear();
     DUMPER_HILOGD(MODULE_SERVICE, "GetSortedMemoryInfoNoPid end");
 }
 } // namespace HiviewDFX
