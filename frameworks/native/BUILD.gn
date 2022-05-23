@@ -20,6 +20,7 @@ config("hidumper_include") {
     "//third_party/json/include",
     "${hidumper_frameworks_path}/include",
     "//utils/native/base/include",
+    "//foundation/resourceschedule/memmgr/interface/innerkits/include",
   ]
 }
 
@@ -105,6 +106,7 @@ ohos_source_set("dump_main") {
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
     "ipc:ipc_core",
+    "memmgr:memmgrclient",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
     "startup_l2:syspara",

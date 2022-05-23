@@ -58,14 +58,17 @@ private:
     bool dumpSmapsOnEnd_ = false;
     std::vector<int> pids_;
     std::vector<MemInfoData::MemUsage> memUsages_;
-
+    std::map<std::string, std::vector<MemInfoData::MemUsage>> adjMemResult_ = {
+        {"System", {}}, {"Foreground", {}}, {"Suspend-delay", {}},
+        {"Perceived", {}}, {"Background", {}}, {"Undefined", {}},
+    };
     GroupMap smapsResult_;
     void insertMemoryTitle(StringMatrix result);
     void BuildResult(const GroupMap &infos, StringMatrix result);
 
     std::string AddKbUnit(const uint64_t &value);
-    bool static GetMemByProcessPid(const int &pid, MemInfoData::MemUsage &usage);
-    bool static GetSmapsInfoNoPid(const int &pid, GroupMap &result);
+    static bool GetMemByProcessPid(const int &pid, MemInfoData::MemUsage &usage);
+    static bool GetSmapsInfoNoPid(const int &pid, GroupMap &result);
     bool GetMeminfo(ValueMap &result);
     bool GetHardWareUsage(StringMatrix result);
     bool GetCMAUsage(StringMatrix result);
@@ -78,13 +81,15 @@ private:
     void AddBlankLine(StringMatrix result);
     void MemUsageToMatrix(const MemInfoData::MemUsage &memUsage, StringMatrix result);
     void AddMemByProcessTitle(StringMatrix result, std::string sortType);
-    bool static GetVss(const int &pid, uint64_t &value);
-    bool static GetProcName(const int &pid, std::string &name);
-    void static InitMemInfo(MemInfoData::MemInfo &memInfo);
-    void static InitMemUsage(MemInfoData::MemUsage &usage);
+    static uint64_t GetVss(const int &pid);
+    static std::string GetProcName(const int &pid);
+    static std::string GetProcessAdjLabel(const int pid);
+    static void InitMemInfo(MemInfoData::MemInfo &memInfo);
+    static void InitMemUsage(MemInfoData::MemUsage &usage);
     void CalcGroup(const GroupMap &infos, StringMatrix result);
     void SetValue(const std::string &value, std::vector<std::string> &lines, std::vector<std::string> &values);
     void GetSortedMemoryInfoNoPid(StringMatrix result);
+    void GetMemoryByAdj(StringMatrix result);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

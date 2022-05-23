@@ -13,24 +13,28 @@
 * limitations under the License.
 */
 #include "executor/memory/memory_info.h"
+
 #include <cinttypes>
-#include <thread>
 #include <future>
 #include <fstream>
+#include <numeric>
+#include <thread>
+
+#include "dump_common_utils.h"
 #include "executor/memory/get_cma_info.h"
 #include "executor/memory/get_hardware_info.h"
 #include "executor/memory/get_kernel_info.h"
 #include "executor/memory/get_process_info.h"
 #include "executor/memory/get_ram_info.h"
 #include "executor/memory/memory_util.h"
-#include "executor/memory/parse/parse_smaps_info.h"
-#include "executor/memory/parse/parse_meminfo.h"
-#include "dump_common_utils.h"
-#include "hilog_wrapper.h"
-#include "util/string_utils.h"
 #include "executor/memory/parse/meminfo_data.h"
+#include "executor/memory/parse/parse_meminfo.h"
 #include "executor/memory/parse/parse_smaps_rollup_info.h"
+#include "executor/memory/parse/parse_smaps_info.h"
+#include "hilog_wrapper.h"
+#include "mem_mgr_constant.h"
 #include "securec_p.h"
+#include "util/string_utils.h"
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
@@ -168,16 +172,14 @@ void MemoryInfo::CalcGroup(const GroupMap &infos, StringMatrix result)
 
 bool MemoryInfo::GetMemoryInfoByPid(const int &pid, StringMatrix result)
 {
-    DUMPER_HILOGD(MODULE_SERVICE, "GetMemoryInfoByPid (%d) begin\n", pid);
     GroupMap smapsInfo;
     unique_ptr<ParseSmapsInfo> parseSmapsInfo = make_unique<ParseSmapsInfo>();
-    bool success = parseSmapsInfo->GetInfo(MemoryFilter::APPOINT_PID, pid, smapsInfo);
-    if (success) {
+    if (parseSmapsInfo->GetInfo(MemoryFilter::APPOINT_PID, pid, smapsInfo)) {
         BuildResult(smapsInfo, result);
         CalcGroup(smapsInfo, result);
+        return true;
     }
-    DUMPER_HILOGD(MODULE_SERVICE, "GetMemoryInfoByPid (%d) end,result:(%d)\n", pid, success);
-    return success;
+    return false;
 }
 
 string MemoryInfo::AddKbUnit(const uint64_t &value)
@@ -187,43 +189,34 @@ string MemoryInfo::AddKbUnit(const uint64_t &value)
 
 bool MemoryInfo::GetSmapsInfoNoPid(const int &pid, GroupMap &result)
 {
-    DUMPER_HILOGD(MODULE_SERVICE, "GetSmapsInfoNoPid (%d) begin\n", pid);
     unique_ptr<ParseSmapsInfo> parseSmapsInfo = make_unique<ParseSmapsInfo>();
-    bool success = parseSmapsInfo->GetInfo(MemoryFilter::NOT_SPECIFIED_PID, pid, result);
-    DUMPER_HILOGD(MODULE_SERVICE, "GetSmapsInfoNoPid (%d) end,result:(%d)\n", pid, success);
-    return success;
+    return parseSmapsInfo->GetInfo(MemoryFilter::NOT_SPECIFIED_PID, pid, result);
 }
 
 bool MemoryInfo::GetMeminfo(ValueMap &result)
 {
-    DUMPER_HILOGD(MODULE_SERVICE, "GetMeminfo begin\n");
     unique_ptr<ParseMeminfo> parseMeminfo = make_unique<ParseMeminfo>();
-    bool success = parseMeminfo->GetMeminfo(result);
-    DUMPER_HILOGD(MODULE_SERVICE, "GetMeminfo end\n");
-    return success;
+    return parseMeminfo->GetMeminfo(result);
 }
 
 bool MemoryInfo::GetHardWareUsage(StringMatrix result)
 {
-    DUMPER_HILOGD(MODULE_SERVICE, "GetHardWareUsage begin\n");
     uint64_t value;
     unique_ptr<GetHardwareInfo> getHardwareInfo = make_unique<GetHardwareInfo>();
-    bool success = getHardwareInfo->GetHardwareUsage(value);
-    if (success) {
+    if (getHardwareInfo->GetHardwareUsage(value)) {
         vector<string> hardware;
         string title = "Hardware Usage:";
         StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, title);
         hardware.push_back(title);
         hardware.push_back(AddKbUnit(value));
         result->push_back(hardware);
+        return true;
     }
-    DUMPER_HILOGD(MODULE_SERVICE, "GetHardWareUsage end,success:(%d)\n", success);
-    return success;
+    return false;
 }
 
 bool MemoryInfo::GetCMAUsage(StringMatrix result)
 {
-    DUMPER_HILOGD(MODULE_SERVICE, "GetCMAUsage begin\n");
     uint64_t value = 0;
     unique_ptr<GetCMAInfo> getCMAInfo = make_unique<GetCMAInfo>();
     bool success = getCMAInfo->GetUsed(value);
@@ -235,13 +228,11 @@ bool MemoryInfo::GetCMAUsage(StringMatrix result)
         cma.push_back(AddKbUnit(value));
         result->push_back(cma);
     }
-    DUMPER_HILOGD(MODULE_SERVICE, "GetCMAUsage end,success:(%d)\n", success);
     return success;
 }
 
 bool MemoryInfo::GetKernelUsage(const ValueMap &infos, StringMatrix result)
 {
-    DUMPER_HILOGD(MODULE_SERVICE, "GetKernelUsage begin");
     uint64_t value = 0;
     unique_ptr<GetKernelInfo> getGetKernelInfo = make_unique<GetKernelInfo>();
     bool success = getGetKernelInfo->GetKernel(infos, value);
@@ -253,13 +244,11 @@ bool MemoryInfo::GetKernelUsage(const ValueMap &infos, StringMatrix result)
         kernel.push_back(AddKbUnit(value));
         result->push_back(kernel);
     }
-    DUMPER_HILOGD(MODULE_SERVICE, "GetKernelUsage end,success:(%d)\n", success);
     return success;
 }
 
 void MemoryInfo::GetProcesses(const GroupMap &infos, StringMatrix result)
 {
-    DUMPER_HILOGD(MODULE_SERVICE, "GetProcesses begin");
     uint64_t value = 0;
 
     unique_ptr<GetProcessInfo> getProcessInfo = make_unique<GetProcessInfo>();
@@ -271,12 +260,10 @@ void MemoryInfo::GetProcesses(const GroupMap &infos, StringMatrix result)
     process.push_back(title);
     process.push_back(AddKbUnit(value));
     result->push_back(process);
-    DUMPER_HILOGD(MODULE_SERVICE, "GetProcesses end");
 }
 
 void MemoryInfo::GetPssTotal(const GroupMap &infos, StringMatrix result)
 {
-    DUMPER_HILOGD(MODULE_SERVICE, "GetPssTotal begin");
     vector<string> title;
     title.push_back("Total PSS by Category:");
     result->push_back(title);
@@ -300,13 +287,11 @@ void MemoryInfo::GetPssTotal(const GroupMap &infos, StringMatrix result)
         pss.push_back(group);
 
         result->push_back(pss);
-        DUMPER_HILOGD(MODULE_SERVICE, "GetPssTotal end");
     }
 }
 
 void MemoryInfo::GetRamUsage(const GroupMap &smapsinfos, const ValueMap &meminfo, StringMatrix result)
 {
-    DUMPER_HILOGD(MODULE_SERVICE, "GetRamUsage begin");
     unique_ptr<GetRamInfo> getRamInfo = make_unique<GetRamInfo>();
     GetRamInfo::Ram ram = getRamInfo->GetRam(smapsinfos, meminfo);
 
@@ -339,12 +324,10 @@ void MemoryInfo::GetRamUsage(const GroupMap &smapsinfos, const ValueMap &meminfo
     lost.push_back(lostTitle);
     lost.push_back(AddKbUnit(ram.lost));
     result->push_back(lost);
-    DUMPER_HILOGD(MODULE_SERVICE, "GetRamUsage end");
 }
 
 void MemoryInfo::GetRamCategory(const GroupMap &smapsInfos, const ValueMap &meminfos, StringMatrix result)
 {
-    DUMPER_HILOGD(MODULE_SERVICE, "GetRamCategory begin");
     vector<string> title;
     title.push_back("Total RAM by Category:");
     result->push_back(title);
@@ -365,53 +348,62 @@ void MemoryInfo::GetRamCategory(const GroupMap &smapsInfos, const ValueMap &memi
     }
 
     GetProcesses(smapsInfos, result);
-    DUMPER_HILOGD(MODULE_SERVICE, "GetRamCategory end");
 }
 
 void MemoryInfo::AddBlankLine(StringMatrix result)
 {
-    DUMPER_HILOGD(MODULE_SERVICE, "AddBlankLine begin");
     vector<string> blank;
     blank.push_back("\n");
     result->push_back(blank);
-    DUMPER_HILOGD(MODULE_SERVICE, "AddBlankLine end");
 }
 
-bool MemoryInfo::GetProcName(const int &pid, string &name)
+string MemoryInfo::GetProcName(const int &pid)
 {
-    DUMPER_HILOGD(MODULE_SERVICE, "GetProcName begin");
     string str = "grep \"Name\" /proc/" + to_string(pid) + "/status";
+    string procName = "unknown";
     vector<string> cmdResult;
-    bool success = MemoryUtil::GetInstance().RunCMD(str, cmdResult);
-    if (cmdResult.size() > 0) {
+    if (MemoryUtil::GetInstance().RunCMD(str, cmdResult) && cmdResult.size() > 0) {
         vector<string> names;
         StringUtils::GetInstance().StringSplit(cmdResult.at(0), ":", names);
         if (names.size() == NAME_SIZE_) {
-            name = names.at(1);
-            StringUtils::GetInstance().ReplaceAll(name, " ", "");
+            procName = names.at(1);
+            StringUtils::GetInstance().ReplaceAll(procName, " ", "");
+            return procName;
         }
     }
-    DUMPER_HILOGD(MODULE_SERVICE, "GetProcName end");
-    return success;
+    DUMPER_HILOGE(MODULE_SERVICE, "GetProcName fail! pid = %d", pid);
+    return procName;
+}
+
+string MemoryInfo::GetProcessAdjLabel(const int pid)
+{
+    string cmd = "cat /proc/" + to_string(pid) + "/oom_score_adj";
+    vector<string> cmdResult;
+    string adjLabel = Memory::RECLAIM_PRIORITY_UNKNOWN_DESC;
+    if (!MemoryUtil::GetInstance().RunCMD(cmd, cmdResult) || cmdResult.size() == 0) {
+        DUMPER_HILOGD(MODULE_SERVICE, "GetProcessAdjLabel fail! pid = %{pubilic}d", pid);
+        return adjLabel;
+    }
+    auto it = Memory::ReclaimPriorityMapping.find(stoi(cmdResult.front()));
+    if (it != Memory::ReclaimPriorityMapping.end()) {
+        adjLabel = it->second;
+    }
+    return adjLabel;
 }
 
 bool MemoryInfo::GetPids()
 {
-    DUMPER_HILOGD(MODULE_SERVICE, "GetPids begin");
     pids_.clear();
     memUsages_.clear();
     bool success = DumpCommonUtils::GetUserPids(pids_);
     if (!success) {
-        DUMPER_HILOGE(MODULE_SERVICE, "GetPids error\n");
+        DUMPER_HILOGE(MODULE_SERVICE, "GetPids error");
     }
-    DUMPER_HILOGD(MODULE_SERVICE, "GetPids end,success:(%d),pids_.size:(%zu)", success, pids_.size());
     return success;
 }
 
-bool MemoryInfo::GetVss(const int &pid, uint64_t &value)
+uint64_t MemoryInfo::GetVss(const int &pid)
 {
-    DUMPER_HILOGD(MODULE_SERVICE, "GetVss pid:(%d) begin", pid);
-
     string filename = "/proc/" + to_string(pid) + "/statm";
     ifstream in(filename);
     if (!in) {
@@ -419,55 +411,43 @@ bool MemoryInfo::GetVss(const int &pid, uint64_t &value)
         return false;
     }
 
-    bool success = false;
+    uint64_t res = 0;
     string lineContent;
     getline(in, lineContent);
     if (!lineContent.empty()) {
         uint64_t tempValue = 0;
         int ret = sscanf_s(lineContent.c_str(), "%lld^*", &tempValue);
         if (ret != -1) {
-            value = tempValue * VSS_BIT;
-            success = true;
+            res = tempValue * VSS_BIT;
+        } else {
+            DUMPER_HILOGE(MODULE_SERVICE, "GetVss error! pid = %d", pid);
         }
     }
-
     in.close();
-
-    DUMPER_HILOGD(MODULE_SERVICE, "GetVss pid:(%d) end,success:(%d),value:(%" PRIu64")",
-                pid, success, value);
-    return success;
+    return res;
 }
 
 bool MemoryInfo::GetMemByProcessPid(const int &pid, MemInfoData::MemUsage &usage)
 {
-    DUMPER_HILOGD(MODULE_SERVICE, "GetMemByProcessPid pid`:(%d) begin", pid);
     bool success = false;
     MemInfoData::MemInfo memInfo;
     MemoryUtil::GetInstance().InitMemInfo(memInfo);
     unique_ptr<ParseSmapsRollupInfo> getSmapsRollup = make_unique<ParseSmapsRollupInfo>();
     if (getSmapsRollup->GetMemInfo(pid, memInfo)) {
-        uint64_t vss = 0;
-        if (GetVss(pid, vss)) {
-            usage.vss = vss;
-            usage.uss = memInfo.privateClean + memInfo.privateDirty;
-            usage.rss = memInfo.rss;
-            usage.pss = memInfo.pss;
-
-            string name;
-            if (GetProcName(pid, name)) {
-                usage.name = name;
-            }
-            usage.pid = pid;
-            success = true;
-        }
+        usage.vss = GetVss(pid);
+        usage.uss = memInfo.privateClean + memInfo.privateDirty;
+        usage.rss = memInfo.rss;
+        usage.pss = memInfo.pss;
+        usage.name = GetProcName(pid);
+        usage.pid = pid;
+        usage.adjLabel = GetProcessAdjLabel(pid);
+        success = true;
     }
-    DUMPER_HILOGD(MODULE_SERVICE, "GetMemByProcessPid pid:(%d) end,success:(%d)", pid, success);
     return success;
 }
 
 void MemoryInfo::MemUsageToMatrix(const MemInfoData::MemUsage &memUsage, StringMatrix result)
 {
-    DUMPER_HILOGD(MODULE_SERVICE, "MemUsageToMatrix begin");
     vector<string> strs;
     string pid = to_string(memUsage.pid);
     StringUtils::GetInstance().SetWidth(PID_WIDTH_, BLANK_, true, pid);
@@ -499,12 +479,10 @@ void MemoryInfo::MemUsageToMatrix(const MemInfoData::MemUsage &memUsage, StringM
     strs.push_back(totalUss);
 
     result->emplace_back(strs);
-    DUMPER_HILOGD(MODULE_SERVICE, "MemUsageToMatrix end");
 }
 
 void MemoryInfo::AddMemByProcessTitle(StringMatrix result, string sortType)
 {
-    DUMPER_HILOGD(MODULE_SERVICE, "AddMemByProcessTitle begin");
     vector<string> process;
     string processTitle = "Total Memory Usage by " + sortType + ":";
     process.push_back(processTitle);
@@ -536,12 +514,10 @@ void MemoryInfo::AddMemByProcessTitle(StringMatrix result, string sortType)
     title.push_back(totalUss);
 
     result->push_back(title);
-    DUMPER_HILOGD(MODULE_SERVICE, "AddMemByProcessTitle end");
 }
 
 DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
 {
-    DUMPER_HILOGD(MODULE_SERVICE, "GetMemoryInfoNoPid begin");
     if (!isReady_) {
         AddMemByProcessTitle(result, "PID");
         if (!GetPids()) {
@@ -567,6 +543,7 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
     if (pids_.size() > 0) {
         if (GetMemByProcessPid(pids_.front(), usage)) {
             memUsages_.push_back(usage);
+            adjMemResult_[usage.adjLabel].push_back(usage);
             MemUsageToMatrix(usage, result);
         } else {
             DUMPER_HILOGE(MODULE_SERVICE, "Get smaps_rollup error! pid = %{public}d\n", pids_.front());
@@ -586,6 +563,9 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
 
     while (!dumpSmapsOnEnd_);
 
+    GetMemoryByAdj(result);
+    AddBlankLine(result);
+
     GetPssTotal(smapsResult_, result);
     AddBlankLine(result);
 
@@ -595,13 +575,11 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
     GetRamCategory(smapsResult_, meminfoResult, result);
     memUsages_.clear();
     smapsResult_.clear();
-    DUMPER_HILOGD(MODULE_SERVICE, "GetMemoryInfoNoPid end");
     return DUMP_OK;
 }
 
 void MemoryInfo::GetSortedMemoryInfoNoPid(StringMatrix result)
 {
-    DUMPER_HILOGD(MODULE_SERVICE, "GetSortedMemoryInfoNoPid begin");
     AddBlankLine(result);
     AddMemByProcessTitle(result, "Size");
 
@@ -625,7 +603,40 @@ void MemoryInfo::GetSortedMemoryInfoNoPid(StringMatrix result)
     for (auto &memUsage : memUsages_) {
         MemUsageToMatrix(memUsage, result);
     }
-    DUMPER_HILOGD(MODULE_SERVICE, "GetSortedMemoryInfoNoPid end");
+}
+
+void MemoryInfo::GetMemoryByAdj(StringMatrix result)
+{
+    vector<string> title;
+    title.push_back("Total PSS by OOM adjustment:");
+    result->push_back(title);
+
+    for (const auto &adjLabel : MemoryFilter::GetInstance().RECLAIM_PRIORITY) {
+        vector<MemInfoData::MemUsage> memUsages = adjMemResult_[adjLabel];
+        vector<string> label;
+        if (memUsages.size() == 0) {
+            label.push_back(adjLabel + ": " + "0kb");
+            result->push_back(label);
+            continue;
+        }
+        uint64_t totalPss = accumulate(memUsages.begin(), memUsages.end(), 0,
+        [] (uint64_t a, MemInfoData::MemUsage &b) {
+            return a + b.pss;
+        });
+        label.push_back(adjLabel + ": " + to_string(totalPss) + "kb");
+        result->push_back(label);
+
+        std::sort(memUsages.begin(), memUsages.end(),
+        [] (MemInfoData::MemUsage &left, MemInfoData::MemUsage &right) {
+            return right.pss < left.pss;
+        });
+        for (const auto &memUsage : memUsages) {
+            vector<string> pssValue;
+            pssValue.push_back(memUsage.name + "(pid=" + to_string(memUsage.pid) + "): "
+                            + to_string(memUsage.pss) + "kb");
+            result->push_back(pssValue);
+        }
+    }
 }
 } // namespace HiviewDFX
 } // namespace OHOS

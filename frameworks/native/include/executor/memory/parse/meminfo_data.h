@@ -42,6 +42,7 @@ public:
         uint64_t pss;
         int pid;
         std::string name;
+        std::string adjLabel;
     };
 
 private:
