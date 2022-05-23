@@ -38,7 +38,7 @@ public:
     int HARDWARE_USAGE_THREAD_NUM_ = 5;
 
     const std::vector<std::string> RECLAIM_PRIORITY = {"System", "Foreground", "Suspend-delay", "Perceived",
-                                                        "Background", "Undefined"};
+                                                    "Background", "Undefined"};
 
     const std::vector<std::string> VALUE_WITH_PID = {"Pss", "Shared_Clean", "Shared_Dirty", "Private_Clean",
                                                      "Private_Dirty", "Swap", "SwapPss"};

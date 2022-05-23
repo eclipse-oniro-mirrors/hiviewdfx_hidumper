@@ -627,7 +627,7 @@ void MemoryInfo::GetMemoryByAdj(StringMatrix result)
         result->push_back(label);
 
         std::sort(memUsages.begin(), memUsages.end(),
-        [] (MemInfoData::MemUsage &left, MemInfoData::MemUsage &right) {
+            [] (MemInfoData::MemUsage &left, MemInfoData::MemUsage &right) {
             return right.pss < left.pss;
         });
         for (const auto &memUsage : memUsages) {
