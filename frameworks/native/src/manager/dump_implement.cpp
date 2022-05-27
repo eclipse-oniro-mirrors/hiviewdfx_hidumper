@@ -36,7 +36,7 @@
 #include "file_ex.h"
 #include "util/string_utils.h"
 #include "common/dumper_constant.h"
-#include "securec_p.h"
+#include "securec.h"
 namespace OHOS {
 namespace HiviewDFX {
 DumpImplement::DumpImplement()

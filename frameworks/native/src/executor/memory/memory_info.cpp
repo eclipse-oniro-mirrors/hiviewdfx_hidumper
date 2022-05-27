@@ -30,7 +30,7 @@
 #include "util/string_utils.h"
 #include "executor/memory/parse/meminfo_data.h"
 #include "executor/memory/parse/parse_smaps_rollup_info.h"
-#include "securec_p.h"
+#include "securec.h"
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
