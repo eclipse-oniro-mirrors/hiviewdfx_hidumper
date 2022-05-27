@@ -229,8 +229,6 @@ std::string DumpCfg::ToLevelStr(int type)
 {
     if (type == DumperConstant::LEVEL_NONE) {
         return "level_none";
-    } else if (type == DumperConstant::LEVEL_LOW) {
-        return "level_low";
     } else if (type == DumperConstant::LEVEL_MIDDLE) {
         return "level_middle";
     } else if (type == DumperConstant::LEVEL_HIGH) {
