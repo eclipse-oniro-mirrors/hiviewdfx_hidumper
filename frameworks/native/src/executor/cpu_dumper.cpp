@@ -355,8 +355,10 @@ float CPUDumper::GetCpuUsage(int pid)
                                       + oldCPUInfo_->iowTime + oldCPUInfo_->irqTime + oldCPUInfo_->sirqTime);
 
     if (totalDeltaTime != 0) {
-        return (curSpecProc_->uTime - oldSpecProc_->uTime)
-               + (curSpecProc_->sTime - oldSpecProc_->sTime) / totalDeltaTime;
+        float cpuUsage = static_cast<float>((curSpecProc_->uTime - oldSpecProc_->uTime)
+               + (curSpecProc_->sTime - oldSpecProc_->sTime)) / static_cast<float>(totalDeltaTime);
+        const float PERCENT100 = 100.0f;
+        return cpuUsage * PERCENT100;
     } else {
         return -1;
     }
