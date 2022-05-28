@@ -16,7 +16,6 @@
 #include <fstream>
 #include "executor/memory/memory_util.h"
 #include "hilog_wrapper.h"
-#include "securec_p.h"
 
 using namespace std;
 
