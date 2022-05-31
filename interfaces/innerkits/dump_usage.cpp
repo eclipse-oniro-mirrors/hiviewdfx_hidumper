@@ -66,7 +66,8 @@ uint64_t DumpUsage::GetSharedDirty(const int &pid)
 float DumpUsage::GetCpuUsage(const int &pid)
 {
     unique_ptr<CPUDumper> cpuDumper = make_unique<CPUDumper>();
-    return cpuDumper->GetCpuUsage(pid);
+    float ret = cpuDumper->GetCpuUsage(pid);
+    return ret < 0 ? 0 : ret;
 }
 } // namespace HiviewDFX
 } // namespace OHOS
