@@ -19,8 +19,8 @@
 #include <vector>
 #include "executor/cmd_dumper.h"
 #include "executor/memory/memory_filter.h"
+#include "securec.h"
 #include "util/string_utils.h"
-#include "securec_p.h"
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {

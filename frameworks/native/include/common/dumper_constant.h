@@ -50,7 +50,6 @@ enum DumperConstant {
     OUTPUT_END,  // output end
     LEVEL_BEGIN, // level begin
     LEVEL_NONE,
-    LEVEL_LOW,
     LEVEL_MIDDLE,
     LEVEL_HIGH,
     LEVEL_ALL,
