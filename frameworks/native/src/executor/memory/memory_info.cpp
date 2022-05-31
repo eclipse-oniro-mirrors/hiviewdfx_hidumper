@@ -521,7 +521,6 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
 {
     if (!isReady_) {
         memUsages_.clear();
-        smapsResult_.clear();
         pids_.clear();
         AddMemByProcessTitle(result, "PID");
         if (!GetPids()) {
@@ -533,11 +532,13 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
 
     if (!dumpSmapsOnStart_) {
         dumpSmapsOnStart_ = true;
-        std::vector<int> pids(pids_);
-        fut_ = std::async(std::launch::async, [=]() {
+        fut_ = std::async(std::launch::async, [&]() {
+            GroupMap groupMap;
+            std::vector<int> pids(pids_);
             for (auto pid : pids) {
-                GetSmapsInfoNoPid(pid, smapsResult_);
+                GetSmapsInfoNoPid(pid, groupMap);
             }
+            return groupMap;
         });
     }
     MemInfoData::MemUsage usage;
@@ -563,22 +564,23 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
     GetSortedMemoryInfoNoPid(result);
     AddBlankLine(result);
 
-    fut_.wait();
-
     GetMemoryByAdj(result);
     AddBlankLine(result);
 
-    GetPssTotal(smapsResult_, result);
+    GroupMap smapsResult = fut_.get();
+
+    GetPssTotal(smapsResult, result);
     AddBlankLine(result);
 
-    GetRamUsage(smapsResult_, meminfoResult, result);
+    GetRamUsage(smapsResult, meminfoResult, result);
     AddBlankLine(result);
 
-    GetRamCategory(smapsResult_, meminfoResult, result);
+    GetRamCategory(smapsResult, meminfoResult, result);
+
     isReady_ = false;
     dumpSmapsOnStart_ = false;
     memUsages_.clear();
-    smapsResult_.clear();
+    smapsResult.clear();
     return DUMP_OK;
 }
 

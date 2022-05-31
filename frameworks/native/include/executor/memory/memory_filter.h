@@ -15,10 +15,10 @@
 
 #ifndef MEMORY_FILTER_H
 #define MEMORY_FILTER_H
+#include <map>
 #include <string>
 #include <vector>
 #include "singleton.h"
-#include "util/string_utils.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -28,6 +28,8 @@ public:
     ~MemoryFilter();
     MemoryFilter(MemoryFilter const &) = delete;
     void operator=(MemoryFilter const &) = delete;
+
+    using MatchFunc = std::function<bool(std::string, std::string)>;
 
     enum MemoryType {
         APPOINT_PID,
@@ -68,9 +70,19 @@ public:
     std::vector<std::string> HAS_PID_ORDER_ = {"Pss",           "Shared_Clean", "Shared_Dirty", "Private_Clean",
                                                "Private_Dirty", "Swap",         "SwapPss"};
     std::vector<std::string> NO_PID_ORDER_ = {"Pss"};
-    bool ParseMemoryGroup(const std::string &name, std::string &group);
+    void ParseMemoryGroup(const std::string &name, std::string &group);
 
 private:
+    const std::map<std::string, std::string> beginMap_ = {
+        {"/system/bin/", "native"}, {"[heap]", "heap"}, {"[stack]", "stack"},
+        {"[anon:native_heap:musl", "native heap"}, {"[anon:Object Space]", "ark js heap"},
+    };
+    const std::map<std::string, std::string> endMap_ = {
+        {".so", "so"}, {".so.1", "so"},
+    };
+
+    bool GetGroupFromMap(const std::string &name, std::string &group,
+                         const std::map<std::string, std::string> &map, MatchFunc func);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

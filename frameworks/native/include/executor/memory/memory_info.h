@@ -67,7 +67,7 @@ private:
     const static int VSS_BIT = 4;
     bool isReady_ = false;
     bool dumpSmapsOnStart_ = false;
-    std::future<void> fut_;
+    std::future<GroupMap> fut_;
     std::vector<int> pids_;
     std::vector<MemInfoData::MemUsage> memUsages_;
     std::vector<std::pair<std::string, MemFun>> methodVec_;
@@ -75,7 +75,6 @@ private:
         {"System", {}}, {"Foreground", {}}, {"Suspend-delay", {}},
         {"Perceived", {}}, {"Background", {}}, {"Undefined", {}},
     };
-    GroupMap smapsResult_;
     void insertMemoryTitle(StringMatrix result);
     void BuildResult(const GroupMap &infos, StringMatrix result);
 

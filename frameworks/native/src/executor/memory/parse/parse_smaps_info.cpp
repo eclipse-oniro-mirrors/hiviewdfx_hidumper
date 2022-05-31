@@ -17,6 +17,7 @@
 #include <fstream>
 #include "executor/memory/memory_util.h"
 #include "hilog_wrapper.h"
+#include "util/string_utils.h"
 
 using namespace std;
 namespace OHOS {

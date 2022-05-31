@@ -14,7 +14,6 @@
  */
 
 #include "executor/memory/memory_filter.h"
-#include <sstream>
 #include "util/string_utils.h"
 
 using namespace std;
@@ -27,25 +26,27 @@ MemoryFilter::~MemoryFilter()
 {
 }
 
-bool MemoryFilter::ParseMemoryGroup(const string &name, string &group)
+void MemoryFilter::ParseMemoryGroup(const string &name, string &group)
 {
-    if (StringUtils::GetInstance().IsEnd(name, ".so") ||
-        StringUtils::GetInstance().IsEnd(name, ".so.1")) {
-        group = "so";
-    } else if (StringUtils::GetInstance().IsBegin(name, "/system/bin/")) {
-        group = "native";
-    } else if (StringUtils::GetInstance().IsBegin(name, "[heap]")) {
-        group = "heap";
-    } else if (StringUtils::GetInstance().IsBegin(name, "[stack]")) {
-        group = "stack";
-    } else if (StringUtils::GetInstance().IsBegin(name, "[anon:native_heap:musl")) {
-        group = "native heap";
-    } else if (StringUtils::GetInstance().IsBegin(name, "[anon:Object Space]")) {
-        group = "ark js heap";
-    } else {
-        group = "other";
+    if (GetGroupFromMap(name, group, beginMap_, bind(
+                        &StringUtils::IsBegin, &StringUtils::GetInstance(), placeholders::_1, placeholders::_2)) ||
+        GetGroupFromMap(name, group, endMap_, bind(
+                        &StringUtils::IsEnd, &StringUtils::GetInstance(), placeholders::_1, placeholders::_2))) {
+        return;
     }
-    return true;
+    group = "other";
+}
+
+bool MemoryFilter::GetGroupFromMap(const string &name, string &group,
+                                   const std::map<std::string, std::string> &map, MatchFunc func)
+{
+    for (const auto &p : map) {
+        if (func(name, p.first)) {
+            group = p.second;
+            return true;
+        }
+    }
+    return false;
 }
 } // namespace HiviewDFX
 } // namespace OHOS
