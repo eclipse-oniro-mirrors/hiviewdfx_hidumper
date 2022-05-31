@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2021 Huawei Device Co., Ltd.
+* Copyright (C) 2021-2022 Huawei Device Co., Ltd.
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 #include "executor/memory/memory_info.h"
 
 #include <cinttypes>
-#include <future>
 #include <fstream>
 #include <numeric>
 #include <thread>
@@ -40,6 +39,21 @@ namespace OHOS {
 namespace HiviewDFX {
 MemoryInfo::MemoryInfo()
 {
+    methodVec_.clear();
+    methodVec_.push_back(make_pair(MEMINFO_PSS,
+        bind(&MemoryInfo::SetPss, this, placeholders::_1, placeholders::_2)));
+    methodVec_.push_back(make_pair(MEMINFO_SHARED_CLEAN,
+        bind(&MemoryInfo::SetSharedClean, this, placeholders::_1, placeholders::_2)));
+    methodVec_.push_back(make_pair(MEMINFO_SHARED_DIRTY,
+        bind(&MemoryInfo::SetSharedDirty, this, placeholders::_1, placeholders::_2)));
+    methodVec_.push_back(make_pair(MEMINFO_PRIVATE_CLEAN,
+        bind(&MemoryInfo::SetPrivateClean, this, placeholders::_1, placeholders::_2)));
+    methodVec_.push_back(make_pair(MEMINFO_PRIVATE_DIRTY,
+        bind(&MemoryInfo::SetPrivateDirty, this, placeholders::_1, placeholders::_2)));
+    methodVec_.push_back(make_pair(MEMINFO_SWAP,
+        bind(&MemoryInfo::SetSwap, this, placeholders::_1, placeholders::_2)));
+    methodVec_.push_back(make_pair(MEMINFO_SWAP_PSS,
+        bind(&MemoryInfo::SetSwapPss, this, placeholders::_1, placeholders::_2)));
 }
 
 MemoryInfo::~MemoryInfo()
@@ -97,7 +111,7 @@ void MemoryInfo::insertMemoryTitle(StringMatrix result)
 void MemoryInfo::BuildResult(const GroupMap &infos, StringMatrix result)
 {
     insertMemoryTitle(result);
-    for (auto &info : infos) {
+    for (const auto &info : infos) {
         vector<string> tempResult;
         string group = info.first;
         StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, group);
@@ -133,23 +147,12 @@ void MemoryInfo::CalcGroup(const GroupMap &infos, StringMatrix result)
 
     MemInfoData::MemInfo meminfo;
     MemoryUtil::GetInstance().InitMemInfo(meminfo);
-    for (auto &info : infos) {
+    for (const auto &info : infos) {
         auto &valueMap = info.second;
-        for (auto &it : valueMap) {
-            if (it.first == "Pss") {
-                meminfo.pss += it.second;
-            } else if (it.first == "Shared_Clean") {
-                meminfo.sharedClean += it.second;
-            } else if (it.first == "Shared_Dirty") {
-                meminfo.sharedDirty += it.second;
-            } else if (it.first == "Private_Clean") {
-                meminfo.privateClean += it.second;
-            } else if (it.first == "Private_Dirty") {
-                meminfo.privateDirty += it.second;
-            } else if (it.first == "Swap") {
-                meminfo.swap += it.second;
-            } else if (it.first == "SwapPss") {
-                meminfo.swapPss += it.second;
+        for (const auto &method : methodVec_) {
+            auto it = valueMap.find(method.first);
+            if (it != valueMap.end()) {
+                method.second(meminfo, it->second);
             }
         }
     }
@@ -182,7 +185,7 @@ bool MemoryInfo::GetMemoryInfoByPid(const int &pid, StringMatrix result)
     return false;
 }
 
-string MemoryInfo::AddKbUnit(const uint64_t &value)
+string MemoryInfo::AddKbUnit(const uint64_t &value) const
 {
     return to_string(value) + MemoryUtil::GetInstance().KB_UNIT_;
 }
@@ -267,7 +270,7 @@ void MemoryInfo::GetPssTotal(const GroupMap &infos, StringMatrix result)
     vector<string> title;
     title.push_back("Total PSS by Category:");
     result->push_back(title);
-    for (auto &info : infos) {
+    for (const auto &info : infos) {
         vector<string> pss;
         string group = info.first;
         auto &valueMap = info.second;
@@ -393,8 +396,6 @@ string MemoryInfo::GetProcessAdjLabel(const int pid)
 
 bool MemoryInfo::GetPids()
 {
-    pids_.clear();
-    memUsages_.clear();
     bool success = DumpCommonUtils::GetUserPids(pids_);
     if (!success) {
         DUMPER_HILOGE(MODULE_SERVICE, "GetPids error");
@@ -519,6 +520,9 @@ void MemoryInfo::AddMemByProcessTitle(StringMatrix result, string sortType)
 DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
 {
     if (!isReady_) {
+        memUsages_.clear();
+        smapsResult_.clear();
+        pids_.clear();
         AddMemByProcessTitle(result, "PID");
         if (!GetPids()) {
             return DUMP_FAIL;
@@ -530,13 +534,11 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
     if (!dumpSmapsOnStart_) {
         dumpSmapsOnStart_ = true;
         std::vector<int> pids(pids_);
-        std::thread dumpSmapsThread([=]() {
+        fut_ = std::async(std::launch::async, [=]() {
             for (auto pid : pids) {
                 GetSmapsInfoNoPid(pid, smapsResult_);
             }
-            dumpSmapsOnEnd_ = true;
         });
-        dumpSmapsThread.detach();
     }
     MemInfoData::MemUsage usage;
     MemoryUtil::GetInstance().InitMemUsage(usage);
@@ -561,7 +563,7 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
     GetSortedMemoryInfoNoPid(result);
     AddBlankLine(result);
 
-    while (!dumpSmapsOnEnd_);
+    fut_.wait();
 
     GetMemoryByAdj(result);
     AddBlankLine(result);
@@ -573,6 +575,8 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
     AddBlankLine(result);
 
     GetRamCategory(smapsResult_, meminfoResult, result);
+    isReady_ = false;
+    dumpSmapsOnStart_ = false;
     memUsages_.clear();
     smapsResult_.clear();
     return DUMP_OK;
@@ -637,6 +641,41 @@ void MemoryInfo::GetMemoryByAdj(StringMatrix result)
             result->push_back(pssValue);
         }
     }
+}
+
+void MemoryInfo::SetPss(MemInfoData::MemInfo &meminfo, uint64_t value)
+{
+    meminfo.pss += value;
+}
+
+void MemoryInfo::SetSharedClean(MemInfoData::MemInfo &meminfo, uint64_t value)
+{
+    meminfo.sharedClean += value;
+}
+
+void MemoryInfo::SetSharedDirty(MemInfoData::MemInfo &meminfo, uint64_t value)
+{
+    meminfo.sharedDirty += value;
+}
+
+void MemoryInfo::SetPrivateClean(MemInfoData::MemInfo &meminfo, uint64_t value)
+{
+    meminfo.privateClean += value;
+}
+
+void MemoryInfo::SetPrivateDirty(MemInfoData::MemInfo &meminfo, uint64_t value)
+{
+    meminfo.privateDirty += value;
+}
+
+void MemoryInfo::SetSwap(MemInfoData::MemInfo &meminfo, uint64_t value)
+{
+    meminfo.swap += value;
+}
+
+void MemoryInfo::SetSwapPss(MemInfoData::MemInfo &meminfo, uint64_t value)
+{
+    meminfo.swapPss += value;
 }
 } // namespace HiviewDFX
 } // namespace OHOS

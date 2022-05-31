@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -39,21 +39,21 @@ public:
     using ValueMap = std::map<std::string, uint64_t>;
     using GroupMap = std::map<std::string, ValueMap>;
 
-    Ram GetRam(const GroupMap &smapsInfo, const ValueMap &meminfo);
+    Ram GetRam(const GroupMap &smapsInfo, const ValueMap &meminfo) const;
 
 private:
-    uint64_t GetGroupMapValue(const GroupMap &infos, const std::vector<std::string> keys);
-    uint64_t GetValueMapValue(const ValueMap &infos, const std::vector<std::string> strs);
-    uint64_t GetTotalPss(const GroupMap &infos);
-    uint64_t GetTotalSwapPss(const GroupMap &infos);
-    uint64_t GetFreeInfo(const ValueMap &infos);
-    uint64_t GetKernelUsedInfo(const ValueMap &infos);
-    uint64_t GetCachedInfo(const ValueMap &infos);
-    uint64_t GetTotalRam(const ValueMap &infos);
-    uint64_t GetZramTotalInfo(const ValueMap &infos);
-    uint64_t GetUsedRam(const GroupMap &smapsInfo, const ValueMap &meminfo, Ram &ram);
-    uint64_t GetFreeRam(const ValueMap &meminfo, Ram &ram);
-    uint64_t GetLostRam(const GroupMap &smapsInfo, const ValueMap &meminfo);
+    uint64_t GetGroupMapValue(const GroupMap &infos, const std::vector<std::string> keys) const;
+    uint64_t GetValueMapValue(const ValueMap &infos, const std::vector<std::string> strs) const;
+    uint64_t GetTotalPss(const GroupMap &infos) const;
+    uint64_t GetTotalSwapPss(const GroupMap &infos) const;
+    uint64_t GetFreeInfo(const ValueMap &infos) const;
+    uint64_t GetKernelUsedInfo(const ValueMap &infos) const;
+    uint64_t GetCachedInfo(const ValueMap &infos) const;
+    uint64_t GetTotalRam(const ValueMap &infos) const;
+    uint64_t GetZramTotalInfo(const ValueMap &infos) const;
+    uint64_t GetUsedRam(const GroupMap &smapsInfo, const ValueMap &meminfo, Ram &ram) const;
+    uint64_t GetFreeRam(const ValueMap &meminfo, Ram &ram) const;
+    uint64_t GetLostRam(const GroupMap &smapsInfo, const ValueMap &meminfo) const;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

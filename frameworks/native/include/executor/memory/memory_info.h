@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #define MEMORY_INFO_H
 #include <map>
 #include <memory>
+#include <future>
 #include <string>
 #include <vector>
 #include "executor/memory/parse/meminfo_data.h"
@@ -23,6 +24,15 @@
 #include "time.h"
 namespace OHOS {
 namespace HiviewDFX {
+namespace {
+static const std::string MEMINFO_PSS = "Pss";
+static const std::string MEMINFO_SHARED_CLEAN = "Shared_Clean";
+static const std::string MEMINFO_SHARED_DIRTY = "Shared_Dirty";
+static const std::string MEMINFO_PRIVATE_CLEAN = "Private_Clean";
+static const std::string MEMINFO_PRIVATE_DIRTY = "Private_Dirty";
+static const std::string MEMINFO_SWAP = "Swap";
+static const std::string MEMINFO_SWAP_PSS = "SwapPss";
+}
 class MemoryInfo {
 public:
     MemoryInfo();
@@ -31,6 +41,8 @@ public:
     using StringMatrix = std::shared_ptr<std::vector<std::vector<std::string>>>;
     using ValueMap = std::map<std::string, uint64_t>;
     using GroupMap = std::map<std::string, ValueMap>;
+
+    using MemFun = std::function<void(MemInfoData::MemInfo&, uint64_t)>;
 
     bool GetMemoryInfoByPid(const int &pid, StringMatrix result);
     DumpStatus GetMemoryInfoNoPid(StringMatrix result);
@@ -55,9 +67,10 @@ private:
     const static int VSS_BIT = 4;
     bool isReady_ = false;
     bool dumpSmapsOnStart_ = false;
-    bool dumpSmapsOnEnd_ = false;
+    std::future<void> fut_;
     std::vector<int> pids_;
     std::vector<MemInfoData::MemUsage> memUsages_;
+    std::vector<std::pair<std::string, MemFun>> methodVec_;
     std::map<std::string, std::vector<MemInfoData::MemUsage>> adjMemResult_ = {
         {"System", {}}, {"Foreground", {}}, {"Suspend-delay", {}},
         {"Perceived", {}}, {"Background", {}}, {"Undefined", {}},
@@ -66,7 +79,7 @@ private:
     void insertMemoryTitle(StringMatrix result);
     void BuildResult(const GroupMap &infos, StringMatrix result);
 
-    std::string AddKbUnit(const uint64_t &value);
+    std::string AddKbUnit(const uint64_t &value) const;
     static bool GetMemByProcessPid(const int &pid, MemInfoData::MemUsage &usage);
     static bool GetSmapsInfoNoPid(const int &pid, GroupMap &result);
     bool GetMeminfo(ValueMap &result);
@@ -90,6 +103,13 @@ private:
     void SetValue(const std::string &value, std::vector<std::string> &lines, std::vector<std::string> &values);
     void GetSortedMemoryInfoNoPid(StringMatrix result);
     void GetMemoryByAdj(StringMatrix result);
+    void SetPss(MemInfoData::MemInfo &meminfo, uint64_t value);
+    void SetSharedClean(MemInfoData::MemInfo &meminfo, const uint64_t value);
+    void SetSharedDirty(MemInfoData::MemInfo &meminfo, const uint64_t value);
+    void SetPrivateClean(MemInfoData::MemInfo &meminfo, const uint64_t value);
+    void SetPrivateDirty(MemInfoData::MemInfo &meminfo, const uint64_t value);
+    void SetSwap(MemInfoData::MemInfo &meminfo, const uint64_t value);
+    void SetSwapPss(MemInfoData::MemInfo &meminfo, const uint64_t value);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

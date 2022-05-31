@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -37,8 +37,7 @@ bool GetCMAInfo::GetUsed(uint64_t &value)
 {
     string cmd = "cat /sys/kernel/debug/cma/*/used";
     vector<string> usedInfos;
-    bool success = MemoryUtil::GetInstance().RunCMD(cmd, usedInfos);
-    if (success) {
+    if (MemoryUtil::GetInstance().RunCMD(cmd, usedInfos)) {
         const int base = 10;
         for (size_t i = 0; i < usedInfos.size(); i++) {
             string used = usedInfos.at(i);
