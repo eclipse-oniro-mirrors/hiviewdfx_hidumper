@@ -104,12 +104,12 @@ private:
     void GetSortedMemoryInfoNoPid(StringMatrix result);
     void GetMemoryByAdj(StringMatrix result);
     void SetPss(MemInfoData::MemInfo &meminfo, uint64_t value);
-    void SetSharedClean(MemInfoData::MemInfo &meminfo, const uint64_t value);
-    void SetSharedDirty(MemInfoData::MemInfo &meminfo, const uint64_t value);
-    void SetPrivateClean(MemInfoData::MemInfo &meminfo, const uint64_t value);
-    void SetPrivateDirty(MemInfoData::MemInfo &meminfo, const uint64_t value);
-    void SetSwap(MemInfoData::MemInfo &meminfo, const uint64_t value);
-    void SetSwapPss(MemInfoData::MemInfo &meminfo, const uint64_t value);
+    void SetSharedClean(MemInfoData::MemInfo &meminfo, uint64_t value);
+    void SetSharedDirty(MemInfoData::MemInfo &meminfo, uint64_t value);
+    void SetPrivateClean(MemInfoData::MemInfo &meminfo, uint64_t value);
+    void SetPrivateDirty(MemInfoData::MemInfo &meminfo, uint64_t value);
+    void SetSwap(MemInfoData::MemInfo &meminfo, uint64_t value);
+    void SetSwapPss(MemInfoData::MemInfo &meminfo, uint64_t value);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

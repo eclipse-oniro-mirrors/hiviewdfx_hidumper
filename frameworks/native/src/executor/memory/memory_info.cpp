@@ -32,7 +32,7 @@
 #include "executor/memory/parse/parse_smaps_info.h"
 #include "hilog_wrapper.h"
 #include "mem_mgr_constant.h"
-#include "securec_p.h"
+#include "securec.h"
 #include "util/string_utils.h"
 using namespace std;
 namespace OHOS {
