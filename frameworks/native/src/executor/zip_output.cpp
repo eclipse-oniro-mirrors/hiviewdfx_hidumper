@@ -112,7 +112,7 @@ DumpStatus ZipOutput::CompressAndWriteToFd()
     }
     DumpStatus ret = DumpStatus::DUMP_OK;
     if (srcBuffer->offset > 0) {
-        DumpStatus ret = compressor_.Compress(srcBuffer, destBuffer);
+        ret = compressor_.Compress(srcBuffer, destBuffer);
         if (ret == DumpStatus::DUMP_OK) {
             if (write(fd_, destBuffer->content, destBuffer->offset) < 0) {
                 ret = DumpStatus::DUMP_FAIL;
