@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,7 +14,6 @@
  */
 
 #include "executor/memory/memory_filter.h"
-#include <sstream>
 #include "util/string_utils.h"
 
 using namespace std;
@@ -27,71 +26,27 @@ MemoryFilter::~MemoryFilter()
 {
 }
 
-const MemoryFilter::MemGroup MemoryFilter::memGroups_[] = {
-    {
-        .group_ = "so",
-        .matchRule_ = "end",
-        .matchFile_ = {".so", ".so.1"},
-    },
-    {
-        .group_ = "heap",
-        .matchRule_ = "begin",
-        .matchFile_ = {"[heap]"},
-    },
-    {
-        .group_ = "native",
-        .matchRule_ = "begin",
-        .matchFile_ = {"/system/bin/"},
-    },
-    {
-        .group_ = "stack",
-        .matchRule_ = "begin",
-        .matchFile_ = {"[stack]"},
-    },
-    {
-        .group_ = "ark js heap",
-        .matchRule_ = "begin",
-        .matchFile_ = {"[anon:Object Space]"},
-    },
-    {
-        .group_ = "native heap",
-        .matchRule_ = "begin",
-        .matchFile_ = {"[anon:native_heap:musl"},
-    },
-};
-
-bool MemoryFilter::ParseMemoryGroup(const string &content, const string &name, string &group)
+void MemoryFilter::ParseMemoryGroup(const string &name, string &group)
 {
-    size_t groupSize = sizeof(MemoryFilter::memGroups_) / sizeof(MemoryFilter::MemGroup);
+    if (GetGroupFromMap(name, group, beginMap_, bind(
+                        &StringUtils::IsBegin, &StringUtils::GetInstance(), placeholders::_1, placeholders::_2)) ||
+        GetGroupFromMap(name, group, endMap_, bind(
+                        &StringUtils::IsEnd, &StringUtils::GetInstance(), placeholders::_1, placeholders::_2))) {
+        return;
+    }
+    group = "other";
+}
 
-    for (size_t i = 0; i < groupSize; i++) {
-        MemoryFilter::MemGroup memGroup = MemoryFilter::memGroups_[i];
-        string rule = memGroup.matchRule_;
-        vector<string> files = memGroup.matchFile_;
-
-        for (auto file : files) {
-            if (rule == "contain") {
-                if (StringUtils::GetInstance().IsContain(name, file)) {
-                    group = memGroup.group_;
-                    break;
-                }
-            } else if (rule == "end") {
-                if (StringUtils::GetInstance().IsEnd(name, file)) {
-                    group = memGroup.group_;
-                    break;
-                }
-            } else if (rule == "begin") {
-                if (StringUtils::GetInstance().IsBegin(name, file)) {
-                    group = memGroup.group_;
-                    break;
-                }
-            }
-        }
-        if (!group.empty()) {
-            break;
+bool MemoryFilter::GetGroupFromMap(const string &name, string &group,
+                                   const std::map<std::string, std::string> &map, MatchFunc func)
+{
+    for (const auto &p : map) {
+        if (func(name, p.first)) {
+            group = p.second;
+            return true;
         }
     }
-    return true;
+    return false;
 }
 } // namespace HiviewDFX
 } // namespace OHOS

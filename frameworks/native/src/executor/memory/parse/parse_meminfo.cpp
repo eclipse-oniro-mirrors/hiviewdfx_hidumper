@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,25 +33,24 @@ ParseMeminfo::~ParseMeminfo()
 /**
  * @description: SetData
  * @param {string} &str-String to be inserted into result
- * @param {PairMatrix} &result-Returned results
+ * @param {ValueMap} &result-Returned results
  * @return void
  */
-void ParseMeminfo::SetData(const string &str, PairMatrix &result)
+void ParseMeminfo::SetData(const string &str, ValueMap &result)
 {
     string type = "";
     uint64_t value = 0;
-    bool success = MemoryUtil::GetInstance().GetTypeValue(str, MemoryFilter::GetInstance().MEMINFO_TAG_, type, value);
-    if (success) {
-        result.push_back(make_pair(type, value));
+    if (MemoryUtil::GetInstance().GetTypeValue(str, MemoryFilter::GetInstance().MEMINFO_TAG_, type, value)) {
+        result.insert(pair<string, uint64_t>(type, value));
     }
 }
 
 /**
  * @description: Get the data from meminfo
- * @param {PairMatrix} &meminfo - the meminfo result
+ * @param {ValueMap} &meminfo - the meminfo result
  * @return bool-true:success,false-fail
  */
-bool ParseMeminfo::GetMeminfo(PairMatrix &result)
+bool ParseMeminfo::GetMeminfo(ValueMap &result)
 {
     string filename = "/proc/meminfo";
     ifstream in(filename);

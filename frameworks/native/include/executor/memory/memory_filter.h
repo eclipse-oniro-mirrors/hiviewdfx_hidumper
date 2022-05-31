@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,10 +15,10 @@
 
 #ifndef MEMORY_FILTER_H
 #define MEMORY_FILTER_H
+#include <map>
 #include <string>
 #include <vector>
 #include "singleton.h"
-#include "util/string_utils.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -29,21 +29,21 @@ public:
     MemoryFilter(MemoryFilter const &) = delete;
     void operator=(MemoryFilter const &) = delete;
 
+    using MatchFunc = std::function<bool(std::string, std::string)>;
+
     enum MemoryType {
         APPOINT_PID,
         NOT_SPECIFIED_PID,
     };
 
-    struct MemGroup {
-        const std::string &group_;
-        const std::string &matchRule_;
-        const std::vector<std::string> &matchFile_;
-    };
-
-    const static MemGroup memGroups_[];
-
     int SMAPS_THREAD_NUM_ = 5;
     int HARDWARE_USAGE_THREAD_NUM_ = 5;
+
+    const std::vector<std::string> RECLAIM_PRIORITY = {"System", "Foreground", "Suspend-delay", "Perceived",
+                                                       "Background", "Undefined"};
+
+    const std::vector<std::string> VALUE_WITH_PID = {"Pss", "Shared_Clean", "Shared_Dirty", "Private_Clean",
+                                                     "Private_Dirty", "Swap", "SwapPss"};
 
     const std::vector<std::string> TITLE_HAS_PID_ = {"Pss_Total",     "Shared_Clean", "Shared_Dirty", "Private_Clean",
                                                      "Private_Dirty", "Swap_Total",   "SwapPss_Total"};
@@ -64,15 +64,25 @@ public:
     std::vector<std::string> CALC_TOTAL_SWAP_PSS_ = {"SwapPss"};
     std::vector<std::string> CALC_KERNEL_USED_ = {"Shmem", "Slab", "VmallocUsed", "PageTables", "KernelStack"};
     std::vector<std::string> CALC_FREE_ = {"MemFree"};
-    std::vector<std::string> CALC_CACHED_ = {"Buffers", "Cached", "-Mapped"};
+    std::vector<std::string> CALC_CACHED_ = {"Buffers", "Cached", "Mapped"};
     std::vector<std::string> CALC_TOTAL_ = {"MemTotal"};
     std::vector<std::string> CALC_ZARM_TOTAL_;
     std::vector<std::string> HAS_PID_ORDER_ = {"Pss",           "Shared_Clean", "Shared_Dirty", "Private_Clean",
                                                "Private_Dirty", "Swap",         "SwapPss"};
     std::vector<std::string> NO_PID_ORDER_ = {"Pss"};
-    bool ParseMemoryGroup(const std::string &content, const std::string &name, std::string &group);
+    void ParseMemoryGroup(const std::string &name, std::string &group);
 
 private:
+    const std::map<std::string, std::string> beginMap_ = {
+        {"/system/bin/", "native"}, {"[heap]", "heap"}, {"[stack]", "stack"},
+        {"[anon:native_heap:musl", "native heap"}, {"[anon:Object Space]", "ark js heap"},
+    };
+    const std::map<std::string, std::string> endMap_ = {
+        {".so", "so"}, {".so.1", "so"},
+    };
+
+    bool GetGroupFromMap(const std::string &name, std::string &group,
+                         const std::map<std::string, std::string> &map, MatchFunc func);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

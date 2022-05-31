@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #ifndef PARSE_MEMINFO_H
 #define PARSE_MEMINFO_H
+#include <map>
 #include <string>
 #include <vector>
 
@@ -25,11 +26,11 @@ public:
     ParseMeminfo();
     ~ParseMeminfo();
 
-    using PairMatrix = std::vector<std::pair<std::string, uint64_t>>;
-    bool GetMeminfo(PairMatrix &meminfo);
+    using ValueMap = std::map<std::string, uint64_t>;
+    bool GetMeminfo(ValueMap &meminfo);
 
 private:
-    void SetData(const std::string &str, PairMatrix &result);
+    void SetData(const std::string &str, ValueMap &result);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

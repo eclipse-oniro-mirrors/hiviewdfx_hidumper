@@ -27,6 +27,7 @@
                 "hilog_native",
                 "hisysevent_native",
                 "ipc",
+                "memmgr",
                 "safwk",
                 "samgr_standard"
             ]

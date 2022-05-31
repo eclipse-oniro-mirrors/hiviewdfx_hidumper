@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -30,24 +30,16 @@ GetKernelInfo::~GetKernelInfo()
 
 /**
  * @description: Get the usage of kernel
- * @param {PairMatrix} &infos-the meminfo
+ * @param {ValueMap} &infos-the meminfo
  * @param {uint64_t} &value-the usage of kernel
  * @return {bool} - true:success,false-fail
  */
-bool GetKernelInfo::GetKernel(const PairMatrix &infos, uint64_t &totalValue)
+bool GetKernelInfo::GetKernel(const ValueMap &infos, uint64_t &totalValue)
 {
-    for (auto info : infos) {
-        string key = info.first;
-        for (auto str : MemoryFilter::GetInstance().CALC_KERNEL_TOTAL_) {
-            bool sub = MemoryUtil::GetInstance().GetKey(str);
-            if (key == str) {
-                uint64_t value = info.second;
-                if (sub) {
-                    totalValue -= value;
-                } else {
-                    totalValue += value;
-                }
-            }
+    for (const auto &str : MemoryFilter::GetInstance().CALC_KERNEL_TOTAL_) {
+        auto it = infos.find(str);
+        if (it != infos.end()) {
+            totalValue += it->second;
         }
     }
 

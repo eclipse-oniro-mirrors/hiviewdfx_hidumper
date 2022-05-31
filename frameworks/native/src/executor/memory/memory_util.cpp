@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -70,98 +70,22 @@ bool MemoryUtil::GetTypeValue(const string &str, const vector<string> &tags, str
     return true;
 }
 
-void MemoryUtil::InsertType(const string &group, const string &type, const uint64_t &value, PairMatrixGroup &infos)
+void MemoryUtil::CalcGroup(const string &group, const string &type, const uint64_t &value, GroupMap &infos)
 {
-    bool findType = false;
-    for (auto &info : infos) {
-        string tempGroup = info.first;
-        if (tempGroup == group) {
-            auto &pairs = info.second;
-            for (auto pair : pairs) {
-                string tempType = pair.first;
-                if (tempType == type) {
-                    findType = true;
-                    break;
-                }
-            }
-
-            if (!findType) {
-                pairs.push_back(make_pair(type, value));
-            }
-        }
-    }
-}
-
-void MemoryUtil::InsertGroupMap(const string &group, const string &type, const uint64_t &value, PairMatrixGroup &infos)
-{
-    PairMatrix valueMap;
-    valueMap.push_back(make_pair(type, value));
-
-    infos.push_back(make_pair(group, valueMap));
-}
-
-void MemoryUtil::CalcGroup(const string &group, const string &type, const uint64_t &value, PairMatrixGroup &infos)
-{
-    if (infos.size() > 0) {
-        bool foundGroup = false;
-        bool foundType = false;
-        for (auto &info : infos) {
-            string tempGroup = info.first;
-            if (group == tempGroup) {
-                foundGroup = true;
-                PairMatrix &pairMatrix = info.second;
-                for (auto &pair : pairMatrix) {
-                    string tempType = pair.first;
-                    if (type == tempType) {
-                        foundType = true;
-                        uint64_t tempValue = pair.second;
-                        pair.second = tempValue + value;
-                    }
-                }
-                break;
-            }
-        }
-
-        if (!foundGroup) {
-            InsertGroupMap(group, type, value, infos);
-        } else if (!foundType) {
-            InsertType(group, type, value, infos);
-        }
+    if (infos.find(group) == infos.end()) {
+        map<string, uint64_t> valueMap;
+        valueMap.insert(pair<string, uint64_t>(type, value));
+        infos.insert(pair<string, map<string, uint64_t>>(group, valueMap));
     } else {
-        InsertGroupMap(group, type, value, infos);
-    }
-}
-
-bool MemoryUtil::IsPss(const string &type)
-{
-    for (auto str : MemoryFilter::GetInstance().CALC_PSS_TOTAL_) {
-        if (type == str) {
-            return true;
-        }
-    }
-    return false;
-}
-
-/**
- * @description: According to the number of threads to obtain a list of each
- * thread is responsible for the PID
- * @param {int} &index-Current thread number
- * @param {int} &size-Each thread is responsible for the number of pid
- * @param {vector<int> &pids, std::vector<int>} &groupResult - A list of pids
- * that the thread is responsible for
- * @return {*}
- */
-void MemoryUtil::GetGroupOfPids(const int &index, const int &size, const std::vector<int> &pids,
-                                std::vector<int> &groupResult)
-{
-    for (size_t i = index * size; i <= (index + 1) * size - 1; i++) {
-        if (i <= pids.size() - 1) {
-            groupResult.push_back(pids.at(i));
+        if (infos[group].find(type) == infos[group].end()) {
+            infos[group].insert(pair<string, uint64_t>(type, value));
+        } else {
+            infos[group][type] += value;
         }
     }
 }
 
-void MemoryUtil::SpringMatrixTransToVector(const CMDDumper::StringMatrix dumpDatas, vector<string> &result)
+void MemoryUtil::StringMatrixTransToVector(const CMDDumper::StringMatrix dumpDatas, vector<string> &result)
 {
     for (size_t i = 0; i < dumpDatas->size(); i++) {
         vector<string> line = dumpDatas->at(i);
@@ -180,7 +104,7 @@ bool MemoryUtil::RunCMD(const string &cmd, vector<string> &result)
     shared_ptr<CMDDumper> cmdDumper = make_shared<CMDDumper>();
     DumpStatus status = cmdDumper->GetCmdInterface(cmd, dumpDatas);
     if (status == DumpStatus::DUMP_OK) {
-        SpringMatrixTransToVector(dumpDatas, result);
+        StringMatrixTransToVector(dumpDatas, result);
     } else {
         return false;
     }
@@ -203,66 +127,6 @@ size_t MemoryUtil::GetMaxThreadNum(const int &threadNum)
         maxThreadNum = 1;
     }
     return maxThreadNum;
-}
-
-/**
- * @description: Get the key and determine whether to add or subtract
- * @param {string} &str-string
- * @param {string} &key-get the key
- * @return {bool}-true:subtract,false-add
- */
-bool MemoryUtil::GetKey(std::string &str)
-{
-    bool subtract = false;
-    if (StringUtils::GetInstance().IsBegin(str, "-")) {
-        StringUtils::GetInstance().ReplaceAll(str, "-", "");
-        subtract = true;
-    }
-    return subtract;
-}
-
-/**
- * @description: Calculate the sum according to group
- * @param {PairMatrixGroup} &infos-To calculate the information
- * @param {PairMatrixGroup} &result-Result of calculation
- * @return {*}
- */
-void MemoryUtil::ClacTotalByGroup(const PairMatrixGroup &infos, PairMatrixGroup &result)
-{
-    if (infos.size() > 0) {
-        if (result.size() == 0) {
-            result.assign(infos.begin(), infos.end());
-        } else {
-            for (size_t i = 0; i < infos.size(); i++) {
-                auto info = infos.at(i);
-                string group = info.first;
-                auto pairMatrix = info.second;
-                for (auto pair : pairMatrix) {
-                    string type = pair.first;
-                    uint64_t value = pair.second;
-                    MemoryUtil::GetInstance().CalcGroup(group, type, value, result);
-                }
-            }
-        }
-    }
-}
-
-void MemoryUtil::ShowGroup(const PairMatrixGroup &infos)
-{
-    for (auto info : infos) {
-        string group = info.first;
-        auto pairs = info.second;
-        for (auto pair : pairs) {
-            cout << "group:" << group << ",type:" << pair.first << ",value:" << pair.second << endl;
-        }
-    }
-}
-
-void MemoryUtil::ShowPairMatrix(const PairMatrix &infos)
-{
-    for (auto info : infos) {
-        cout << "type:" << info.first << ",value:" << info.second << endl;
-    }
 }
 
 void MemoryUtil::InitMemInfo(MemInfoData::MemInfo &memInfo)

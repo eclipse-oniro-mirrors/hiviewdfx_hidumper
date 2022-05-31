@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 #ifndef GET_KERNEL_INFO_H
 #define GET_KERNEL_INFO_H
 
+#include <map>
 #include <string>
 #include <vector>
 namespace OHOS {
@@ -24,8 +25,8 @@ public:
     GetKernelInfo();
     ~GetKernelInfo();
 
-    using PairMatrix = std::vector<std::pair<std::string, uint64_t>>;
-    bool GetKernel(const PairMatrix &info, uint64_t &totalValue);
+    using ValueMap = std::map<std::string, uint64_t>;
+    bool GetKernel(const ValueMap &info, uint64_t &totalValue);
 
 private:
 };
