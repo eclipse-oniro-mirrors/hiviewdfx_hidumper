@@ -25,7 +25,7 @@ DumpCompressor::DumpCompressor()
 void DumpCompressor::DeleteZData()
 {
     if (zData_ != nullptr) {
-        delete zData_;
+        delete[] zData_;
     };
     zData_ = nullptr;
 }

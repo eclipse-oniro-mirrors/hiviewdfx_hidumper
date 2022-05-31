@@ -24,10 +24,10 @@ const uint32_t MAX_COMPRESS_BUFFER_SIZE = 32 * 1024;
 
 namespace OHOS {
 namespace HiviewDFX {
-typedef struct {
-    uint32_t offset = 0;
+struct CompressBuffer {
+    uint32_t offset;
     char content[MAX_COMPRESS_BUFFER_SIZE] = { 0 };
-} CompressBuffer;
+};
 
 const uint16_t CHUNK = 16384;
 const uint16_t WINDOWS_BITS = 16;
