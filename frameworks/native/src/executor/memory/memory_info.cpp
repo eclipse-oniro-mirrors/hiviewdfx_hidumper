@@ -625,7 +625,7 @@ void MemoryInfo::GetMemoryByAdj(StringMatrix result)
             result->push_back(label);
             continue;
         }
-        uint64_t totalPss = accumulate(memUsages.begin(), memUsages.end(), 0,
+        uint64_t totalPss = accumulate(memUsages.begin(), memUsages.end(), (uint64_t)0,
         [] (uint64_t a, MemInfoData::MemUsage &b) {
             return a + b.pss;
         });
