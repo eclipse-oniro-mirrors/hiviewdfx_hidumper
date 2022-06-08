@@ -27,11 +27,11 @@ public:
     explicit ConfigUtils(const std::shared_ptr<DumperParameter> &param);
     ~ConfigUtils();
 public:
-    // Used for get dumper configs
+    constexpr static int32_t ROOT_UID = 0;
+    constexpr static int32_t BMS_UID = 1000;
+
     static DumpStatus GetDumperConfigs(const std::shared_ptr<DumperParameter> &param);
-    // Used for get section names
     static DumpStatus GetSectionNames(const std::string &name, std::vector<std::string> &nameList);
-    // Used for get dump level
     static int GetDumpLevelByPid(int uid, const DumpCommonUtils::PidInfo &pidInfo);
 #ifdef DUMP_TEST_MODE // for mock test
 public:
