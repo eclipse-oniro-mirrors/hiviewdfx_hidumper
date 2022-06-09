@@ -23,6 +23,7 @@ namespace OHOS {
 namespace HiviewDFX {
 namespace {
 constexpr int ROOT_UID = 0;
+constexpr int BMS_UID = 1000;
 constexpr int APP_FIRST_UID = 10000;
 static const std::string SMAPS_PATH = "smaps/";
 static const std::string SMAPS_PATH_START = "/proc/";
@@ -467,8 +468,12 @@ bool ConfigUtils::HandleDumpAppendix(std::vector<std::shared_ptr<DumpCfg>> &dump
     GetConfig(CONFIG_GROUP_LOG_KERNEL, dumpCfgs, args);
     GetConfig(CONFIG_GROUP_LOG_INIT, dumpCfgs, args);
     GetConfig(CONFIG_GROUP_LOG_HILOG, dumpCfgs, args);
-    GetConfig(CONFIG_GROUP_STACK, dumpCfgs, args);
-
+    int callingUid = dumperParam_->GetUid();
+    if (callingUid == ROOT_UID || callingUid == BMS_UID) {
+        GetConfig(CONFIG_GROUP_STACK, dumpCfgs, args);
+    } else {
+        DUMPER_HILOGE(MODULE_COMMON, "No permission to perform dump stack operation, uid=%d", callingUid);
+    }
     currentPidInfos_.clear();
     currentPidInfo_.Reset();
     return true;
