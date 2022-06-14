@@ -74,8 +74,8 @@ public:
 
 private:
     const std::map<std::string, std::string> beginMap_ = {
-        {"/system/bin/", "native"}, {"[heap]", "heap"}, {"[stack]", "stack"},
-        {"[anon:native_heap:musl", "native heap"}, {"[anon:Object Space]", "ark js heap"},
+        {"[heap]", "native heap"}, {"[stack]", "stack"},
+        {"[anon:native_heap:musl", "native heap"}, {"[anon:ArkJS Heap]", "ark js heap"},
     };
     const std::map<std::string, std::string> endMap_ = {
         {".so", "so"}, {".so.1", "so"},
