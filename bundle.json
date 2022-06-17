@@ -22,7 +22,6 @@
         "ram": "",
         "deps": {
             "components": [
-                "common_event_service",
                 "eventhandler",
                 "hilog_native",
                 "hisysevent_native",
