@@ -69,15 +69,13 @@ private:
      * @return bool, changed true, not changed false.
      */
     bool CheckGroupName(std::string& lastName, const std::string& curName);
-    bool IsLongOptionReqArg(char* argv[], const struct option longOptions[], int size);
     bool IsShortOptionReqArg(const char* optStr);
     void SendErrorMessage(const std::string& errorStr);
     void SendPidErrorMessage(int pid);
     DumpStatus ParseLongCmdOption(DumperOpts& opts_, const struct option longOptions[],
         const int& optionIndex, char* argv[]);
     DumpStatus ParseShortCmdOption(int c, DumperOpts& opts_, int argc, char* argv[]);
-    void CheckIncorrectCmdOption(const char* optStr, char* argv[],
-        const struct option longOptions[], int size);
+    void CheckIncorrectCmdOption(const char* optStr, char* argv[]);
     std::string RemoveCharacterFromStr(const std::string& str, const char character);
     bool IsLongOption(const std::string& str, const struct option longOptions[], int size);
     bool IsSADumperOption(char* argv[]);
