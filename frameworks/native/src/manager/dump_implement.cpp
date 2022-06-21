@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -176,20 +176,18 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
 {
     optind = 0; // reset getopt_long
     opterr = 0; // getopt not show error info
-    const char optStr[] = "-ht:L:z:lcsa:ep";
+    const char optStr[] = "-ht:lcsa:ep";
     bool loop = true;
     while (loop) {
         int optionIndex = 0;
         static struct option longOptions[] = {{"cpufreq", no_argument, 0, 0},
                                               {"cpuusage", optional_argument, 0, 0},
-                                              {"log", optional_argument, 0, 0},
                                               {"mem", optional_argument, 0, 0},
                                               {"net", no_argument, 0, 0},
                                               {"storage", no_argument, 0, 0},
                                               {"zip", no_argument, 0, 0},
                                               {"test", no_argument, 0, 0},
                                               {0, 0, 0, 0}};
-        size_t longOptionsSize = sizeof(longOptions) / sizeof(option);
         int c = getopt_long(argc, argv, optStr, longOptions, &optionIndex);
         if (c == -1) {
             break;
@@ -199,7 +197,7 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
             CmdHelp();
             return DumpStatus::DUMP_HELP;
         } else if (c == '?') {
-            CheckIncorrectCmdOption(optStr, argv, longOptions, longOptionsSize);
+            CheckIncorrectCmdOption(optStr, argv);
             return DumpStatus::DUMP_INVALID_ARG;
         } else {
             DumpStatus status = ParseShortCmdOption(c, opts_, argc, argv);
@@ -545,39 +543,23 @@ const sptr<ISystemAbilityManager> DumpImplement::GetSystemAbilityManager()
     return sam_;
 }
 
-void DumpImplement::CheckIncorrectCmdOption(const char *optStr, char *argv[], const struct option longOptions[],
-                                            int size)
+void DumpImplement::CheckIncorrectCmdOption(const char *optStr, char *argv[])
 {
-    bool shortRet = IsShortOptionReqArg(optStr);
-    bool longRet = IsLongOptionReqArg(argv, longOptions, size);
-    if (shortRet == false && longRet == false) {
-        std::string optionName = RemoveCharacterFromStr(argv[optind - 1], '-');
-        std::string errorStr = unrecognizedError_ + optionName;
+    if (optopt == 0) {
+        SendErrorMessage(unrecognizedError_ + RemoveCharacterFromStr(argv[optind - 1], '-'));
+    } else if (!IsShortOptionReqArg(optStr)) {
+        std::string errorStr = unrecognizedError_;
+        errorStr += optopt;
         SendErrorMessage(errorStr);
     }
 }
 
 bool DumpImplement::IsShortOptionReqArg(const char *optStr)
 {
-    int count = 0;
-    while (optStr[count] != '\0') {
-        if (optStr[count] == optopt) {
-            std::string errorStr = requireError_ + optStr[count];
-            SendErrorMessage(errorStr);
-            return true;
-        }
-        count++;
-    }
-    return false;
-}
-
-bool DumpImplement::IsLongOptionReqArg(char *argv[], const struct option longOptions[], int size)
-{
-    if (optopt == 0) {
-        std::string longOptName = RemoveCharacterFromStr(argv[optind - 1], '-');
-        if (IsLongOption(longOptName, longOptions, size)) {
-            std::string errorStr = requireError_ + longOptName;
-            SendErrorMessage(errorStr);
+    int len = strlen(optStr);
+    for (int i = 0; i < len; i++) {
+        if (optStr[i] == optopt) {
+            SendErrorMessage(requireError_ + optStr[i]);
             return true;
         }
     }
