@@ -130,7 +130,7 @@ uint64_t GetHardwareInfo::CalcHardware(const vector<string> &paths)
     return totalValue;
 }
 
-void GetHardwareInfo::GetGroupOfPaths(const int &index, const int &size, const std::vector<std::string> &paths,
+void GetHardwareInfo::GetGroupOfPaths(const size_t &index, const size_t &size, const std::vector<std::string> &paths,
                                       std::vector<string> &groupPaths)
 {
     for (size_t i = index * size; i <= (index + 1) * size - 1; i++) {
