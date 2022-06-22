@@ -37,7 +37,7 @@ public:
     };
 
     int SMAPS_THREAD_NUM_ = 5;
-    int HARDWARE_USAGE_THREAD_NUM_ = 5;
+    size_t HARDWARE_USAGE_THREAD_NUM_ = 5;
 
     const std::vector<std::string> RECLAIM_PRIORITY = {"System", "Foreground", "Suspend-delay", "Perceived",
                                                        "Background", "Undefined"};

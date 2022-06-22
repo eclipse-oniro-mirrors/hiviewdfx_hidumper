@@ -29,7 +29,7 @@ public:
 private:
     const static int WORD_SIZE = 4;
     bool FindFilePaths(std::vector<std::string> &result);
-    void GetGroupOfPaths(const int &index, const int &size, const std::vector<std::string> &paths,
+    void GetGroupOfPaths(const size_t &index, const size_t &size, const std::vector<std::string> &paths,
                          std::vector<std::string> &groupPaths);
     void static GetResverRegPath(std::string &path);
     void static GetValue(const std::string &str, uint64_t &value);
