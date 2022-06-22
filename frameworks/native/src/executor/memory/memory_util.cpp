@@ -112,9 +112,9 @@ bool MemoryUtil::RunCMD(const string &cmd, vector<string> &result)
     return true;
 }
 
-size_t MemoryUtil::GetMaxThreadNum(const int &threadNum)
+size_t MemoryUtil::GetMaxThreadNum(const size_t &threadNum)
 {
-    int maxThreadNum = 0;
+    size_t maxThreadNum = 0;
     size_t const hardwareThreads = std::thread::hardware_concurrency();
     if (hardwareThreads == 0) {
         maxThreadNum = threadNum;
