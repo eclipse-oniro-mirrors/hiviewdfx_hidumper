@@ -270,9 +270,13 @@ void MemoryInfo::GetPssTotal(const GroupMap &infos, StringMatrix result)
     vector<string> title;
     title.push_back("Total PSS by Category:");
     result->push_back(title);
+
+    vector<pair<string, uint64_t>> filePage;
+    vector<pair<string, uint64_t>> anonPage;
     for (const auto &info : infos) {
-        vector<string> pss;
-        string group = info.first;
+        vector<string> pageTag;
+        StringUtils::GetInstance().StringSplit(info.first, "#", pageTag);
+        string group = pageTag[1];
         auto &valueMap = info.second;
         uint64_t pssValue = 0;
         for (const auto &str : MemoryFilter::GetInstance().CALC_PSS_TOTAL_) {
@@ -282,14 +286,35 @@ void MemoryInfo::GetPssTotal(const GroupMap &infos, StringMatrix result)
             }
         }
 
-        string pssStr = AddKbUnit(pssValue);
+        if (pageTag[0] == MemoryFilter::GetInstance().FILE_PAGE_TAG) {
+            filePage.push_back(make_pair(group, pssValue));
+        } else {
+            anonPage.push_back(make_pair(group, pssValue));
+        }
+    }
+    PairToStringMatrix(MemoryFilter::GetInstance().FILE_PAGE_TAG, filePage, result);
+    PairToStringMatrix(MemoryFilter::GetInstance().ANON_PAGE_TAG, anonPage, result);
+}
+
+void MemoryInfo::PairToStringMatrix(const string &titleStr, vector<pair<string, uint64_t>> &vec, StringMatrix result)
+{
+    uint64_t totalPss = accumulate(vec.begin(), vec.end(), (uint64_t)0, [] (uint64_t a, pair<string, uint64_t> &b) {
+        return a + b.second;
+    });
+    vector<string> title;
+    title.push_back(titleStr + "(" + AddKbUnit(totalPss) + "):");
+    result->push_back(title);
+
+    std::sort(vec.begin(), vec.end(),
+        [] (pair<string, uint64_t> &left, pair<string, uint64_t> &right) {
+        return right.second < left.second;
+    });
+    for (const auto &pair : vec) {
+        vector<string> line;
+        string pssStr = AddKbUnit(pair.second);
         StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, pssStr);
-
-        pss.push_back(pssStr);
-        pss.push_back(":");
-        pss.push_back(group);
-
-        result->push_back(pss);
+        line.push_back(pssStr + " : " + pair.first);
+        result->push_back(line);
     }
 }
 
@@ -621,7 +646,7 @@ void MemoryInfo::GetMemoryByAdj(StringMatrix result)
         vector<MemInfoData::MemUsage> memUsages = adjMemResult_[adjLabel];
         vector<string> label;
         if (memUsages.size() == 0) {
-            label.push_back(adjLabel + ": " + "0kb");
+            label.push_back(adjLabel + ": " + AddKbUnit(0));
             result->push_back(label);
             continue;
         }
@@ -629,7 +654,7 @@ void MemoryInfo::GetMemoryByAdj(StringMatrix result)
         [] (uint64_t a, MemInfoData::MemUsage &b) {
             return a + b.pss;
         });
-        label.push_back(adjLabel + ": " + to_string(totalPss) + "kb");
+        label.push_back(adjLabel + ": " + AddKbUnit(totalPss));
         result->push_back(label);
 
         std::sort(memUsages.begin(), memUsages.end(),
@@ -637,10 +662,11 @@ void MemoryInfo::GetMemoryByAdj(StringMatrix result)
             return right.pss < left.pss;
         });
         for (const auto &memUsage : memUsages) {
-            vector<string> pssValue;
-            pssValue.push_back(memUsage.name + "(pid=" + to_string(memUsage.pid) + "): "
-                            + to_string(memUsage.pss) + "kb");
-            result->push_back(pssValue);
+            vector<string> line;
+            string name = memUsage.name + "(pid=" + to_string(memUsage.pid) + "): ";
+            StringUtils::GetInstance().SetWidth(NAME_AND_PID_WIDTH, BLANK_, true, name);
+            line.push_back(name + AddKbUnit(memUsage.pss));
+            result->push_back(line);
         }
     }
 }

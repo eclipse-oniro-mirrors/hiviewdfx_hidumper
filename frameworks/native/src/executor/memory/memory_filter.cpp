@@ -26,15 +26,17 @@ MemoryFilter::~MemoryFilter()
 {
 }
 
-void MemoryFilter::ParseMemoryGroup(const string &name, string &group)
+void MemoryFilter::ParseMemoryGroup(const string &name, string &group, uint64_t iNode)
 {
-    if (GetGroupFromMap(name, group, beginMap_, bind(
-                        &StringUtils::IsBegin, &StringUtils::GetInstance(), placeholders::_1, placeholders::_2)) ||
-        GetGroupFromMap(name, group, endMap_, bind(
-                        &StringUtils::IsEnd, &StringUtils::GetInstance(), placeholders::_1, placeholders::_2))) {
+    group = iNode > 0 ? FILE_PAGE_TAG : ANON_PAGE_TAG;
+    group += "#";
+    if (GetGroupFromMap(name, group, endMap_, bind(
+                        &StringUtils::IsEnd, &StringUtils::GetInstance(), placeholders::_1, placeholders::_2)) ||
+        GetGroupFromMap(name, group, beginMap_, bind(
+                        &StringUtils::IsBegin, &StringUtils::GetInstance(), placeholders::_1, placeholders::_2))) {
         return;
     }
-    group = "other";
+    group += "other";
 }
 
 bool MemoryFilter::GetGroupFromMap(const string &name, string &group,
@@ -42,7 +44,7 @@ bool MemoryFilter::GetGroupFromMap(const string &name, string &group,
 {
     for (const auto &p : map) {
         if (func(name, p.first)) {
-            group = p.second;
+            group += p.second;
             return true;
         }
     }
