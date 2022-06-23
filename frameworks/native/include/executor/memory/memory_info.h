@@ -64,6 +64,7 @@ private:
     const int PID_WIDTH_ = 5;
     const int NAME_WIDTH_ = 20;
     const int KB_WIDTH_ = 12;
+    const int NAME_AND_PID_WIDTH = 30;
     const static int VSS_BIT = 4;
     bool isReady_ = false;
     bool dumpSmapsOnStart_ = false;
@@ -92,6 +93,8 @@ private:
     void GetRamCategory(const GroupMap &smapsinfos, const ValueMap &meminfos, StringMatrix result);
     void AddBlankLine(StringMatrix result);
     void MemUsageToMatrix(const MemInfoData::MemUsage &memUsage, StringMatrix result);
+    void PairToStringMatrix(const std::string &titleStr, std::vector<std::pair<std::string, uint64_t>> &vec,
+                            StringMatrix result);
     void AddMemByProcessTitle(StringMatrix result, std::string sortType);
     static uint64_t GetVss(const int &pid);
     static std::string GetProcName(const int &pid);

@@ -98,14 +98,15 @@ bool ParseSmapsInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int 
     string content;
     while (getline(in, content)) {
         string name;
+        uint64_t iNode = 0;
         if (StringUtils::GetInstance().IsEnd(content, "B")) {
             string type;
             uint64_t value = 0;
             if (GetValue(memType, content, type, value)) {
                 MemoryUtil::GetInstance().CalcGroup(memGroup_, type, value, result);
             }
-        } else if (MemoryUtil::GetInstance().IsNameLine(content, name)) {
-            MemoryFilter::GetInstance().ParseMemoryGroup(name, memGroup_);
+        } else if (MemoryUtil::GetInstance().IsNameLine(content, name, iNode)) {
+            MemoryFilter::GetInstance().ParseMemoryGroup(name, memGroup_, iNode);
         }
     }
     in.close();

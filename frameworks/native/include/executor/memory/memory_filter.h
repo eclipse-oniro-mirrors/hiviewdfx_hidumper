@@ -38,7 +38,8 @@ public:
 
     int SMAPS_THREAD_NUM_ = 5;
     size_t HARDWARE_USAGE_THREAD_NUM_ = 5;
-
+    const std::string FILE_PAGE_TAG = "File-backed Page";
+    const std::string ANON_PAGE_TAG = "Anonymous Page";
     const std::vector<std::string> RECLAIM_PRIORITY = {"System", "Foreground", "Suspend-delay", "Perceived",
                                                        "Background", "Undefined"};
 
@@ -70,15 +71,18 @@ public:
     std::vector<std::string> HAS_PID_ORDER_ = {"Pss",           "Shared_Clean", "Shared_Dirty", "Private_Clean",
                                                "Private_Dirty", "Swap",         "SwapPss"};
     std::vector<std::string> NO_PID_ORDER_ = {"Pss"};
-    void ParseMemoryGroup(const std::string &name, std::string &group);
+    void ParseMemoryGroup(const std::string &name, std::string &group, uint64_t iNode);
 
 private:
     const std::map<std::string, std::string> beginMap_ = {
-        {"[heap]", "native heap"}, {"[stack]", "stack"},
+        {"[heap]", "native heap"}, {"[stack]", "stack"}, {"[anon:stack", "stack"},
         {"[anon:native_heap:musl", "native heap"}, {"[anon:ArkJS Heap]", "ark js heap"},
+        {"[anon:guard", "guard"}, {"/dev", "dev"}, {"[anon:signal_stack", "stack"},
+        {"/dmabuf", "dmabuf"}, {"/data/storage", ".hap"},
     };
     const std::map<std::string, std::string> endMap_ = {
-        {".so", "so"}, {".so.1", "so"},
+        {".so", ".so"}, {".so.1", ".so"}, {".ttf", ".ttf"},
+        {".db", ".db"}, {".db-shm", ".db"},
     };
 
     bool GetGroupFromMap(const std::string &name, std::string &group,

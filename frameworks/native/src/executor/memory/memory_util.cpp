@@ -32,9 +32,8 @@ MemoryUtil::~MemoryUtil()
 {
 }
 
-bool MemoryUtil::IsNameLine(const string &str, string &name)
+bool MemoryUtil::IsNameLine(const string &str, string &name, uint64_t &iNode)
 {
-    uint64_t iNode = 0;
     uint32_t len = 0;
     if (sscanf_s(str.c_str(), "%*llx-%*llx %*s %*llx %*s %llu%n", &iNode, &len) != 1) {
         return false;
