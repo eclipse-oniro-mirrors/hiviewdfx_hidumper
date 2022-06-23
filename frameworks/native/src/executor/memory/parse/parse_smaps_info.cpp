@@ -98,7 +98,7 @@ bool ParseSmapsInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int 
     string content;
     while (getline(in, content)) {
         string name;
-        uint64_t iNode = 0; 
+        uint64_t iNode = 0;
         if (StringUtils::GetInstance().IsEnd(content, "B")) {
             string type;
             uint64_t value = 0;

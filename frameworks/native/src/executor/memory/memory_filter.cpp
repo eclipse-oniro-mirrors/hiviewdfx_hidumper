@@ -33,7 +33,7 @@ void MemoryFilter::ParseMemoryGroup(const string &name, string &group, uint64_t 
     if (GetGroupFromMap(name, group, endMap_, bind(
                         &StringUtils::IsEnd, &StringUtils::GetInstance(), placeholders::_1, placeholders::_2)) ||
         GetGroupFromMap(name, group, beginMap_, bind(
-                        &StringUtils::IsBegin, &StringUtils::GetInstance(), placeholders::_1, placeholders::_2))) {
+            &StringUtils::IsBegin, &StringUtils::GetInstance(), placeholders::_1, placeholders::_2))) {
         return;
     }
     group += "other";

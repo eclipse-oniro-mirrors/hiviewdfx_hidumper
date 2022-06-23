@@ -93,7 +93,8 @@ private:
     void GetRamCategory(const GroupMap &smapsinfos, const ValueMap &meminfos, StringMatrix result);
     void AddBlankLine(StringMatrix result);
     void MemUsageToMatrix(const MemInfoData::MemUsage &memUsage, StringMatrix result);
-    void PairToStringMatrix(const std::string &titleStr, std::vector<std::pair<std::string, uint64_t>> &vec, StringMatrix result);
+    void PairToStringMatrix(const std::string &titleStr, std::vector<std::pair<std::string, uint64_t>> &vec,
+                            StringMatrix result);
     void AddMemByProcessTitle(StringMatrix result, std::string sortType);
     static uint64_t GetVss(const int &pid);
     static std::string GetProcName(const int &pid);
