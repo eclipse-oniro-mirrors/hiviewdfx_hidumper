@@ -113,7 +113,9 @@ void MemoryInfo::BuildResult(const GroupMap &infos, StringMatrix result)
     insertMemoryTitle(result);
     for (const auto &info : infos) {
         vector<string> tempResult;
-        string group = info.first;
+        vector<string> pageTag;
+        StringUtils::GetInstance().StringSplit(info.first, "#", pageTag);
+        string group = pageTag[1];
         StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, group);
         tempResult.push_back(group);
 
