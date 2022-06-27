@@ -104,10 +104,10 @@ ohos_source_set("dump_main") {
     "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
-    "startup_l2:syspara",
   ]
 
   subsystem_name = "hiviewdfx"
@@ -141,10 +141,10 @@ ohos_shared_library("hidumperclient") {
     "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
-    "startup_l2:syspara",
   ]
 
   subsystem_name = "hiviewdfx"
@@ -176,10 +176,10 @@ ohos_executable("hidumper") {
     "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
-    "startup_l2:syspara",
   ]
 
   subsystem_name = "hiviewdfx"
