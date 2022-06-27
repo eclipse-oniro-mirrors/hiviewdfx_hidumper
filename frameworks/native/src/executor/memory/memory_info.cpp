@@ -115,7 +115,12 @@ void MemoryInfo::BuildResult(const GroupMap &infos, StringMatrix result)
         vector<string> tempResult;
         vector<string> pageTag;
         StringUtils::GetInstance().StringSplit(info.first, "#", pageTag);
-        string group = pageTag[1];
+        string group;
+        if (pageTag[1] == "other") {
+            group = pageTag[0] == MemoryFilter::GetInstance().FILE_PAGE_TAG ? "FilePage other" : "AnonPage other";
+        } else {
+            group = pageTag[1];
+        }
         StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, group);
         tempResult.push_back(group);
 
@@ -144,9 +149,6 @@ void MemoryInfo::SetValue(const string &value, vector<string> &lines, vector<str
 
 void MemoryInfo::CalcGroup(const GroupMap &infos, StringMatrix result)
 {
-    string separator = "-";
-    StringUtils::GetInstance().SetWidth(LINE_WIDTH_, SEPARATOR_, false, separator);
-
     MemInfoData::MemInfo meminfo;
     MemoryUtil::GetInstance().InitMemInfo(meminfo);
     for (const auto &info : infos) {
@@ -163,7 +165,7 @@ void MemoryInfo::CalcGroup(const GroupMap &infos, StringMatrix result)
     vector<string> values;
 
     SetValue("Total", lines, values);
-    SetValue(to_string(meminfo.pss), lines, values);
+    SetValue(to_string(meminfo.pss + meminfo.swapPss), lines, values);
     SetValue(to_string(meminfo.sharedClean), lines, values);
     SetValue(to_string(meminfo.sharedDirty), lines, values);
     SetValue(to_string(meminfo.privateClean), lines, values);
@@ -270,7 +272,7 @@ void MemoryInfo::GetProcesses(const GroupMap &infos, StringMatrix result)
 void MemoryInfo::GetPssTotal(const GroupMap &infos, StringMatrix result)
 {
     vector<string> title;
-    title.push_back("Total PSS by Category:");
+    title.push_back("Total Pss by Category:");
     result->push_back(title);
 
     vector<pair<string, uint64_t>> filePage;
@@ -466,6 +468,7 @@ bool MemoryInfo::GetMemByProcessPid(const int &pid, MemInfoData::MemUsage &usage
         usage.uss = memInfo.privateClean + memInfo.privateDirty;
         usage.rss = memInfo.rss;
         usage.pss = memInfo.pss;
+        usage.swapPss = memInfo.swapPss;
         usage.name = GetProcName(pid);
         usage.pid = pid;
         usage.adjLabel = GetProcessAdjLabel(pid);
@@ -486,24 +489,23 @@ void MemoryInfo::MemUsageToMatrix(const MemInfoData::MemUsage &memUsage, StringM
     StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, name);
     strs.push_back(name);
 
-    uint64_t pss = memUsage.pss;
-    string totalPss = AddKbUnit(pss);
-    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, true, totalPss);
+    uint64_t pss = memUsage.pss + memUsage.swapPss;
+    string totalPss = to_string(pss) + "(" + to_string(memUsage.swapPss) + " in SwapPss) kB";
     strs.push_back(totalPss);
 
     uint64_t vss = memUsage.vss;
     string totalVss = AddKbUnit(vss);
-    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, true, totalVss);
+    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalVss);
     strs.push_back(totalVss);
 
     uint64_t rss = memUsage.rss;
     string totalRss = AddKbUnit(rss);
-    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, true, totalRss);
+    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalRss);
     strs.push_back(totalRss);
 
     uint64_t uss = memUsage.uss;
     string totalUss = AddKbUnit(uss);
-    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, true, totalUss);
+    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalUss);
     strs.push_back(totalUss);
 
     result->emplace_back(strs);
@@ -525,20 +527,19 @@ void MemoryInfo::AddMemByProcessTitle(StringMatrix result, string sortType)
     StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, name);
     title.push_back(name);
 
-    string totalPss = "Total PSS";
-    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, true, totalPss);
+    string totalPss = "Total Pss(xxx in SwapPss)";
     title.push_back(totalPss);
 
-    string totalVss = "Total VSS";
-    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, true, totalVss);
+    string totalVss = "Total Vss";
+    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalVss);
     title.push_back(totalVss);
 
-    string totalRss = "Total RSS";
-    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, true, totalRss);
+    string totalRss = "Total Rss";
+    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalRss);
     title.push_back(totalRss);
 
-    string totalUss = "Total USS";
-    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, true, totalUss);
+    string totalUss = "Total Uss";
+    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalUss);
     title.push_back(totalUss);
 
     result->push_back(title);
@@ -618,8 +619,8 @@ void MemoryInfo::GetSortedMemoryInfoNoPid(StringMatrix result)
 
     std::sort(memUsages_.begin(), memUsages_.end(),
         [] (MemInfoData::MemUsage &left, MemInfoData::MemUsage &right) {
-        if (right.pss != left.pss) {
-            return right.pss < left.pss;
+        if (right.pss + right.swapPss != left.pss + left.swapPss) {
+            return right.pss + right.swapPss < left.pss + left.swapPss;
         }
         if (right.vss != left.vss) {
             return right.vss < left.vss;
@@ -641,7 +642,7 @@ void MemoryInfo::GetSortedMemoryInfoNoPid(StringMatrix result)
 void MemoryInfo::GetMemoryByAdj(StringMatrix result)
 {
     vector<string> title;
-    title.push_back("Total PSS by OOM adjustment:");
+    title.push_back("Total Pss by OOM adjustment:");
     result->push_back(title);
 
     for (const auto &adjLabel : MemoryFilter::GetInstance().RECLAIM_PRIORITY) {
@@ -667,7 +668,10 @@ void MemoryInfo::GetMemoryByAdj(StringMatrix result)
             vector<string> line;
             string name = memUsage.name + "(pid=" + to_string(memUsage.pid) + "): ";
             StringUtils::GetInstance().SetWidth(NAME_AND_PID_WIDTH, BLANK_, true, name);
-            line.push_back(name + AddKbUnit(memUsage.pss));
+            line.push_back(name + AddKbUnit(memUsage.pss + memUsage.swapPss));
+            if (memUsage.swapPss > 0) {
+                line.push_back(" (" + to_string(memUsage.swapPss) + " kB in SwapPss)");
+            }
             result->push_back(line);
         }
     }

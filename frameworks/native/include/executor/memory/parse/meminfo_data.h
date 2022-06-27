@@ -40,6 +40,7 @@ public:
         uint64_t rss;
         uint64_t uss;
         uint64_t pss;
+        uint64_t swapPss;
         int pid;
         std::string name;
         std::string adjLabel;
