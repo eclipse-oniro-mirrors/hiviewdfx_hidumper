@@ -655,7 +655,7 @@ void MemoryInfo::GetMemoryByAdj(StringMatrix result)
         }
         uint64_t totalPss = accumulate(memUsages.begin(), memUsages.end(), (uint64_t)0,
         [] (uint64_t a, MemInfoData::MemUsage &b) {
-            return a + b.pss;
+            return a + b.pss + b.swapPss;
         });
         label.push_back(adjLabel + ": " + AddKbUnit(totalPss));
         result->push_back(label);
