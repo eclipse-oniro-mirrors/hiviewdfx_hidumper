@@ -392,7 +392,7 @@ void DumpImplement::CmdHelp()
         "  --cpufreq                   |dump real CPU frequency of each core\n"
         "  --mem [pid]                 |dump memory usage of total; dump memory usage of specified"
         " pid if pid was specified\n"
-        "  --zip                       |compress output to /data/dumper\n";
+        "  --zip                       |compress output to /data/log/hidumper\n";
     if (ptrReqCtl_ == nullptr) {
         return;
     }

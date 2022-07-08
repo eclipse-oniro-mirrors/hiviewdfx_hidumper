@@ -19,7 +19,7 @@
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
-static const std::string TMP_FOLDER = "/data/dumper/tmp/";
+static const std::string TMP_FOLDER = "/data/log/hidumper/tmp/";
 static const int LOGFILE_MAX = 10;
 } // namespace
 DumpLogManager::DumpLogManager()

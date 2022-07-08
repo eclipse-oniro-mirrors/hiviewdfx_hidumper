@@ -156,7 +156,7 @@ The procedure is as follows:
     hidumper --mem 1024
     ```
 
-17. Run the **hidumper --zip** command to compress data to the **/data/dumper** directory.
+17. Run the **hidumper --zip** command to compress data to the **/data/log/hidumper** directory.
 
     ```
     hidumper --zip

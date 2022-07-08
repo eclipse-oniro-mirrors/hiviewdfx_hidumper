@@ -63,7 +63,7 @@ enum DumperConstant {
 
 const std::string LOG_DEFAULT = "log.txt";
 const std::string ZIP_FILEEXT = "zip";
-const std::string ZIP_FOLDER = "/data/dumper/";
+const std::string ZIP_FOLDER = "/data/log/hidumper/";
 
 const std::string RELEASE_MODE = "Release";
 } // namespace HiviewDFX
