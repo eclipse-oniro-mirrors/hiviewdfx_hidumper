@@ -160,7 +160,7 @@ hidumper可以为开发者导出系统当前基本信息，通过这些基本信
     hidumper --mem 1024
     ```
 
-17. 运行  **hidumper --zip**  命令压缩信息数据到/data/dumper目录下。
+17. 运行  **hidumper --zip**  命令压缩信息数据到/data/log/hidumper目录下。
 
     ```
     hidumper --zip
