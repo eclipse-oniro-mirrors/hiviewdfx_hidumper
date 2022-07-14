@@ -51,7 +51,6 @@ ohos_source_set("zidl_client") {
   ]
 
   external_deps = [
-    "access_token:libtoken_setproc",
     "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
@@ -159,6 +158,7 @@ ohos_shared_library("hidumperservice") {
   ]
 
   external_deps = [
+    "access_token:libtoken_setproc",
     "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
