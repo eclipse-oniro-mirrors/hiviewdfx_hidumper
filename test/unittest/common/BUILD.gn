@@ -52,6 +52,7 @@ config("module_private_config") {
 }
 
 deps_ex = [
+  "access_token:libtoken_setproc",
   "eventhandler:libeventhandler",
   "ipc:ipc_core",
   "hiviewdfx_hilog_native:libhilog",
