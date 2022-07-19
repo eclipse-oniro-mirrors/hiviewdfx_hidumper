@@ -23,12 +23,13 @@
 #include <unistd.h>
 
 #include "common.h"
+#include "common/dumper_constant.h"
 #include "dump_log_manager.h"
 #include "hilog_wrapper.h"
+#include "inner/dump_service_id.h"
 #include "manager/dump_implement.h"
 #include "raw_param.h"
-#include "inner/dump_service_id.h"
-#include "common/dumper_constant.h"
+#include "token_setproc.h"
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
@@ -188,6 +189,8 @@ std::shared_ptr<RawParam> DumpManagerService::AddRequestRawParam(std::vector<std
     } while (requestRawParamMap_.count(requestId) > 0);
     int32_t calllingUid = IPCSkeleton::GetCallingUid();
     int32_t calllingPid = IPCSkeleton::GetCallingPid();
+    int32_t calllingTokenID = IPCSkeleton::GetCallingTokenID();
+    SetFirstCallerTokenID(calllingTokenID);
     DUMPER_HILOGD(MODULE_SERVICE, "debug|requestId=%{public}u, calllingUid=%{public}d, calllingPid=%{public}d",
                   requestId, calllingUid, calllingPid);
     std::shared_ptr<RawParam> requestHandle =
