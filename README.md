@@ -162,13 +162,6 @@ The procedure is as follows:
     hidumper --zip
     ```
 
-18. Run the **hidumper -t timeout** command to set the timeout period, in seconds. The default value is **30**. Value **0** indicates no timeout limit.
-
-    ```
-    hidumper -t 5
-    ```
-
-
 ## Repositories Involved<a name="section1371113476307"></a>
 
 DFX subsystem:

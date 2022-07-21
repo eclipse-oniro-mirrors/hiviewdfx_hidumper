@@ -166,13 +166,6 @@ hidumper可以为开发者导出系统当前基本信息，通过这些基本信
     hidumper --zip
     ```
 
-18. 运行  **hidumper -t timeout**  命令设置超时时间，单位：秒。默认值是30s。如果设置为0表示无超时限定。
-
-    ```
-    hidumper -t 5
-    ```
-
-
 ## 相关仓<a name="section1371113476307"></a>
 
 DFX子系统:

@@ -372,7 +372,6 @@ void DumpImplement::CmdHelp()
     const char *str =
         "usage:\n"
         "  -h                          |help text for the tool\n"
-        "  -t [timeout]                |timeout period in seconds (0 for no timeout)\n"
         "  -lc                         |a list of system information clusters\n"
         "  -ls                         |a list of system abilities\n"
         "  -c                          |all system information clusters\n"
@@ -575,7 +574,7 @@ void DumpImplement::SendErrorMessage(const std::string &errorStr)
     if (rawParamFd < 0) {
         return;
     }
-    SaveStringToFd(rawParamFd, errorStr);
+    SaveStringToFd(rawParamFd, errorStr + "\n");
 }
 
 void DumpImplement::SendPidErrorMessage(int pid)
