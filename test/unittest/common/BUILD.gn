@@ -35,7 +35,7 @@ config("module_private_config") {
     "${source_path}/",
     "${source_path}/manager",
     "${source_path}/dumpers",
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base/include",
     "include",
     "${hidumper_frameworks_path}",
     "${hidumper_frameworks_path}/include",
@@ -61,6 +61,7 @@ deps_ex = [
   # "samgr_L2:samgr_proxy",
   "samgr_standard:samgr_proxy",
   "init:libbegetutil",
+  "c_utils:utils",
 ]
 
 ##############################unittest##########################################
@@ -88,10 +89,7 @@ ohos_unittest("HidumperServiceTest") {
     ":module_private_config",
   ]
 
-  deps = [
-    "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
-  ]
+  deps = [ "//third_party/googletest:gtest_main" ]
 
   external_deps = deps_ex
 }
@@ -111,7 +109,6 @@ ohos_unittest("HidumperDumpersTest") {
     "${hidumper_service_path}:hidumperservice",
     "//third_party/googletest:gtest_main",
     "//third_party/zlib:libz",
-    "//utils/native/base:utils",
   ]
 
   external_deps = deps_ex
@@ -132,7 +129,6 @@ ohos_unittest("HidumperOutputTest") {
     "${hidumper_service_path}:hidumperservice",
     "//third_party/googletest:gtest_main",
     "//third_party/zlib:libz",
-    "//utils/native/base:utils",
   ]
 
   external_deps = deps_ex
@@ -156,10 +152,7 @@ ohos_unittest("HidumperConfigUtilsTest") {
     ":module_private_config",
   ]
 
-  deps = [
-    "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
-  ]
+  deps = [ "//third_party/googletest:gtest_main" ]
 
   external_deps = deps_ex
 }

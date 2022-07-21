@@ -16,16 +16,16 @@ import("//base/hiviewdfx/hidumper/hidumper.gni")
 config("innerkits_test_config") {
   visibility = [ ":*" ]
 
-  include_dirs = ["//base/hiviewdfx/hidumper/interfaces/innerkits/include"]
+  include_dirs = [ "//base/hiviewdfx/hidumper/interfaces/innerkits/include" ]
 }
 
 ohos_executable("innerkits_test") {
   install_enable = true
-  
+
   configs = [ ":innerkits_test_config" ]
   sources = [ "main.cpp" ]
   deps = [ "//base/hiviewdfx/hidumper/interfaces/innerkits:lib_dump_usage" ]
- 
+
   subsystem_name = "hiviewdfx"
   part_name = "hidumper"
 }

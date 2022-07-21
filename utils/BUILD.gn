@@ -15,7 +15,7 @@ import("//base/hiviewdfx/hidumper/hidumper.gni")
 
 config("utils_config") {
   include_dirs = [
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base/include",
     "${hidumper_utils_path}/native/include",
   ]
 }
@@ -25,9 +25,10 @@ ohos_source_set("utils") {
 
   configs = [ ":utils_config" ]
 
-  deps = [ "//utils/native/base:utils" ]
-
-  external_deps = [ "init:libbegetutil" ]
+  external_deps = [
+    "c_utils:utils",
+    "init:libbegetutil",
+  ]
 
   subsystem_name = "${hidumper_subsystem_name}"
 
