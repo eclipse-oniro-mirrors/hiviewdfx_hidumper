@@ -58,7 +58,7 @@ ohos_source_set("zidl_client") {
     "safwk:system_ability_fwk",
 
     #"samgr_L2:samgr_proxy",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 
   subsystem_name = "${hidumper_subsystem_name}"
@@ -91,7 +91,7 @@ ohos_source_set("zidl_service") {
     "safwk:system_ability_fwk",
 
     #"samgr_L2:samgr_proxy",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 
   subsystem_name = "${hidumper_subsystem_name}"
@@ -124,7 +124,7 @@ ohos_source_set("hidumper_client") {
     "safwk:system_ability_fwk",
 
     #"samgr_L2:samgr_proxy",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 
   subsystem_name = "${hidumper_subsystem_name}"
@@ -166,7 +166,7 @@ ohos_shared_library("hidumperservice") {
     "safwk:system_ability_fwk",
 
     #"samgr_L2:samgr_proxy",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 
   subsystem_name = "${hidumper_subsystem_name}"
