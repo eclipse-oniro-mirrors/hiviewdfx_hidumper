@@ -88,7 +88,7 @@ private:
     const std::string unrecognizedError_ = "hidumper: unrecognized option: ";
     const std::string invalidError_ = "hidumper: invalid arg: ";
     const std::string requireError_ = "hidumper: option requires an argument: ";
-    const std::string pidError_ = "hidumper: No such process: %d";
+    const std::string pidError_ = "hidumper: No such process: %d\n";
     std::shared_ptr<ExecutorFactoryMap> ptrExecutorFactoryMap_;
     mutable std::mutex mutexCmdLock_;
     std::shared_ptr<RawParam> ptrReqCtl_;

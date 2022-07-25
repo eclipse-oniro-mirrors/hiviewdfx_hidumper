@@ -19,7 +19,7 @@ config("hidumper_include") {
     "//third_party/json/single_include",
     "//third_party/json/include",
     "${hidumper_frameworks_path}/include",
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base/include",
     "//foundation/resourceschedule/memmgr/interface/innerkits/include",
   ]
 }
@@ -97,10 +97,10 @@ ohos_source_set("dump_main") {
   deps = [
     "${hidumper_utils_path}:utils",
     "//third_party/zlib:libz",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
@@ -134,10 +134,10 @@ ohos_shared_library("hidumperclient") {
   deps = [
     "${hidumper_service_path}:hidumper_client",
     "${hidumper_utils_path}:utils",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
@@ -169,10 +169,10 @@ ohos_executable("hidumper") {
     ":hidumperclient",
     "${hidumper_service_path}:hidumper_client",
     "${hidumper_utils_path}:utils",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",

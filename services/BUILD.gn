@@ -19,7 +19,7 @@ config("interface_include") {
 
 config("service_config") {
   include_dirs = [
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base/include",
     "//utils/system/safwk/native/include",
     "native/include",
   ]
@@ -27,7 +27,7 @@ config("service_config") {
 
 config("zidl_config") {
   include_dirs = [
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base/include",
     "//utils/system/safwk/native/include",
     "zidl/include",
   ]
@@ -45,12 +45,10 @@ ohos_source_set("zidl_client") {
     "${hidumper_service_path}:zidl_config",
   ]
 
-  deps = [
-    "${hidumper_utils_path}:utils",
-    "//utils/native/base:utils",
-  ]
+  deps = [ "${hidumper_utils_path}:utils" ]
 
   external_deps = [
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
@@ -78,12 +76,10 @@ ohos_source_set("zidl_service") {
     "${hidumper_service_path}:zidl_config",
   ]
 
-  deps = [
-    "${hidumper_utils_path}:utils",
-    "//utils/native/base:utils",
-  ]
+  deps = [ "${hidumper_utils_path}:utils" ]
 
   external_deps = [
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
@@ -113,10 +109,10 @@ ohos_source_set("hidumper_client") {
   deps = [
     "${hidumper_service_path}:zidl_client",
     "${hidumper_utils_path}:utils",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
@@ -154,11 +150,11 @@ ohos_shared_library("hidumperservice") {
     "${hidumper_frameworks_path}:dump_main",
     "${hidumper_service_path}:zidl_service",
     "${hidumper_utils_path}:utils",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
     "access_token:libtoken_setproc",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",

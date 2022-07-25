@@ -19,7 +19,7 @@ config("dump_usage_config") {
   include_dirs = [
     ".",
     "${hidumper_frameworks_path}/include",
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base/include",
     "//base/hiviewdfx/hidumper/utils/native/include/",
     "//base/hiviewdfx/hidumper/frameworks/native",
     "//base/hiviewdfx/hidumper/services/native/include",
