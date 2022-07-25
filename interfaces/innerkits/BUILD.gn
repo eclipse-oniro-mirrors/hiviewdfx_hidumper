@@ -19,32 +19,25 @@ config("dump_usage_config") {
   include_dirs = [
     ".",
     "${hidumper_frameworks_path}/include",
-    "//utils/native/base/include", 
-    "//base/hiviewdfx/hidumper/utils/native/include/",  
+    "//commonlibrary/c_utils/base/include",
+    "//base/hiviewdfx/hidumper/utils/native/include/",
     "//base/hiviewdfx/hidumper/frameworks/native",
     "//base/hiviewdfx/hidumper/services/native/include",
-    "//base/hiviewdfx/hidumper/interfaces/native/innerkits/include"
+    "//base/hiviewdfx/hidumper/interfaces/native/innerkits/include",
   ]
 }
-
 
 ohos_shared_library("lib_dump_usage") {
   public_configs = [ ":dump_usage_config" ]
 
-  deps = [
-     "//base/hiviewdfx/hidumper/services:hidumperservice",
+  deps = [ "//base/hiviewdfx/hidumper/services:hidumperservice" ]
+
+  external_deps = [
+    "hilog_native:libhilog",
+    "ipc:ipc_core",
   ]
 
- external_deps = [
-   "hilog_native:libhilog",
-   "ipc:ipc_core",
-  ]
-
-  sources = [
-    "//base/hiviewdfx/hidumper/interfaces/innerkits/dump_usage.cpp",
-  ]
+  sources = [ "//base/hiviewdfx/hidumper/interfaces/innerkits/dump_usage.cpp" ]
   subsystem_name = "hiviewdfx"
   part_name = "hidumper"
 }
-
-
