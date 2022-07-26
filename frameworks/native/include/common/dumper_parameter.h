@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,13 +14,12 @@
  */
 #ifndef HIDUMPER_SERVICES_DUMPER_PARAMETER_H
 #define HIDUMPER_SERVICES_DUMPER_PARAMETER_H
-#include <mutex>
-#include <queue>
+
 #include <vector>
-#include "raw_param.h"
-#include "common/dumper_constant.h"
+
 #include "common/dump_cfg.h"
 #include "common/dumper_opts.h"
+#include "raw_param.h"
 namespace OHOS {
 namespace HiviewDFX {
 class DumperParameter {

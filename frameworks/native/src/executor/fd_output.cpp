@@ -14,8 +14,8 @@
  */
 
 #include "executor/fd_output.h"
-#include<unistd.h>
-#include<fcntl.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 namespace OHOS {
 namespace HiviewDFX {

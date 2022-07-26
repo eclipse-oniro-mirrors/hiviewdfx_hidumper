@@ -17,7 +17,6 @@
 
 #include <map>
 #include <string>
-#include <vector>
 namespace OHOS {
 namespace HiviewDFX {
 class GetKernelInfo {
