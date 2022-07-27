@@ -14,9 +14,6 @@
  */
 #include "common/dumper_parameter.h"
 
-#include <string>
-#include <vector>
-
 #include "hilog_wrapper.h"
 #include "securec.h"
 namespace OHOS {

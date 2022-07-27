@@ -14,7 +14,6 @@
  */
 #include "dump_client_main.h"
 
-#include <string>
 #include <string_ex.h>
 #include <vector>
 

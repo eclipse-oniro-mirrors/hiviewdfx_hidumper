@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 #include "common/dump_cfg.h"
-#include <string>
 #include "hilog_wrapper.h"
 namespace OHOS {
 namespace HiviewDFX {
