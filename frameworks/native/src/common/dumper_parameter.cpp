@@ -13,10 +13,12 @@
  * limitations under the License.
  */
 #include "common/dumper_parameter.h"
+
+#include <string>
+#include <vector>
+
 #include "hilog_wrapper.h"
 #include "securec.h"
-#include "string"
-#include "vector"
 namespace OHOS {
 namespace HiviewDFX {
 DumperParameter::DumperParameter()

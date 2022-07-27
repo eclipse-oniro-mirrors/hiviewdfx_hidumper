@@ -13,15 +13,17 @@
  * limitations under the License.
  */
 #include "dump_client_main.h"
+
+#include <string>
 #include <string_ex.h>
+#include <vector>
+
 #include "common.h"
 #include "dump_callback.h"
 #include "dump_controller.h"
 #include "dump_manager_client.h"
 #include "dump_utils.h"
 #include "idump_callback_broker.h"
-#include "string"
-#include "vector"
 
 namespace OHOS {
 namespace HiviewDFX {

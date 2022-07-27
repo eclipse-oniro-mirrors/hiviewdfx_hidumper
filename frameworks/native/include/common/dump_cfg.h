@@ -15,9 +15,9 @@
 #ifndef HIDUMPER_SERVICES_DUMP_CFG_H
 #define HIDUMPER_SERVICES_DUMP_CFG_H
 #include <string>
+#include <vector>
 #include "common/dumper_constant.h"
 #include "common/option_args.h"
-#include "vector"
 namespace OHOS {
 namespace HiviewDFX {
 class HidumperExecutor;

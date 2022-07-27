@@ -15,16 +15,16 @@
 #include "common/dumper_opts.h"
 
 #include <algorithm>
+#include <string>
+#include <vector>
 
 #include "dump_common_utils.h"
 #include "dump_controller.h"
 #include "dump_utils.h"
 #include "hilog_wrapper.h"
-#include "string"
 #include "string_ex.h"
 #include "util/config_data.h"
 #include "util/config_utils.h"
-#include "vector"
 namespace OHOS {
 namespace HiviewDFX {
 namespace {

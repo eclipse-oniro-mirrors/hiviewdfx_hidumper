@@ -15,12 +15,13 @@
 #ifndef FD_OUTPUT_H
 #define FD_OUTPUT_H
 
+#include <string>
+#include <vector>
+
 #include "common.h"
 #include "common/dumper_parameter.h"
 #include "hidumper_executor.h"
 #include "raw_param.h"
-#include "string"
-#include "vector"
 
 #define HIDUMPER_DEBUG
 #ifdef HIDUMPER_DEBUG
