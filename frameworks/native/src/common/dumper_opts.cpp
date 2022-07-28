@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,11 +13,17 @@
  * limitations under the License.
  */
 #include "common/dumper_opts.h"
+
 #include <algorithm>
-#include "string_ex.h"
+#include <string>
+#include <vector>
+
+#include "dump_common_utils.h"
 #include "dump_controller.h"
 #include "dump_utils.h"
 #include "hilog_wrapper.h"
+#include "string_ex.h"
+#include "util/config_data.h"
 #include "util/config_utils.h"
 namespace OHOS {
 namespace HiviewDFX {

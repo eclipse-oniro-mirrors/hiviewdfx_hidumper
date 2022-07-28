@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,11 +13,17 @@
  * limitations under the License.
  */
 #include "dump_client_main.h"
+
 #include <string_ex.h>
-#include "dump_controller.h"
-#include "dump_utils.h"
+#include <vector>
+
+#include "common.h"
 #include "dump_callback.h"
+#include "dump_controller.h"
 #include "dump_manager_client.h"
+#include "dump_utils.h"
+#include "idump_callback_broker.h"
+
 namespace OHOS {
 namespace HiviewDFX {
 DumpClientMain::DumpClientMain()

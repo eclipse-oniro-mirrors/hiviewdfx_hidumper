@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2021 Huawei Device Co., Ltd.
+* Copyright (C) 2021-2022 Huawei Device Co., Ltd.
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
@@ -13,8 +13,9 @@
 * limitations under the License.
 */
 #include "include/dump_usage.h"
-#include "executor/memory/parse/parse_smaps_rollup_info.h"
 #include "executor/cpu_dumper.h"
+#include "executor/memory/parse/meminfo_data.h"
+#include "executor/memory/parse/parse_smaps_rollup_info.h"
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {

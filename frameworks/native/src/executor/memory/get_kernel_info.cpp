@@ -15,9 +15,9 @@
 
 #include "executor/memory/get_kernel_info.h"
 #include <memory>
-#include "executor/memory/parse/parse_vmallocinfo.h"
 #include "executor/memory/memory_filter.h"
 #include "executor/memory/memory_util.h"
+#include "executor/memory/parse/parse_vmallocinfo.h"
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
