@@ -312,12 +312,14 @@ void MemoryInfo::GetPssTotal(const GroupMap &infos, StringMatrix result)
     for(const auto &memTrackerType : MemoryFilter::GetInstance().MEMORY_TRACKER_TYPES) {
         std::vector<MemoryRecord> records;
         if (memtrack->GetDevMem(0, memTrackerType.first, records) == HDF_SUCCESS) {
-            for (auto &record : records) {
+            uint64_t pssValue = 0;
+            for (const auto &record : records) {
                 if (record.flags == FLAG_SHARED_PSS) {
-                    dmaValue.push_back(make_pair(memTrackerType.second, record.size));
+                    pssValue = static_cast<uint64_t>(record.size);
                     break;
                 }
             }
+            dmaValue.push_back(make_pair(memTrackerType.second, pssValue));
         }
     }
     PairToStringMatrix(MemoryFilter::GetInstance().DMA_TAG, dmaValue, result);
@@ -484,7 +486,6 @@ bool MemoryInfo::GetMemByProcessPid(const int &pid, MemInfoData::MemUsage &usage
 {
     bool success = false;
     MemInfoData::MemInfo memInfo;
-    MemoryUtil::GetInstance().InitMemInfo(memInfo);
     unique_ptr<ParseSmapsRollupInfo> getSmapsRollup = make_unique<ParseSmapsRollupInfo>();
     if (getSmapsRollup->GetMemInfo(pid, memInfo)) {
         usage.vss = GetVss(pid);
