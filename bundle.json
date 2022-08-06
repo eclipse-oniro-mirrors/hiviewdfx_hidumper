@@ -28,7 +28,7 @@
                 "ipc",
                 "memmgr",
                 "safwk",
-                "samgr_standard"
+                "samgr"
             ]
         },
         "build": {
