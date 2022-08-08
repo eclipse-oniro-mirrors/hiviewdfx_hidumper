@@ -18,6 +18,7 @@
 #include <fstream>
 #include <numeric>
 #include <thread>
+#include <v1_0/imemory_tracker_interface.h>
 
 #include "dump_common_utils.h"
 #include "executor/memory/get_cma_info.h"
@@ -30,11 +31,13 @@
 #include "executor/memory/parse/parse_meminfo.h"
 #include "executor/memory/parse/parse_smaps_rollup_info.h"
 #include "executor/memory/parse/parse_smaps_info.h"
+#include "hdf_base.h"
 #include "hilog_wrapper.h"
 #include "mem_mgr_constant.h"
 #include "securec.h"
 #include "util/string_utils.h"
 using namespace std;
+using namespace OHOS::HDI::Memorytracker::V1_0;
 namespace OHOS {
 namespace HiviewDFX {
 MemoryInfo::MemoryInfo()
@@ -298,6 +301,28 @@ void MemoryInfo::GetPssTotal(const GroupMap &infos, StringMatrix result)
     }
     PairToStringMatrix(MemoryFilter::GetInstance().FILE_PAGE_TAG, filePage, result);
     PairToStringMatrix(MemoryFilter::GetInstance().ANON_PAGE_TAG, anonPage, result);
+
+    sptr<IMemoryTrackerInterface> memtrack = IMemoryTrackerInterface::Get(true);
+    if (memtrack == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "memtrack service is null");
+        return;
+    }
+
+    vector<pair<string, uint64_t>> dmaValue;
+    for (const auto &memTrackerType : MemoryFilter::GetInstance().MEMORY_TRACKER_TYPES) {
+        std::vector<MemoryRecord> records;
+        if (memtrack->GetDevMem(0, memTrackerType.first, records) == HDF_SUCCESS) {
+            uint64_t pssValue = 0;
+            for (const auto &record : records) {
+                if (record.flags == FLAG_SHARED_PSS) {
+                    pssValue = static_cast<uint64_t>(record.size);
+                    break;
+                }
+            }
+            dmaValue.push_back(make_pair(memTrackerType.second, pssValue));
+        }
+    }
+    PairToStringMatrix(MemoryFilter::GetInstance().DMA_TAG, dmaValue, result);
 }
 
 void MemoryInfo::PairToStringMatrix(const string &titleStr, vector<pair<string, uint64_t>> &vec, StringMatrix result)
@@ -413,7 +438,7 @@ string MemoryInfo::GetProcessAdjLabel(const int pid)
     vector<string> cmdResult;
     string adjLabel = Memory::RECLAIM_PRIORITY_UNKNOWN_DESC;
     if (!MemoryUtil::GetInstance().RunCMD(cmd, cmdResult) || cmdResult.size() == 0) {
-        DUMPER_HILOGD(MODULE_SERVICE, "GetProcessAdjLabel fail! pid = %{pubilic}d", pid);
+        DUMPER_HILOGE(MODULE_SERVICE, "GetProcessAdjLabel fail! pid = %{pubilic}d", pid);
         return adjLabel;
     }
     auto it = Memory::ReclaimPriorityMapping.find(stoi(cmdResult.front()));
@@ -461,7 +486,6 @@ bool MemoryInfo::GetMemByProcessPid(const int &pid, MemInfoData::MemUsage &usage
 {
     bool success = false;
     MemInfoData::MemInfo memInfo;
-    MemoryUtil::GetInstance().InitMemInfo(memInfo);
     unique_ptr<ParseSmapsRollupInfo> getSmapsRollup = make_unique<ParseSmapsRollupInfo>();
     if (getSmapsRollup->GetMemInfo(pid, memInfo)) {
         usage.vss = GetVss(pid);
