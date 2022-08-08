@@ -309,7 +309,7 @@ void MemoryInfo::GetPssTotal(const GroupMap &infos, StringMatrix result)
     }
 
     vector<pair<string, uint64_t>> dmaValue;
-    for(const auto &memTrackerType : MemoryFilter::GetInstance().MEMORY_TRACKER_TYPES) {
+    for (const auto &memTrackerType : MemoryFilter::GetInstance().MEMORY_TRACKER_TYPES) {
         std::vector<MemoryRecord> records;
         if (memtrack->GetDevMem(0, memTrackerType.first, records) == HDF_SUCCESS) {
             uint64_t pssValue = 0;
