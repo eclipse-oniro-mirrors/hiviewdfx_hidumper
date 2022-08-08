@@ -302,7 +302,7 @@ void MemoryInfo::GetPssTotal(const GroupMap &infos, StringMatrix result)
     PairToStringMatrix(MemoryFilter::GetInstance().FILE_PAGE_TAG, filePage, result);
     PairToStringMatrix(MemoryFilter::GetInstance().ANON_PAGE_TAG, anonPage, result);
 
-    sptr<IMemoryTrackerInterface> memtrack = IMemoryTrackerInterface::Get();
+    sptr<IMemoryTrackerInterface> memtrack = IMemoryTrackerInterface::Get(true);
     if (memtrack == nullptr) {
         DUMPER_HILOGE(MODULE_SERVICE, "memtrack service is null");
         return;
