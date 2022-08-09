@@ -22,13 +22,17 @@
         "ram": "",
         "deps": {
             "components": [
+                "access_token",
+                "c_utils",
                 "eventhandler",
                 "hilog_native",
                 "hisysevent_native",
+                "init",
                 "ipc",
                 "memmgr",
                 "safwk",
-                "samgr"
+                "samgr",
+                "zlib"
             ]
         },
         "build": {
