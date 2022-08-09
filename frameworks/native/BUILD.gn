@@ -20,7 +20,6 @@ config("hidumper_include") {
     "//third_party/json/include",
     "${hidumper_frameworks_path}/include",
     "//commonlibrary/c_utils/base/include",
-    "//foundation/resourceschedule/memmgr/interface/innerkits/include",
   ]
 }
 
