@@ -29,6 +29,7 @@
                 "hisysevent_native",
                 "init",
                 "ipc",
+                "memmgr",
                 "safwk",
                 "samgr",
                 "zlib"
