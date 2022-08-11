@@ -1387,7 +1387,7 @@ const ConfigData::ItemCfg ConfigData::stackDumper_[] = {
     {
         .name_ = "dumper_stack",
         .desc_ = "Dump Stack Info",
-        .target_ = "processdump -p %pid",
+        .target_ = "dumpcatcher -p %pid",
         .section_ = "",
         .class_ = DumperConstant::CMD_DUMPER,
         .level_ = DumperConstant::NONE,
