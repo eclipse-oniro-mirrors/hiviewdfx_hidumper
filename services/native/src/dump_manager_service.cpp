@@ -189,7 +189,7 @@ std::shared_ptr<RawParam> DumpManagerService::AddRequestRawParam(std::vector<std
     } while (requestRawParamMap_.count(requestId) > 0);
     int32_t calllingUid = IPCSkeleton::GetCallingUid();
     int32_t calllingPid = IPCSkeleton::GetCallingPid();
-    int32_t calllingTokenID = IPCSkeleton::GetCallingTokenID();
+    auto calllingTokenID = IPCSkeleton::GetCallingTokenID();
     SetFirstCallerTokenID(calllingTokenID);
     DUMPER_HILOGD(MODULE_SERVICE, "debug|requestId=%{public}u, calllingUid=%{public}d, calllingPid=%{public}d",
                   requestId, calllingUid, calllingPid);
