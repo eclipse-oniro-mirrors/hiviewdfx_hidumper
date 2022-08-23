@@ -86,7 +86,7 @@ private:
         {"[heap]", "native heap"}, {"[stack]", "stack"}, {"[anon:stack", "stack"},
         {"[anon:native_heap:musl", "native heap"}, {"[anon:ArkJS Heap]", "ark js heap"},
         {"[anon:guard", "guard"}, {"/dev", "dev"}, {"[anon:signal_stack", "stack"},
-        {"/dmabuf", "dmabuf"}, {"/data/storage", ".hap"},
+        {"/dmabuf", "dmabuf"}, {"/data/storage", ".hap"}, {"[anon:libc_malloc", "native heap"},
     };
     const std::map<std::string, std::string> endMap_ = {
         {".so", ".so"}, {".so.1", ".so"}, {".ttf", ".ttf"},
