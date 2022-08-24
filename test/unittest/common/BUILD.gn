@@ -162,13 +162,9 @@ ohos_unittest("HidumperConfigUtilsTest") {
 ohos_unittest("MemoryDumperTest") {
   module_out_path = module_output_path
 
-  sources = [
-    "memory_dumper_test.cpp",
-  ]
+  sources = [ "memory_dumper_test.cpp" ]
 
-  configs = [
-    ":module_private_config",
-  ]
+  configs = [ ":module_private_config" ]
 
   deps = [ "//third_party/googletest:gtest_main" ]
 
@@ -178,13 +174,9 @@ ohos_unittest("MemoryDumperTest") {
 ohos_unittest("HidumperPrivacyTest") {
   module_out_path = module_output_path
 
-  sources = [
-    "hidumper_privacy_test.cpp",
-  ]
+  sources = [ "hidumper_privacy_test.cpp" ]
 
-  configs = [
-    ":module_private_config",
-  ]
+  configs = [ ":module_private_config" ]
 
   deps = [ "//third_party/googletest:gtest_main" ]
 
