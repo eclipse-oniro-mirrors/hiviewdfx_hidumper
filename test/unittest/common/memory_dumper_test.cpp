@@ -45,7 +45,8 @@ void MemoryDumperTest::TearDown(void)
 {
 }
 
-bool MemoryDumperTest::IsExistInCmdResult(const std::string &cmd, const std::string &str) {
+bool MemoryDumperTest::IsExistInCmdResult(const std::string &cmd, const std::string &str)
+{
     bool ret = false;
     char* buffer = nullptr;
     size_t len = 0;

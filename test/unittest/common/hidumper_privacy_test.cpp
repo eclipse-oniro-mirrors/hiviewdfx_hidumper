@@ -45,7 +45,8 @@ void HidumperPrivacyTest::TearDown(void)
 {
 }
 
-bool HidumperPrivacyTest::IsExistInCmdResult(const std::string &cmd, const std::string &str) {
+bool HidumperPrivacyTest::IsExistInCmdResult(const std::string &cmd, const std::string &str)
+{
     bool ret = false;
     char* buffer = nullptr;
     size_t len = 0;
