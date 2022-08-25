@@ -53,7 +53,9 @@ config("module_private_config") {
 
 deps_ex = [
   "access_token:libtoken_setproc",
+  "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
   "eventhandler:libeventhandler",
+  "hdf_core:libhdf_utils",
   "ipc:ipc_core",
   "hiviewdfx_hilog_native:libhilog",
   "safwk:system_ability_fwk",
@@ -157,6 +159,30 @@ ohos_unittest("HidumperConfigUtilsTest") {
   external_deps = deps_ex
 }
 
+ohos_unittest("MemoryDumperTest") {
+  module_out_path = module_output_path
+
+  sources = [ "memory_dumper_test.cpp" ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [ "//third_party/googletest:gtest_main" ]
+
+  external_deps = deps_ex
+}
+
+ohos_unittest("HidumperPrivacyTest") {
+  module_out_path = module_output_path
+
+  sources = [ "hidumper_privacy_test.cpp" ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [ "//third_party/googletest:gtest_main" ]
+
+  external_deps = deps_ex
+}
+
 ###############################################################################
 group("unittest") {
   testonly = true
@@ -167,7 +193,9 @@ group("unittest") {
     ":HidumperConfigUtilsTest",
     ":HidumperDumpersTest",
     ":HidumperOutputTest",
+    ":HidumperPrivacyTest",
     ":HidumperServiceTest",
+    ":MemoryDumperTest",
   ]
 }
 ###############################################################################
