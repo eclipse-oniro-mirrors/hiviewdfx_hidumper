@@ -113,13 +113,8 @@ ohos_source_set("hidumper_client") {
 
   external_deps = [
     "c_utils:utils",
-    "eventhandler:libeventhandler",
     "hilog_native:libhilog",
-    "hisysevent_native:libhisysevent",
     "ipc:ipc_core",
-    "safwk:system_ability_fwk",
-
-    #"samgr_L2:samgr_proxy",
     "samgr:samgr_proxy",
   ]
 
@@ -160,8 +155,6 @@ ohos_shared_library("hidumperservice") {
     "hisysevent_native:libhisysevent",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-
-    #"samgr_L2:samgr_proxy",
     "samgr:samgr_proxy",
   ]
 
