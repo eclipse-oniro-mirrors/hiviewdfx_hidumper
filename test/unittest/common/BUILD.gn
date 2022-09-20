@@ -82,8 +82,8 @@ ohos_unittest("HidumperServiceTest") {
     "access_token:libtoken_setproc",
     "c_utils:utils",
     "eventhandler:libeventhandler",
-    "ipc:ipc_core",
     "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
@@ -108,8 +108,8 @@ ohos_unittest("HidumperDumpersTest") {
 
   external_deps = [
     "c_utils:utils",
-    "ipc:ipc_core",
     "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
   ]
 }
 
@@ -132,8 +132,8 @@ ohos_unittest("HidumperOutputTest") {
 
   external_deps = [
     "c_utils:utils",
-    "ipc:ipc_core",
     "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
   ]
 }
 
