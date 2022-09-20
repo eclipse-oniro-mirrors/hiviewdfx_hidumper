@@ -51,21 +51,6 @@ config("module_private_config") {
   cflags_cc = [ "-DDUMP_TEST_MODE" ]
 }
 
-deps_ex = [
-  "access_token:libtoken_setproc",
-  "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
-  "eventhandler:libeventhandler",
-  "hdf_core:libhdf_utils",
-  "ipc:ipc_core",
-  "hiviewdfx_hilog_native:libhilog",
-  "safwk:system_ability_fwk",
-
-  # "samgr_L2:samgr_proxy",
-  "samgr:samgr_proxy",
-  "init:libbegetutil",
-  "c_utils:utils",
-]
-
 ##############################unittest##########################################
 ohos_unittest("HidumperServiceTest") {
   module_out_path = module_output_path
@@ -93,7 +78,15 @@ ohos_unittest("HidumperServiceTest") {
 
   deps = [ "//third_party/googletest:gtest_main" ]
 
-  external_deps = deps_ex
+  external_deps = [
+    "access_token:libtoken_setproc",
+    "c_utils:utils",
+    "eventhandler:libeventhandler",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
 }
 
 ohos_unittest("HidumperDumpersTest") {
@@ -113,7 +106,11 @@ ohos_unittest("HidumperDumpersTest") {
     "//third_party/zlib:libz",
   ]
 
-  external_deps = deps_ex
+  external_deps = [
+    "c_utils:utils",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+  ]
 }
 
 ohos_unittest("HidumperOutputTest") {
@@ -133,7 +130,11 @@ ohos_unittest("HidumperOutputTest") {
     "//third_party/zlib:libz",
   ]
 
-  external_deps = deps_ex
+  external_deps = [
+    "c_utils:utils",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+  ]
 }
 
 ohos_unittest("HidumperConfigUtilsTest") {
@@ -156,7 +157,11 @@ ohos_unittest("HidumperConfigUtilsTest") {
 
   deps = [ "//third_party/googletest:gtest_main" ]
 
-  external_deps = deps_ex
+  external_deps = [
+    "hiviewdfx_hilog_native:libhilog",
+    "init:libbegetutil",
+    "safwk:system_ability_fwk",
+  ]
 }
 
 ohos_unittest("MemoryDumperTest") {
@@ -168,7 +173,11 @@ ohos_unittest("MemoryDumperTest") {
 
   deps = [ "//third_party/googletest:gtest_main" ]
 
-  external_deps = deps_ex
+  external_deps = [
+    "c_utils:utils",
+    "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
+    "ipc:ipc_core",
+  ]
 }
 
 ohos_unittest("HidumperPrivacyTest") {
@@ -179,8 +188,6 @@ ohos_unittest("HidumperPrivacyTest") {
   configs = [ ":module_private_config" ]
 
   deps = [ "//third_party/googletest:gtest_main" ]
-
-  external_deps = deps_ex
 }
 
 ###############################################################################
