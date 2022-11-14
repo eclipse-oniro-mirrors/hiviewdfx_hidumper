@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -321,46 +321,6 @@ bool CPUDumper::SortProcInfo(std::shared_ptr<ProcInfo> &left, std::shared_ptr<Pr
         return right->pid.length() < left->pid.length();
     }
     return (right->pid.compare(left->pid) < 0);
-}
-
-float CPUDumper::GetCpuUsage(int pid)
-{
-    oldCPUInfo_ = std::make_shared<CPUInfo>();
-    if (!DumpCpuInfoUtil::GetInstance().GetCurCPUInfo(oldCPUInfo_)) {
-        DUMPER_HILOGE(MODULE_COMMON, "Get old cpu info failed!.");
-        return DumpStatus::DUMP_FAIL;
-    }
-    oldSpecProc_ = std::make_shared<ProcInfo>();
-    if (!DumpCpuInfoUtil::GetInstance().GetCurSpecProcInfo(pid, oldSpecProc_)) {
-        DUMPER_HILOGE(MODULE_COMMON, "Get old process %{public}d info failed!.", pid);
-        return DumpStatus::DUMP_FAIL;
-    }
-
-    sleep(1);
-
-    curCPUInfo_ = std::make_shared<CPUInfo>();
-    if (!DumpCpuInfoUtil::GetInstance().GetCurCPUInfo(curCPUInfo_)) {
-        DUMPER_HILOGE(MODULE_COMMON, "Get current cpu info failed!.");
-        return DumpStatus::DUMP_FAIL;
-    }
-    curSpecProc_ = std::make_shared<ProcInfo>();
-    if (!DumpCpuInfoUtil::GetInstance().GetCurSpecProcInfo(pid, curSpecProc_)) {
-        DUMPER_HILOGE(MODULE_COMMON, "Get current process %{public}d info failed!.", pid);
-        return DumpStatus::DUMP_FAIL;
-    }
-
-    long unsigned totalDeltaTime = (curCPUInfo_->uTime + curCPUInfo_->nTime + curCPUInfo_->sTime + curCPUInfo_->iTime
-                                    + curCPUInfo_->iowTime + curCPUInfo_->irqTime + curCPUInfo_->sirqTime)
-                                   - (oldCPUInfo_->uTime + oldCPUInfo_->nTime + oldCPUInfo_->sTime + oldCPUInfo_->iTime
-                                      + oldCPUInfo_->iowTime + oldCPUInfo_->irqTime + oldCPUInfo_->sirqTime);
-
-    if (totalDeltaTime != 0) {
-        float cpuUsage = static_cast<float>((curSpecProc_->uTime - oldSpecProc_->uTime)
-               + (curSpecProc_->sTime - oldSpecProc_->sTime)) / static_cast<float>(totalDeltaTime);
-        return cpuUsage;
-    } else {
-        return -1;
-    }
 }
 } // namespace HiviewDFX
 } // namespace OHOS

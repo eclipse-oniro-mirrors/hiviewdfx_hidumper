@@ -13,9 +13,10 @@
 * limitations under the License.
 */
 #include "include/dump_usage.h"
-#include "executor/cpu_dumper.h"
-#include "executor/memory/parse/meminfo_data.h"
+
 #include "executor/memory/parse/parse_smaps_rollup_info.h"
+#include "util/dump_cpu_info_util.h"
+
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
@@ -66,8 +67,7 @@ uint64_t DumpUsage::GetSharedDirty(const int &pid)
 
 float DumpUsage::GetCpuUsage(const int &pid)
 {
-    unique_ptr<CPUDumper> cpuDumper = make_unique<CPUDumper>();
-    float ret = cpuDumper->GetCpuUsage(pid);
+    float ret = DumpCpuInfoUtil::GetInstance().GetCpuUsage(pid);
     return ret < 0 ? 0 : ret;
 }
 } // namespace HiviewDFX
