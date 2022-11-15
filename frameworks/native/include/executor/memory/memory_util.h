@@ -18,8 +18,6 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include "memory_filter.h"
-#include "executor/cmd_dumper.h"
 #include "singleton.h"
 #include "executor/memory/parse/meminfo_data.h"
 namespace OHOS {
@@ -48,7 +46,6 @@ public:
     bool GetTypeAndValue(const std::string &str, std::string &type, uint64_t &value);
 
 private:
-    void StringMatrixTransToVector(const CMDDumper::StringMatrix dumpDatas, std::vector<std::string> &result);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

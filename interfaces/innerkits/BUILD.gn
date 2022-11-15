@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2022 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -17,27 +17,29 @@ config("dump_usage_config") {
   visibility = [ "*:*" ]
 
   include_dirs = [
-    ".",
+    "include",
+    "${hidumper_frameworks_path}",
     "${hidumper_frameworks_path}/include",
-    "//commonlibrary/c_utils/base/include",
-    "//base/hiviewdfx/hidumper/utils/native/include/",
-    "//base/hiviewdfx/hidumper/frameworks/native",
-    "//base/hiviewdfx/hidumper/services/native/include",
-    "//base/hiviewdfx/hidumper/interfaces/native/innerkits/include",
+    "${hidumper_utils_path}/native/include",
   ]
 }
 
 ohos_shared_library("lib_dump_usage") {
   public_configs = [ ":dump_usage_config" ]
 
-  deps = [ "//base/hiviewdfx/hidumper/services:hidumperservice" ]
-
-  external_deps = [
-    "hilog_native:libhilog",
-    "ipc:ipc_core",
+  sources = [
+    "${hidumper_frameworks_path}/src/executor/memory/memory_util.cpp",
+    "${hidumper_frameworks_path}/src/executor/memory/parse/parse_smaps_rollup_info.cpp",
+    "${hidumper_frameworks_path}/src/util/dump_cpu_info_util.cpp",
+    "${hidumper_frameworks_path}/src/util/string_utils.cpp",
+    "//base/hiviewdfx/hidumper/interfaces/innerkits/dump_usage.cpp",
   ]
 
-  sources = [ "//base/hiviewdfx/hidumper/interfaces/innerkits/dump_usage.cpp" ]
+  external_deps = [
+    "c_utils:utils",
+    "hilog_native:libhilog",
+  ]
+
   subsystem_name = "hiviewdfx"
   part_name = "hidumper"
 }
