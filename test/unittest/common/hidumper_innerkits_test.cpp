@@ -21,7 +21,7 @@
 using namespace testing::ext;
 namespace OHOS {
 namespace HiviewDFX {
-static void* g_addr = nullptr;
+static constexpr int MALLOC_SIZE = 1024;
 class HiDumperInnerkitsTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -30,8 +30,6 @@ public:
     void TearDown();
     void StartTestProcess(int& pid);
     void StopProcess(int processNum);
-
-    static constexpr int MALLOC_SIZE = 1024 * 5;
 };
 
 void HiDumperInnerkitsTest::SetUpTestCase(void)
@@ -51,9 +49,16 @@ void HiDumperInnerkitsTest::StartTestProcess(int& pid)
 {
     int processNum = fork();
     if (processNum == 0) {
-        void* ret = malloc(MALLOC_SIZE);
-        g_addr = ret;
         while (true) {
+            void* p = malloc(MALLOC_SIZE);
+            if (p == nullptr) {
+                const int bufSize = 256;
+                char buf[bufSize] = { 0 };
+                (void)strerror_r(errno, buf, bufSize);
+                printf("malloc failure, errno(%d:%s)", errno, buf);
+                return;
+            }
+            free(p);
         }
     } else {
         pid = processNum;
@@ -76,12 +81,14 @@ HWTEST_F(HiDumperInnerkitsTest, GetMemInfoTest001, TestSize.Level1)
 {
     int pid = -1;
     StartTestProcess(pid);
-    ASSERT_NE(pid, -1);
+    if (pid < 0) {
+        printf("fork process failure!");
+        return;
+    }
     std::unique_ptr<DumpUsage> dumpUsage = std::make_unique<DumpUsage>();
     MemInfoData::MemInfo info;
     EXPECT_TRUE(dumpUsage->GetMemInfo(pid, info));
     EXPECT_GT(info.pss, 0);
-    free(g_addr);
     StopProcess(pid);
 }
 
@@ -95,10 +102,12 @@ HWTEST_F(HiDumperInnerkitsTest, GetPssTest001, TestSize.Level1)
 {
     int pid = -1;
     StartTestProcess(pid);
-    ASSERT_NE(pid, -1);
+    if (pid < 0) {
+        printf("fork process failure!");
+        return;
+    }
     std::unique_ptr<DumpUsage> dumpUsage = std::make_unique<DumpUsage>();
     EXPECT_GT(dumpUsage->GetPss(pid), 0);
-    free(g_addr);
     StopProcess(pid);
 }
 
@@ -138,7 +147,10 @@ HWTEST_F(HiDumperInnerkitsTest, GetCpuUsage001, TestSize.Level1)
 {
     int pid = -1;
     StartTestProcess(pid);
-    ASSERT_NE(pid, -1);
+    if (pid < 0) {
+        printf("fork process failure!");
+        return;
+    }
     sleep(1);
     std::unique_ptr<DumpUsage> dumpUsage = std::make_unique<DumpUsage>();
     EXPECT_GT(dumpUsage->GetCpuUsage(pid), 0);
