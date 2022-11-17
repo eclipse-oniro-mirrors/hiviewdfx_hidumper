@@ -14,11 +14,9 @@
  */
 #include "executor/memory/memory_util.h"
 #include <cstdlib>
-#include <iostream>
+#include <fstream>
 #include <thread>
 #include <vector>
-#include "executor/cmd_dumper.h"
-#include "executor/memory/memory_filter.h"
 #include "securec.h"
 #include "util/string_utils.h"
 using namespace std;
@@ -84,30 +82,20 @@ void MemoryUtil::CalcGroup(const string &group, const string &type, const uint64
     }
 }
 
-void MemoryUtil::StringMatrixTransToVector(const CMDDumper::StringMatrix dumpDatas, vector<string> &result)
-{
-    for (size_t i = 0; i < dumpDatas->size(); i++) {
-        vector<string> line = dumpDatas->at(i);
-        for (size_t j = 0; j < line.size(); j++) {
-            string str = line[j];
-            StringUtils::GetInstance().ReplaceAll(str, "\n", "");
-            result.push_back(str);
-        }
-    }
-}
-
 bool MemoryUtil::RunCMD(const string &cmd, vector<string> &result)
 {
-    CMDDumper::StringMatrix dumpDatas = make_unique<vector<vector<string>>>();
-
-    shared_ptr<CMDDumper> cmdDumper = make_shared<CMDDumper>();
-    DumpStatus status = cmdDumper->GetCmdInterface(cmd, dumpDatas);
-    if (status == DumpStatus::DUMP_OK) {
-        StringMatrixTransToVector(dumpDatas, result);
-    } else {
+    FILE* fp = popen(cmd.c_str(), "r");
+    if (fp == nullptr) {
         return false;
     }
-
+    char* buffer = nullptr;
+    size_t len = 0;
+    while (getline(&buffer, &len, fp) != -1) {
+        std::string line = buffer;
+        StringUtils::GetInstance().ReplaceAll(line, "\n", "");
+        result.push_back(line);
+    }
+    pclose(fp);
     return true;
 }
 

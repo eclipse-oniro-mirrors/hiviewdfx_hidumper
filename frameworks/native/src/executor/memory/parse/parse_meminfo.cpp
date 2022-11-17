@@ -15,6 +15,7 @@
 
 #include "executor/memory/parse/parse_meminfo.h"
 #include <fstream>
+#include "executor/memory/memory_filter.h"
 #include "executor/memory/memory_util.h"
 #include "hilog_wrapper.h"
 #include "util/string_utils.h"

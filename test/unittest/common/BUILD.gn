@@ -190,6 +190,19 @@ ohos_unittest("HidumperPrivacyTest") {
   deps = [ "//third_party/googletest:gtest_main" ]
 }
 
+ohos_unittest("HidumperInnerkitsTest") {
+  module_out_path = module_output_path
+
+  sources = [ "hidumper_innerkits_test.cpp" ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "//base/hiviewdfx/hidumper/interfaces/innerkits:lib_dump_usage",
+    "//third_party/googletest:gtest_main",
+  ]
+}
+
 ###############################################################################
 group("unittest") {
   testonly = true
@@ -199,6 +212,7 @@ group("unittest") {
     # deps file
     ":HidumperConfigUtilsTest",
     ":HidumperDumpersTest",
+    ":HidumperInnerkitsTest",
     ":HidumperOutputTest",
     ":HidumperPrivacyTest",
     ":HidumperServiceTest",

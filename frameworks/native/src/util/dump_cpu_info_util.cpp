@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 #include "util/dump_cpu_info_util.h"
 #include <dirent.h>
+#include <unistd.h>
 #include "file_ex.h"
 #include "string_ex.h"
 #include "hilog_wrapper.h"
@@ -297,6 +298,42 @@ bool DumpCpuInfoUtil::CheckFrequentDumpping()
     }
     dumpTimeSec_ = ptrCurtime.tm_sec;
     return false;
+}
+
+float DumpCpuInfoUtil::GetCpuUsage(const int pid)
+{
+    std::shared_ptr<CPUInfo> oldCPUInfo = std::make_shared<CPUInfo>();
+    if (!GetCurCPUInfo(oldCPUInfo)) {
+        return false;
+    }
+    std::shared_ptr<ProcInfo> oldSpecProc = std::make_shared<ProcInfo>();
+    if (!GetCurSpecProcInfo(pid, oldSpecProc)) {
+        return false;
+    }
+
+    sleep(1);
+
+    std::shared_ptr<CPUInfo> curCPUInfo = std::make_shared<CPUInfo>();
+    if (!GetCurCPUInfo(curCPUInfo)) {
+        return false;
+    }
+    std::shared_ptr<ProcInfo> curSpecProc = std::make_shared<ProcInfo>();
+    if (!GetCurSpecProcInfo(pid, curSpecProc)) {
+        return false;
+    }
+
+    long unsigned totalDeltaTime = (curCPUInfo->uTime + curCPUInfo->nTime + curCPUInfo->sTime + curCPUInfo->iTime
+                                    + curCPUInfo->iowTime + curCPUInfo->irqTime + curCPUInfo->sirqTime)
+                                   - (oldCPUInfo->uTime + oldCPUInfo->nTime + oldCPUInfo->sTime + oldCPUInfo->iTime
+                                      + oldCPUInfo->iowTime + oldCPUInfo->irqTime + oldCPUInfo->sirqTime);
+
+    if (totalDeltaTime != 0) {
+        float cpuUsage = static_cast<float>((curSpecProc->uTime - oldSpecProc->uTime)
+               + (curSpecProc->sTime - oldSpecProc->sTime)) / static_cast<float>(totalDeltaTime);
+        return cpuUsage;
+    } else {
+        return 0;
+    }
 }
 } // namespace HiviewDFX
 } // namespace OHOS
