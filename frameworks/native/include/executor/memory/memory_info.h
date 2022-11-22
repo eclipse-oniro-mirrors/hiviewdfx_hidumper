@@ -66,8 +66,11 @@ private:
     const int KB_WIDTH_ = 12;
     const int NAME_AND_PID_WIDTH = 30;
     const static int VSS_BIT = 4;
+    const static int BYTE_PER_KB = 1024;
     bool isReady_ = false;
     bool dumpSmapsOnStart_ = false;
+    uint64_t totalGL_ = 0;
+    uint64_t totalGraph_ = 0;
     std::future<GroupMap> fut_;
     std::vector<int> pids_;
     std::vector<MemInfoData::MemUsage> memUsages_;
@@ -83,6 +86,7 @@ private:
     static bool GetMemByProcessPid(const int &pid, MemInfoData::MemUsage &usage);
     static bool GetSmapsInfoNoPid(const int &pid, GroupMap &result);
     bool GetMeminfo(ValueMap &result);
+    static bool GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory);
     bool GetHardWareUsage(StringMatrix result);
     bool GetCMAUsage(StringMatrix result);
     bool GetKernelUsage(const ValueMap &infos, StringMatrix result);

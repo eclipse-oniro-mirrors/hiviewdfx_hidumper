@@ -45,6 +45,7 @@ public:
     bool GetTypeValue(const std::string &str, const std::vector<std::string> &tag, std::string &type, uint64_t &value);
     void InitMemInfo(MemInfoData::MemInfo &memInfo);
     void InitMemUsage(MemInfoData::MemUsage &usage);
+    void InitGraphicsMemory(MemInfoData::GraphicsMemory &graphicsMemory);
     bool GetTypeAndValue(const std::string &str, std::string &type, uint64_t &value);
 
 private:

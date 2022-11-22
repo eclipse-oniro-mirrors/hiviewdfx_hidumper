@@ -130,11 +130,12 @@ void MemoryInfo::BuildResult(const GroupMap &infos, StringMatrix result)
         auto &valueMap = info.second;
         for (const auto &tag : MemoryFilter::GetInstance().VALUE_WITH_PID) {
             auto it = valueMap.find(tag);
+            string value = "0";
             if (it != valueMap.end()) {
-                string value = to_string(it->second);
-                StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, value);
-                tempResult.push_back(value);
+                value = to_string(it->second);
             }
+            StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, value);
+            tempResult.push_back(value);
         }
         result->push_back(tempResult);
     }
@@ -180,16 +181,61 @@ void MemoryInfo::CalcGroup(const GroupMap &infos, StringMatrix result)
     result->push_back(values);
 }
 
+bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory)
+{
+    bool ret = false;
+    sptr<IMemoryTrackerInterface> memtrack = IMemoryTrackerInterface::Get(true);
+    if (memtrack == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "memtrack service is null");
+        return ret;
+    }
+
+    for (const auto &memTrackerType : MemoryFilter::GetInstance().MEMORY_TRACKER_TYPES) {
+        std::vector<MemoryRecord> records;
+        if (memtrack->GetDevMem(pid, memTrackerType.first, records) == HDF_SUCCESS) {
+            uint64_t value = 0;
+            for (const auto &record : records) {
+                if ((record.flags & FLAG_UNMAPPED) == FLAG_UNMAPPED) {
+                    value = static_cast<uint64_t>(record.size / BYTE_PER_KB);
+                    break;
+                }
+            }
+            if (memTrackerType.first == MEMORY_TRACKER_TYPE_GL) {
+                graphicsMemory.gl = value;
+                ret = true;
+            } else if (memTrackerType.first == MEMORY_TRACKER_TYPE_GRAPH) {
+                graphicsMemory.graph = value;
+                ret = true;
+            }
+        }
+    }
+    return ret;
+}
+
 bool MemoryInfo::GetMemoryInfoByPid(const int &pid, StringMatrix result)
 {
-    GroupMap smapsInfo;
+    GroupMap groupMap;
     unique_ptr<ParseSmapsInfo> parseSmapsInfo = make_unique<ParseSmapsInfo>();
-    if (parseSmapsInfo->GetInfo(MemoryFilter::APPOINT_PID, pid, smapsInfo)) {
-        BuildResult(smapsInfo, result);
-        CalcGroup(smapsInfo, result);
-        return true;
+    if (!parseSmapsInfo->GetInfo(MemoryFilter::APPOINT_PID, pid, groupMap)) {
+        DUMPER_HILOGE(MODULE_SERVICE, "parse smaps info fail");
+        return false;
     }
-    return false;
+
+    MemInfoData::GraphicsMemory graphicsMemory;
+    MemoryUtil::GetInstance().InitGraphicsMemory(graphicsMemory);
+    if (GetGraphicsMemory(pid, graphicsMemory)) {
+        map<string, uint64_t> valueMap;
+        valueMap.insert(pair<string, uint64_t>("Pss", graphicsMemory.gl));
+        valueMap.insert(pair<string, uint64_t>("Private_Dirty", graphicsMemory.gl));
+        groupMap.insert(pair<string, map<string, uint64_t>>("AnonPage # GL", valueMap));
+        valueMap.clear();
+        valueMap.insert(pair<string, uint64_t>("Pss", graphicsMemory.graph));
+        valueMap.insert(pair<string, uint64_t>("Private_Dirty", graphicsMemory.graph));
+        groupMap.insert(pair<string, map<string, uint64_t>>("AnonPage # Graph", valueMap));
+    }
+    BuildResult(groupMap, result);
+    CalcGroup(groupMap, result);
+    return true;
 }
 
 string MemoryInfo::AddKbUnit(const uint64_t &value) const
@@ -302,26 +348,9 @@ void MemoryInfo::GetPssTotal(const GroupMap &infos, StringMatrix result)
     PairToStringMatrix(MemoryFilter::GetInstance().FILE_PAGE_TAG, filePage, result);
     PairToStringMatrix(MemoryFilter::GetInstance().ANON_PAGE_TAG, anonPage, result);
 
-    sptr<IMemoryTrackerInterface> memtrack = IMemoryTrackerInterface::Get(true);
-    if (memtrack == nullptr) {
-        DUMPER_HILOGE(MODULE_SERVICE, "memtrack service is null");
-        return;
-    }
-
     vector<pair<string, uint64_t>> dmaValue;
-    for (const auto &memTrackerType : MemoryFilter::GetInstance().MEMORY_TRACKER_TYPES) {
-        std::vector<MemoryRecord> records;
-        if (memtrack->GetDevMem(0, memTrackerType.first, records) == HDF_SUCCESS) {
-            uint64_t pssValue = 0;
-            for (const auto &record : records) {
-                if (record.flags == FLAG_SHARED_PSS) {
-                    pssValue = static_cast<uint64_t>(record.size);
-                    break;
-                }
-            }
-            dmaValue.push_back(make_pair(memTrackerType.second, pssValue));
-        }
-    }
+    dmaValue.push_back(make_pair(MemoryFilter::GetInstance().GL_OUT_LABEL, totalGL_));
+    dmaValue.push_back(make_pair(MemoryFilter::GetInstance().GRAPH_OUT_LABEL, totalGraph_));
     PairToStringMatrix(MemoryFilter::GetInstance().DMA_TAG, dmaValue, result);
 }
 
@@ -498,6 +527,16 @@ bool MemoryInfo::GetMemByProcessPid(const int &pid, MemInfoData::MemUsage &usage
         usage.adjLabel = GetProcessAdjLabel(pid);
         success = true;
     }
+
+    MemInfoData::GraphicsMemory graphicsMemory;
+    MemoryUtil::GetInstance().InitGraphicsMemory(graphicsMemory);
+    if (GetGraphicsMemory(pid, graphicsMemory)) {
+        usage.gl = graphicsMemory.gl;
+        usage.graph = graphicsMemory.graph;
+        usage.uss = usage.uss + graphicsMemory.gl + graphicsMemory.graph;
+        usage.pss = usage.pss + graphicsMemory.gl + graphicsMemory.graph;
+        usage.rss = usage.rss + graphicsMemory.gl + graphicsMemory.graph;
+    }
     return success;
 }
 
@@ -531,6 +570,16 @@ void MemoryInfo::MemUsageToMatrix(const MemInfoData::MemUsage &memUsage, StringM
     string totalUss = AddKbUnit(uss);
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalUss);
     strs.push_back(totalUss);
+
+    uint64_t gl = memUsage.gl;
+    string unMappedGL = AddKbUnit(gl);
+    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedGL);
+    strs.push_back(unMappedGL);
+
+    uint64_t graph = memUsage.graph;
+    string unMappedGraph = AddKbUnit(graph);
+    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedGraph);
+    strs.push_back(unMappedGraph);
 
     result->emplace_back(strs);
 }
@@ -566,6 +615,14 @@ void MemoryInfo::AddMemByProcessTitle(StringMatrix result, string sortType)
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalUss);
     title.push_back(totalUss);
 
+    string unMappedGL = MemoryFilter::GetInstance().GL_OUT_LABEL;
+    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedGL);
+    title.push_back(unMappedGL);
+
+    string unMappedGraph = MemoryFilter::GetInstance().GRAPH_OUT_LABEL;
+    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedGraph);
+    title.push_back(unMappedGraph);
+
     result->push_back(title);
 }
 
@@ -574,6 +631,8 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
     if (!isReady_) {
         memUsages_.clear();
         pids_.clear();
+        totalGL_ = 0;
+        totalGraph_ = 0;
         AddMemByProcessTitle(result, "PID");
         if (!GetPids()) {
             return DUMP_FAIL;
@@ -599,6 +658,8 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
         if (GetMemByProcessPid(pids_.front(), usage)) {
             memUsages_.push_back(usage);
             adjMemResult_[usage.adjLabel].push_back(usage);
+            totalGL_ += usage.gl;
+            totalGraph_ += usage.graph;
             MemUsageToMatrix(usage, result);
         } else {
             DUMPER_HILOGE(MODULE_SERVICE, "Get smaps_rollup error! pid = %{public}d\n", pids_.front());
