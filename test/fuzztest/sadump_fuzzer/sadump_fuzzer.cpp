@@ -24,7 +24,7 @@ bool SADumpFuzzTest(const uint8_t* data, size_t size)
         return true;
     }
     std::string randomData(reinterpret_cast<const char*>(data), size);
-    system(("hidumper -s " + randomData).c_str());
+    std::unique_ptr<FILE, decltype(&pclose)> fp(popen(("hidumper -s " + randomData).c_str(), "r"), pclose);
     return true;
 }
 } // namespace OHOS
