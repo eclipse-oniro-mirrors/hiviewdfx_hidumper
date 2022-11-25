@@ -12,10 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include <gtest/gtest.h>
+#include <vector>
+#include <unistd.h>
+
 #include "directory_ex.h"
 #include "executor/zip_output.h"
 #include "executor/fd_output.h"
+#define private public
+#include "raw_param.h"
+#undef private
 
 using namespace std;
 using namespace testing::ext;
@@ -299,22 +306,25 @@ HWTEST_F(HidumperOutputTest, HidumperOutputTest006, TestSize.Level3)
 HWTEST_F(HidumperOutputTest, HidumperOutputTest007, TestSize.Level3)
 {
     auto parameter = std::make_shared<DumperParameter>();
-    auto dump_datas = std::make_shared<std::vector<std::vector<std::string>>>();
-    auto fd_output = make_shared<FDOutput>();
+    std::vector<std::u16string> args;
+    auto reqCtl = std::make_shared<RawParam>(0, 0, 0, args, STDOUT_FILENO, nullptr);
+    parameter->setClientCallback(reqCtl);
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    auto fdOutput = make_shared<FDOutput>();
 
-    std::string line_content;
-    line_content = "this is FdOutputTest";
-    std::vector<std::string> line_vector;
-    line_vector.push_back(line_content);
-    dump_datas->push_back(line_vector);
+    std::string lineContent;
+    lineContent = "this is FdOutputTest";
+    std::vector<std::string> lineVector;
+    lineVector.push_back(lineContent);
+    dumpDatas->push_back(lineVector);
 
-    DumpStatus ret = fd_output->PreExecute(parameter, dump_datas);
+    DumpStatus ret = fdOutput->PreExecute(parameter, dumpDatas);
     ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "PreExecute failed.";
 
-    ret = fd_output->Execute();
+    ret = fdOutput->Execute();
     ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "Execute failed.";
 
-    ret = fd_output->AfterExecute();
+    ret = fdOutput->AfterExecute();
     ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "AfterExecute failed.";
 }
 } // namespace HiviewDFX
