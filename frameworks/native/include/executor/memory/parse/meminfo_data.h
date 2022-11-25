@@ -41,9 +41,16 @@ public:
         uint64_t uss;
         uint64_t pss;
         uint64_t swapPss;
+        uint64_t gl;
+        uint64_t graph;
         int pid;
         std::string name;
         std::string adjLabel;
+    };
+
+    struct GraphicsMemory {
+        uint64_t gl;
+        uint64_t graph;
     };
 
 private:

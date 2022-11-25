@@ -43,6 +43,8 @@ public:
     const std::string FILE_PAGE_TAG = "File-backed Page";
     const std::string ANON_PAGE_TAG = "Anonymous Page";
     const std::string DMA_TAG = "DMA";
+    const std::string GL_OUT_LABEL = "GL";
+    const std::string GRAPH_OUT_LABEL = "Graph";
     const std::vector<std::pair<MemoryTrackerType, std::string>> MEMORY_TRACKER_TYPES = {
         {MEMORY_TRACKER_TYPE_GL, "GL"}, {MEMORY_TRACKER_TYPE_GRAPH, "Graph"},
         {MEMORY_TRACKER_TYPE_OTHER, "Other"}
