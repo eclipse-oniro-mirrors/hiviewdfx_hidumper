@@ -13,10 +13,17 @@
  * limitations under the License.
  */
 #include <gtest/gtest.h>
+#define private public
+#include "executor/memory_dumper.h"
 #include "executor/api_dumper.h"
 #include "executor/cmd_dumper.h"
+#include "executor/cpu_dumper.h"
 #include "executor/file_stream_dumper.h"
+#include "executor/list_dumper.h"
+#include "executor/sa_dumper.h"
 #include "executor/version_dumper.h"
+#include "util/config_utils.h"
+#undef private
 
 using namespace std;
 using namespace testing::ext;
@@ -54,11 +61,11 @@ void HidumperDumpersTest::TearDown(void)
 }
 
 /**
- * @tc.name: HidumperDumpers001
+ * @tc.name: FileDumperTest001
  * @tc.desc: Test FileDumper base function with loop = TRUE.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperDumpersTest, HidumperDumpers001, TestSize.Level3)
+HWTEST_F(HidumperDumpersTest, FileDumperTest001, TestSize.Level3)
 {
     auto parameter = std::make_shared<DumperParameter>();
     auto dump_datas = std::make_shared<std::vector<std::vector<std::string>>>();
@@ -85,11 +92,11 @@ HWTEST_F(HidumperDumpersTest, HidumperDumpers001, TestSize.Level3)
 }
 
 /**
- * @tc.name: HidumperDumpers002
+ * @tc.name: FileDumperTest002
  * @tc.desc: Test FileDumper base function with loop = FALSE.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperDumpersTest, HidumperDumpers002, TestSize.Level3)
+HWTEST_F(HidumperDumpersTest, FileDumperTest002, TestSize.Level3)
 {
     auto parameter = std::make_shared<DumperParameter>();
     auto dump_datas = std::make_shared<std::vector<std::vector<std::string>>>();
@@ -114,11 +121,11 @@ HWTEST_F(HidumperDumpersTest, HidumperDumpers002, TestSize.Level3)
 }
 
 /**
- * @tc.name: HidumperDumpers003
+ * @tc.name: FileDumperTest003
  * @tc.desc: Test FileDumper base function with inputing dir(end with /) and LOOP = TRUE.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperDumpersTest, HidumperDumpers003, TestSize.Level3)
+HWTEST_F(HidumperDumpersTest, FileDumperTest003, TestSize.Level3)
 {
     auto parameter = std::make_shared<DumperParameter>();
     auto dump_datas = std::make_shared<std::vector<std::vector<std::string>>>();
@@ -143,11 +150,11 @@ HWTEST_F(HidumperDumpersTest, HidumperDumpers003, TestSize.Level3)
 }
 
 /**
- * @tc.name: HidumperDumpers003
+ * @tc.name: FileDumperTest004
  * @tc.desc: Test FileDumper base function with inputing dir.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperDumpersTest, HidumperDumpers004, TestSize.Level3)
+HWTEST_F(HidumperDumpersTest, FileDumperTest004, TestSize.Level3)
 {
     auto parameter = std::make_shared<DumperParameter>();
     auto dump_datas = std::make_shared<std::vector<std::vector<std::string>>>();
@@ -171,11 +178,11 @@ HWTEST_F(HidumperDumpersTest, HidumperDumpers004, TestSize.Level3)
     }
 }
 /**
- * @tc.name: HidumperDumpers005
+ * @tc.name: FileDumperTest005
  * @tc.desc: Test FileDumper base function with replacing PID in file paths.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperDumpersTest, HidumperDumpers005, TestSize.Level0)
+HWTEST_F(HidumperDumpersTest, FileDumperTest005, TestSize.Level0)
 {
     auto parameter = std::make_shared<DumperParameter>();
     auto dump_datas = std::make_shared<std::vector<std::vector<std::string>>>();
@@ -202,11 +209,11 @@ HWTEST_F(HidumperDumpersTest, HidumperDumpers005, TestSize.Level0)
 }
 
 /**
- * @tc.name: HidumperDumpers006
+ * @tc.name: APIDumperTest001
  * @tc.desc: Test APIDumper target is build_version.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperDumpersTest, HidumperDumpers006, TestSize.Level3)
+HWTEST_F(HidumperDumpersTest, APIDumperTest001, TestSize.Level3)
 {
     auto parameter = std::make_shared<DumperParameter>();
     auto dump_datas = std::make_shared<std::vector<std::vector<std::string>>>();
@@ -224,11 +231,11 @@ HWTEST_F(HidumperDumpersTest, HidumperDumpers006, TestSize.Level3)
 }
 
 /**
- * @tc.name: HidumperDumpers007
+ * @tc.name: APIDumperTest002
  * @tc.desc: Test APIDumper target is hw_sc.build.os.releasetype.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperDumpersTest, HidumperDumpers007, TestSize.Level3)
+HWTEST_F(HidumperDumpersTest, APIDumperTest002, TestSize.Level3)
 {
     auto parameter = std::make_shared<DumperParameter>();
     auto dump_datas = std::make_shared<std::vector<std::vector<std::string>>>();
@@ -246,11 +253,11 @@ HWTEST_F(HidumperDumpersTest, HidumperDumpers007, TestSize.Level3)
 }
 
 /**
- * @tc.name: HidumperDumpers008
+ * @tc.name: APIDumperTest003
  * @tc.desc: Test APIDumper target is hw_sc.build.os.version.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperDumpersTest, HidumperDumpers008, TestSize.Level3)
+HWTEST_F(HidumperDumpersTest, APIDumperTest003, TestSize.Level3)
 {
     auto parameter = std::make_shared<DumperParameter>();
     auto dump_datas = std::make_shared<std::vector<std::vector<std::string>>>();
@@ -268,11 +275,11 @@ HWTEST_F(HidumperDumpersTest, HidumperDumpers008, TestSize.Level3)
 }
 
 /**
- * @tc.name: HidumperDumpers009
+ * @tc.name: APIDumperTest004
  * @tc.desc: Test APIDumper target is system_param.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperDumpersTest, HidumperDumpers009, TestSize.Level3)
+HWTEST_F(HidumperDumpersTest, APIDumperTest004, TestSize.Level3)
 {
     auto parameter = std::make_shared<DumperParameter>();
     auto dump_datas = std::make_shared<std::vector<std::vector<std::string>>>();
@@ -290,11 +297,11 @@ HWTEST_F(HidumperDumpersTest, HidumperDumpers009, TestSize.Level3)
 }
 
 /**
- * @tc.name: DumpManagerService006
+ * @tc.name: APIDumperTest005
  * @tc.desc: Test VersionDumper.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperDumpersTest, HidumperDumpers010, TestSize.Level3)
+HWTEST_F(HidumperDumpersTest, VersionDumperTest001, TestSize.Level3)
 {
     auto parameter = std::make_shared<DumperParameter>();
     auto dump_datas = std::make_shared<std::vector<std::vector<std::string>>>();
@@ -308,11 +315,11 @@ HWTEST_F(HidumperDumpersTest, HidumperDumpers010, TestSize.Level3)
 }
 
 /**
- * @tc.name: HidumperDumpers011
+ * @tc.name: CMDDumperTest001
  * @tc.desc: CMD Dumper base function with loop = TRUE.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperDumpersTest, HidumperDumpers011, TestSize.Level3)
+HWTEST_F(HidumperDumpersTest, CMDDumperTest001, TestSize.Level3)
 {
     auto parameter = std::make_shared<DumperParameter>();
     auto dump_datas = std::make_shared<std::vector<std::vector<std::string>>>();
@@ -337,11 +344,11 @@ HWTEST_F(HidumperDumpersTest, HidumperDumpers011, TestSize.Level3)
 }
 
 /**
- * @tc.name: HidumperDumpers011
+ * @tc.name: CMDDumperTest002
  * @tc.desc: CMD Dumper base function with loop = False.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperDumpersTest, HidumperDumpers012, TestSize.Level3)
+HWTEST_F(HidumperDumpersTest, CMDDumperTest002, TestSize.Level3)
 {
     auto parameter = std::make_shared<DumperParameter>();
     auto dump_datas = std::make_shared<std::vector<std::vector<std::string>>>();
@@ -363,6 +370,175 @@ HWTEST_F(HidumperDumpersTest, HidumperDumpers012, TestSize.Level3)
         ret = cmd_dumper->DoAfterExecute();
         ASSERT_TRUE(ret == DumpStatus::DUMP_OK || ret == DumpStatus::DUMP_MORE_DATA) << "Execute failed.";
     }
+}
+
+/**
+ * @tc.name: MemoryDumperTest001
+ * @tc.desc: Test MemoryDumper one process has correct ret.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, MemoryDumperTest001, TestSize.Level1)
+{
+    auto memoryDumper = std::make_shared<MemoryDumper>();
+    memoryDumper->pid_ = 1;
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    memoryDumper->dumpDatas_ = dumpDatas;
+    int ret = DumpStatus::DUMP_MORE_DATA;
+    while (ret == DumpStatus::DUMP_MORE_DATA) {
+        ret = memoryDumper->Execute();
+    }
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: MemoryDumperTest002
+ * @tc.desc: Test MemoryDumper all process has correct ret.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, MemoryDumperTest002, TestSize.Level1)
+{
+    auto memoryDumper = std::make_shared<MemoryDumper>();
+    memoryDumper->pid_ = -1;
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    memoryDumper->dumpDatas_ = dumpDatas;
+    int ret = DumpStatus::DUMP_MORE_DATA;
+    while (ret == DumpStatus::DUMP_MORE_DATA) {
+        ret = memoryDumper->Execute();
+    }
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: SADumperTest001
+ * @tc.desc: Test SADumper no saname has correct ret.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, SADumperTest001, TestSize.Level1)
+{
+    auto parameter = std::make_shared<DumperParameter>();
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    auto saDumper = std::make_shared<SADumper>();
+    auto config = std::make_shared<DumpCfg>();
+    config->args_ = OptionArgs::Create();
+    saDumper->SetDumpConfig(config);
+    int ret = DumpStatus::DUMP_FAIL;
+    ret = saDumper->PreExecute(parameter, dumpDatas);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+    ret = saDumper->Execute();
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: SADumperTest002
+ * @tc.desc: Test SADumper one saname has correct ret.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, SADumperTest002, TestSize.Level1)
+{
+    auto parameter = std::make_shared<DumperParameter>();
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    auto saDumper = std::make_shared<SADumper>();
+    auto config = std::make_shared<DumpCfg>();
+    config->args_ = OptionArgs::Create();
+    const std::vector<std::string> names = {"1202"};
+    const std::vector<std::string> args;
+    config->args_->SetNamesAndArgs(names, args);
+    saDumper->SetDumpConfig(config);
+    int ret = DumpStatus::DUMP_FAIL;
+    ret = saDumper->PreExecute(parameter, dumpDatas);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+    ret = saDumper->Execute();
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: CpuDumperTest001
+ * @tc.desc: Test CpuDumper dump all process has correct ret.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, CpuDumperTest001, TestSize.Level1)
+{
+    auto parameter = std::make_shared<DumperParameter>();
+    DumperOpts opts;
+    opts.isDumpCpuUsage_ = true;
+    opts.cpuUsagePid_ = -1;
+    parameter->SetOpts(opts);
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    auto cpuDumper = std::make_shared<CPUDumper>();
+    int ret = DumpStatus::DUMP_FAIL;
+    ret = cpuDumper->PreExecute(parameter, dumpDatas);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+    ret = cpuDumper->Execute();
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+    ret = cpuDumper->AfterExecute();
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: CpuDumperTest002
+ * @tc.desc: Test CpuDumper has correct ret when opts is vaild.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, CpuDumperTest002, TestSize.Level1)
+{
+    auto parameter = std::make_shared<DumperParameter>();
+    DumperOpts opts;
+    opts.isDumpCpuUsage_ = false;
+    opts.cpuUsagePid_ = getpid();
+    parameter->SetOpts(opts);
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    auto cpuDumper = std::make_shared<CPUDumper>();
+    int ret = DumpStatus::DUMP_FAIL;
+    ret = cpuDumper->PreExecute(parameter, dumpDatas);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+    ret = cpuDumper->Execute();
+    ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
+}
+
+/**
+ * @tc.name: ListDumperTest001
+ * @tc.desc: Test ListDumper dump ABILITY has correct ret.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, ListDumperTest001, TestSize.Level1)
+{
+    auto parameter = std::make_shared<DumperParameter>();
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    auto listDumper = std::make_shared<ListDumper>();
+    auto config = std::make_shared<DumpCfg>();
+    config->target_ = ConfigUtils::STR_ABILITY;
+    listDumper->SetDumpConfig(config);
+
+    int ret = DumpStatus::DUMP_FAIL;
+    ret = listDumper->PreExecute(parameter, dumpDatas);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+    ret = listDumper->Execute();
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+    ret = listDumper->AfterExecute();
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: ListDumperTest002
+ * @tc.desc: Test ListDumper dump SYSTEM has correct ret.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, ListDumperTest002, TestSize.Level1)
+{
+    auto parameter = std::make_shared<DumperParameter>();
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    auto listDumper = std::make_shared<ListDumper>();
+    auto config = std::make_shared<DumpCfg>();
+    config->target_ = ConfigUtils::STR_SYSTEM;
+    listDumper->SetDumpConfig(config);
+
+    int ret = DumpStatus::DUMP_FAIL;
+    ret = listDumper->PreExecute(parameter, dumpDatas);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+    ret = listDumper->Execute();
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+    ret = listDumper->AfterExecute();
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
 } // namespace HiviewDFX
 } // namespace OHOS

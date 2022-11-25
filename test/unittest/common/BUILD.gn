@@ -171,11 +171,16 @@ ohos_unittest("MemoryDumperTest") {
 
   configs = [ ":module_private_config" ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = [
+    "${hidumper_service_path}:hidumper_client",
+    "${hidumper_service_path}:hidumperservice",
+    "//third_party/googletest:gtest_main",
+  ]
 
   external_deps = [
     "c_utils:utils",
     "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
+    "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
 }
@@ -203,6 +208,26 @@ ohos_unittest("HidumperInnerkitsTest") {
   ]
 }
 
+ohos_unittest("HidumperManagerTest") {
+  module_out_path = module_output_path
+
+  sources = [ "hidumper_manager_test.cpp" ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${hidumper_service_path}:hidumper_client",
+    "${hidumper_service_path}:hidumperservice",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "hiviewdfx_hilog_native:libhilog",
+    "init:libbegetutil",
+    "safwk:system_ability_fwk",
+  ]
+}
+
 ###############################################################################
 group("unittest") {
   testonly = true
@@ -213,6 +238,7 @@ group("unittest") {
     ":HidumperConfigUtilsTest",
     ":HidumperDumpersTest",
     ":HidumperInnerkitsTest",
+    ":HidumperManagerTest",
     ":HidumperOutputTest",
     ":HidumperPrivacyTest",
     ":HidumperServiceTest",

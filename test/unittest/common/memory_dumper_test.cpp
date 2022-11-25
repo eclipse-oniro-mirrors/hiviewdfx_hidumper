@@ -13,12 +13,19 @@
  * limitations under the License.
  */
 #include <gtest/gtest.h>
-
-#include "hdf_base.h"
-
+#include <map>
+#include <unistd.h>
+#include <vector>
 #include <v1_0/imemory_tracker_interface.h>
 
-using namespace std;
+#define private public
+#include "executor/memory_dumper.h"
+#undef private
+#include "dump_client_main.h"
+#include "hdf_base.h"
+#include "executor/memory/memory_filter.h"
+#include "executor/memory/memory_util.h"
+
 using namespace testing::ext;
 using namespace OHOS::HDI::Memorytracker::V1_0;
 namespace OHOS {
@@ -91,5 +98,54 @@ HWTEST_F(MemoryDumperTest, MemoryDumperTest002, TestSize.Level3)
     std::string str = "DMA";
     ASSERT_TRUE(IsExistInCmdResult(cmd, str));
 }
+
+/**
+ * @tc.name: MemoryUtilTest001
+ * @tc.desc: Test IsNameLine has correct ret.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryUtilTest001, TestSize.Level1)
+{
+    const std::string valueLine = "Rss:                  24 kB";
+    std::string name;
+    uint64_t iNode = 0;
+    ASSERT_FALSE(MemoryUtil::GetInstance().IsNameLine(valueLine, name, iNode));
+    ASSERT_EQ(name, "");
+    const std::string nameLine = "ffb84000-ffba5000 rw-p 00000000 00:00 0                                  [stack]";
+    ASSERT_TRUE(MemoryUtil::GetInstance().IsNameLine(nameLine, name, iNode));
+    ASSERT_EQ(name, "[stack]");
+}
+
+/**
+ * @tc.name: MemoryUtilTest002
+ * @tc.desc: Test GetTypeAndValue has correct ret.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryUtilTest002, TestSize.Level1)
+{
+    std::string type;
+    uint64_t value = 0;
+    const std::string illegalStr = "aaaaaa";
+    ASSERT_FALSE(MemoryUtil::GetInstance().GetTypeAndValue(illegalStr, type, value));
+    const std::string valueStr = "MemTotal:        2010244 kB";
+    ASSERT_TRUE(MemoryUtil::GetInstance().GetTypeAndValue(valueStr, type, value));
+    ASSERT_EQ(type, "MemTotal");
+    ASSERT_EQ(value, 2010244);
+}
+
+/**
+ * @tc.name: MemoryUtilTest003
+ * @tc.desc: Test RunCMD has correct ret.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryUtilTest003, TestSize.Level1)
+{
+    const std::string cmd = "ps -ef";
+    std::vector<std::string> vec;
+    ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
+    ASSERT_GT(vec.size(), 0);
+}
 } // namespace HiviewDFX
 } // namespace OHOS
+
+
