@@ -17,6 +17,7 @@
 #include <gtest/gtest.h>
 #include "util/config_utils.h"
 #include "util/file_utils.h"
+#include "../dump_utils.h"
 #define private public
 #include "util/zip/zip_writer.h"
 #undef private
