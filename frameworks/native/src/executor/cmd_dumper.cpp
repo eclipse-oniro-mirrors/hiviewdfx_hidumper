@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 #include "executor/cmd_dumper.h"
+
+#include "dump_common_utils.h"
 #include "securec.h"
 
 namespace OHOS {
@@ -39,6 +41,9 @@ DumpStatus CMDDumper::PreExecute(const std::shared_ptr<DumperParameter>& paramet
     if (ptrDumpCfg_->args_ != nullptr) {
         if (ptrDumpCfg_->args_->HasPid()) {
             int pid = ptrDumpCfg_->args_->GetPid();
+            if (ptrDumpCfg_->name_ == "dumper_stack" && !DumpCommonUtils::IsUserPid(std::to_string(pid))) {
+                return DumpStatus::DUMP_FAIL;
+            }
             ReplacePidInCmd(cmd, pid);
         }
         if (ptrDumpCfg_->args_->HasCpuId()) {
