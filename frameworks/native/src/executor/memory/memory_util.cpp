@@ -134,7 +134,15 @@ void MemoryUtil::InitMemUsage(MemInfoData::MemUsage &usage)
     usage.rss = 0;
     usage.uss = 0;
     usage.pss = 0;
+    usage.gl = 0;
+    usage.graph = 0;
     usage.pid = 0;
+}
+
+void MemoryUtil::InitGraphicsMemory(MemInfoData::GraphicsMemory &graphicsMemory)
+{
+    graphicsMemory.gl = 0;
+    graphicsMemory.graph = 0;
 }
 
 bool MemoryUtil::GetTypeAndValue(const string &str, string &type, uint64_t &value)
