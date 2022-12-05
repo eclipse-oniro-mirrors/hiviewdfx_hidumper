@@ -142,6 +142,7 @@ ohos_unittest("HidumperConfigUtilsTest") {
 
   sources = [
     "${hidumper_service_path}/native/src/dump_common_utils.cpp",
+    "${source_path}/dump_utils.cpp",
     "${source_path}/src/common/dump_cfg.cpp",
     "${source_path}/src/common/dumper_parameter.cpp",
     "${source_path}/src/common/option_args.cpp",
@@ -149,7 +150,6 @@ ohos_unittest("HidumperConfigUtilsTest") {
     "${source_path}/src/util/config_utils.cpp",
     "${source_path}/src/util/file_utils.cpp",
     "${source_path}/src/util/zip/zip_writer.cpp",
-    "${source_path}/dump_utils.cpp",
     "hidumper_configutils_test.cpp",
   ]
 
