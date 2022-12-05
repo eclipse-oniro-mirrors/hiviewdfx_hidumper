@@ -147,10 +147,10 @@ HWTEST_F (HidumperConfigUtilsTest, HidumperZipWriter001, TestSize.Level3)
     system("touch /data/log/hidumpertest.txt");
     system("echo hidumpertest > /data/log/hidumpertest.txt");
     auto zipwriter = std::make_shared<ZipWriter>(testfile);
-    ASSERT_TRUE(zipwriter->open());
-    ASSERT_TRUE(zipwriter->close());
-    auto testzipfile = OpenForZipping(testfile, APPEND_STATUS_CREATE);
-    ASSERT_TRUE(AddFileEntryToZip(testzipfile, testzipfile, testzipfile));
+    ASSERT_TRUE(zipwriter->Open());
+    ASSERT_TRUE(zipwriter->Close());
+    auto testzip = zipwriter->OpenForZipping(testfile, APPEND_STATUS_CREATE);
+    zipwriter->AddFileEntryToZip(testzip, testzipfile, testzipfile);
     system("rm -rf /data/log/hidumpertest.txt");
     system("rm -rf /data/log/hidumpertest.zip");
 }

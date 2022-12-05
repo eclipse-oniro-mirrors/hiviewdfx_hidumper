@@ -444,12 +444,10 @@ HWTEST_F(HiDumperManagerTest, DumpTest020, TestSize.Level0)
 HWTEST_F(HiDumperManagerTest, RawParaTest001, TestSize.Level0)
 {
     std::vector<std::u16string> args;
-    args.push_back("hidumper");
     const sptr<IDumpCallbackBroker> callback;
     std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, g_fd, callback);
-    DumpImplement::GetInstance().Main(argc, argv, rawParam);
     auto callbackptr = rawParam->GetCallback();
-    int ret = rawParam->GetArgc();
+    rawParam->GetArgc();
     rawParam->EraseCallback(callback);
 }
 } // namespace HiviewDFX
