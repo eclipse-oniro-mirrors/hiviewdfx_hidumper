@@ -156,7 +156,7 @@ ohos_unittest("HidumperConfigUtilsTest") {
   ]
 
   deps = [
-    "//third_party/googletest:gtest_main"
+    "//third_party/googletest:gtest_main",
     "//third_party/zlib:libz",
   ]
 
