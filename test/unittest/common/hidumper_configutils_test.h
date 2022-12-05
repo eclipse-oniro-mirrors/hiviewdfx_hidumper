@@ -16,6 +16,10 @@
 #define HIDUMPER_CONFIGUTILS_TEST_H
 #include <gtest/gtest.h>
 #include "util/config_utils.h"
+#include "util/file_utils.h"
+#define private public
+#include "util/zip/zip_writer.h"
+#undef private
 namespace OHOS {
 namespace HiviewDFX {
 class HidumperConfigUtilsTest : public testing::Test {

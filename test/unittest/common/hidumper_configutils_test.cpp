@@ -139,5 +139,34 @@ HWTEST_F (HidumperConfigUtilsTest, HidumperConfigUtils003, TestSize.Level3)
     ASSERT_TRUE(!result.empty());
     ASSERT_TRUE(result[0]->name_ == name);
 }
+
+HWTEST_F (HidumperConfigUtilsTest, HidumperZipWriter001, TestSize.Level3)
+{
+    string testfile = "/data/log/hidumpertest.txt";
+    string testzipfile = "/data/log/hidumpertest.zip";
+    system("touch /data/log/hidumpertest.txt");
+    system("echo hidumpertest > /data/log/hidumpertest.txt");
+    auto zipwriter = std::make_shared<ZipWriter>(testfile);
+    ASSERT_TRUE(zipwriter->open());
+    ASSERT_TRUE(zipwriter->close());
+    auto testzipfile = OpenForZipping(testfile, APPEND_STATUS_CREATE);
+    ASSERT_TRUE(AddFileEntryToZip(testzipfile, testzipfile, testzipfile));
+    system("rm -rf /data/log/hidumpertest.txt");
+    system("rm -rf /data/log/hidumpertest.zip");
+}
+
+HWTEST_F (HidumperConfigUtilsTest, HidumperFileUtils001, TestSize.Level3)
+{
+    auto fileutils = std::make_shared<FileUtils>();
+    string testpath = "/data";
+    ASSERT_TRUE(fileutils->CreateFolder(testpath));
+    testpath = "";
+    ASSERT_TRUE(fileutils->CreateFolder(testpath));
+    testpath = "test";
+    ASSERT_TRUE(!(fileutils->CreateFolder(testpath)));
+    testpath = "/data/log/testhidumper";
+    ASSERT_TRUE(fileutils->CreateFolder(testpath));
+    system("rm -rf /data/log/testhidumper");
+}
 } // namespace HiviewDFX
 } // namespace OHOS
