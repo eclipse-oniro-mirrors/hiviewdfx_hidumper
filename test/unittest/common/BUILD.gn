@@ -155,7 +155,10 @@ ohos_unittest("HidumperConfigUtilsTest") {
     ":module_private_config",
   ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = [
+    "//third_party/googletest:gtest_main"
+    "//third_party/zlib:libz",
+  ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
