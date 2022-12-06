@@ -440,16 +440,5 @@ HWTEST_F(HiDumperManagerTest, DumpTest020, TestSize.Level0)
     int ret = GetDumpResult(argc, argv);
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
-
-HWTEST_F(HiDumperManagerTest, RawParaTest001, TestSize.Level0)
-{
-    std::vector<std::u16string> args;
-    const sptr<IDumpCallbackBroker> callback;
-    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, g_fd, callback);
-    auto callbackptr = rawParam->GetCallback();
-    ASSERT_TRUE(callbackptr == nullptr);
-    rawParam->EraseCallback(callback);
-    ASSERT_TRUE(callback == nullptr);
-}
 } // namespace HiviewDFX
 } // namespace OHOS
