@@ -166,6 +166,7 @@ HWTEST_F (HidumperConfigUtilsTest, HidumperFileUtils001, TestSize.Level3)
     ASSERT_TRUE(!(fileutils->CreateFolder(testpath)));
     testpath = "/data/log/testhidumper";
     ASSERT_TRUE(fileutils->CreateFolder(testpath));
+    ASSERT_TRUE(access(testpath.c_str(), F_OK) == 0);
     system("rm -rf /data/log/testhidumper");
 }
 } // namespace HiviewDFX
