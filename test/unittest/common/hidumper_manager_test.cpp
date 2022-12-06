@@ -447,8 +447,11 @@ HWTEST_F(HiDumperManagerTest, RawParaTest001, TestSize.Level0)
     const sptr<IDumpCallbackBroker> callback;
     std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, g_fd, callback);
     auto callbackptr = rawParam->GetCallback();
-    rawParam->GetArgc();
+    ASSERT_TRUE(callbackptr == nullptr);
+    auto ret = rawParam->GetArgc();
+    ASSERT_TRUE(ret == 0);
     rawParam->EraseCallback(callback);
+    ASSERT_TRUE(callback == nullptr);
 }
 } // namespace HiviewDFX
 } // namespace OHOS
