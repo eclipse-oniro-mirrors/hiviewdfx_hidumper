@@ -195,7 +195,7 @@ bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &gra
         if (memtrack->GetDevMem(pid, memTrackerType.first, records) == HDF_SUCCESS) {
             uint64_t value = 0;
             for (const auto &record : records) {
-                if ((record.flags & FLAG_UNMAPPED) == FLAG_UNMAPPED) {
+                if ((static_cast<int32_t>(record.flags) & FLAG_UNMAPPED) == FLAG_UNMAPPED) {
                     value = static_cast<uint64_t>(record.size / BYTE_PER_KB);
                     break;
                 }
