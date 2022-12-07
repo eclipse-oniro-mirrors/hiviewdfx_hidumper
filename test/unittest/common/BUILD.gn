@@ -142,11 +142,14 @@ ohos_unittest("HidumperConfigUtilsTest") {
 
   sources = [
     "${hidumper_service_path}/native/src/dump_common_utils.cpp",
+    "${source_path}/dump_utils.cpp",
     "${source_path}/src/common/dump_cfg.cpp",
     "${source_path}/src/common/dumper_parameter.cpp",
     "${source_path}/src/common/option_args.cpp",
     "${source_path}/src/util/config_data.cpp",
     "${source_path}/src/util/config_utils.cpp",
+    "${source_path}/src/util/file_utils.cpp",
+    "${source_path}/src/util/zip/zip_writer.cpp",
     "hidumper_configutils_test.cpp",
   ]
 
@@ -155,7 +158,10 @@ ohos_unittest("HidumperConfigUtilsTest") {
     ":module_private_config",
   ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = [
+    "//third_party/googletest:gtest_main",
+    "//third_party/zlib:libz",
+  ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
@@ -211,7 +217,10 @@ ohos_unittest("HidumperInnerkitsTest") {
 ohos_unittest("HidumperManagerTest") {
   module_out_path = module_output_path
 
-  sources = [ "hidumper_manager_test.cpp" ]
+  sources = [
+    "${hidumper_service_path}/native/src/raw_param.cpp",
+    "hidumper_manager_test.cpp",
+  ]
 
   configs = [ ":module_private_config" ]
 
