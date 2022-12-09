@@ -90,8 +90,6 @@ public:
         if (wt_.joinable()) {
             wt_.join();
         }
-        close(fds_[PIPE_READ]);
-        close(fds_[PIPE_WRITE]);
     }
 
 public:

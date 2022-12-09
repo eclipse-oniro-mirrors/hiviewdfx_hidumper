@@ -19,6 +19,7 @@
 
 namespace OHOS {
 namespace HiviewDFX {
+const std::string CMD_PREFIX = "/system/bin/";
 CMDDumper::CMDDumper() : fp_(nullptr)
 {
 }
@@ -54,7 +55,7 @@ DumpStatus CMDDumper::PreExecute(const std::shared_ptr<DumperParameter>& paramet
     cmd_ = cmd;
     needLoop_ = (ptrDumpCfg_->loop_ == DumperConstant::LOOP);
     if (fp_ == nullptr) {
-        if ((fp_ = popen(cmd_.c_str(), "r")) == nullptr) {
+        if ((fp_ = popen((CMD_PREFIX + cmd_).c_str(), "r")) == nullptr) {
             return DumpStatus::DUMP_FAIL;
         }
     }
@@ -112,7 +113,7 @@ DumpStatus CMDDumper::AfterExecute()
 DumpStatus CMDDumper::GetCmdInterface(const std::string& cmd, StringMatrix dumpDatas)
 {
     DumpStatus ret = DumpStatus::DUMP_MORE_DATA;
-    FILE* fp = popen(cmd.c_str(), "r");
+    FILE* fp = popen((CMD_PREFIX + cmd).c_str(), "r");
     if (fp == nullptr) {
         return DumpStatus::DUMP_FAIL;
     }
