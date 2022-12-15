@@ -84,7 +84,7 @@ void MemoryUtil::CalcGroup(const string &group, const string &type, const uint64
 
 bool MemoryUtil::RunCMD(const string &cmd, vector<string> &result)
 {
-    FILE* fp = popen(cmd.c_str(), "r");
+    FILE* fp = popen(("/system/bin/" + cmd).c_str(), "r");
     if (fp == nullptr) {
         return false;
     }
