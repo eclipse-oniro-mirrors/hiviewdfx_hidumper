@@ -482,7 +482,9 @@ string MemoryInfo::GetProcessAdjLabel(const int pid)
     if (oom_score.size() > 1) {
         for (int i = 0; i < oom_score.size(); i++) {
             if (i == 0) {
-                if (oom_score[i] == '-' || oom_score[i] == '+') {
+                if (oom_score[i] == '-') {
+                    continue;
+                } else if (oom_score[i] == '+') {
                     continue;
                 } else if (!isdigit(oom_score[i])) {
                     return adjLabel;
