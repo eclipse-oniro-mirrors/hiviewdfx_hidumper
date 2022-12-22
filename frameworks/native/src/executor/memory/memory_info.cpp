@@ -470,6 +470,29 @@ string MemoryInfo::GetProcessAdjLabel(const int pid)
         DUMPER_HILOGE(MODULE_SERVICE, "GetProcessAdjLabel fail! pid = %{pubilic}d", pid);
         return adjLabel;
     }
+    string oom_score = cmdResult.front();
+    if (oom_score.size() < 1) {
+        return adjLabel;
+    }
+    if (oom_score.size() == 1) {
+        if (!isdigit(oom_score[0])) {
+            return adjLabel;
+        }
+    }
+    if (oom_score.size() > 1) {
+        for (int i = 0; i < oom_score.size(); i++) {
+            if (i == 0) {
+                if (oom_score[i] == '-' || oom_score[i] == '+') {
+                    continue;
+                } else if (!isdigit(oom_score[i])) {
+                    return adjLabel;
+                }
+            }
+            if (!isdigit(oom_score[i])) {
+                return adjLabel;
+            }
+        }
+    }
     auto it = Memory::ReclaimPriorityMapping.find(stoi(cmdResult.front()));
     if (it != Memory::ReclaimPriorityMapping.end()) {
         adjLabel = it->second;

@@ -641,7 +641,6 @@ void DumpImplement::RemoveDuplicateString(DumperOpts &opts_)
     DumpUtils::RemoveDuplicateString(opts_.logArgs_);       // remove duplicate log names
     DumpUtils::RemoveDuplicateString(opts_.systemArgs_);    // remove duplicate system names
     DumpUtils::RemoveDuplicateString(opts_.abilitieNames_); // remove duplicate ability names
-    DumpUtils::RemoveDuplicateString(opts_.abilitieArgs_);  // remove duplicate ability args
 }
 } // namespace HiviewDFX
 } // namespace OHOS
