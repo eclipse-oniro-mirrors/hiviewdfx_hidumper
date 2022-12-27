@@ -218,7 +218,6 @@ ohos_unittest("HidumperManagerTest") {
   module_out_path = module_output_path
 
   sources = [
-    "${hidumper_service_path}/native/src/raw_param.cpp",
     "hidumper_manager_test.cpp",
   ]
 
