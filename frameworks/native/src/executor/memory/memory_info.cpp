@@ -35,6 +35,7 @@
 #include "hilog_wrapper.h"
 #include "mem_mgr_constant.h"
 #include "securec.h"
+#include "string_ex.h"
 #include "util/string_utils.h"
 using namespace std;
 using namespace OHOS::HDI::Memorytracker::V1_0;
@@ -195,7 +196,7 @@ bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &gra
         if (memtrack->GetDevMem(pid, memTrackerType.first, records) == HDF_SUCCESS) {
             uint64_t value = 0;
             for (const auto &record : records) {
-                if ((record.flags & FLAG_UNMAPPED) == FLAG_UNMAPPED) {
+                if ((static_cast<int32_t>(record.flags) & FLAG_UNMAPPED) == FLAG_UNMAPPED) {
                     value = static_cast<uint64_t>(record.size / BYTE_PER_KB);
                     break;
                 }
@@ -470,7 +471,13 @@ string MemoryInfo::GetProcessAdjLabel(const int pid)
         DUMPER_HILOGE(MODULE_SERVICE, "GetProcessAdjLabel fail! pid = %{pubilic}d", pid);
         return adjLabel;
     }
-    auto it = Memory::ReclaimPriorityMapping.find(stoi(cmdResult.front()));
+    string oom_score = cmdResult.front();
+    int value = 0;
+    bool ret = StrToInt(oom_score, value);
+    if (!ret) {
+        return adjLabel;
+    }
+    auto it = Memory::ReclaimPriorityMapping.find(value);
     if (it != Memory::ReclaimPriorityMapping.end()) {
         adjLabel = it->second;
     }
