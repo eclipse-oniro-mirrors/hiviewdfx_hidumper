@@ -44,7 +44,7 @@ void HidumperConfigUtilsTest::TearDown(void)
  * @tc.desc: Test GetDumper by index
  * @tc.type: FUNC
  */
-HWTEST_F (HidumperConfigUtilsTest, HidumperConfigUtils001, TestSize.Level3)
+HWTEST_F(HidumperConfigUtilsTest, HidumperConfigUtils001, TestSize.Level3)
 {
     int index = -1;
     std::vector<std::shared_ptr<DumpCfg>> result;
@@ -75,7 +75,7 @@ HWTEST_F (HidumperConfigUtilsTest, HidumperConfigUtils001, TestSize.Level3)
  * @tc.desc: Test GetDumper by index.
  * @tc.type: FUNC
  */
-HWTEST_F (HidumperConfigUtilsTest, HidumperConfigUtils002, TestSize.Level3)
+HWTEST_F(HidumperConfigUtilsTest, HidumperConfigUtils002, TestSize.Level3)
 {
     int index = 1;
     std::vector<std::shared_ptr<DumpCfg>> result;
@@ -121,7 +121,7 @@ HWTEST_F (HidumperConfigUtilsTest, HidumperConfigUtils002, TestSize.Level3)
  * @tc.desc: Test GetDumper by name.
  * @tc.type: FUNC
  */
-HWTEST_F (HidumperConfigUtilsTest, HidumperConfigUtils003, TestSize.Level3)
+HWTEST_F(HidumperConfigUtilsTest, HidumperConfigUtils003, TestSize.Level3)
 {
     std::string name;
     std::vector<std::shared_ptr<DumpCfg>> result;
@@ -140,7 +140,7 @@ HWTEST_F (HidumperConfigUtilsTest, HidumperConfigUtils003, TestSize.Level3)
     ASSERT_TRUE(result[0]->name_ == name);
 }
 
-HWTEST_F (HidumperConfigUtilsTest, HidumperZipWriter001, TestSize.Level3)
+HWTEST_F(HidumperConfigUtilsTest, HidumperZipWriter001, TestSize.Level3)
 {
     string testfile = "/data/log/hidumpertest.txt";
     string testzipfile = "/data/log/hidumpertest.zip";
@@ -155,7 +155,7 @@ HWTEST_F (HidumperConfigUtilsTest, HidumperZipWriter001, TestSize.Level3)
     system("rm -rf /data/log/hidumpertest.zip");
 }
 
-HWTEST_F (HidumperConfigUtilsTest, HidumperFileUtils001, TestSize.Level3)
+HWTEST_F(HidumperConfigUtilsTest, HidumperFileUtils001, TestSize.Level3)
 {
     auto fileutils = std::make_shared<FileUtils>();
     string testpath = "/data";
