@@ -44,7 +44,7 @@ void HidumperServiceTest::TearDown(void)
  * @tc.desc: Test DumpManagerService service ready.
  * @tc.type: FUNC
  */
-HWTEST_F (HidumperServiceTest, HidumperServiceTest001, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, HidumperServiceTest001, TestSize.Level3)
 {
     sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     ASSERT_TRUE(sam != nullptr) << "HidumperServiceTest001 fail to get GetSystemAbilityManager";
@@ -57,7 +57,7 @@ HWTEST_F (HidumperServiceTest, HidumperServiceTest001, TestSize.Level3)
  * @tc.desc: Test DumpManagerService Start and stop.
  * @tc.type: FUNC
  */
-HWTEST_F (HidumperServiceTest, HidumperServiceTest002, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, HidumperServiceTest002, TestSize.Level3)
 {
     auto dmsTest = DelayedSpSingleton<DumpManagerService>::GetInstance();
     ASSERT_TRUE(dmsTest != nullptr) << "HidumperServiceTest002 fail to get DumpManagerService";
