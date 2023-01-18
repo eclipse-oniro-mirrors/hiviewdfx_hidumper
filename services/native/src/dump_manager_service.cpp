@@ -243,7 +243,6 @@ int32_t DumpManagerService::StartRequest(const std::shared_ptr<RawParam> rawPara
 void DumpManagerService::RequestMain(const std::shared_ptr<RawParam> rawParam)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "enter|");
-    rawParam->UpdateStatus(IDumpCallbackBroker::STATUS_DUMP_STARTED, true);
     int argC = rawParam->GetArgc();
     char **argV = rawParam->GetArgv();
     std::string folder = DumpLogManager::CreateTmpFolder(rawParam->GetRequestId());
@@ -269,7 +268,6 @@ void DumpManagerService::RequestMain(const std::shared_ptr<RawParam> rawParam)
     DumpLogManager::EraseTmpFolder(rawParam->GetRequestId());
     DumpLogManager::EraseLogs();
     rawParam->CloseOutputFd();
-    rawParam->UpdateStatus(status, true);
     EraseRequestRawParam(rawParam);
     DUMPER_HILOGD(MODULE_SERVICE, "leave|");
 }
