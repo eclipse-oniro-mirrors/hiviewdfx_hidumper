@@ -96,7 +96,7 @@ ohos_source_set("dump_main") {
 
   deps = [
     "${hidumper_utils_path}:utils",
-    "//third_party/zlib:libz",
+    "//third_party/zlib:shared_libz",
   ]
 
   external_deps = [
