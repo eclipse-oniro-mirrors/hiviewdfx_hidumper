@@ -223,7 +223,7 @@ ohos_unittest("HidumperManagerTest") {
 
   deps = [
     "${hidumper_service_path}:hidumper_client",
-    "${hidumper_service_path}:hidumperservice",
+    "${hidumper_service_path}:hidumperservice_source",
     "//third_party/googletest:gtest_main",
   ]
 

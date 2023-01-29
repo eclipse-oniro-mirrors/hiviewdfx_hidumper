@@ -124,7 +124,6 @@ ohos_source_set("hidumper_client") {
 }
 
 ohos_source_set("hidumperservice_source") {
-
   sources = [
     "native/src/dump_common_utils.cpp",
     "native/src/dump_event_handler.cpp",
