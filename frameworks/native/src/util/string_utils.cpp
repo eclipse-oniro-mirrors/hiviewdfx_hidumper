@@ -76,7 +76,7 @@ bool StringUtils::IsNum(string str)
 bool StringUtils::Compare(const string &str, const vector<string> &strs)
 {
     bool success = false;
-    for (const string tempStr : strs) {
+    for (const string &tempStr : strs) {
         if (str == tempStr) {
             success = true;
         }
