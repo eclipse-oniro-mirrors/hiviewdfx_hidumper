@@ -18,7 +18,6 @@
 #include <singleton.h>
 #include "dump_common_utils.h"
 #include "idump_broker.h"
-#include "idump_callback_broker.h"
 namespace OHOS {
 namespace HiviewDFX {
 class DumpManagerClient final : public DelayedRefSingleton<DumpManagerClient> {
@@ -26,7 +25,7 @@ class DumpManagerClient final : public DelayedRefSingleton<DumpManagerClient> {
 public:
     DISALLOW_COPY_AND_MOVE(DumpManagerClient);
     // Used for dump request
-    int32_t Request(std::vector<std::u16string> &args, int outfd, const sptr<IDumpCallbackBroker>& callback);
+    int32_t Request(std::vector<std::u16string> &args, int outfd);
 public:
     // Used for connect to hidump SA.
     ErrCode Connect();

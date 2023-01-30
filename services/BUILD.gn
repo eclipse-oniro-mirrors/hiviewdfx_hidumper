@@ -14,7 +14,10 @@
 import("//base/hiviewdfx/hidumper/hidumper.gni")
 
 config("interface_include") {
-  include_dirs = [ "${hidumper_interface}/innerkits/include" ]
+  include_dirs = [
+    "${hidumper_interface}/innerkits/include",
+    "${hidumper_interface}/native/innerkits/include/",
+  ]
 }
 
 config("service_config") {
@@ -34,10 +37,7 @@ config("zidl_config") {
 }
 
 ohos_source_set("zidl_client") {
-  sources = [
-    "zidl/src/dump_broker_proxy.cpp",
-    "zidl/src/dump_callback_broker_stub.cpp",
-  ]
+  sources = [ "zidl/src/dump_broker_proxy.cpp" ]
 
   configs = [
     "${hidumper_utils_path}:utils_config",
@@ -65,10 +65,7 @@ ohos_source_set("zidl_client") {
 }
 
 ohos_source_set("zidl_service") {
-  sources = [
-    "zidl/src/dump_broker_stub.cpp",
-    "zidl/src/dump_callback_broker_proxy.cpp",
-  ]
+  sources = [ "zidl/src/dump_broker_stub.cpp" ]
 
   configs = [
     "${hidumper_utils_path}:utils_config",
