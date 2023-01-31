@@ -35,10 +35,9 @@ DumpManagerClient::~DumpManagerClient()
     }
 }
 
-int32_t DumpManagerClient::Request(std::vector<std::u16string> &args, int outfd,
-    const sptr<IDumpCallbackBroker>& callback)
+int32_t DumpManagerClient::Request(std::vector<std::u16string> &args, int outfd)
 {
-    if ((args.size() < 1) || (outfd < 0) || (callback == nullptr)) {
+    if ((args.size() < 1) || (outfd < 0)) {
         return DumpStatus::DUMP_FAIL;
     }
     for (size_t i = 0; i < args.size(); i++) {
@@ -50,7 +49,7 @@ int32_t DumpManagerClient::Request(std::vector<std::u16string> &args, int outfd,
     if (Connect() != ERR_OK) {
         return DumpStatus::DUMP_FAIL;
     }
-    int32_t ret = proxy_->Request(args, outfd, callback);
+    int32_t ret = proxy_->Request(args, outfd);
     DUMPER_HILOGD(MODULE_CLIENT, "debug|ret=%{public}d", ret);
     return ret;
 }

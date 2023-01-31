@@ -21,7 +21,6 @@
 #include "dump_common_utils.h"
 #include "dump_broker_stub.h"
 #include "dump_event_handler.h"
-#include "idump_callback_broker.h"
 namespace OHOS {
 namespace HiviewDFX {
 class RawParam;
@@ -39,13 +38,9 @@ public:
     virtual void OnStop() override;
 public:
     // Used for dump request
-    int32_t Request(std::vector<std::u16string> &args, int outfd, const sptr<IDumpCallbackBroker>& callback) override;
+    int32_t Request(std::vector<std::u16string> &args, int outfd) override;
 public:
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;
-    // Used for dump request
-    int32_t Request(std::vector<std::u16string> &args, int outfd) override;
-    // Used for erase callback
-    void EraseCallback(const sptr<IDumpCallbackBroker>& callback);
     bool IsServiceStarted() const
     {
         return started_;
@@ -58,8 +53,7 @@ private:
     friend DelayedSpSingleton<DumpManagerService>;
 private:
     bool Init();
-    std::shared_ptr<RawParam> AddRequestRawParam(std::vector<std::u16string> &args,
-        int outfd, const sptr<IDumpCallbackBroker> callback);
+    std::shared_ptr<RawParam> AddRequestRawParam(std::vector<std::u16string> &args, int outfd);
     void EraseRequestRawParam(const std::shared_ptr<RawParam> rawParam);
     void CancelAllRequest();
     int GetRequestSum();

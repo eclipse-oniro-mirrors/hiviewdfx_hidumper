@@ -32,11 +32,6 @@ int DumpBrokerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageP
             ret = RequestFileFdStub(data, reply);
             break;
         }
-        case static_cast<int>(IDumpBroker::DUMP_REQUEST_FILEFD_CALLBACK): {
-            DUMPER_HILOGD(MODULE_ZIDL, "debug|RequestFileFdCallbackStub");
-            ret = RequestFileFdCallbackStub(data, reply);
-            break;
-        }
         default: {
             ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
             break;
@@ -54,29 +49,6 @@ int32_t DumpBrokerStub::RequestFileFdStub(MessageParcel& data, MessageParcel& re
     }
     int outfd = data.ReadFileDescriptor();
     int32_t res = Request(args, outfd);
-    if (!reply.WriteInt32(res)) {
-        return ERROR_WRITE_PARCEL;
-    }
-    return ret;
-}
-
-int32_t DumpBrokerStub::RequestFileFdCallbackStub(MessageParcel& data, MessageParcel& reply)
-{
-    int32_t ret = ERR_OK;
-    std::vector<std::u16string> args;
-    if (!data.ReadString16Vector(&args)) {
-        return ERROR_READ_PARCEL;
-    }
-    int outfd = data.ReadFileDescriptor();
-    sptr<IRemoteObject> obj = data.ReadRemoteObject();
-    if (obj == nullptr) {
-        return ERROR_READ_PARCEL;
-    }
-    sptr<IDumpCallbackBroker> callback = iface_cast<IDumpCallbackBroker>(obj);
-    if (callback == nullptr) {
-        return ERROR_READ_PARCEL;
-    }
-    int32_t res = Request(args, outfd, callback);
     if (!reply.WriteInt32(res)) {
         return ERROR_WRITE_PARCEL;
     }

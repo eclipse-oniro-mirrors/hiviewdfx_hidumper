@@ -28,6 +28,7 @@ config("module_private_config") {
     "//third_party/json/single_include",
     "//third_party/json/include",
     "${hidumper_interface}/innerkits/include/",
+    "${hidumper_interface}/native/innerkits/include/",
     "//base/hiviewdfx/hidumper/utils/native/include/",
     "//base/hiviewdfx/hidumper/services/zidl/include",
     "//base/hiviewdfx/hidumper/services/native/include",
@@ -55,28 +56,19 @@ config("module_private_config") {
 ohos_unittest("HidumperServiceTest") {
   module_out_path = module_output_path
 
-  sources = [
-    "${hidumper_frameworks_path}/src/util/dump_cpu_info_util.cpp",
-    "${hidumper_service_path}/native/src/dump_common_utils.cpp",
-    "${hidumper_service_path}/native/src/dump_event_handler.cpp",
-    "${hidumper_service_path}/native/src/dump_log_manager.cpp",
-    "${hidumper_service_path}/native/src/dump_manager_client.cpp",
-    "${hidumper_service_path}/native/src/dump_manager_service.cpp",
-    "${hidumper_service_path}/native/src/raw_param.cpp",
-    "${hidumper_service_path}/zidl/src/dump_broker_proxy.cpp",
-    "${hidumper_service_path}/zidl/src/dump_broker_stub.cpp",
-    "${hidumper_service_path}/zidl/src/dump_callback_broker_proxy.cpp",
-    "${hidumper_service_path}/zidl/src/dump_callback_broker_stub.cpp",
-    "hidumper_service_test.cpp",
-    "hidumper_test_default_callback.cpp",
-  ]
+  sources = [ "hidumper_service_test.cpp" ]
 
   configs = [
     "${hidumper_utils_path}:utils_config",
     ":module_private_config",
   ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = [
+    "${hidumper_service_path}:hidumper_client",
+    "${hidumper_service_path}:hidumperservice_source",
+    "//third_party/googletest:gtest_main",
+    "//third_party/zlib:libz",
+  ]
 
   external_deps = [
     "access_token:libtoken_setproc",
@@ -101,7 +93,7 @@ ohos_unittest("HidumperDumpersTest") {
 
   deps = [
     "${hidumper_service_path}:hidumper_client",
-    "${hidumper_service_path}:hidumperservice",
+    "${hidumper_service_path}:hidumperservice_source",
     "//third_party/googletest:gtest_main",
     "//third_party/zlib:libz",
   ]
@@ -125,7 +117,7 @@ ohos_unittest("HidumperOutputTest") {
 
   deps = [
     "${hidumper_service_path}:hidumper_client",
-    "${hidumper_service_path}:hidumperservice",
+    "${hidumper_service_path}:hidumperservice_source",
     "//third_party/googletest:gtest_main",
     "//third_party/zlib:libz",
   ]
@@ -179,7 +171,7 @@ ohos_unittest("MemoryDumperTest") {
 
   deps = [
     "${hidumper_service_path}:hidumper_client",
-    "${hidumper_service_path}:hidumperservice",
+    "${hidumper_service_path}:hidumperservice_source",
     "//third_party/googletest:gtest_main",
   ]
 
@@ -223,7 +215,7 @@ ohos_unittest("HidumperManagerTest") {
 
   deps = [
     "${hidumper_service_path}:hidumper_client",
-    "${hidumper_service_path}:hidumperservice",
+    "${hidumper_service_path}:hidumperservice_source",
     "//third_party/googletest:gtest_main",
   ]
 

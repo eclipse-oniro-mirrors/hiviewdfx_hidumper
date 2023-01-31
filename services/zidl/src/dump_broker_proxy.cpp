@@ -48,40 +48,5 @@ int32_t DumpBrokerProxy::Request(std::vector<std::u16string> &args, int outfd)
     }
     return ret;
 }
-
-int32_t DumpBrokerProxy::Request(std::vector<std::u16string> &args, int outfd,
-    const sptr<IDumpCallbackBroker>& callback)
-{
-    int32_t ret = -1;
-    sptr<IRemoteObject> remote = Remote();
-    if ((remote == nullptr) || (callback == nullptr)) {
-        return ret;
-    }
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(DumpBrokerProxy::GetDescriptor())) {
-        return ret;
-    }
-    if (!data.WriteString16Vector(args)) {
-        return ERROR_WRITE_PARCEL;
-    }
-    if (!data.WriteFileDescriptor(outfd)) {
-        return ERROR_WRITE_PARCEL;
-    }
-    if (!data.WriteRemoteObject(callback->AsObject())) {
-        return ERROR_WRITE_PARCEL;
-    }
-    int res = remote->SendRequest(static_cast<int>(IDumpBroker::DUMP_REQUEST_FILEFD_CALLBACK),
-        data, reply, option);
-    if (res != ERR_OK) {
-        DUMPER_HILOGE(MODULE_ZIDL, "error|SendRequest error code: %{public}d", res);
-        return ret;
-    }
-    if (!reply.ReadInt32(ret)) {
-        return ERROR_READ_PARCEL;
-    }
-    return ret;
-}
 } // namespace HiviewDFX
 } // namespace OHOS
