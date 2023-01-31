@@ -18,15 +18,14 @@
 #include <string_ex.h>
 #include <vector>
 #include "dump_controller.h"
-#include "idump_callback_broker.h"
+#include "idump_broker.h"
 namespace OHOS {
 namespace HiviewDFX {
 class DumpManagerService;
 class DumpManagerServiceClient;
 class RawParam {
 public:
-    RawParam(int calllingUid, int calllingPid, uint32_t reqId, std::vector<std::u16string>& args,
-        int outfd, const sptr<IDumpCallbackBroker>& callback);
+    RawParam(int calllingUid, int calllingPid, uint32_t reqId, std::vector<std::u16string>& args, int outfd);
     ~RawParam();
     int GetArgc();
     char** GetArgv();
@@ -45,15 +44,11 @@ public:
     void UpdateProgress(uint64_t progress);
     int& GetOutputFd();
     void CloseOutputFd();
-    void EraseCallback(const sptr<IDumpCallbackBroker>& callback);
     bool Init(std::vector<std::u16string>& args);
     void Uninit();
     void SetTitle(const std::string &path);
     void SetFolder(const std::string &folder);
     std::string GetFolder();
-#ifdef DUMP_TEST_MODE // for mock test
-    const sptr<IDumpCallbackBroker> GetCallback();
-#endif // for mock test
 private:
     void Dump() const;
     class ClientDeathRecipient : public IRemoteObject::DeathRecipient {
@@ -65,12 +60,6 @@ private:
     private:
         uint32_t reqId_;
         bool& deathed_;
-    };
-    struct classcomp {
-        bool operator() (const sptr<IDumpCallbackBroker>& l, const sptr<IDumpCallbackBroker>& r) const
-        {
-            return l->AsObject() < r->AsObject();
-        }
     };
 private:
     struct ArgValue {
@@ -87,7 +76,6 @@ private:
     std::unique_ptr<ArgValue> argValues_[ARG_MAX_COUNT + 1] = {nullptr};
     int outfd_ {-1};
     sptr<IRemoteObject::DeathRecipient> deathRecipient_;
-    std::set<const sptr<IDumpCallbackBroker>, classcomp> callbackSet_;
     bool progressEnabled_ {false};
     uint32_t progressTick_ {0};
     uint64_t progress_ {0};

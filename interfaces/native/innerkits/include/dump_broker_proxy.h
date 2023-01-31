@@ -28,9 +28,6 @@ public:
 public:
     // Used for dump request
     int32_t Request(std::vector<std::u16string> &args, int outfd) override;
-    // Used for dump request
-    int32_t Request(std::vector<std::u16string> &args, int outfd,
-        const sptr<IDumpCallbackBroker>& callback) override;
 private:
     static inline BrokerDelegator<DumpBrokerProxy> delegator_;
 };

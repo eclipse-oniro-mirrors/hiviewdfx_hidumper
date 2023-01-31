@@ -18,11 +18,9 @@
 #include <vector>
 
 #include "common.h"
-#include "dump_callback.h"
 #include "dump_controller.h"
 #include "dump_manager_client.h"
 #include "dump_utils.h"
-#include "idump_callback_broker.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -66,8 +64,7 @@ int DumpClientMain::Main(int argc, char* argv[], int outFd)
         return -1;
     }
     DumpUtils::IgnoreStdoutCache();
-    auto cb = DumpCallback::CreateCallback();
-    int32_t ret = dumpManagerClient.Request(args, outFd, cb);
+    int32_t ret = dumpManagerClient.Request(args, outFd);
     if (ret < DumpStatus::DUMP_OK) {
         if (ret != DumpStatus::DUMP_INVALID_ARG) {
             (void)dprintf(outFd, "request error\n");

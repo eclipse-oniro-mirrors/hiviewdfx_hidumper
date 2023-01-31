@@ -28,25 +28,13 @@ static const bool SHOW_PROGRESS_BAR = false;
 static const int PROGRESS_LENGTH = 128;
 static const char PROGRESS_STYLE = '=';
 static const char PROGRESS_TICK[] = {'-', '\\', '|', '/'};
-static const std::string TASK_ERASE_CALLBACK = "HiDumper_Service_EraseCallback";
 } // namespace
 
-RawParam::RawParam(int calllingUid, int calllingPid, uint32_t reqId, std::vector<std::u16string> &args, int outfd,
-                   const sptr<IDumpCallbackBroker> &callback)
+RawParam::RawParam(int calllingUid, int calllingPid, uint32_t reqId, std::vector<std::u16string> &args, int outfd)
     : uid_(calllingUid), pid_(calllingPid), canceled_(false), finished_(false), reqId_(reqId), outfd_(outfd)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "create|pid=%{public}d, reqId=%{public}u", pid_, reqId_);
     Init(args);
-    if (callback != nullptr) {
-        auto object = callback->AsObject();
-        if (object == nullptr) {
-            return;
-        }
-        auto retIt = callbackSet_.insert(callback);
-        if (retIt.second) {
-            object->AddDeathRecipient(deathRecipient_);
-        }
-    }
 }
 
 RawParam::~RawParam()
@@ -77,32 +65,8 @@ void RawParam::Uninit()
 {
     DUMPER_HILOGD(MODULE_SERVICE, "enter|");
     CloseOutputFd();
-    for (auto &callback : callbackSet_) {
-        if (callback == nullptr) {
-            continue;
-        }
-        auto object = callback->AsObject();
-        if (object == nullptr) {
-            continue;
-        }
-        object->RemoveDeathRecipient(deathRecipient_);
-    }
-    callbackSet_.clear();
     DUMPER_HILOGD(MODULE_SERVICE, "leave|");
 }
-
-#ifdef DUMP_TEST_MODE // for mock test
-const sptr<IDumpCallbackBroker> RawParam::GetCallback()
-{
-    for (auto &callback : callbackSet_) {
-        if (callback == nullptr) {
-            continue;
-        }
-        return callback;
-    }
-    return nullptr;
-}
-#endif // for mock test
 
 int &RawParam::GetOutputFd()
 {
@@ -171,32 +135,6 @@ void RawParam::Cancel()
 {
     canceled_ = true;
     DUMPER_HILOGD(MODULE_SERVICE, "debug|reqId=%{public}u", reqId_);
-}
-
-void RawParam::UpdateStatus(uint32_t status, bool force)
-{
-    if (force || (!IsFinished())) {
-        switch (status) {
-            case IDumpCallbackBroker::STATUS_DUMP_FINISHED: {
-                finished_ = true;
-                break;
-            }
-            case IDumpCallbackBroker::STATUS_DUMP_ERROR: {
-                hasError_ = true;
-                break;
-            }
-            default: {
-                break;
-            }
-        }
-        std::lock_guard lock(mutex_);
-        for (auto &callback : callbackSet_) {
-            callback->OnStatusChanged(status);
-        }
-    }
-    if (IsFinished()) {
-        CloseOutputFd();
-    }
 }
 
 void RawParam::SetProgressEnabled(bool enable)
@@ -268,33 +206,7 @@ void RawParam::ClientDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &rem
     }
     DUMPER_HILOGD(MODULE_SERVICE, "enter|reqId=%{public}d", reqId_);
     deathed_ = true;
-    sptr<IDumpCallbackBroker> callback = iface_cast<IDumpCallbackBroker>(remote.promote());
-    std::make_unique<std::thread>([=] {
-        DUMPER_HILOGD(MODULE_SERVICE, "enter|erase callback thread start");
-        dumpManagerService->EraseCallback(callback);
-        DUMPER_HILOGD(MODULE_SERVICE, "leave|erase callback thread finish");
-    })->detach();
     DUMPER_HILOGD(MODULE_SERVICE, "leave|reqId=%{public}d", reqId_);
-}
-
-void RawParam::EraseCallback(const sptr<IDumpCallbackBroker> &callback)
-{
-    if (callback == nullptr) {
-        return;
-    }
-    auto object = callback->AsObject();
-    if (object == nullptr) {
-        return;
-    }
-    DUMPER_HILOGD(MODULE_SERVICE, "enter|reqId=%{public}d, canceled=%{public}d", reqId_, canceled_);
-    std::lock_guard lock(mutex_);
-    size_t eraseNum = callbackSet_.erase(callback);
-    if (eraseNum != 0) {
-        canceled_ = true;
-        DUMPER_HILOGD(MODULE_SERVICE, "debug|reqId=%{public}d, eraseNum=%{public}zu", reqId_, eraseNum);
-        object->RemoveDeathRecipient(deathRecipient_);
-    }
-    DUMPER_HILOGD(MODULE_SERVICE, "leave|reqId=%{public}d, canceled=%{public}d", reqId_, canceled_);
 }
 
 void RawParam::Dump() const
