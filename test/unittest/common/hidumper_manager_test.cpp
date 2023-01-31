@@ -66,8 +66,7 @@ void HiDumperManagerTest::TearDown(void)
 int HiDumperManagerTest::GetDumpResult(int argc, char *argv[])
 {
     std::vector<std::u16string> args;
-    const sptr<IDumpCallbackBroker> callback;
-    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, g_fd, callback);
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, g_fd);
     return DumpImplement::GetInstance().Main(argc, argv, rawParam);
 }
 

@@ -91,12 +91,6 @@ void DumpManagerService::OnStop()
     DUMPER_HILOGD(MODULE_SERVICE, "leave|");
 }
 
-int32_t DumpManagerService::Request(std::vector<std::u16string> &args, int outfd)
-{
-    const sptr<IDumpCallbackBroker> callback;
-    return Request(args, outfd, callback);
-}
-
 int32_t DumpManagerService::Dump(int32_t fd, const std::vector<std::u16string> &args)
 {
     std::string result = DUMPMGR_SERVICE_NAME;
@@ -109,8 +103,7 @@ int32_t DumpManagerService::Dump(int32_t fd, const std::vector<std::u16string> &
     return ERR_OK;
 }
 
-int32_t DumpManagerService::Request(std::vector<std::u16string> &args, int outfd,
-                                    const sptr<IDumpCallbackBroker> &callback)
+int32_t DumpManagerService::Request(std::vector<std::u16string> &args, int outfd)
 {
     if (blockRequest_) {
         return DumpStatus::DUMP_FAIL;
@@ -126,23 +119,10 @@ int32_t DumpManagerService::Request(std::vector<std::u16string> &args, int outfd
         DumpLogManager::Init();
     }
     DUMPER_HILOGD(MODULE_SERVICE, "enter|");
-    const std::shared_ptr<RawParam> rawParam = AddRequestRawParam(args, outfd, callback);
+    const std::shared_ptr<RawParam> rawParam = AddRequestRawParam(args, outfd);
     int32_t ret = StartRequest(rawParam);
     DUMPER_HILOGD(MODULE_SERVICE, "leave|ret=%{public}d", ret);
     return ret;
-}
-
-void DumpManagerService::EraseCallback(const sptr<IDumpCallbackBroker> &callback)
-{
-    DUMPER_HILOGD(MODULE_SERVICE, "enter|");
-    unique_lock<mutex> lock(mutex_);
-    for (auto &requestIt : requestRawParamMap_) {
-        if (requestIt.second == nullptr) {
-            continue;
-        }
-        requestIt.second->EraseCallback(callback);
-    }
-    DUMPER_HILOGD(MODULE_SERVICE, "leave|");
 }
 
 std::shared_ptr<DumpEventHandler> DumpManagerService::GetHandler() const
@@ -179,8 +159,7 @@ int DumpManagerService::GetRequestSum()
     return requestRawParamMap_.size();
 }
 
-std::shared_ptr<RawParam> DumpManagerService::AddRequestRawParam(std::vector<std::u16string> &args, int outfd,
-                                                                 const sptr<IDumpCallbackBroker> callback)
+std::shared_ptr<RawParam> DumpManagerService::AddRequestRawParam(std::vector<std::u16string> &args, int outfd)
 {
     unique_lock<mutex> lock(mutex_);
     uint32_t requestId = 0;
@@ -194,7 +173,7 @@ std::shared_ptr<RawParam> DumpManagerService::AddRequestRawParam(std::vector<std
     DUMPER_HILOGD(MODULE_SERVICE, "debug|requestId=%{public}u, calllingUid=%{public}d, calllingPid=%{public}d",
                   requestId, calllingUid, calllingPid);
     std::shared_ptr<RawParam> requestHandle =
-        std::make_shared<RawParam>(calllingUid, calllingPid, requestId, args, outfd, callback);
+        std::make_shared<RawParam>(calllingUid, calllingPid, requestId, args, outfd);
     requestRawParamMap_.insert(std::make_pair(requestId, requestHandle));
     return requestHandle;
 }
@@ -247,23 +226,13 @@ void DumpManagerService::RequestMain(const std::shared_ptr<RawParam> rawParam)
     char **argV = rawParam->GetArgv();
     std::string folder = DumpLogManager::CreateTmpFolder(rawParam->GetRequestId());
     rawParam->SetFolder(folder);
-    uint32_t status;
     if ((argC > 0) && (argV != nullptr)) {
         DUMPER_HILOGD(MODULE_SERVICE, "debug|enter task, argC=%{public}d", argC);
         for (int i = 0; i < argC; i++) {
             DUMPER_HILOGD(MODULE_SERVICE, "debug|argV[%{public}d]=%{public}s", i, argV[i]);
         }
-#ifdef DUMP_TEST_MODE // for mock test
-        if (testMainFunc_ != nullptr) {
-            testMainFunc_(argC, argV, rawParam);
-        }
-#else  // for mock test
         DumpImplement::GetInstance().Main(argC, argV, rawParam);
-#endif // for mock test
         DUMPER_HILOGD(MODULE_SERVICE, "debug|leave task");
-        status = IDumpCallbackBroker::STATUS_DUMP_FINISHED;
-    } else {
-        status = IDumpCallbackBroker::STATUS_DUMP_ERROR;
     }
     DumpLogManager::EraseTmpFolder(rawParam->GetRequestId());
     DumpLogManager::EraseLogs();
