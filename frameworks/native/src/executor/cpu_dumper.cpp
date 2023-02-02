@@ -222,6 +222,9 @@ void CPUDumper::CreateCPUStatString(std::string &str)
         curSpecProc_->totalUsage = curSpecProc_->userSpaceUsage + curSpecProc_->sysSpaceUsage;
     } else {
         for (size_t i = 0; i < curProcs_.size(); i++) {
+            if (curProcs_[i] == nullptr) {
+                continue;
+            }
             std::shared_ptr<ProcInfo> oldProc = GetOldProc(curProcs_[i]->pid);
             if (oldProc) {
                 curProcs_[i]->userSpaceUsage =
