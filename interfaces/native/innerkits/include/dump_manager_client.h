@@ -16,6 +16,7 @@
 #define HIDUMPER_SERVICES_DUMP_MANAGER_CLIENT_H
 #include <string>
 #include <singleton.h>
+#include <iservice_registry.h>
 #include "dump_common_utils.h"
 #include "idump_broker.h"
 #include "idump_callback_broker.h"
@@ -44,6 +45,7 @@ private:
     };
 private:
     void ResetProxy(const wptr<IRemoteObject>& remote);
+    ErrCode OnDemandStart(sptr<ISystemAbilityManager> sam, sptr<IRemoteObject> &remoteObject);
 private:
     sptr<IDumpBroker> proxy_ {nullptr};
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};

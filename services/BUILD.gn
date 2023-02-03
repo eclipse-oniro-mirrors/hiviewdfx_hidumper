@@ -96,7 +96,10 @@ ohos_source_set("zidl_service") {
 }
 
 ohos_source_set("hidumper_client") {
-  sources = [ "native/src/dump_manager_client.cpp" ]
+  sources = [ 
+    "native/src/dump_on_demand_load.cpp",
+    "native/src/dump_manager_client.cpp",
+  ]
 
   configs = [
     "${hidumper_utils_path}:utils_config",
