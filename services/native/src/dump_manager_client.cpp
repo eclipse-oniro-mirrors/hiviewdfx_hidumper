@@ -15,12 +15,17 @@
 #include "dump_manager_client.h"
 #include <iservice_registry.h>
 #include <string_ex.h>
+#include <unistd.h>
 #include "common.h"
 #include "hilog_wrapper.h"
 #include "dump_errors.h"
 #include "inner/dump_service_id.h"
+#include "dump_on_demand_load.h"
 namespace OHOS {
 namespace HiviewDFX {
+static constexpr int32_t SLEEP_DUR = 5 * 1000 * 1000;
+static constexpr int32_t SLEEP_UNIT = 100 * 1000;
+
 DumpManagerClient::DumpManagerClient()
 {
 }
@@ -67,7 +72,10 @@ ErrCode DumpManagerClient::Connect()
     }
     sptr<IRemoteObject> remoteObject = sam->CheckSystemAbility(DFX_SYS_HIDUMPER_ABILITY_ID);
     if (remoteObject == nullptr) {
-        return ERROR_GET_DUMPER_SERVICE;
+        ErrCode retStart = OnDemandStart(sam, remoteObject);
+        if (remoteObject == nullptr || retStart != ERR_OK ) {
+            return ERROR_GET_DUMPER_SERVICE;
+        }
     }
     deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new DumpManagerDeathRecipient());
     if (deathRecipient_ == nullptr) {
@@ -120,6 +128,31 @@ void DumpManagerClient::DumpManagerDeathRecipient::OnRemoteDied(const wptr<IRemo
         return;
     }
     DumpManagerClient::GetInstance().ResetProxy(remote);
+}
+
+ErrCode DumpManagerClient::OnDemandStart(sptr<ISystemAbilityManager> sam, sptr<IRemoteObject> &remoteObject)
+{
+    sptr<OnDemandLoadCallback> loadCallback = new OnDemandLoadCallback();
+    int32_t result = sam->LoadSystemAbility(DFX_SYS_HIDUMPER_ABILITY_ID, loadCallback);
+    if (result != ERR_OK) {
+        DUMPER_HILOGD(MODULE_CLIENT, "debug|systemAbilityId:%{public}d load failed, result code:%{public}d",
+            DFX_SYS_HIDUMPER_ABILITY_ID, result);
+        return ERROR_GET_DUMPER_SERVICE;
+    }
+
+    int32_t loop = SLEEP_DUR / SLEEP_UNIT;
+    while (loop-- > 0) {
+        sptr<IRemoteObject> remoteObj = loadCallback->GetLoadSystemAbilityRemoteObj();
+        if (remoteObj != nullptr) {
+            remoteObject = remoteObj;
+            return ERR_OK;
+        } else {
+            usleep(SLEEP_UNIT);
+        }
+    }
+
+    DUMPER_HILOGD(MODULE_CLIENT, "debug|on demand start fail");
+    return ERROR_GET_DUMPER_SERVICE;
 }
 } // namespace HiviewDFX
 } // namespace OHOS
