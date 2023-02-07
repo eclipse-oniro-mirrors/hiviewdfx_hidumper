@@ -30,13 +30,13 @@ struct CPUInfo {
 };
 
 struct ProcInfo {
-    std::string pid;
-    std::string comm;
     long unsigned uTime;
     long unsigned sTime;
     long unsigned userSpaceUsage;
     long unsigned sysSpaceUsage;
     long unsigned totalUsage;
+    std::string pid;
+    std::string comm;
     std::string minflt;
     std::string majflt;
 };
