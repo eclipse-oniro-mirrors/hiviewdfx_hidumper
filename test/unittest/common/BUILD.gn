@@ -63,9 +63,7 @@ ohos_unittest("HidumperServiceTest") {
     ":module_private_config",
   ]
 
-  deps = [
-    "//third_party/googletest:gtest_main",
-  ]
+  deps = [ "//third_party/googletest:gtest_main" ]
 
   external_deps = [
     "c_utils:utils",
@@ -80,7 +78,7 @@ ohos_unittest("HidumperServiceTest") {
 ohos_unittest("HidumperDumpersTest") {
   module_out_path = module_output_path
 
-  sources = [ "hidumper_dumpers_test.cpp" ]  
+  sources = [ "hidumper_dumpers_test.cpp" ]
 
   configs = [
     "${hidumper_utils_path}:utils_config",
