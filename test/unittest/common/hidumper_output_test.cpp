@@ -307,7 +307,7 @@ HWTEST_F(HidumperOutputTest, HidumperOutputTest007, TestSize.Level3)
 {
     auto parameter = std::make_shared<DumperParameter>();
     std::vector<std::u16string> args;
-    auto reqCtl = std::make_shared<RawParam>(0, 0, 0, args, STDOUT_FILENO, nullptr);
+    auto reqCtl = std::make_shared<RawParam>(0, 0, 0, args, STDOUT_FILENO);
     parameter->setClientCallback(reqCtl);
     auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
     auto fdOutput = make_shared<FDOutput>();

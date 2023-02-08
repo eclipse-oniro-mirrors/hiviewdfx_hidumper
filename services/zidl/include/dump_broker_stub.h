@@ -28,7 +28,6 @@ public:
     int OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 private:
     int32_t RequestFileFdStub(MessageParcel& data, MessageParcel& reply);
-    int32_t RequestFileFdCallbackStub(MessageParcel& data, MessageParcel& reply);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

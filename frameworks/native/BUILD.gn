@@ -96,7 +96,7 @@ ohos_source_set("dump_main") {
 
   deps = [
     "${hidumper_utils_path}:utils",
-    "//third_party/zlib:libz",
+    "//third_party/zlib:shared_libz",
   ]
 
   external_deps = [
@@ -120,7 +120,6 @@ ohos_source_set("dump_main") {
 ohos_shared_library("hidumperclient") {
   install_enable = true
   sources = [
-    "${hidumper_client_path}/native/dump_callback.cpp",
     "${hidumper_client_path}/native/dump_client_main.cpp",
     "dump_utils.cpp",
   ]
