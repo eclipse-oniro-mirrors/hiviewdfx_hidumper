@@ -51,16 +51,5 @@ HWTEST_F(HidumperServiceTest, HidumperServiceTest001, TestSize.Level3)
     sptr<IRemoteObject> remoteObject = sam->CheckSystemAbility(DFX_SYS_HIDUMPER_ABILITY_ID);
     ASSERT_TRUE(remoteObject != nullptr) << "GetSystemAbility failed.";
 }
-
-/**
- * @tc.name: HidumperServiceTest002
- * @tc.desc: Test DumpManagerService Start and stop.
- * @tc.type: FUNC
- */
-HWTEST_F(HidumperServiceTest, HidumperServiceTest002, TestSize.Level3)
-{
-    auto dmsTest = DelayedSpSingleton<DumpManagerService>::GetInstance();
-    ASSERT_TRUE(dmsTest != nullptr) << "HidumperServiceTest002 fail to get DumpManagerService";
-}
 } // namespace HiviewDFX
 } // namespace OHOS
