@@ -63,15 +63,9 @@ ohos_unittest("HidumperServiceTest") {
     ":module_private_config",
   ]
 
-  deps = [
-    "${hidumper_service_path}:hidumper_client",
-    "${hidumper_service_path}:hidumperservice_source",
-    "//third_party/googletest:gtest_main",
-    "//third_party/zlib:libz",
-  ]
+  deps = [ "//third_party/googletest:gtest_main" ]
 
   external_deps = [
-    "access_token:libtoken_setproc",
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
