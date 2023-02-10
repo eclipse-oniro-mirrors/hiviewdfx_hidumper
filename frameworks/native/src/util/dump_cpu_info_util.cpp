@@ -42,6 +42,7 @@ DumpCpuInfoUtil::~DumpCpuInfoUtil()
 void DumpCpuInfoUtil::UpdateCpuInfo()
 {
     DUMPER_HILOGD(MODULE_COMMON, "UpdateCpuInfo debug|");
+    std::unique_lock<std::mutex> lock(mutex_);
     CopyCpuInfo(oldCPUInfo_, curCPUInfo_);
     GetCurCPUInfo(curCPUInfo_);
     oldProcs_.assign(curProcs_.begin(), curProcs_.end());
