@@ -86,17 +86,11 @@ ohos_unittest("HidumperDumpersTest") {
   ]
 
   deps = [
-    "${hidumper_service_path}:hidumper_client",
     "${hidumper_service_path}:hidumperservice_source",
     "//third_party/googletest:gtest_main",
-    "//third_party/zlib:libz",
   ]
 
-  external_deps = [
-    "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
-  ]
+  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
 }
 
 ohos_unittest("HidumperOutputTest") {
@@ -110,7 +104,6 @@ ohos_unittest("HidumperOutputTest") {
   ]
 
   deps = [
-    "${hidumper_service_path}:hidumper_client",
     "${hidumper_service_path}:hidumperservice_source",
     "//third_party/googletest:gtest_main",
     "//third_party/zlib:libz",
@@ -164,16 +157,13 @@ ohos_unittest("MemoryDumperTest") {
   configs = [ ":module_private_config" ]
 
   deps = [
-    "${hidumper_service_path}:hidumper_client",
     "${hidumper_service_path}:hidumperservice_source",
     "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
-    "c_utils:utils",
     "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
   ]
 }
 
@@ -208,7 +198,6 @@ ohos_unittest("HidumperManagerTest") {
   configs = [ ":module_private_config" ]
 
   deps = [
-    "${hidumper_service_path}:hidumper_client",
     "${hidumper_service_path}:hidumperservice_source",
     "//third_party/googletest:gtest_main",
   ]
@@ -216,7 +205,6 @@ ohos_unittest("HidumperManagerTest") {
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
-    "safwk:system_ability_fwk",
   ]
 }
 
