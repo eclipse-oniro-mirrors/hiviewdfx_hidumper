@@ -86,6 +86,7 @@ private:
     std::vector<std::shared_ptr<ProcInfo>> curProcs_;
     std::vector<std::shared_ptr<ProcInfo>> oldProcs_;
     int dumpTimeSec_ = 0;
+    std::mutex mutex_;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
