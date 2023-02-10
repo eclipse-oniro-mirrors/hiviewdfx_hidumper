@@ -163,7 +163,7 @@ ohos_unittest("MemoryDumperTest") {
 
   external_deps = [
     "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
-    "hiviewdfx_hilog_native:libhilog"
+    "hiviewdfx_hilog_native:libhilog",
   ]
 }
 
@@ -204,7 +204,7 @@ ohos_unittest("HidumperManagerTest") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "init:libbegetutil"
+    "init:libbegetutil",
   ]
 }
 
