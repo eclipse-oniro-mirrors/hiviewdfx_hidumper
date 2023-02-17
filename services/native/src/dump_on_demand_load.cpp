@@ -29,8 +29,8 @@ OnDemandLoadCallback::~OnDemandLoadCallback()
 void OnDemandLoadCallback::OnLoadSystemAbilitySuccess(int32_t systemAbilityId, const sptr<IRemoteObject> &remoteObject)
 {
     DUMPER_HILOGD(MODULE_CLIENT,
-            "debug|OnLoadSystemAbilitySuccess systemAbilityId:%{public}d IRemoteObject result:%{public}s",
-            systemAbilityId, ((remoteObject != nullptr) ? "succeed" : "failed"));
+        "debug|OnLoadSystemAbilitySuccess systemAbilityId:%{public}d IRemoteObject result:%{public}s", systemAbilityId,
+        ((remoteObject != nullptr) ? "succeed" : "failed"));
     remoteObjectPtr = remoteObject;
 }
 
