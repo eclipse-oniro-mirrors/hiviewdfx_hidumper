@@ -168,22 +168,11 @@ hidumper可以为开发者导出系统当前基本信息，通过这些基本信
 
 ## 相关仓<a name="section1371113476307"></a>
 
-DFX子系统:
 
-hmf/hiviewdfx
+[DFX子系统](https://gitee.com/openharmony/docs/blob/master/zh-cn/readme/DFX子系统.md)
 
-DFX组件:
+[hiviewdfx_hilog](https://gitee.com/openharmony/hiviewdfx_hilog/blob/master/README_zh.md)
 
-hmf/hiviwdfx/hilog
+[hiviewdfx_faultloggerd](https://gitee.com/openharmony/hiviewdfx_faultloggerd/blob/master/README_zh.md)
 
-hmf/hiviwdfx/hitrace
-
-hmf/hiviwdfx/hicollie
-
-**hmf/hiviwdfx/hidumper**
-
-hmf/hiviwdfx/hiappevent
-
-hmf/hiviwdfx/hisysevent
-
-hmf/hiviwdfx/debug
+[hiviewdfx_hidumper](https://gitee.com/openharmony/hiviewdfx_hidumper/blob/master/README_zh.md)

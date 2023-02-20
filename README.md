@@ -164,22 +164,10 @@ The procedure is as follows:
 
 ## Repositories Involved<a name="section1371113476307"></a>
 
-DFX subsystem:
+[DFX Subsystem](https://gitee.com/openharmony/docs/blob/master/en/readme/dfx.md)
 
-hmf/hiviewdfx
+[hiviewdfx_hilog](https://gitee.com/openharmony/hiviewdfx_hilog/blob/master/README.md)
 
-DFX modules:
+[hiviewdfx_faultloggerd](https://gitee.com/openharmony/hiviewdfx_faultloggerd/blob/master/README.md)
 
-hmf/hiviwdfx/hilog
-
-hmf/hiviwdfx/hitrace
-
-hmf/hiviwdfx/hicollie
-
-**hmf/hiviwdfx/hidumper**
-
-hmf/hiviwdfx/hiappevent
-
-hmf/hiviwdfx/hisysevent
-
-hmf/hiviwdfx/debug
+[hiviewdfx_hidumper](https://gitee.com/openharmony/hiviewdfx_hidumper/blob/master/README.md)
