@@ -168,7 +168,8 @@ hidumper可以为开发者导出系统当前基本信息，通过这些基本信
 
 ## 相关仓<a name="section1371113476307"></a>
 
-DFX子系统:
+
+[DFX子系统](https://gitee.com/openharmony/docs/blob/master/zh-cn/readme/DFX子系统.md)
 
 [hiviewdfx_hilog](https://gitee.com/openharmony/hiviewdfx_hilog/blob/master/README_zh.md)
 

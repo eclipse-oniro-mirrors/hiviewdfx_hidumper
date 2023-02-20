@@ -164,7 +164,7 @@ The procedure is as follows:
 
 ## Repositories Involved<a name="section1371113476307"></a>
 
-DFX subsystem:
+[DFX Subsystem](https://gitee.com/openharmony/docs/blob/master/en/readme/dfx.md)
 
 [hiviewdfx_hilog](https://gitee.com/openharmony/hiviewdfx_hilog/blob/master/README.md)
 
