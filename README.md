@@ -166,20 +166,8 @@ The procedure is as follows:
 
 DFX subsystem:
 
-hmf/hiviewdfx
+[hiviewdfx_hilog](https://gitee.com/openharmony/hiviewdfx_hilog/blob/master/README.md)
 
-DFX modules:
+[hiviewdfx_faultloggerd](https://gitee.com/openharmony/hiviewdfx_faultloggerd/blob/master/README.md)
 
-hmf/hiviwdfx/hilog
-
-hmf/hiviwdfx/hitrace
-
-hmf/hiviwdfx/hicollie
-
-**hmf/hiviwdfx/hidumper**
-
-hmf/hiviwdfx/hiappevent
-
-hmf/hiviwdfx/hisysevent
-
-hmf/hiviwdfx/debug
+[hiviewdfx_hidumper](https://gitee.com/openharmony/hiviewdfx_hidumper/blob/master/README_zh.md)

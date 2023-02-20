@@ -174,16 +174,8 @@ hmf/hiviewdfx
 
 DFX组件:
 
-hmf/hiviwdfx/hilog
+[hiviewdfx_hidumper] (https://gitee.com/openharmony/hiviewdfx_hidumper/blob/master/README_zh.md)
 
-hmf/hiviwdfx/hitrace
+[hiviewdfx_hilog](https://gitee.com/openharmony/hiviewdfx_hilog/blob/master/README_zh.md)
 
-hmf/hiviwdfx/hicollie
-
-**hmf/hiviwdfx/hidumper**
-
-hmf/hiviwdfx/hiappevent
-
-hmf/hiviwdfx/hisysevent
-
-hmf/hiviwdfx/debug
+[hiviewdfx_faultloggerd](https://gitee.com/openharmony/hiviewdfx_faultloggerd/blob/master/README_zh.md)
