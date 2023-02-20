@@ -170,4 +170,12 @@ DFX subsystem:
 
 [hiviewdfx_faultloggerd](https://gitee.com/openharmony/hiviewdfx_faultloggerd/blob/master/README.md)
 
+<<<<<<< Updated upstream
 [hiviewdfx_hidumper](https://gitee.com/openharmony/hiviewdfx_hidumper/blob/master/README_zh.md)
+=======
+<<<<<<< HEAD
+[hiviewdfx_hidumper](https://gitee.com/openharmony/hiviewdfx_hidumper/blob/master/README.md)
+=======
+[hiviewdfx_hidumper](https://gitee.com/openharmony/hiviewdfx_hidumper/blob/master/README_zh.md)
+>>>>>>> 25218e3cc7610f91f93fdeacfd75273b97bedc82
+>>>>>>> Stashed changes

@@ -170,12 +170,23 @@ hidumper可以为开发者导出系统当前基本信息，通过这些基本信
 
 DFX子系统:
 
-hmf/hiviewdfx
+[hiviewdfx_hilog](https://gitee.com/openharmony/hiviewdfx_hilog/blob/master/README_zh.md)
 
-DFX组件:
+[hiviewdfx_faultloggerd](https://gitee.com/openharmony/hiviewdfx_faultloggerd/blob/master/README_zh.md)
 
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+[hiviewdfx_hidumper](https://gitee.com/openharmony/hiviewdfx_hidumper/blob/master/README_zh.md)
+=======
+>>>>>>> Stashed changes
 [hiviewdfx_hidumper] (https://gitee.com/openharmony/hiviewdfx_hidumper/blob/master/README_zh.md)
 
 [hiviewdfx_hilog](https://gitee.com/openharmony/hiviewdfx_hilog/blob/master/README_zh.md)
 
+<<<<<<< Updated upstream
 [hiviewdfx_faultloggerd](https://gitee.com/openharmony/hiviewdfx_faultloggerd/blob/master/README_zh.md)
+=======
+[hiviewdfx_faultloggerd](https://gitee.com/openharmony/hiviewdfx_faultloggerd/blob/master/README_zh.md)
+>>>>>>> 25218e3cc7610f91f93fdeacfd75273b97bedc82
+>>>>>>> Stashed changes
