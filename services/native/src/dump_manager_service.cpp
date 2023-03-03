@@ -30,6 +30,8 @@
 #include "manager/dump_implement.h"
 #include "raw_param.h"
 #include "token_setproc.h"
+#include "accesstoken_kit.h"
+
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
@@ -41,6 +43,18 @@ static const int32_t STOP_WAIT = 3;
 static const int32_t REQUEST_MAX = 2;
 static const uint32_t REQUESTID_MAX = 100000;
 } // namespace
+namespace {
+static const int32_t FD_LOG_NUM = 10;
+std::map<std::string, WpId> g_fdLeakWp {
+    {"eventfd", FDLEAK_WP_EVENTFD},
+    {"eventpoll", FDLEAK_WP_EVENTPOLL},
+    {"sync_file", FDLEAK_WP_SYNCFENCE},
+    {"dmabuf", FDLEAK_WP_DMABUF},
+    {"socket", FDLEAK_WP_SOCKET},
+    {"pipe", FDLEAK_WP_PIPE},
+    {"ashmem", FDLEAK_WP_ASHMEM},
+};
+}
 DumpManagerService::DumpManagerService() : SystemAbility(DFX_SYS_HIDUMPER_ABILITY_ID, true)
 {
 }
@@ -122,6 +136,106 @@ int32_t DumpManagerService::Request(std::vector<std::u16string> &args, int outfd
     const std::shared_ptr<RawParam> rawParam = AddRequestRawParam(args, outfd);
     int32_t ret = StartRequest(rawParam);
     DUMPER_HILOGD(MODULE_SERVICE, "leave|ret=%{public}d", ret);
+    return ret;
+}
+
+// Authenticate dump permissions
+bool DumpManagerService::HasDumpPermission() const
+{
+    uint32_t callingTokenID = IPCSkeleton::GetCallingTokenID();
+    int res = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callingTokenID, "ohos.permission.DUMP");
+    if (res != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
+        DUMPER_HILOGI(MODULE_SERVICE, "No dump permission, please check!");
+        return false;
+    }
+    return true;
+}
+
+uint32_t DumpManagerService::GetFileDescriptorNums(int32_t pid, std::string requestType) const
+{
+    std::string taskPath = "/proc" + std::to_string(pid) + "/" + requestType;
+    std::vector<std::string> fdList = DumpCommonUtils::GetSubNodes(taskPath, true);
+    return fdList.size();
+}
+
+int32_t DumpManagerService::ScanPidOverLimit(std::string requestType, int32_t limitSize, std::vector<int32_t> &pidList)
+{
+    if (!HasDumpPermission()) {
+        return DumpStatus::DUMP_FAIL;
+    }
+    int32_t ret = DumpStatus::DUMP_OK;
+    std::vector<int32_t> pids = DumpCommonUtils::GetAllPids();
+    for (const auto &pid : pids) {
+        uint32_t num = GetFileDescriptorNums(pid, requestType);
+        if (num < limitSize) {
+            continue;
+        }
+        auto it = std::find(pidList.begin(), pidList.end(), pid);
+        if (it != pidList.end()) {
+            continue;
+        }
+        pidList.push_back(pid);
+    }
+    return ret;
+}
+
+std::string DumpManagerService::GetFdLinkNum(const std::string &linkPath) const
+{
+    char linkDest[PATH_MAX] = {0};
+    ssize_t linkDestSize = readlink(linkPath.c_str(), linkDest, sizeof(linkDest) - 1);
+    if (linkDestSize < 0) {
+        return "unknown";
+    }
+    linkDest[linkDestSize] = '\0';
+    return linkDest;
+}
+
+void DumpManagerService::RecordDetailFdInfo(std::string &detailFdInfo, std::string &topLeakedType)
+{
+    if (linkCnt_.size() <= 0) {
+        return;
+    }
+    topLeakedType = linkCnt_[0].first;
+    for (int i = 0; i < linkCnt_.size() && i < FD_LOG_NUM; i++) {
+        detailFdInfo += std::to_string(linkCnt_[i].second) + "\t" + linkCnt_[i].first + "\n";
+    }
+}
+
+int32_t DumpManagerService::CountFdNums(int32_t pid, uint32_t &fdNums,
+    std::string &detailFdInfo, std::string &topLeakedType)
+{
+    if (!HasDumpPermission()) {
+        return DumpStatus::DUMP_FAIL;
+    }
+    // transfor to vector to sort by map value.
+    int32_t ret = DumpStatus::DUMP_OK;
+    std::map<std::string, int64_t> linkNameCnt;
+    linkCnt_.clear();
+    std::string taskPath = "/proc" + std::to_string(pid) + "/fd";
+    std::vector<std::string> fdList = DumpCommonUtils::GetSubNodes(taskPath, true);
+    fdNums = GetFileDescriptorNums(pid, "fd");
+    for (const auto &each : fdList) {
+        std::string linkPath = taskPath + "/" + each;
+        std::string linkName = GetFdLinkNum(linkPath);
+        // we count the fd number by name contained the keywords socket/dmabuf...
+        bool contained = false;
+        for (const auto &fdWp : g_fdLeakWp) {
+            if (linkName.find(fdWp.first) != std::string::npos) {
+                linkNameCnt[fdWp.first]++;
+                contained = true;
+                break;
+            }
+        }
+        if (!contained) {
+            linkNameCnt[linkName]++;
+        }
+    }
+    for (const auto &each : linkNameCnt) {
+        linkCnt_.push_back(each);
+    }
+    std::sort(linkCnt_.begin(), linkCnt_.end(),
+        [](const std::pair<std::string, int> &a, const std::pair<std::string, int> &b) { return a.second > b.second; });
+    RecordDetailFdInfo(detailFdInfo, topLeakedType);
     return ret;
 }
 

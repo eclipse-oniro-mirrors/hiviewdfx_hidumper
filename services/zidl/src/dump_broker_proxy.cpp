@@ -48,5 +48,72 @@ int32_t DumpBrokerProxy::Request(std::vector<std::u16string> &args, int outfd)
     }
     return ret;
 }
+
+int32_t DumpBrokerProxy::ScanPidOverLimit(std::string requestType, int32_t limitSize, std::vector<int32_t> &pidList)
+{
+    int32_t ret = -1;
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        return ret;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(DumpBrokerProxy::GetDescriptor())) {
+        return ret;
+    }
+    data.WriteString(requestType);
+    data.WriteInt32(limitSize);
+    int res = remote->SendRequest(static_cast<int>(IDumpBroker::SCAN_PID_OVER_LIMIT),
+        data, reply, option);
+    if (res != ERR_OK) {
+        DUMPER_HILOGE(MODULE_ZIDL, "send ScanPidOverLimit error code: %{public}d", res);
+        return ret;
+    }
+    if (!reply.ReadInt32Vector(&pidList)) {
+        return ERROR_READ_PARCEL;
+    }
+    if (!reply.ReadInt32(ret)) {
+        return ERROR_READ_PARCEL;
+    }
+    return ret;
+}
+
+int32_t DumpBrokerProxy::CountFdNums(int32_t pid, uint32_t &fdNums,
+    std::string &detailFdInfo, std::string &topLeakedType)
+{
+    int32_t ret = -1;
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        return ret;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(DumpBrokerProxy::GetDescriptor())) {
+        return ret;
+    }
+    data.WriteInt32(pid);
+    int res = remote->SendRequest(static_cast<int>(IDumpBroker::COUNT_FD_NUMS),
+        data, reply, option);
+    if (res != ERR_OK) {
+        DUMPER_HILOGE(MODULE_ZIDL, "send CountFdNums error code: %{public}d", res);
+        return ret;
+    }
+    if (!reply.ReadUint32(fdNums)) {
+        return ERROR_READ_PARCEL;
+    }
+    if (!reply.ReadString(detailFdInfo)) {
+        return ERROR_READ_PARCEL;
+    }
+    if (!reply.ReadString(topLeakedType)) {
+        return ERROR_READ_PARCEL;
+    }
+    if (!reply.ReadInt32(ret)) {
+        return ERROR_READ_PARCEL;
+    }
+    DUMPER_HILOGI(MODULE_ZIDL, "sucess to count fd nums, pid is %{public}d", pid);
+    return ret;
+}
 } // namespace HiviewDFX
 } // namespace OHOS

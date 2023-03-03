@@ -20,6 +20,8 @@
 #include <fstream>
 #include <iostream>
 #include "hilog_wrapper.h"
+#include "sys/stat.h"
+
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
@@ -30,6 +32,76 @@ constexpr int LINE_VALUE = 1;
 constexpr int LINE_VALUE_0 = 0;
 constexpr int UNSET = -1;
 static const std::string CPU_STR = "cpu";
+}
+
+std::vector<std::string> DumpCommonUtils::GetSubNodes(const std::string &path, bool digit)
+{
+    std::vector<std::string> subNodes;
+    auto dir = opendir(path.c_str());
+    if (dir == nullptr) {
+        return subNodes;
+    }
+    for (struct dirent *ent = readdir(dir); ent != nullptr; ent = readdir(dir)) {
+        std::string childNode = ent->d_name;
+        if (childNode == "." || childNode == "..") {
+            continue;
+        }
+        if (digit && !isdigit(childNode[0])) {
+            continue;
+        }
+        subNodes.push_back(childNode);
+    }
+    closedir(dir);
+    return subNodes;
+}
+
+// the parameter of path should be full
+bool DumpCommonUtils::IsDirectory(const std::string &path)
+{
+    struct stat statBuffer;
+    if (stat(path.c_str(), &statBuffer) == 0 && S_ISDIR(statBuffer.st_mode)) {
+        return true;
+    }
+    return false;
+}
+
+std::vector<std::string> DumpCommonUtils::GetSubDir(const std::string &path, bool digit)
+{
+    std::vector<std::string> subDirs;
+    auto dir = opendir(path.c_str());
+    if (dir == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "failed to open dir: %{public}s, errno: %{public}d", path.c_str(), errno);
+        return subDirs;
+    }
+    for (struct dirent* ent = readdir(dir); ent != nullptr; ent = readdir(dir)) {
+        std::string childNode = ent->d_name;
+        if (childNode == "." || childNode == "..") {
+            continue;
+        }
+        if (digit && !isdigit(childNode[0])) {
+            continue;
+        }
+        if (!IsDirectory(path + "/" + childNode)) {
+            continue; // skip directory
+        }
+        subDirs.push_back(childNode);
+    }
+    closedir(dir);
+    return subDirs;
+}
+
+std::vector<int32_t> DumpCommonUtils::GetAllPids()
+{
+    std::string path = "/proc";
+    std::vector<std::string> allPids = GetSubDir(path, true);
+    std::vector<int32_t> pids;
+    for (const auto &pid : allPids) {
+        if (!isdigit(pid[0])) {
+            continue;
+        }
+        pids.push_back(std::stoi(pid));
+    }
+    return pids;
 }
 
 DumpCommonUtils::CpuInfo::CpuInfo()
