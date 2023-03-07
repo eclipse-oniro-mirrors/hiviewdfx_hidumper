@@ -153,7 +153,7 @@ bool DumpManagerService::HasDumpPermission() const
 
 uint32_t DumpManagerService::GetFileDescriptorNums(int32_t pid, std::string requestType) const
 {
-    std::string taskPath = "/proc" + std::to_string(pid) + "/" + requestType;
+    std::string taskPath = "/proc/" + std::to_string(pid) + "/" + requestType;
     std::vector<std::string> fdList = DumpCommonUtils::GetSubNodes(taskPath, true);
     return fdList.size();
 }
@@ -211,7 +211,7 @@ int32_t DumpManagerService::CountFdNums(int32_t pid, uint32_t &fdNums,
     int32_t ret = DumpStatus::DUMP_OK;
     std::map<std::string, int64_t> linkNameCnt;
     linkCnt_.clear();
-    std::string taskPath = "/proc" + std::to_string(pid) + "/fd";
+    std::string taskPath = "/proc/" + std::to_string(pid) + "/fd";
     std::vector<std::string> fdList = DumpCommonUtils::GetSubNodes(taskPath, true);
     fdNums = GetFileDescriptorNums(pid, "fd");
     for (const auto &each : fdList) {
