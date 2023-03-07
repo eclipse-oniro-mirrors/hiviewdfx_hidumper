@@ -38,12 +38,12 @@ public:
         PidInfo();
         void Reset();
     };
-    // get subNodes information by pid
+    // get subNodes information by pid.
     static std::vector<std::string> GetSubNodes(const std::string &path, bool digit);
-    // get subDir information by pid
+    // get subDir information by pid.
     static bool IsDirectory(const std::string &path);
     static std::vector<std::string> GetSubDir(const std::string &path, bool digit);
-    // get all pids in device
+    // get all pids in device.
     static std::vector<int32_t> GetAllPids();
     // get all process information in device.
     static bool GetPidInfos(std::vector<PidInfo> &infos, bool all = false);

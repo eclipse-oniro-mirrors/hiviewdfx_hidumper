@@ -55,7 +55,7 @@ std::vector<std::string> DumpCommonUtils::GetSubNodes(const std::string &path, b
     return subNodes;
 }
 
-// the parameter of path should be full
+// the parameter of path should be full.
 bool DumpCommonUtils::IsDirectory(const std::string &path)
 {
     struct stat statBuffer;
@@ -73,7 +73,7 @@ std::vector<std::string> DumpCommonUtils::GetSubDir(const std::string &path, boo
         DUMPER_HILOGE(MODULE_SERVICE, "failed to open dir: %{public}s, errno: %{public}d", path.c_str(), errno);
         return subDirs;
     }
-    for (struct dirent* ent = readdir(dir); ent != nullptr; ent = readdir(dir)) {
+    for (struct dirent *ent = readdir(dir); ent != nullptr; ent = readdir(dir)) {
         std::string childNode = ent->d_name;
         if (childNode == "." || childNode == "..") {
             continue;

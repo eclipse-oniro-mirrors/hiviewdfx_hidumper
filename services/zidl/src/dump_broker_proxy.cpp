@@ -67,7 +67,7 @@ int32_t DumpBrokerProxy::ScanPidOverLimit(std::string requestType, int32_t limit
     int res = remote->SendRequest(static_cast<int>(IDumpBroker::SCAN_PID_OVER_LIMIT),
         data, reply, option);
     if (res != ERR_OK) {
-        DUMPER_HILOGE(MODULE_ZIDL, "send ScanPidOverLimit error code: %{public}d", res);
+        DUMPER_HILOGE(MODULE_ZIDL, "send ScanPidOverLimit error code: %{public}d.", res);
         return ret;
     }
     if (!reply.ReadInt32Vector(&pidList)) {
@@ -97,7 +97,7 @@ int32_t DumpBrokerProxy::CountFdNums(int32_t pid, uint32_t &fdNums,
     int res = remote->SendRequest(static_cast<int>(IDumpBroker::COUNT_FD_NUMS),
         data, reply, option);
     if (res != ERR_OK) {
-        DUMPER_HILOGE(MODULE_ZIDL, "send CountFdNums error code: %{public}d", res);
+        DUMPER_HILOGE(MODULE_ZIDL, "send CountFdNums error code: %{public}d.", res);
         return ret;
     }
     if (!reply.ReadUint32(fdNums)) {
