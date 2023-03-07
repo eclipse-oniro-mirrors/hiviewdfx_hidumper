@@ -28,6 +28,10 @@ public:
 public:
     // Used for dump request
     int32_t Request(std::vector<std::u16string> &args, int outfd) override;
+    // Used for scan pids list over limit
+    int32_t ScanPidOverLimit(std::string requestType, int32_t limitSize, std::vector<int32_t> &pidList) override;
+    // Used for count fd nums
+    int32_t CountFdNums(int32_t pid, uint32_t &fdNums, std::string &detailFdInfo, std::string &topLeakedType) override;
 private:
     static inline BrokerDelegator<DumpBrokerProxy> delegator_;
 };

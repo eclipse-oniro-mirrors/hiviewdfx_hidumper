@@ -32,6 +32,16 @@ int DumpBrokerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageP
             ret = RequestFileFdStub(data, reply);
             break;
         }
+        case static_cast<int>(IDumpBroker::SCAN_PID_OVER_LIMIT): {
+            DUMPER_HILOGD(MODULE_ZIDL, "debug|ScanPidOverLimitStub");
+            ret = ScanPidOverLimitStub(data, reply);
+            break;
+        }
+        case static_cast<int>(IDumpBroker::COUNT_FD_NUMS): {
+            DUMPER_HILOGD(MODULE_ZIDL, "debug|CountFdNumsStub");
+            ret = CountFdNumsStub(data, reply);
+            break;
+        }
         default: {
             ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
             break;
@@ -50,6 +60,46 @@ int32_t DumpBrokerStub::RequestFileFdStub(MessageParcel& data, MessageParcel& re
     int outfd = data.ReadFileDescriptor();
     int32_t res = Request(args, outfd);
     if (!reply.WriteInt32(res)) {
+        return ERROR_WRITE_PARCEL;
+    }
+    return ret;
+}
+
+int32_t DumpBrokerStub::ScanPidOverLimitStub(MessageParcel& data, MessageParcel& reply)
+{
+    int32_t ret = ERR_OK;
+    std::vector<int32_t> pidList;
+    std::string requestType = data.ReadString();
+    int32_t limitSize = data.ReadInt32();
+    ret = ScanPidOverLimit(requestType, limitSize, pidList);
+    if (!reply.WriteInt32Vector(pidList)) {
+        return ERROR_WRITE_PARCEL;
+    }
+    if (!reply.WriteInt32(ret)) {
+        return ERROR_WRITE_PARCEL;
+    }
+    return ret;
+}
+
+int32_t DumpBrokerStub::CountFdNumsStub(MessageParcel& data, MessageParcel& reply)
+{
+    int32_t ret = ERR_OK;
+    uint32_t fdNums = 0;
+    std::string detailFdInfo;
+    std::string topLeakedType;
+
+    int32_t pid = data.ReadInt32();
+    ret = CountFdNums(pid, fdNums, detailFdInfo, topLeakedType);
+    if (!reply.WriteInt32(fdNums)) {
+        return ERROR_WRITE_PARCEL;
+    }
+    if (!reply.WriteString(detailFdInfo)) {
+        return ERROR_WRITE_PARCEL;
+    }
+    if (!reply.WriteString(topLeakedType)) {
+        return ERROR_WRITE_PARCEL;
+    }
+    if (!reply.WriteInt32(ret)) {
         return ERROR_WRITE_PARCEL;
     }
     return ret;
