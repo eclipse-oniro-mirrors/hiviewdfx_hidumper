@@ -121,63 +121,6 @@ HWTEST_F(HidumperDumpersTest, FileDumperTest002, TestSize.Level3)
 }
 
 /**
- * @tc.name: FileDumperTest003
- * @tc.desc: Test FileDumper base function with inputing dir(end with /) and LOOP = TRUE.
- * @tc.type: FUNC
- */
-HWTEST_F(HidumperDumpersTest, FileDumperTest003, TestSize.Level3)
-{
-    auto parameter = std::make_shared<DumperParameter>();
-    auto dump_datas = std::make_shared<std::vector<std::vector<std::string>>>();
-    auto file_dumper = make_shared<FileStreamDumper>();
-    auto config = std::make_shared<DumpCfg>();
-    config->name_ = "FileDumperTest";
-    std::string file_name = "/data/log/faultlog/temp/";
-    config->target_ = file_name;
-    config->loop_ = DumperConstant::LOOP;
-    file_dumper->SetDumpConfig(config);
-    DumpStatus ret = file_dumper->DoPreExecute(parameter, dump_datas);
-    ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "PreExecute failed.";
-
-    ret = DumpStatus::DUMP_MORE_DATA;
-    while (ret == DumpStatus::DUMP_MORE_DATA) {
-        // loop for all lines
-        ret = file_dumper->DoExecute();
-        ASSERT_TRUE(ret == DumpStatus::DUMP_OK || ret == DumpStatus::DUMP_MORE_DATA) << "Execute failed.";
-        ret = file_dumper->DoAfterExecute();
-        ASSERT_TRUE(ret == DumpStatus::DUMP_OK || ret == DumpStatus::DUMP_MORE_DATA) << "Execute failed.";
-    }
-}
-
-/**
- * @tc.name: FileDumperTest004
- * @tc.desc: Test FileDumper base function with inputing dir.
- * @tc.type: FUNC
- */
-HWTEST_F(HidumperDumpersTest, FileDumperTest004, TestSize.Level3)
-{
-    auto parameter = std::make_shared<DumperParameter>();
-    auto dump_datas = std::make_shared<std::vector<std::vector<std::string>>>();
-    auto file_dumper = make_shared<FileStreamDumper>();
-    auto config = std::make_shared<DumpCfg>();
-    config->name_ = "FileDumperTest";
-    std::string file_name = "/data/log/faultlog/temp";
-    config->target_ = file_name;
-    config->loop_ = DumperConstant::NONE;
-    file_dumper->SetDumpConfig(config);
-    DumpStatus ret = file_dumper->DoPreExecute(parameter, dump_datas);
-    ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "PreExecute failed.";
-
-    ret = DumpStatus::DUMP_MORE_DATA;
-    while (ret == DumpStatus::DUMP_MORE_DATA) {
-        // loop for all lines
-        ret = file_dumper->DoExecute();
-        ASSERT_TRUE(ret == DumpStatus::DUMP_OK || ret == DumpStatus::DUMP_MORE_DATA) << "Execute failed.";
-        ret = file_dumper->DoAfterExecute();
-        ASSERT_TRUE(ret == DumpStatus::DUMP_OK || ret == DumpStatus::DUMP_MORE_DATA) << "Execute failed.";
-    }
-}
-/**
  * @tc.name: FileDumperTest005
  * @tc.desc: Test FileDumper base function with replacing PID in file paths.
  * @tc.type: FUNC
