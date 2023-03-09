@@ -72,7 +72,7 @@ ErrCode DumpManagerClient::Connect()
     sptr<IRemoteObject> remoteObject = sam->CheckSystemAbility(DFX_SYS_HIDUMPER_ABILITY_ID);
     if (remoteObject == nullptr) {
         ErrCode retStart = OnDemandStart(sam, remoteObject);
-        if (remoteObject == nullptr || retStart != ERR_OK ) {
+        if (remoteObject == nullptr || retStart != ERR_OK) {
             return ERROR_GET_DUMPER_SERVICE;
         }
     }
