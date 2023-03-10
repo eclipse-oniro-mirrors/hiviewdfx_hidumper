@@ -113,5 +113,11 @@ bool ParseSmapsInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int 
     DUMPER_HILOGD(MODULE_SERVICE, "ParseSmapsInfo: GetInfo pid:(%d) end,success!\n", pid);
     return true;
 }
+
+bool ParseSmapsInfo::showSmapsData(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &result)
+{
+    printf("ParseSmapsInfo::showSmapsData");
+    return true;
+}
 } // namespace HiviewDFX
 } // namespace OHOS

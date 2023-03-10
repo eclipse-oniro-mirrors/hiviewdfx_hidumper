@@ -12,42 +12,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "executor/memory_dumper.h"
+#include "executor/memory_smap_show_dumper.h"
 #include "dump_common_utils.h"
 
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
-MemoryDumper::MemoryDumper()
+MemorySmapsShowDumper::MemorySmapsShowDumper()
 {
     if (memoryInfo_ == nullptr) {
         memoryInfo_ = std::make_unique<MemoryInfo>();
     }
 }
 
-MemoryDumper::~MemoryDumper()
+MemorySmapsShowDumper::~MemorySmapsShowDumper()
 {
 }
 
-DumpStatus MemoryDumper::PreExecute(const shared_ptr<DumperParameter> &parameter, StringMatrix dumpDatas)
+DumpStatus MemorySmapsShowDumper::PreExecute(const shared_ptr<DumperParameter> &parameter, StringMatrix dumpDatas)
 {
     pid_ = parameter->GetOpts().memPid_;
-    isShowMaps_ = parameter->GetOpts().isShowSmaps_;
-    DUMPER_HILOGD(MODULE_SERVICE, "MemoryDumper pid:%d\n", pid_);
+    DUMPER_HILOGD(MODULE_SERVICE, "MemorySmapsShowDumper pid:%d\n", pid_);
     dumpDatas_ = dumpDatas;
     return DumpStatus::DUMP_OK;
 }
 
-DumpStatus MemoryDumper::Execute()
+DumpStatus MemorySmapsShowDumper::Execute()
 {
     if (dumpDatas_ != nullptr && memoryInfo_ != nullptr) {
         if (pid_ >= 0) {
-            bool isShowMapsFlag = false;
-            if (isShowMaps_) {
-                isShowMapsFlag = memoryInfo_->ShowMemorySmapsByPid(pid_, dumpDatas_);
-            } 
             bool success = memoryInfo_->GetMemoryInfoByPid(pid_, dumpDatas_);
-            if (success || isShowMapsFlag) {
+            if (success) {
                 status_ = DumpStatus::DUMP_OK;
             } else {
                 status_ = DumpStatus::DUMP_FAIL;
@@ -60,7 +55,7 @@ DumpStatus MemoryDumper::Execute()
     return status_;
 }
 
-DumpStatus MemoryDumper::AfterExecute()
+DumpStatus MemorySmapsShowDumper::AfterExecute()
 {
     return status_;
 }

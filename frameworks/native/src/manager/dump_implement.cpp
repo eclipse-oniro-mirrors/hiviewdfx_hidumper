@@ -187,6 +187,7 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
                                               {"storage", no_argument, 0, 0},
                                               {"zip", no_argument, 0, 0},
                                               {"test", no_argument, 0, 0},
+                                              {"mem-smaps", required_argument, 0, 0},
                                               {0, 0, 0, 0}};
         int c = getopt_long(argc, argv, optStr, longOptions, &optionIndex);
         if (c == -1) {
@@ -304,6 +305,8 @@ DumpStatus DumpImplement::ParseLongCmdOption(DumperOpts &opts_, const struct opt
         opts_.path_ = path_;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "test")) {
         opts_.isTest_ = true;
+    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-smaps")) {
+        opts_.isShowSmaps_ = true;
     }
     return DumpStatus::DUMP_OK;
 }

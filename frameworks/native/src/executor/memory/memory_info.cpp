@@ -239,6 +239,19 @@ bool MemoryInfo::GetMemoryInfoByPid(const int &pid, StringMatrix result)
     return true;
 }
 
+bool MemoryInfo::ShowMemorySmapsByPid(const int &pid, StringMatrix result)
+{
+    printf("GetMemoryInfoByPid");
+    printf("GetMemoryInfoByPid pid is :%d\n", pid);
+    GroupMap groupMap;
+    unique_ptr<ParseSmapsInfo> parseSmapsInfo = make_unique<ParseSmapsInfo>();
+    if (!parseSmapsInfo->showSmapsData(MemoryFilter::APPOINT_PID, pid, groupMap)) {
+        DUMPER_HILOGE(MODULE_SERVICE, "parse smaps info fail");
+        return false;
+    }
+    return true;
+}
+
 string MemoryInfo::AddKbUnit(const uint64_t &value) const
 {
     return to_string(value) + MemoryUtil::GetInstance().KB_UNIT_;

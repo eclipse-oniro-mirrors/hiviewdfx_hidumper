@@ -45,6 +45,7 @@ public:
     using MemFun = std::function<void(MemInfoData::MemInfo&, uint64_t)>;
 
     bool GetMemoryInfoByPid(const int &pid, StringMatrix result);
+    bool ShowMemorySmapsByPid(const int &pid, StringMatrix result);
     DumpStatus GetMemoryInfoNoPid(StringMatrix result);
 
 private:

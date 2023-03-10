@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2021 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,31 +12,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PARSE_SMAPS_INFO_H
-#define PARSE_SMAPS_INFO_H
-#include <map>
-#include <string>
+#ifndef MEMORY_SMAPS_SHOW_DUMPER_H
+#define MEMORY_SMAPS_SHOW_DUMPER_H
 #include <vector>
-#include "executor/memory/memory_filter.h"
+#include <string>
+#include <memory>
+#include "hidumper_executor.h"
+#include "executor/memory/memory_info.h"
 namespace OHOS {
 namespace HiviewDFX {
-class ParseSmapsInfo {
+class MemorySmapsShowDumper : public HidumperExecutor {
 public:
-    ParseSmapsInfo();
-    ~ParseSmapsInfo();
+    MemorySmapsShowDumper();
+    ~MemorySmapsShowDumper();
 
     using ValueMap = std::map<std::string, uint64_t>;
     using GroupMap = std::map<std::string, ValueMap>;
 
-    bool GetInfo(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &result);
-    bool showSmapsData(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &result);
+    DumpStatus PreExecute(const std::shared_ptr<DumperParameter> &parameter, StringMatrix dumpDatas) override;
+    DumpStatus Execute() override;
+    DumpStatus AfterExecute() override;
 
 private:
-    std::string memGroup_ = "";
-
-    bool GetValue(const MemoryFilter::MemoryType &memType, const std::string &str, std::string &type, uint64_t &value);
-    bool GetHasPidValue(const std::string &str, std::string &type, uint64_t &value);
-    bool GetNoPidValue(const std::string &str, std::string &type, uint64_t &value);
+    int pid_ = 0;
+    DumpStatus status_ = DUMP_FAIL;
+    StringMatrix dumpDatas_;
+    std::unique_ptr<MemoryInfo> memoryInfo_;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

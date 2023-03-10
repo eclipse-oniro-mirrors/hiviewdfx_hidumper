@@ -62,6 +62,7 @@ void DumperOpts::Reset()
     path_.clear(); // for zip
     isAppendix_ = false;
     isTest_ = false;
+    isShowSmaps_ = false;
 }
 
 DumperOpts& DumperOpts::operator = (const DumperOpts& opts)
@@ -91,6 +92,7 @@ DumperOpts& DumperOpts::operator = (const DumperOpts& opts)
     path_ = opts.path_;
     isAppendix_ = opts.isAppendix_;
     isTest_ = opts.isTest_;
+    isShowSmaps_ = opts.isShowSmaps_;
     return *this;
 }
 
