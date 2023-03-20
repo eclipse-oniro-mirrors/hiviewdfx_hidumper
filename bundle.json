@@ -50,9 +50,19 @@
                       ],
                       "header_base": "//base/hiviewdfx/hidumper/interfaces/innerkits/include/"
                     }
-                  }
+                },
+                {
+                    "name": "//base/hiviewdfx/hidumper/services:hidumper_client",
+                    "header": {
+                      "header_files": [
+                        "idump_broker.h",
+                        "dump_broker_proxy.h"
+                      ],
+                      "header_base": "//base/hiviewdfx/hidumper/interfaces/native/innerkits/include/"
+                    }
+                }
             ],
-            "test": [ 
+            "test": [
                 "//base/hiviewdfx/hidumper/test:unittest",
                 "//base/hiviewdfx/hidumper/test:fuzztest"
             ]
