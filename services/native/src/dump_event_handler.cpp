@@ -44,6 +44,7 @@ void DumpEventHandler::ProcessEvent([[maybe_unused]] const AppExecFwk::InnerEven
     switch (eventId) {
         case MSG_GET_CPU_INFO_ID: {
             DUMPER_HILOGD(MODULE_SERVICE, "MSG_GET_CPU_INFO_ID!");
+            DumpCpuInfoUtil::GetInstance().UpdateCpuInfo();
             break;
         }
         default:
