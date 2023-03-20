@@ -42,10 +42,9 @@ public:
     using ValueMap = std::map<std::string, uint64_t>;
     using GroupMap = std::map<std::string, ValueMap>;
 
-    using MemFun = std::function<void(MemInfoData::MemInfo&, uint64_t)>;
+    using MemFun = std::function<void(MemInfoData::MemInfo&, uint64_t)>;	
 
     bool GetMemoryInfoByPid(const int &pid, StringMatrix result);
-    bool ShowMemorySmapsByPid(const int &pid, StringMatrix result);
     DumpStatus GetMemoryInfoNoPid(StringMatrix result);
 
 private:

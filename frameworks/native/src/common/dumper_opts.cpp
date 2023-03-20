@@ -143,6 +143,9 @@ bool DumperOpts::IsSelectAny() const
     if (isTest_) {
         return true;
     }
+    if (isShowSmaps_) {
+        return true;
+    }
     DUMPER_HILOGD(MODULE_COMMON, "debug|select nothing.");
     return false;
 }

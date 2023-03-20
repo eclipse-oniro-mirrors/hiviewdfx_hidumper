@@ -49,6 +49,7 @@ ohos_source_set("dump_main") {
     "src/executor/memory/get_ram_info.cpp",
     "src/executor/memory/memory_filter.cpp",
     "src/executor/memory/memory_info.cpp",
+    "src/executor/memory/smaps_memory_info.cpp",
     "src/executor/memory/memory_util.cpp",
     "src/executor/memory/parse/parse_meminfo.cpp",
     "src/executor/memory/parse/parse_smaps_info.cpp",

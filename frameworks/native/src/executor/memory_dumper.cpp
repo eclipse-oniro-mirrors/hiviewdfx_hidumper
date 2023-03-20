@@ -23,6 +23,9 @@ MemoryDumper::MemoryDumper()
     if (memoryInfo_ == nullptr) {
         memoryInfo_ = std::make_unique<MemoryInfo>();
     }
+	if (smapsMemoryInfo_ == nullptr) {
+        smapsMemoryInfo_ = std::make_unique<SmapsMemoryInfo>();
+    }
 }
 
 MemoryDumper::~MemoryDumper()
@@ -33,7 +36,8 @@ DumpStatus MemoryDumper::PreExecute(const shared_ptr<DumperParameter> &parameter
 {
     pid_ = parameter->GetOpts().memPid_;
     isShowMaps_ = parameter->GetOpts().isShowSmaps_;
-    DUMPER_HILOGD(MODULE_SERVICE, "MemoryDumper pid:%d\n", pid_);
+    DUMPER_HILOGI(MODULE_SERVICE, "MemoryDumper pid:%{public}d\n", pid_);
+    DUMPER_HILOGI(MODULE_SERVICE, "MemoryDumper isShowMapsvalue is:%{public}d\n", isShowMaps_);
     dumpDatas_ = dumpDatas;
     return DumpStatus::DUMP_OK;
 }
@@ -44,10 +48,17 @@ DumpStatus MemoryDumper::Execute()
         if (pid_ >= 0) {
             bool isShowMapsFlag = false;
             if (isShowMaps_) {
-                isShowMapsFlag = memoryInfo_->ShowMemorySmapsByPid(pid_, dumpDatas_);
+                DUMPER_HILOGI(MODULE_SERVICE, "isShowMaps is true");
+                isShowMapsFlag = smapsMemoryInfo_->ShowMemorySmapsByPid(pid_, dumpDatas_);
+				if (isShowMapsFlag) {
+					status_ = DumpStatus::DUMP_OK;
+				} else {
+					status_ = DumpStatus::DUMP_FAIL;
+				}
+				return status_;	
             } 
             bool success = memoryInfo_->GetMemoryInfoByPid(pid_, dumpDatas_);
-            if (success || isShowMapsFlag) {
+            if (success) {
                 status_ = DumpStatus::DUMP_OK;
             } else {
                 status_ = DumpStatus::DUMP_FAIL;
@@ -56,7 +67,7 @@ DumpStatus MemoryDumper::Execute()
             status_ = memoryInfo_->GetMemoryInfoNoPid(dumpDatas_);
         }
     }
-
+    DUMPER_HILOGI(MODULE_SERVICE, "MemoryDumper status is :%{public}d\n", status_);
     return status_;
 }
 

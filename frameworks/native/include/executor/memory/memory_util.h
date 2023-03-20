@@ -37,11 +37,13 @@ public:
     uint64_t BYTE_TO_KB_ = 1024;
 
     void CalcGroup(const std::string &group, const std::string &type, const uint64_t &value, GroupMap &infos);
+	void CalcSmapsGroup(const std::string &group, const std::string &type, const uint64_t &value, GroupMap &infos);
     bool RunCMD(const std::string &cmd, std::vector<std::string> &result);
     size_t GetMaxThreadNum(const size_t &threadNum);
     bool IsNameLine(const std::string &str, std::string &name, uint64_t &iNode);
     bool GetTypeValue(const std::string &str, const std::vector<std::string> &tag, std::string &type, uint64_t &value);
     void InitMemInfo(MemInfoData::MemInfo &memInfo);
+	void InitMemSmapsInfo(MemInfoData::MemSmapsInfo &memInfo);
     void InitMemUsage(MemInfoData::MemUsage &usage);
     void InitGraphicsMemory(MemInfoData::GraphicsMemory &graphicsMemory);
     bool GetTypeAndValue(const std::string &str, std::string &type, uint64_t &value);

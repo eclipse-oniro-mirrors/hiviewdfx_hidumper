@@ -35,6 +35,21 @@ public:
         uint64_t swapPss;
     };
 
+	 struct MemSmapsInfo {
+        uint64_t rss;
+        uint64_t pss;
+        uint64_t sharedClean;
+        uint64_t sharedDirty;
+        uint64_t privateClean;
+        uint64_t privateDirty;
+        uint64_t swap;
+        uint64_t swapPss;
+		std::string name;
+		uint64_t size;
+		uint64_t counts;
+    };
+
+
     struct MemUsage {
         uint64_t vss;
         uint64_t rss;

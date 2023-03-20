@@ -138,10 +138,12 @@ DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<Dumpe
     }
     DumperOpts opts;
     DumpStatus status = CmdParseWithParameter(dumpParameter, argc, argv, opts);
+    DUMPER_HILOGI(MODULE_SERVICE, "opts is showmapsFlag: %{public}d\n",opts.isShowSmaps_);
     if (status != DumpStatus::DUMP_OK) {
         return status;
     }
     if (!opts.IsSelectAny()) {
+         DUMPER_HILOGI(MODULE_SERVICE, "hidumper is not select");
         // 注：hidumper不添加任何参数时，dump全部内容；IPC方式dump时，仅dump 当前进程的CPU和memory情况
         int clientPid = dumpParameter->GetPid(); // to be set value
         if (IsHidumperClientProcess(clientPid)) {
@@ -156,6 +158,8 @@ DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<Dumpe
         }
         dumpParameter->SetPid(clientPid);
     }
+
+    DUMPER_HILOGI(MODULE_SERVICE, "opts memPid_ is:%{public}d\n", opts.memPid_);
     dumpParameter->SetOpts(opts);
     return DumpStatus::DUMP_OK;
 }
@@ -307,6 +311,7 @@ DumpStatus DumpImplement::ParseLongCmdOption(DumperOpts &opts_, const struct opt
         opts_.isTest_ = true;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-smaps")) {
         opts_.isShowSmaps_ = true;
+        opts_.memPid_ = std::stoi(argv[2]);
     }
     return DumpStatus::DUMP_OK;
 }

@@ -82,6 +82,33 @@ void MemoryUtil::CalcGroup(const string &group, const string &type, const uint64
     }
 }
 
+void MemoryUtil::CalcSmapsGroup(const string &group, const string &type, const uint64_t &value, GroupMap &infos)
+{
+	DUMPER_HILOGI(MODULE_SERVICE, "CalcSmapsGroup group is:%{public}s", group.c_str());
+    if (infos.find(group) == infos.end()) {
+        map<string, uint64_t> valueMap;
+        valueMap.insert(pair<string, uint64_t>(type, value));
+        infos.insert(pair<string, map<string, uint64_t>>(group, valueMap));
+    } else {
+        if (infos[group].find(type) == infos[group].end()) {
+            infos[group].insert(pair<string, uint64_t>(type, value));
+        } else {
+            infos[group][type] += value;
+        }
+    }
+    DUMPER_HILOGI(MODULE_SERVICE, "strat bianli infos");
+    for (auto it = infos.begin(); it != infos.end(); it++) {
+        DUMPER_HILOGI(MODULE_SERVICE, "info key is:%{public}s",
+                      it->first.c_str());
+        for (auto i = it->second.begin(); i != it->second.end(); i++) {
+            DUMPER_HILOGI(MODULE_SERVICE, "key is:%{public}s",
+                          i->first.c_str());
+            DUMPER_HILOGI(MODULE_SERVICE, "value is:%{public}llu", i->second);
+        }
+    }
+}
+
+
 bool MemoryUtil::RunCMD(const string &cmd, vector<string> &result)
 {
     FILE* fp = popen(("/system/bin/" + cmd).c_str(), "r");
@@ -128,6 +155,23 @@ void MemoryUtil::InitMemInfo(MemInfoData::MemInfo &memInfo)
     memInfo.swapPss = 0;
 }
 
+
+void MemoryUtil::InitMemSmapsInfo(MemInfoData::MemSmapsInfo &memInfo)
+{
+    memInfo.rss = 0;
+    memInfo.pss = 0;
+    memInfo.sharedClean = 0;
+    memInfo.sharedDirty = 0;
+    memInfo.privateClean = 0;
+    memInfo.privateDirty = 0;
+    memInfo.swap = 0;
+    memInfo.swapPss = 0;
+	memInfo.name = "";
+	memInfo.size = 0;
+	memInfo.counts = 0;
+}
+
+
 void MemoryUtil::InitMemUsage(MemInfoData::MemUsage &usage)
 {
     usage.vss = 0;
@@ -153,6 +197,8 @@ bool MemoryUtil::GetTypeAndValue(const string &str, string &type, uint64_t &valu
         string valueStr = str.substr(typePos + 1);
         const int base = 10;
         value = strtoull(valueStr.c_str(), nullptr, base);
+		DUMPER_HILOGI(MODULE_SERVICE, "GetTypeAndValue type is :%{public}s", type.c_str());
+		DUMPER_HILOGI(MODULE_SERVICE, "GetTypeAndValue value is :%{public}llu", value);
         return true;
     }
     return false;

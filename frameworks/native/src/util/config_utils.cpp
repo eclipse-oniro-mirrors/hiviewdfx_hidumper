@@ -81,6 +81,7 @@ DumpStatus ConfigUtils::GetDumperConfigs()
     HandleDumpCpuFreq(dumpCfgs);  // cpuid
     HandleDumpCpuUsage(dumpCfgs); // pid
     HandleDumpMem(dumpCfgs);
+    HandleDumpMemShowMaps(dumpCfgs);
     HandleDumpLog(dumpCfgs);
     HandleDumpStorage(dumpCfgs);
     HandleDumpNet(dumpCfgs);
@@ -344,6 +345,32 @@ bool ConfigUtils::HandleDumpMem(std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs)
     }
 
     DUMPER_HILOGD(MODULE_COMMON, "debug|mem");
+    currentPidInfo_.Reset();
+    currentPidInfos_.clear();
+    MergePidInfos(currentPidInfos_, dumperOpts.memPid_);
+
+    std::shared_ptr<OptionArgs> args;
+    GetConfig(CONFIG_GROUP_MEMORY, dumpCfgs, args);
+
+    currentPidInfos_.clear();
+    currentPidInfo_.Reset();
+    return true;
+}
+
+bool ConfigUtils::HandleDumpMemShowMaps(std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs)
+{
+    const DumperOpts &dumperOpts = dumperParam_->GetOpts();
+    if (!dumperOpts.isShowSmaps_) {
+        return false;
+    }
+
+    DUMPER_HILOGD(MODULE_COMMON, "debug|isDumpSystem=%{public}d, memPid=%{public}d",
+        isDumpSystemSystem, dumperOpts.memPid_);
+    if (isDumpSystemSystem && (dumperOpts.memPid_ < 0)) {
+        return false;
+    }
+
+    DUMPER_HILOGD(MODULE_COMMON, "debug|mem-smaps");
     currentPidInfo_.Reset();
     currentPidInfos_.clear();
     MergePidInfos(currentPidInfos_, dumperOpts.memPid_);

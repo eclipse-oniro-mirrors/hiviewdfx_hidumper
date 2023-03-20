@@ -195,7 +195,9 @@ bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &gra
         std::vector<MemoryRecord> records;
         if (memtrack->GetDevMem(pid, memTrackerType.first, records) == HDF_SUCCESS) {
             uint64_t value = 0;
+			int count = 0;
             for (const auto &record : records) {
+				DUMPER_HILOGE(MODULE_SERVICE, "memtrack:\trecords[%d], flag=%d, size=%1lld \n",count++, record.flags, (long long)record.size);
                 if ((static_cast<uint32_t>(record.flags) & FLAG_UNMAPPED) == FLAG_UNMAPPED) {
                     value = static_cast<uint64_t>(record.size / BYTE_PER_KB);
                     break;
@@ -236,19 +238,6 @@ bool MemoryInfo::GetMemoryInfoByPid(const int &pid, StringMatrix result)
     }
     BuildResult(groupMap, result);
     CalcGroup(groupMap, result);
-    return true;
-}
-
-bool MemoryInfo::ShowMemorySmapsByPid(const int &pid, StringMatrix result)
-{
-    printf("GetMemoryInfoByPid");
-    printf("GetMemoryInfoByPid pid is :%d\n", pid);
-    GroupMap groupMap;
-    unique_ptr<ParseSmapsInfo> parseSmapsInfo = make_unique<ParseSmapsInfo>();
-    if (!parseSmapsInfo->showSmapsData(MemoryFilter::APPOINT_PID, pid, groupMap)) {
-        DUMPER_HILOGE(MODULE_SERVICE, "parse smaps info fail");
-        return false;
-    }
     return true;
 }
 
