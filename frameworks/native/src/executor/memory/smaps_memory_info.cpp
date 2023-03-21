@@ -132,7 +132,7 @@ void SmapsMemoryInfo::insertSmapsTitle(StringMatrix result)
 }
 
 void SmapsMemoryInfo::BuildSmapsResult(const GroupMap &infos, StringMatrix result)
-{
+{ 
     insertSmapsTitle(result);
     for (const auto &info : infos) {
         vector<string> tempResult;
@@ -141,13 +141,14 @@ void SmapsMemoryInfo::BuildSmapsResult(const GroupMap &infos, StringMatrix resul
             auto it = valueMap.find(tag);
             string value = "0";
             if (it != valueMap.end()) {
-				if (StringUtils::GetInstance().IsSameStr(tag, "Name")) {
-					value = info.first;
-				} else {
-					value = to_string(it->second);
-				}
+                value = StringUtils::GetInstance().IsSameStr(tag, "Name") ? info.first : to_string(it->second);
             }
-            StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, value);
+            if (StringUtils::GetInstance().IsSameStr(tag, "Name")) {
+				DUMPER_HILOGI(MODULE_SERVICE, "tag is Name");
+				StringUtils::GetInstance().SetWidth(60, BLANK_, false, value);
+			} else {
+				StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, value);
+			}
             tempResult.push_back(value);
         }
         result->push_back(tempResult);
