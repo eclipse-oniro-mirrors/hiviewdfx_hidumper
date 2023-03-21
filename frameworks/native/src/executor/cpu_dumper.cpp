@@ -77,7 +77,6 @@ DumpStatus CPUDumper::AfterExecute()
 
 DumpStatus CPUDumper::DumpCpuUsageData()
 {
-    DumpCpuInfoUtil::GetInstance().UpdateCpuInfo();
     GetDateAndTime(startTime_);
     if (!DumpCpuInfoUtil::GetInstance().GetCurCPUInfo(curCPUInfo_)) {
         DUMPER_HILOGE(MODULE_COMMON, "Get current cpu info failed!.");
@@ -125,6 +124,7 @@ DumpStatus CPUDumper::DumpCpuUsageData()
     AddStrLineToDumpInfo(cpuStatStr);
 
     DumpProcInfo();
+    DumpCpuInfoUtil::GetInstance().UpdateCpuInfo();
     return DumpStatus::DUMP_OK;
 }
 
