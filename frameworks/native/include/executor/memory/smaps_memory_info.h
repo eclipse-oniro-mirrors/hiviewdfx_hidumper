@@ -46,7 +46,7 @@ public:
     using StringMatrix = std::shared_ptr<std::vector<std::vector<std::string>>>;
     using ValueMap = std::map<std::string, uint64_t>;
     using GroupMap = std::map<std::string, ValueMap>;
-	using MemSmapsFun = std::function<void(MemInfoData::MemSmapsInfo&, uint64_t)>;
+    using MemSmapsFun = std::function<void(MemInfoData::MemSmapsInfo&, uint64_t)>;
     bool ShowMemorySmapsByPid(const int &pid, StringMatrix result);
 
 private:
@@ -58,6 +58,7 @@ private:
     };
 
     const int LINE_WIDTH_ = 14;
+    const int LINE_NAME_WIDTH_ = 60;
     const size_t TYPE_SIZE = 2;
     const char SEPARATOR_ = '-';
     const char BLANK_ = ' ';
@@ -66,13 +67,12 @@ private:
     const static int BYTE_PER_KB = 1024;
     std::future<GroupMap> fut_;
     std::vector<int> pids_;
-	std::vector<std::pair<std::string, MemSmapsFun>> sMapsMethodVec_;
-	void insertSmapsTitle(StringMatrix result);
-	void BuildSmapsResult(const GroupMap &infos, StringMatrix result);
-	void CalcSmapsGroup(const GroupMap &infos, StringMatrix result, MemInfoData::MemSmapsInfo &memSmapsInfo);
+    std::vector<std::pair<std::string, MemSmapsFun>> sMapsMethodVec_;
+    void insertSmapsTitle(StringMatrix result);
+    void BuildSmapsResult(const GroupMap &infos, StringMatrix result);
+    void CalcSmapsGroup(const GroupMap &infos, StringMatrix result, MemInfoData::MemSmapsInfo &memSmapsInfo);
     void SetValue(const std::string &value, std::vector<std::string> &lines, std::vector<std::string> &values);
     static bool GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory);
-	//void SetRss(MemInfoData::MemSmapsInfo &smapsMeminfo, uint64_t value);
     void SetPss(MemInfoData::MemSmapsInfo &meminfo, uint64_t value);
     void SetSharedClean(MemInfoData::MemSmapsInfo &meminfo, uint64_t value);
     void SetSharedDirty(MemInfoData::MemSmapsInfo &meminfo, uint64_t value);

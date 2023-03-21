@@ -41,7 +41,7 @@ private:
     DumpStatus status_ = DUMP_FAIL;
     StringMatrix dumpDatas_;
     std::unique_ptr<MemoryInfo> memoryInfo_;
-	std::unique_ptr<SmapsMemoryInfo> smapsMemoryInfo_;
+    std::unique_ptr<SmapsMemoryInfo> smapsMemoryInfo_;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

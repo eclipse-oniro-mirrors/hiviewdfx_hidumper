@@ -40,7 +40,7 @@ private:
     bool GetSmapsValue(const MemoryFilter::MemoryType &memType, const std::string &str, std::string &type,
     uint64_t &value);
     bool GetHasPidValue(const std::string &str, std::string &type, uint64_t &value);
-	bool GetSmapsValueByPid(const std::string &str, std::string &type, uint64_t &value);
+    bool GetSmapsValueByPid(const std::string &str, std::string &type, uint64_t &value);
     bool GetNoPidValue(const std::string &str, std::string &type, uint64_t &value);
 };
 } // namespace HiviewDFX

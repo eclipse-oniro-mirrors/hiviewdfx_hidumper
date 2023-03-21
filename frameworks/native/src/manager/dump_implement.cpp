@@ -39,6 +39,10 @@
 #include "securec.h"
 namespace OHOS {
 namespace HiviewDFX {
+namespace {
+constexpr int TWO_PARAM = 2;
+} // namespace
+
 DumpImplement::DumpImplement()
 {
     AddExecutorFactoryToMap();
@@ -138,7 +142,7 @@ DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<Dumpe
     }
     DumperOpts opts;
     DumpStatus status = CmdParseWithParameter(dumpParameter, argc, argv, opts);
-    DUMPER_HILOGI(MODULE_SERVICE, "opts is showmapsFlag: %{public}d\n",opts.isShowSmaps_);
+    DUMPER_HILOGI(MODULE_SERVICE, "opts is showmapsFlag: %{public}d\n", opts.isShowSmaps_);
     if (status != DumpStatus::DUMP_OK) {
         return status;
     }
@@ -311,7 +315,7 @@ DumpStatus DumpImplement::ParseLongCmdOption(DumperOpts &opts_, const struct opt
         opts_.isTest_ = true;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-smaps")) {
         opts_.isShowSmaps_ = true;
-        opts_.memPid_ = std::stoi(argv[2]);
+        opts_.memPid_ = std::stoi(argv[TWO_PARAM]);
     }
     return DumpStatus::DUMP_OK;
 }

@@ -51,8 +51,8 @@ DumpStatus MemoryDumper::Execute()
                 DUMPER_HILOGI(MODULE_SERVICE, "isShowMaps is true");
                 isShowMapsFlag = smapsMemoryInfo_->ShowMemorySmapsByPid(pid_, dumpDatas_);
                 status_ = isShowMapsFlag ? DumpStatus::DUMP_OK : DumpStatus::DUMP_FAIL;
-				return status_;	
-            } 
+				return status_;
+            }
             bool success = memoryInfo_->GetMemoryInfoByPid(pid_, dumpDatas_);
             if (success) {
                 status_ = DumpStatus::DUMP_OK;

@@ -19,7 +19,7 @@
 #include <numeric>
 #include <thread>
 #include <v1_0/imemory_tracker_interface.h>
-#include <string.h>
+#include <cstring>
 
 #include "dump_common_utils.h"
 #include "executor/memory/get_cma_info.h"
@@ -111,19 +111,18 @@ void SmapsMemoryInfo::insertSmapsTitle(StringMatrix result)
             line4.push_back(separator);
         } else {
             string title = types.at(0);
-            StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, title);
+			StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, true, title);
             line1.push_back(space);
             line2.push_back(title);
-            title = TrimStr(title);
-            DUMPER_HILOGI(MODULE_SERVICE, "title is :%{public}s", title.c_str());
-            if ((!title.empty()) && (StringUtils::GetInstance().IsSameStr(title, "Name")
-				|| StringUtils::GetInstance().IsSameStr(title, "Counts"))) {
-				line3.push_back(space);
-            } else {
-				line3.push_back(unit);
-            }
+			title = TrimStr(title);
+		    if (StringUtils::GetInstance().IsSameStr(title, "Name")
+				|| StringUtils::GetInstance().IsSameStr(title, "Counts")) {
+			    line3.push_back(space);
+		    } else {
+			    line3.push_back(unit);
+			}
             line4.push_back(separator);
-		}			
+		}		
     }
     result->push_back(line1);
     result->push_back(line2);
@@ -132,7 +131,7 @@ void SmapsMemoryInfo::insertSmapsTitle(StringMatrix result)
 }
 
 void SmapsMemoryInfo::BuildSmapsResult(const GroupMap &infos, StringMatrix result)
-{ 
+{
     insertSmapsTitle(result);
     for (const auto &info : infos) {
         vector<string> tempResult;
@@ -144,11 +143,11 @@ void SmapsMemoryInfo::BuildSmapsResult(const GroupMap &infos, StringMatrix resul
                 value = StringUtils::GetInstance().IsSameStr(tag, "Name") ? info.first : to_string(it->second);
             }
             if (StringUtils::GetInstance().IsSameStr(tag, "Name")) {
-				DUMPER_HILOGI(MODULE_SERVICE, "tag is Name");
-				StringUtils::GetInstance().SetWidth(60, BLANK_, false, value);
-			} else {
-				StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, value);
-			}
+                DUMPER_HILOGI(MODULE_SERVICE, "tag is Name");
+                StringUtils::GetInstance().SetWidth(LINE_NAME_WIDTH_, BLANK_, false, value);
+            } else {
+                StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, value);
+            }
             tempResult.push_back(value);
         }
         result->push_back(tempResult);
@@ -169,15 +168,12 @@ void SmapsMemoryInfo::SetValue(const string &value, vector<string> &lines, vecto
 void SmapsMemoryInfo::CalcSmapsGroup(const GroupMap &infos, StringMatrix result,
                                      MemInfoData::MemSmapsInfo &memSmapsInfo)
 {
-    for (const auto &info : infos)
-    {
+    for (const auto &info : infos) {
         DUMPER_HILOGI(MODULE_SERVICE, "CalcSmapsGroup infos first:%{public}s", info.first.c_str());
         auto &valueMap = info.second;
-        for (const auto &method : sMapsMethodVec_)
-        {
+        for (const auto &method : sMapsMethodVec_) {
             auto it = valueMap.find(method.first);
-            if (it != valueMap.end())
-            { 
+            if (it != valueMap.end()) {
                 method.second(memSmapsInfo, it->second);
             }
         }
@@ -195,7 +191,7 @@ void SmapsMemoryInfo::CalcSmapsGroup(const GroupMap &infos, StringMatrix result,
     SetValue(to_string(memSmapsInfo.swap), lines, values);
     SetValue(to_string(memSmapsInfo.swapPss), lines, values);
     SetValue(to_string(memSmapsInfo.counts), lines, values);
-	SetValue("Summary", lines, values);
+    SetValue("Summary", lines, values);
 
     result->push_back(lines);
     result->push_back(values);
@@ -237,14 +233,14 @@ bool SmapsMemoryInfo::ShowMemorySmapsByPid(const int &pid, StringMatrix result)
     DUMPER_HILOGI(MODULE_SERVICE, "GetMemoryInfoByPid");
     DUMPER_HILOGI(MODULE_SERVICE, "GetMemoryInfoByPid pid is :%{public}d\n", pid);
     GroupMap groupMap;
-	MemInfoData::MemSmapsInfo memSmapsinfo;
-	MemoryUtil::GetInstance().InitMemSmapsInfo(memSmapsinfo);
+    MemInfoData::MemSmapsInfo memSmapsinfo;
+    MemoryUtil::GetInstance().InitMemSmapsInfo(memSmapsinfo);
     unique_ptr<ParseSmapsInfo> parseSmapsInfo = make_unique<ParseSmapsInfo>();
     if (!parseSmapsInfo->ShowSmapsData(MemoryFilter::APPOINT_PID, pid, groupMap, memSmapsinfo)) {
         DUMPER_HILOGE(MODULE_SERVICE, "parse smaps info fail");
         return false;
     }
-	MemInfoData::GraphicsMemory graphicsMemory;
+    MemInfoData::GraphicsMemory graphicsMemory;
     MemoryUtil::GetInstance().InitGraphicsMemory(graphicsMemory);
     if (GetGraphicsMemory(pid, graphicsMemory)) {
         map<string, uint64_t> valueMap;
