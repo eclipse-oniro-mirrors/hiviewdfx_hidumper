@@ -30,13 +30,15 @@ public:
     using GroupMap = std::map<std::string, ValueMap>;
 
     bool GetInfo(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &result);
-    bool ShowSmapsData(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &result, MemInfoData::MemSmapsInfo &memSmapsInfo);
+    bool ShowSmapsData(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &result,
+    MemInfoData::MemSmapsInfo &memSmapsInfo);
 
 private:
     std::string memGroup_ = "";
 
     bool GetValue(const MemoryFilter::MemoryType &memType, const std::string &str, std::string &type, uint64_t &value);
-    bool GetSmapsValue(const MemoryFilter::MemoryType &memType, const std::string &str, std::string &type, uint64_t &value);
+    bool GetSmapsValue(const MemoryFilter::MemoryType &memType, const std::string &str, std::string &type,
+    uint64_t &value);
     bool GetHasPidValue(const std::string &str, std::string &type, uint64_t &value);
 	bool GetSmapsValueByPid(const std::string &str, std::string &type, uint64_t &value);
     bool GetNoPidValue(const std::string &str, std::string &type, uint64_t &value);

@@ -16,7 +16,7 @@
 #define SMAPS_MEMORY_INFO_H
 #include <map>
 #include <memory>
-#include <future>    
+#include <future>
 #include <string>
 #include <vector>
 #include "executor/memory/parse/meminfo_data.h"
@@ -46,10 +46,7 @@ public:
     using StringMatrix = std::shared_ptr<std::vector<std::vector<std::string>>>;
     using ValueMap = std::map<std::string, uint64_t>;
     using GroupMap = std::map<std::string, ValueMap>;
-	using MemNameMap = std::map<std::string, std::string>;
-	using MemCountsMap = std::map<std::string, uint64_t>;
-	using TmpGroupMap = std::map<std::string, MemNameMap>;
-	using MemSmapsFun = std::function<void(MemInfoData::MemSmapsInfo&, uint64_t)>;	
+	using MemSmapsFun = std::function<void(MemInfoData::MemSmapsInfo&, uint64_t)>;
     bool ShowMemorySmapsByPid(const int &pid, StringMatrix result);
 
 private:
@@ -66,10 +63,10 @@ private:
     const char BLANK_ = ' ';
     const static int NAME_SIZE_ = 2;
     const static int VSS_BIT = 4;
-    const static int BYTE_PER_KB = 1024; 
+    const static int BYTE_PER_KB = 1024;
     std::future<GroupMap> fut_;
     std::vector<int> pids_;
-	std::vector<std::pair<std::string, MemSmapsFun>> sMapsMethodVec_;	
+	std::vector<std::pair<std::string, MemSmapsFun>> sMapsMethodVec_;
 	void insertSmapsTitle(StringMatrix result);
 	void BuildSmapsResult(const GroupMap &infos, StringMatrix result);
 	void CalcSmapsGroup(const GroupMap &infos, StringMatrix result, MemInfoData::MemSmapsInfo &memSmapsInfo);

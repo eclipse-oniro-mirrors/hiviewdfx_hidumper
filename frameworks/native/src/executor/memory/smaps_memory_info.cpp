@@ -46,8 +46,6 @@ namespace HiviewDFX {
 SmapsMemoryInfo::SmapsMemoryInfo()
 {
     sMapsMethodVec_.clear();
-	//sMapsMethodVec_.push_back(make_pair(SMAPS_MEMINFO_RSS,
-      //  bind(&SmapsMemoryInfo::SetSmapsRss, this, placeholders::_1, placeholders::_2)));
     sMapsMethodVec_.push_back(make_pair(SMAPS_MEMINFO_PSS,
         bind(&SmapsMemoryInfo::SetPss, this, placeholders::_1, placeholders::_2)));
     sMapsMethodVec_.push_back(make_pair(SMAPS_MEMINFO_SHARED_CLEAN,
@@ -61,18 +59,16 @@ SmapsMemoryInfo::SmapsMemoryInfo()
     sMapsMethodVec_.push_back(make_pair(SMAPS_MEMINFO_SWAP,
         bind(&SmapsMemoryInfo::SetSwap, this, placeholders::_1, placeholders::_2)));
     sMapsMethodVec_.push_back(make_pair(SMAPS_MEMINFO_SWAP_PSS,
-        bind(&SmapsMemoryInfo::SetSwapPss, this, placeholders::_1, placeholders::_2)));   
-	sMapsMethodVec_.push_back(make_pair(SMAPS_MEMINFO_SIZE,
-        bind(&SmapsMemoryInfo::SetSize, this, placeholders::_1, placeholders::_2)));   
-	sMapsMethodVec_.push_back(make_pair(SMAPS_MEMINFO_COUNTS,
-        bind(&SmapsMemoryInfo::SetCounts, this, placeholders::_1, placeholders::_2))); 
+        bind(&SmapsMemoryInfo::SetSwapPss, this, placeholders::_1, placeholders::_2)));
+    sMapsMethodVec_.push_back(make_pair(SMAPS_MEMINFO_SIZE,
+        bind(&SmapsMemoryInfo::SetSize, this, placeholders::_1, placeholders::_2)));
+    sMapsMethodVec_.push_back(make_pair(SMAPS_MEMINFO_COUNTS,
+        bind(&SmapsMemoryInfo::SetCounts, this, placeholders::_1, placeholders::_2)));
 }
 
 SmapsMemoryInfo::~SmapsMemoryInfo()
 {
 }
-
-
 
 void SmapsMemoryInfo::insertSmapsTitle(StringMatrix result)
 {
@@ -114,21 +110,20 @@ void SmapsMemoryInfo::insertSmapsTitle(StringMatrix result)
             line3.push_back(unit);
             line4.push_back(separator);
         } else {
-			string title = types.at(0);
+            string title = types.at(0);
             StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, title);
             line1.push_back(space);
             line2.push_back(title);
-			title = TrimStr(title);
-			DUMPER_HILOGI(MODULE_SERVICE, "title is :%{public}s",title.c_str());
-		    if ((!title.empty()) && (StringUtils::GetInstance().IsSameStr(title, "Name")
+            title = TrimStr(title);
+            DUMPER_HILOGI(MODULE_SERVICE, "title is :%{public}s", title.c_str());
+            if ((!title.empty()) && (StringUtils::GetInstance().IsSameStr(title, "Name")
 				|| StringUtils::GetInstance().IsSameStr(title, "Counts"))) {
 				line3.push_back(space);
-		    } else {
+            } else {
 				line3.push_back(unit);
-			}
+            }
             line4.push_back(separator);
-		}
-			
+		}			
     }
     result->push_back(line1);
     result->push_back(line2);
@@ -143,7 +138,7 @@ void SmapsMemoryInfo::BuildSmapsResult(const GroupMap &infos, StringMatrix resul
         vector<string> tempResult;
         auto &valueMap = info.second;
         for (const auto &tag : MemoryFilter::GetInstance().VALUE_SMAPS_WITH_PID) {
-            auto it = valueMap.find(tag); 
+            auto it = valueMap.find(tag);
             string value = "0";
             if (it != valueMap.end()) {
 				if (StringUtils::GetInstance().IsSameStr(tag, "Name")) {
@@ -175,7 +170,7 @@ void SmapsMemoryInfo::CalcSmapsGroup(const GroupMap &infos, StringMatrix result,
 {
     for (const auto &info : infos)
     {
-        DUMPER_HILOGI(MODULE_SERVICE, "CalcSmapsGroup infos first:%{public}s",info.first.c_str());
+        DUMPER_HILOGI(MODULE_SERVICE, "CalcSmapsGroup infos first:%{public}s", info.first.c_str());
         auto &valueMap = info.second;
         for (const auto &method : sMapsMethodVec_)
         {
@@ -183,7 +178,7 @@ void SmapsMemoryInfo::CalcSmapsGroup(const GroupMap &infos, StringMatrix result,
             if (it != valueMap.end())
             { 
                 method.second(memSmapsInfo, it->second);
-            } 
+            }
         }
     }
   
@@ -218,9 +213,7 @@ bool SmapsMemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory
         std::vector<MemoryRecord> records;
         if (memtrack->GetDevMem(pid, memTrackerType.first, records) == HDF_SUCCESS) {
             uint64_t value = 0;
-			int count = 0;
             for (const auto &record : records) {
-				DUMPER_HILOGE(MODULE_SERVICE, "memtrack:\trecords[%d], flag=%d, size=%1lld \n",count++, record.flags, (long long)record.size);
                 if ((static_cast<uint32_t>(record.flags) & FLAG_UNMAPPED) == FLAG_UNMAPPED) {
                     value = static_cast<uint64_t>(record.size / BYTE_PER_KB);
                     break;
@@ -263,7 +256,7 @@ bool SmapsMemoryInfo::ShowMemorySmapsByPid(const int &pid, StringMatrix result)
         groupMap.insert(pair<string, map<string, uint64_t>>("AnonPage # Graph", valueMap));
     }
 	
-    BuildSmapsResult(groupMap, result); 
+    BuildSmapsResult(groupMap, result);
     CalcSmapsGroup(groupMap, result, memSmapsinfo);
     return true;
 }

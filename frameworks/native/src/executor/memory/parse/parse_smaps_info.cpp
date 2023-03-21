@@ -94,7 +94,8 @@ bool ParseSmapsInfo::GetValue(const MemoryFilter::MemoryType &memType, const str
     }
 }
 
-bool ParseSmapsInfo::GetSmapsValue(const MemoryFilter::MemoryType &memType, const string &str, string &type, uint64_t &value)
+bool ParseSmapsInfo::GetSmapsValue(const MemoryFilter::MemoryType &memType, const string &str, string &type,
+uint64_t &value)
 {
     if (memType == MemoryFilter::MemoryType::APPOINT_PID) {
         return GetSmapsValueByPid(str, type, value);
@@ -138,7 +139,8 @@ bool ParseSmapsInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int 
     return true;
 }
 
-bool ParseSmapsInfo::ShowSmapsData(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &result, MemInfoData::MemSmapsInfo &memSmapsInfo)
+bool ParseSmapsInfo::ShowSmapsData(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &result,
+MemInfoData::MemSmapsInfo &memSmapsInfo)
 {
     string filename = "/proc/" + to_string(pid) + "/smaps";
     ifstream in(filename);
