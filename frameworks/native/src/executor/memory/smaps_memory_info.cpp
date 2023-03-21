@@ -111,18 +111,18 @@ void SmapsMemoryInfo::insertSmapsTitle(StringMatrix result)
             line4.push_back(separator);
         } else {
             string title = types.at(0);
-			StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, true, title);
+            StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, true, title);
             line1.push_back(space);
             line2.push_back(title);
-			title = TrimStr(title);
-		    if (StringUtils::GetInstance().IsSameStr(title, "Name")
+            title = TrimStr(title);
+            if (StringUtils::GetInstance().IsSameStr(title, "Name")
 				|| StringUtils::GetInstance().IsSameStr(title, "Counts")) {
-			    line3.push_back(space);
-		    } else {
-			    line3.push_back(unit);
-			}
+                line3.push_back(space);
+            } else {
+                line3.push_back(unit);
+            }
             line4.push_back(separator);
-		}		
+        }	
     }
     result->push_back(line1);
     result->push_back(line2);
