@@ -143,31 +143,31 @@ bool ParseSmapsInfo::ShowSmapsData(const MemoryFilter::MemoryType &memType, cons
     string filename = "/proc/" + to_string(pid) + "/smaps";
     ifstream in(filename);
     if (!in) {
-      DUMPER_HILOGE(MODULE_SERVICE, "File %s not found.\n", filename.c_str());
-      return false;
+        DUMPER_HILOGE(MODULE_SERVICE, "File %s not found.\n", filename.c_str());
+        return false;
     }
 
     string content;
     while (getline(in, content)) {
-      DUMPER_HILOGI(MODULE_SERVICE, "content is:%{public}s", content.c_str());
-      string name;
-      uint64_t iNode = 0;
-      if (StringUtils::GetInstance().IsEnd(content, "B")) {
-        string type;
-        uint64_t value = 0;
-        if (GetSmapsValue(memType, content, type, value)) {
-          DUMPER_HILOGI(MODULE_SERVICE, "GetSmapsValue");
-          MemoryUtil::GetInstance().CalcSmapsGroup(memGroup_, type, value, result);
-        }
-      } else {
-        MemoryUtil::GetInstance().IsNameLine(content, name, iNode);
-        memGroup_ = name;
-        if (result.find(memGroup_) != result.end()) {
-          result[memGroup_]["Counts"]++;
+        DUMPER_HILOGI(MODULE_SERVICE, "content is:%{public}s", content.c_str());
+        string name;
+        uint64_t iNode = 0;
+        if (StringUtils::GetInstance().IsEnd(content, "B")) {
+            string type;
+            uint64_t value = 0;
+            if (GetSmapsValue(memType, content, type, value)) {
+                DUMPER_HILOGI(MODULE_SERVICE, "GetSmapsValue");
+                MemoryUtil::GetInstance().CalcSmapsGroup(memGroup_, type, value, result);
+            }
         } else {
-          result[memGroup_].insert(pair<string, uint64_t>("Counts", 1));
-          result[memGroup_].insert(pair<string, uint64_t>("Name", 0));
-        }
+            MemoryUtil::GetInstance().IsNameLine(content, name, iNode);
+            memGroup_ = name;
+            if (result.find(memGroup_) != result.end()) {
+                result[memGroup_]["Counts"]++;
+            } else {
+                result[memGroup_].insert(pair<string, uint64_t>("Counts", 1));
+                result[memGroup_].insert(pair<string, uint64_t>("Name", 0));
+            }
         }
     }
     in.close();
