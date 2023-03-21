@@ -61,8 +61,7 @@ bool ParseSmapsInfo::GetHasPidValue(const string &str, string &type, uint64_t &v
     return false;
 }
 
-bool ParseSmapsInfo::GetSmapsValueByPid(const string &str, string &type,
-                                        uint64_t &value) {
+bool ParseSmapsInfo::GetSmapsValueByPid(const string &str, string &type, uint64_t &value) {
   bool success = false;
   if (StringUtils::GetInstance().IsBegin(str, "R")) {
     success = MemoryUtil::GetInstance().GetTypeAndValue(str, type, value);

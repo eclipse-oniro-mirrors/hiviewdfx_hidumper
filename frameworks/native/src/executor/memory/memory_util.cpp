@@ -85,7 +85,7 @@ void MemoryUtil::CalcGroup(const string &group, const string &type, const uint64
 
 void MemoryUtil::CalcSmapsGroup(const string &group, const string &type, const uint64_t &value, GroupMap &infos)
 {
-	DUMPER_HILOGI(MODULE_SERVICE, "CalcSmapsGroup group is:%{public}s", group.c_str());
+    DUMPER_HILOGI(MODULE_SERVICE, "CalcSmapsGroup group is:%{public}s", group.c_str());
     if (infos.find(group) == infos.end()) {
         map<string, uint64_t> valueMap;
         valueMap.insert(pair<string, uint64_t>(type, value));
@@ -167,9 +167,9 @@ void MemoryUtil::InitMemSmapsInfo(MemInfoData::MemSmapsInfo &memInfo)
     memInfo.privateDirty = 0;
     memInfo.swap = 0;
     memInfo.swapPss = 0;
-	memInfo.name = "";
-	memInfo.size = 0;
-	memInfo.counts = 0;
+    memInfo.name = "";
+    memInfo.size = 0;
+    memInfo.counts = 0;
 }
 
 
@@ -198,8 +198,8 @@ bool MemoryUtil::GetTypeAndValue(const string &str, string &type, uint64_t &valu
         string valueStr = str.substr(typePos + 1);
         const int base = 10;
         value = strtoull(valueStr.c_str(), nullptr, base);
-		DUMPER_HILOGI(MODULE_SERVICE, "GetTypeAndValue type is :%{public}s", type.c_str());
-		DUMPER_HILOGI(MODULE_SERVICE, "GetTypeAndValue value is :%{public}llu", value);
+        DUMPER_HILOGI(MODULE_SERVICE, "GetTypeAndValue type is :%{public}s", type.c_str());
+        DUMPER_HILOGI(MODULE_SERVICE, "GetTypeAndValue value is :%{public}llu", value);
         return true;
     }
     return false;

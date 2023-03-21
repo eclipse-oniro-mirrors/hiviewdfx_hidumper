@@ -195,9 +195,7 @@ bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &gra
         std::vector<MemoryRecord> records;
         if (memtrack->GetDevMem(pid, memTrackerType.first, records) == HDF_SUCCESS) {
             uint64_t value = 0;
-			int count = 0;
             for (const auto &record : records) {
-				DUMPER_HILOGE(MODULE_SERVICE, "memtrack:\trecords[%d], flag=%d, size=%1lld \n",count++, record.flags, (long long)record.size);
                 if ((static_cast<uint32_t>(record.flags) & FLAG_UNMAPPED) == FLAG_UNMAPPED) {
                     value = static_cast<uint64_t>(record.size / BYTE_PER_KB);
                     break;
