@@ -19,6 +19,7 @@
 #include <vector>
 #include "securec.h"
 #include "util/string_utils.h"
+#include "hilog_wrapper.h"
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
