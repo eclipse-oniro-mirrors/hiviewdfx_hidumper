@@ -111,7 +111,11 @@ void SmapsMemoryInfo::insertSmapsTitle(StringMatrix result)
             line4.push_back(separator);
         } else {
             string title = types.at(0);
-            StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, true, title);
+            if (StringUtils::GetInstance().IsSameStr(title, "Name")) {
+                StringUtils::GetInstance().SetWidth(LINE_NAME_KEY_WIDTH_, BLANK_, true, title);
+            } else {
+                StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, true, title);
+            }
             line1.push_back(space);
             line2.push_back(title);
             title = TrimStr(title);
@@ -144,7 +148,7 @@ void SmapsMemoryInfo::BuildSmapsResult(const GroupMap &infos, StringMatrix resul
             }
             if (StringUtils::GetInstance().IsSameStr(tag, "Name")) {
                 DUMPER_HILOGI(MODULE_SERVICE, "tag is Name");
-                StringUtils::GetInstance().SetWidth(LINE_NAME_WIDTH_, BLANK_, false, value);
+                StringUtils::GetInstance().SetWidth(LINE_NAME_VAL_WIDTH_, BLANK_, false, value);
             } else {
                 StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, value);
             }

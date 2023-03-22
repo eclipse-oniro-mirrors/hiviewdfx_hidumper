@@ -23,6 +23,10 @@
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
+namespace {
+constexpr int WIDTH_PARAM = 28;
+} // namespace
+
 MemoryUtil::MemoryUtil()
 {
 }
@@ -181,10 +185,19 @@ bool MemoryUtil::GetTypeAndValue(const string &str, string &type, uint64_t &valu
 void MemoryUtil::SetValue(const string &value, vector<string> &lines, vector<string> &values)
 {
     string separator = "-";
-    StringUtils::GetInstance().SetWidth(LINE_WIDTH_, SEPARATOR_, false, separator);
+    if (StringUtils::GetInstance().IsSameStr(value, "Summary")) {
+        DUMPER_HILOGI(MODULE_SERVICE, "Summary");
+        StringUtils::GetInstance().SetWidth(WIDTH_PARAM, SEPARATOR_, false, separator);
+    } else {
+        StringUtils::GetInstance().SetWidth(LINE_WIDTH_, SEPARATOR_, false, separator);
+    }
     lines.push_back(separator);
     string tempValue = value;
-    StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, tempValue);
+    if (StringUtils::GetInstance().IsSameStr(value, "Summary")) {
+        StringUtils::GetInstance().SetWidth(WIDTH_PARAM, BLANK_, false, tempValue);
+    } else {
+        StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, tempValue);
+    }
     values.push_back(tempValue);
 }
 } // namespace HiviewDFX

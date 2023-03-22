@@ -58,7 +58,8 @@ private:
     };
 
     const int LINE_WIDTH_ = 14;
-    const int LINE_NAME_WIDTH_ = 60;
+    const int LINE_NAME_VAL_WIDTH_ = 60;
+    const int LINE_NAME_KEY_WIDTH_ = 26;
     const size_t TYPE_SIZE = 2;
     const char SEPARATOR_ = '-';
     const char BLANK_ = ' ';
