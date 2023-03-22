@@ -122,7 +122,7 @@ void SmapsMemoryInfo::insertSmapsTitle(StringMatrix result)
                 line3.push_back(unit);
             }
             line4.push_back(separator);
-        }	
+    }
     }
     result->push_back(line1);
     result->push_back(line2);
@@ -155,16 +155,6 @@ void SmapsMemoryInfo::BuildSmapsResult(const GroupMap &infos, StringMatrix resul
 }
 
 
-void SmapsMemoryInfo::SetValue(const string &value, vector<string> &lines, vector<string> &values)
-{
-    string separator = "-";
-    StringUtils::GetInstance().SetWidth(LINE_WIDTH_, SEPARATOR_, false, separator);
-    lines.push_back(separator);
-    string tempValue = value;
-    StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, tempValue);
-    values.push_back(tempValue);
-}
-
 void SmapsMemoryInfo::CalcSmapsGroup(const GroupMap &infos, StringMatrix result,
                                      MemInfoData::MemSmapsInfo &memSmapsInfo)
 {
@@ -181,51 +171,20 @@ void SmapsMemoryInfo::CalcSmapsGroup(const GroupMap &infos, StringMatrix result,
   
     vector<string> lines;
     vector<string> values;
-    SetValue(to_string(memSmapsInfo.size), lines, values);
-    SetValue(to_string(memSmapsInfo.rss), lines, values);
-    SetValue(to_string(memSmapsInfo.pss), lines, values);
-    SetValue(to_string(memSmapsInfo.sharedClean), lines, values);
-    SetValue(to_string(memSmapsInfo.sharedDirty), lines, values);
-    SetValue(to_string(memSmapsInfo.privateClean), lines, values);
-    SetValue(to_string(memSmapsInfo.privateDirty), lines, values);
-    SetValue(to_string(memSmapsInfo.swap), lines, values);
-    SetValue(to_string(memSmapsInfo.swapPss), lines, values);
-    SetValue(to_string(memSmapsInfo.counts), lines, values);
-    SetValue("Summary", lines, values);
+    MemoryUtil::GetInstance().SetValue(to_string(memSmapsInfo.size), lines, values);
+    MemoryUtil::GetInstance().SetValue(to_string(memSmapsInfo.rss), lines, values);
+    MemoryUtil::GetInstance().SetValue(to_string(memSmapsInfo.pss), lines, values);
+    MemoryUtil::GetInstance().SetValue(to_string(memSmapsInfo.sharedClean), lines, values);
+    MemoryUtil::GetInstance().SetValue(to_string(memSmapsInfo.sharedDirty), lines, values);
+    MemoryUtil::GetInstance().SetValue(to_string(memSmapsInfo.privateClean), lines, values);
+    MemoryUtil::GetInstance().SetValue(to_string(memSmapsInfo.privateDirty), lines, values);
+    MemoryUtil::GetInstance().SetValue(to_string(memSmapsInfo.swap), lines, values);
+    MemoryUtil::GetInstance().SetValue(to_string(memSmapsInfo.swapPss), lines, values);
+    MemoryUtil::GetInstance().SetValue(to_string(memSmapsInfo.counts), lines, values);
+    MemoryUtil::GetInstance().SetValue("Summary", lines, values);
 
     result->push_back(lines);
     result->push_back(values);
-}
-
-bool SmapsMemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory)
-{
-    bool ret = false;
-    sptr<IMemoryTrackerInterface> memtrack = IMemoryTrackerInterface::Get(true);
-    if (memtrack == nullptr) {
-        DUMPER_HILOGE(MODULE_SERVICE, "memtrack service is null");
-        return ret;
-    }
-
-    for (const auto &memTrackerType : MemoryFilter::GetInstance().MEMORY_TRACKER_TYPES) {
-        std::vector<MemoryRecord> records;
-        if (memtrack->GetDevMem(pid, memTrackerType.first, records) == HDF_SUCCESS) {
-            uint64_t value = 0;
-            for (const auto &record : records) {
-                if ((static_cast<uint32_t>(record.flags) & FLAG_UNMAPPED) == FLAG_UNMAPPED) {
-                    value = static_cast<uint64_t>(record.size / BYTE_PER_KB);
-                    break;
-                }
-            }
-            if (memTrackerType.first == MEMORY_TRACKER_TYPE_GL) {
-                graphicsMemory.gl = value;
-                ret = true;
-            } else if (memTrackerType.first == MEMORY_TRACKER_TYPE_GRAPH) {
-                graphicsMemory.graph = value;
-                ret = true;
-            }
-        }
-    }
-    return ret;
 }
 
 bool SmapsMemoryInfo::ShowMemorySmapsByPid(const int &pid, StringMatrix result)
@@ -240,19 +199,9 @@ bool SmapsMemoryInfo::ShowMemorySmapsByPid(const int &pid, StringMatrix result)
         DUMPER_HILOGE(MODULE_SERVICE, "parse smaps info fail");
         return false;
     }
+
     MemInfoData::GraphicsMemory graphicsMemory;
     MemoryUtil::GetInstance().InitGraphicsMemory(graphicsMemory);
-    if (GetGraphicsMemory(pid, graphicsMemory)) {
-        map<string, uint64_t> valueMap;
-        valueMap.insert(pair<string, uint64_t>("Pss", graphicsMemory.gl));
-        valueMap.insert(pair<string, uint64_t>("Private_Dirty", graphicsMemory.gl));
-        groupMap.insert(pair<string, map<string, uint64_t>>("AnonPage # GL", valueMap));
-        valueMap.clear();
-        valueMap.insert(pair<string, uint64_t>("Pss", graphicsMemory.graph));
-        valueMap.insert(pair<string, uint64_t>("Private_Dirty", graphicsMemory.graph));
-        groupMap.insert(pair<string, map<string, uint64_t>>("AnonPage # Graph", valueMap));
-    }
-	
     BuildSmapsResult(groupMap, result);
     CalcSmapsGroup(groupMap, result, memSmapsinfo);
     return true;

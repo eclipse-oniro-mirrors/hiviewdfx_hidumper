@@ -71,8 +71,6 @@ private:
     void insertSmapsTitle(StringMatrix result);
     void BuildSmapsResult(const GroupMap &infos, StringMatrix result);
     void CalcSmapsGroup(const GroupMap &infos, StringMatrix result, MemInfoData::MemSmapsInfo &memSmapsInfo);
-    void SetValue(const std::string &value, std::vector<std::string> &lines, std::vector<std::string> &values);
-    static bool GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory);
     void SetPss(MemInfoData::MemSmapsInfo &meminfo, uint64_t value);
     void SetSharedClean(MemInfoData::MemSmapsInfo &meminfo, uint64_t value);
     void SetSharedDirty(MemInfoData::MemSmapsInfo &meminfo, uint64_t value);

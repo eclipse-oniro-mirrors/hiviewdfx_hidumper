@@ -142,15 +142,6 @@ void MemoryInfo::BuildResult(const GroupMap &infos, StringMatrix result)
     }
 }
 
-void MemoryInfo::SetValue(const string &value, vector<string> &lines, vector<string> &values)
-{
-    string separator = "-";
-    StringUtils::GetInstance().SetWidth(LINE_WIDTH_, SEPARATOR_, false, separator);
-    lines.push_back(separator);
-    string tempValue = value;
-    StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, tempValue);
-    values.push_back(tempValue);
-}
 
 void MemoryInfo::CalcGroup(const GroupMap &infos, StringMatrix result)
 {
@@ -169,14 +160,14 @@ void MemoryInfo::CalcGroup(const GroupMap &infos, StringMatrix result)
     vector<string> lines;
     vector<string> values;
 
-    SetValue("Total", lines, values);
-    SetValue(to_string(meminfo.pss + meminfo.swapPss), lines, values);
-    SetValue(to_string(meminfo.sharedClean), lines, values);
-    SetValue(to_string(meminfo.sharedDirty), lines, values);
-    SetValue(to_string(meminfo.privateClean), lines, values);
-    SetValue(to_string(meminfo.privateDirty), lines, values);
-    SetValue(to_string(meminfo.swap), lines, values);
-    SetValue(to_string(meminfo.swapPss), lines, values);
+    MemoryUtil::GetInstance().SetValue("Total", lines, values);
+    MemoryUtil::GetInstance().SetValue(to_string(meminfo.pss + meminfo.swapPss), lines, values);
+    MemoryUtil::GetInstance().SetValue(to_string(meminfo.sharedClean), lines, values);
+    MemoryUtil::GetInstance().SetValue(to_string(meminfo.sharedDirty), lines, values);
+    MemoryUtil::GetInstance().SetValue(to_string(meminfo.privateClean), lines, values);
+    MemoryUtil::GetInstance().SetValue(to_string(meminfo.privateDirty), lines, values);
+    MemoryUtil::GetInstance().SetValue(to_string(meminfo.swap), lines, values);
+    MemoryUtil::GetInstance().SetValue(to_string(meminfo.swapPss), lines, values);
 
     result->push_back(lines);
     result->push_back(values);

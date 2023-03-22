@@ -159,7 +159,7 @@ bool ParseSmapsInfo::ShowSmapsData(const MemoryFilter::MemoryType &memType, cons
             uint64_t value = 0;
             if (GetSmapsValue(memType, content, type, value)) {
                 DUMPER_HILOGI(MODULE_SERVICE, "GetSmapsValue");
-                MemoryUtil::GetInstance().CalcSmapsGroup(memGroup_, type, value, result);
+                MemoryUtil::GetInstance().CalcGroup(memGroup_, type, value, result);
             }
         } else {
             MemoryUtil::GetInstance().IsNameLine(content, name, iNode);

@@ -83,33 +83,6 @@ void MemoryUtil::CalcGroup(const string &group, const string &type, const uint64
     }
 }
 
-void MemoryUtil::CalcSmapsGroup(const string &group, const string &type, const uint64_t &value, GroupMap &infos)
-{
-    DUMPER_HILOGI(MODULE_SERVICE, "CalcSmapsGroup group is:%{public}s", group.c_str());
-    if (infos.find(group) == infos.end()) {
-        map<string, uint64_t> valueMap;
-        valueMap.insert(pair<string, uint64_t>(type, value));
-        infos.insert(pair<string, map<string, uint64_t>>(group, valueMap));
-    } else {
-        if (infos[group].find(type) == infos[group].end()) {
-            infos[group].insert(pair<string, uint64_t>(type, value));
-        } else {
-            infos[group][type] += value;
-        }
-    }
-    DUMPER_HILOGI(MODULE_SERVICE, "strat bianli infos");
-    for (auto it = infos.begin(); it != infos.end(); it++) {
-        DUMPER_HILOGI(MODULE_SERVICE, "info key is:%{public}s",
-                      it->first.c_str());
-        for (auto i = it->second.begin(); i != it->second.end(); i++) {
-            DUMPER_HILOGI(MODULE_SERVICE, "key is:%{public}s",
-                          i->first.c_str());
-            DUMPER_HILOGI(MODULE_SERVICE, "value is:%{public}llu", i->second);
-        }
-    }
-}
-
-
 bool MemoryUtil::RunCMD(const string &cmd, vector<string> &result)
 {
     FILE* fp = popen(("/system/bin/" + cmd).c_str(), "r");
@@ -203,6 +176,16 @@ bool MemoryUtil::GetTypeAndValue(const string &str, string &type, uint64_t &valu
         return true;
     }
     return false;
+}
+
+void MemoryInfo::SetValue(const string &value, vector<string> &lines, vector<string> &values)
+{
+    string separator = "-";
+    StringUtils::GetInstance().SetWidth(LINE_WIDTH_, SEPARATOR_, false, separator);
+    lines.push_back(separator);
+    string tempValue = value;
+    StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, tempValue);
+    values.push_back(tempValue);
 }
 } // namespace HiviewDFX
 } // namespace OHOS
