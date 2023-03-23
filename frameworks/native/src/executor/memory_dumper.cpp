@@ -14,6 +14,7 @@
  */
 #include "executor/memory_dumper.h"
 #include "dump_common_utils.h"
+#include "parameters.h"
 
 using namespace std;
 namespace OHOS {
@@ -47,8 +48,11 @@ DumpStatus MemoryDumper::Execute()
     if (dumpDatas_ != nullptr && memoryInfo_ != nullptr) {
         if (pid_ >= 0) {
             bool isShowMapsFlag = false;
-            if (isShowMaps_) {
-                DUMPER_HILOGI(MODULE_SERVICE, "isShowMaps is true");
+            string debugMode;
+            debugMode = OHOS::system::GetParameter("const.debuggable", debugMode);
+            DUMPER_HILOGI(MODULE_SERVICE, "isDebugModel is :%{public}s", debugMode.c_str());
+            if (isShowMaps_ && debugMode == "1") {
+                DUMPER_HILOGI(MODULE_SERVICE, "isShowMaps is true and current is debugmodel");
                 isShowMapsFlag = smapsMemoryInfo_->ShowMemorySmapsByPid(pid_, dumpDatas_);
                 status_ = isShowMapsFlag ? DumpStatus::DUMP_OK : DumpStatus::DUMP_FAIL;
                 return status_;
