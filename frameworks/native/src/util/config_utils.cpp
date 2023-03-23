@@ -345,15 +345,7 @@ bool ConfigUtils::HandleDumpMem(std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs)
     }
 
     DUMPER_HILOGD(MODULE_COMMON, "debug|mem");
-    currentPidInfo_.Reset();
-    currentPidInfos_.clear();
-    MergePidInfos(currentPidInfos_, dumperOpts.memPid_);
-
-    std::shared_ptr<OptionArgs> args;
-    GetConfig(CONFIG_GROUP_MEMORY, dumpCfgs, args);
-
-    currentPidInfos_.clear();
-    currentPidInfo_.Reset();
+    HandleDumpMemCommon(dumpCfgs);
     return true;
 }
 
@@ -371,16 +363,19 @@ bool ConfigUtils::HandleDumpMemShowMaps(std::vector<std::shared_ptr<DumpCfg>> &d
     }
 
     DUMPER_HILOGD(MODULE_COMMON, "debug|mem-smaps");
+    HandleDumpMemCommon(dumperOpts, dumpCfgs);
+    return true;
+}
+
+bool ConfigUtils::HandleDumpMemCommon(DumperOpts &dumperOpts, std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs)
+{
     currentPidInfo_.Reset();
     currentPidInfos_.clear();
     MergePidInfos(currentPidInfos_, dumperOpts.memPid_);
-
     std::shared_ptr<OptionArgs> args;
     GetConfig(CONFIG_GROUP_MEMORY, dumpCfgs, args);
-
     currentPidInfos_.clear();
     currentPidInfo_.Reset();
-    return true;
 }
 
 bool ConfigUtils::HandleDumpStorage(std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs)
