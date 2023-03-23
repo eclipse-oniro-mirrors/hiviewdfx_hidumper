@@ -48,7 +48,7 @@ DumpStatus MemoryDumper::Execute()
     if (dumpDatas_ != nullptr && memoryInfo_ != nullptr) {
         if (pid_ >= 0) {
             bool isShowMapsFlag = false;
-            string debugMode;
+            string debugMode = "0";
             debugMode = OHOS::system::GetParameter("const.debuggable", debugMode);
             DUMPER_HILOGI(MODULE_SERVICE, "isDebugModel is :%{public}s", debugMode.c_str());
             if (isShowMaps_ && debugMode == "1") {

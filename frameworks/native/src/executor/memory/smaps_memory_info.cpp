@@ -72,26 +72,16 @@ SmapsMemoryInfo::~SmapsMemoryInfo()
 
 void SmapsMemoryInfo::insertSmapsTitle(StringMatrix result)
 {
-    // Pss        Shared   ---- this line is line1
-    // Total      Clean    ---- this line is line2
-    // (KB)         (KB)    ---- this line is line3
-    // -----      ------   ---- this line is line4
-
     vector<string> line1;
     vector<string> line2;
     vector<string> line3;
     vector<string> line4;
-
     string space = " ";
     StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, space);
-
     string separator = "-";
     StringUtils::GetInstance().SetWidth(LINE_WIDTH_, SEPARATOR_, false, separator);
-
     string unit = "(" + MemoryUtil::GetInstance().KB_UNIT_ + " )";
     StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, unit);
-
-    // Add  spaces at the beginning of the line
     line1.push_back(space);
     line2.push_back(space);
     line3.push_back(space);
