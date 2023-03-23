@@ -102,7 +102,7 @@ void SmapsMemoryInfo::insertSmapsTitle(StringMatrix result)
         } else {
             string title = types.at(0);
             StringUtils::GetInstance().SetWidth(StringUtils::GetInstance().IsSameStr(title, "Name") ?
-            LINE_NAME_KEY_WIDTH_ : LINE_WIDTH_,BLANK_, true, title);
+                LINE_NAME_KEY_WIDTH_ : LINE_WIDTH_, BLANK_, true, title);
             line1.push_back(space);
             line2.push_back(title);
             title = TrimStr(title);
