@@ -37,6 +37,7 @@
 #include "util/string_utils.h"
 #include "common/dumper_constant.h"
 #include "securec.h"
+#include "parameters.h"
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
@@ -142,7 +143,6 @@ DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<Dumpe
     }
     DumperOpts opts;
     DumpStatus status = CmdParseWithParameter(dumpParameter, argc, argv, opts);
-    DUMPER_HILOGI(MODULE_SERVICE, "opts is showmapsFlag: %{public}d\n", opts.isShowSmaps_);
     if (status != DumpStatus::DUMP_OK) {
         return status;
     }
@@ -202,6 +202,13 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
             break;
         } else if (c == 0) {
             ParseLongCmdOption(opts_, longOptions, optionIndex, argv);
+            std::string debugMode = "0";
+            debugMode = OHOS::system::GetParameter("const.debuggable", debugMode);
+            if (opts_.isShowSmaps_ && debugMode == "0") {
+                DUMPER_HILOGI(MODULE_SERVICE, "current is not debug");
+                CmdHelp();
+                return DumpStatus::DUMP_HELP;
+            }
         } else if (c == 'h') {
             CmdHelp();
             return DumpStatus::DUMP_HELP;
