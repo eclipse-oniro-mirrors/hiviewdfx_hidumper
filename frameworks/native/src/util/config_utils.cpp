@@ -345,7 +345,7 @@ bool ConfigUtils::HandleDumpMem(std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs)
     }
 
     DUMPER_HILOGD(MODULE_COMMON, "debug|mem");
-    HandleDumpMemCommon(dumpCfgs);
+    HandleDumpMemCommon(dumperParam_, dumpCfgs);
     return true;
 }
 
@@ -363,11 +363,11 @@ bool ConfigUtils::HandleDumpMemShowMaps(std::vector<std::shared_ptr<DumpCfg>> &d
     }
 
     DUMPER_HILOGD(MODULE_COMMON, "debug|mem-smaps");
-    HandleDumpMemCommon(dumperOpts, dumpCfgs);
+    HandleDumpMemCommon(dumperParam_, dumpCfgs);
     return true;
 }
 
-bool ConfigUtils::HandleDumpMemCommon(DumperOpts &dumperOpts, std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs)
+void ConfigUtils::HandleDumpMemCommon(std::shared_ptr<DumperParameter> dumpParam, std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs)
 {
     currentPidInfo_.Reset();
     currentPidInfos_.clear();

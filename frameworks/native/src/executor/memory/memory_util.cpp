@@ -175,8 +175,6 @@ bool MemoryUtil::GetTypeAndValue(const string &str, string &type, uint64_t &valu
         string valueStr = str.substr(typePos + 1);
         const int base = 10;
         value = strtoull(valueStr.c_str(), nullptr, base);
-        DUMPER_HILOGI(MODULE_SERVICE, "GetTypeAndValue type is :%{public}s", type.c_str());
-        DUMPER_HILOGI(MODULE_SERVICE, "GetTypeAndValue value is :%{public}llu", value);
         return true;
     }
     return false;
