@@ -367,11 +367,12 @@ bool ConfigUtils::HandleDumpMemShowMaps(std::vector<std::shared_ptr<DumpCfg>> &d
     return true;
 }
 
-void ConfigUtils::HandleDumpMemCommon(std::shared_ptr<DumperParameter> dumpParam, std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs)
+void ConfigUtils::HandleDumpMemCommon(std::shared_ptr<DumperParameter> dumpParam,
+    std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs)
 {
     currentPidInfo_.Reset();
     currentPidInfos_.clear();
-    MergePidInfos(currentPidInfos_, dumperOpts.memPid_);
+    MergePidInfos(currentPidInfos_, dumpParam->GetOpts().memPid_);
     std::shared_ptr<OptionArgs> args;
     GetConfig(CONFIG_GROUP_MEMORY, dumpCfgs, args);
     currentPidInfos_.clear();
