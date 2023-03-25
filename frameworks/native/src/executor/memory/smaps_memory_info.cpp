@@ -46,7 +46,7 @@ namespace HiviewDFX {
 SmapsMemoryInfo::SmapsMemoryInfo()
 {
     sMapsMethodVec_.clear();
-	sMapsMethodVec_.push_back(make_pair(SMAPS_MEMINFO_RSS,
+    sMapsMethodVec_.push_back(make_pair(SMAPS_MEMINFO_RSS,
         bind(&SmapsMemoryInfo::SetRss, this, placeholders::_1, placeholders::_2)));
     sMapsMethodVec_.push_back(make_pair(SMAPS_MEMINFO_PSS,
         bind(&SmapsMemoryInfo::SetPss, this, placeholders::_1, placeholders::_2)));
@@ -133,7 +133,7 @@ void SmapsMemoryInfo::BuildSmapsResult(const GroupMap &infos, StringMatrix resul
             }
             if (StringUtils::GetInstance().IsSameStr(tag, "Name")) {
                 DUMPER_HILOGI(MODULE_SERVICE, "tag is Name");
-				value = space + value;
+                value = space + value;
                 StringUtils::GetInstance().SetWidth(LINE_NAME_VAL_WIDTH_, BLANK_, true, value);
             } else {
                 StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, value);
