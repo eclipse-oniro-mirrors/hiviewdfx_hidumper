@@ -161,8 +161,7 @@ bool ParseSmapsInfo::ShowSmapsData(const MemoryFilter::MemoryType &memType, cons
                 DUMPER_HILOGI(MODULE_SERVICE, "GetSmapsValue");
                 MemoryUtil::GetInstance().CalcGroup(memGroup_, type, value, result);
             }
-        } else {
-            MemoryUtil::GetInstance().IsNameLine(content, name, iNode);
+        } else if (MemoryUtil::GetInstance().IsNameLine(content, name, iNode)) {
             memGroup_ = name;
             if (result.find(memGroup_) != result.end()) {
                 result[memGroup_]["Counts"]++;

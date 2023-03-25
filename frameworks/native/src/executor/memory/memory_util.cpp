@@ -48,6 +48,9 @@ bool MemoryUtil::IsNameLine(const string &str, string &name, uint64_t &iNode)
     if (len < str.size()) {
         name = str.substr(len, str.size());
     }
+    if (name.empty()) {
+        return false;
+    }
     return true;
 }
 
@@ -183,6 +186,8 @@ bool MemoryUtil::GetTypeAndValue(const string &str, string &type, uint64_t &valu
 void MemoryUtil::SetValue(const string &value, vector<string> &lines, vector<string> &values)
 {
     string separator = "-";
+    string space = " ";
+    StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, space);
     if (StringUtils::GetInstance().IsSameStr(value, "Summary")) {
         DUMPER_HILOGI(MODULE_SERVICE, "Summary");
         StringUtils::GetInstance().SetWidth(WIDTH_PARAM, SEPARATOR_, false, separator);
@@ -192,7 +197,8 @@ void MemoryUtil::SetValue(const string &value, vector<string> &lines, vector<str
     lines.push_back(separator);
     string tempValue = value;
     if (StringUtils::GetInstance().IsSameStr(value, "Summary")) {
-        StringUtils::GetInstance().SetWidth(WIDTH_PARAM, BLANK_, false, tempValue);
+        tempValue = space + tempValue;
+        StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, true, tempValue);
     } else {
         StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, tempValue);
     }

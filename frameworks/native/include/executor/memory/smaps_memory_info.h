@@ -59,7 +59,7 @@ private:
 
     const int LINE_WIDTH_ = 14;
     const int LINE_NAME_VAL_WIDTH_ = 60;
-    const int LINE_NAME_KEY_WIDTH_ = 26;
+    const int LINE_NAME_KEY_WIDTH_ = 28;
     const size_t TYPE_SIZE = 2;
     const char SEPARATOR_ = '-';
     const char BLANK_ = ' ';
@@ -72,6 +72,7 @@ private:
     void insertSmapsTitle(StringMatrix result);
     void BuildSmapsResult(const GroupMap &infos, StringMatrix result);
     void CalcSmapsGroup(const GroupMap &infos, StringMatrix result, MemInfoData::MemSmapsInfo &memSmapsInfo);
+    void SetRss(MemInfoData::MemSmapsInfo &meminfo, uint64_t value);
     void SetPss(MemInfoData::MemSmapsInfo &meminfo, uint64_t value);
     void SetSharedClean(MemInfoData::MemSmapsInfo &meminfo, uint64_t value);
     void SetSharedDirty(MemInfoData::MemSmapsInfo &meminfo, uint64_t value);
