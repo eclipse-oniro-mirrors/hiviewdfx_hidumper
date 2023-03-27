@@ -149,7 +149,6 @@ void SmapsMemoryInfo::CalcSmapsGroup(const GroupMap &infos, StringMatrix result,
                                      MemInfoData::MemSmapsInfo &memSmapsInfo)
 {
     for (const auto &info : infos) {
-        DUMPER_HILOGI(MODULE_SERVICE, "CalcSmapsGroup infos first:%{public}s", info.first.c_str());
         auto &valueMap = info.second;
         for (const auto &method : sMapsMethodVec_) {
             auto it = valueMap.find(method.first);
@@ -180,7 +179,6 @@ void SmapsMemoryInfo::CalcSmapsGroup(const GroupMap &infos, StringMatrix result,
 bool SmapsMemoryInfo::ShowMemorySmapsByPid(const int &pid, StringMatrix result)
 {
     DUMPER_HILOGI(MODULE_SERVICE, "GetMemoryInfoByPid");
-    DUMPER_HILOGI(MODULE_SERVICE, "GetMemoryInfoByPid pid is :%{public}d\n", pid);
     GroupMap groupMap;
     MemInfoData::MemSmapsInfo memSmapsinfo;
     MemoryUtil::GetInstance().InitMemSmapsInfo(memSmapsinfo);

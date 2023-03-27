@@ -135,14 +135,12 @@ bool ParseSmapsInfo::ShowSmapsData(const MemoryFilter::MemoryType &memType, cons
 
     string content;
     while (getline(in, content)) {
-        DUMPER_HILOGI(MODULE_SERVICE, "content is:%{public}s", content.c_str());
         string name;
         uint64_t iNode = 0;
         if (StringUtils::GetInstance().IsEnd(content, "B")) {
             string type;
             uint64_t value = 0;
             if (GetSmapsValue(memType, content, type, value)) {
-                DUMPER_HILOGI(MODULE_SERVICE, "GetSmapsValue");
                 MemoryUtil::GetInstance().CalcGroup(memGroup_, type, value, result);
             }
         } else if (MemoryUtil::GetInstance().IsNameLine(content, name, iNode)) {

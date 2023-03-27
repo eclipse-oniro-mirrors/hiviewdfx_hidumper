@@ -147,7 +147,6 @@ DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<Dumpe
         return status;
     }
     if (!opts.IsSelectAny()) {
-        DUMPER_HILOGI(MODULE_SERVICE, "hidumper is not select");
         // 注：hidumper不添加任何参数时，dump全部内容；IPC方式dump时，仅dump 当前进程的CPU和memory情况
         int clientPid = dumpParameter->GetPid(); // to be set value
         if (IsHidumperClientProcess(clientPid)) {
@@ -163,7 +162,6 @@ DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<Dumpe
         dumpParameter->SetPid(clientPid);
     }
 
-    DUMPER_HILOGI(MODULE_SERVICE, "opts memPid_ is:%{public}d\n", opts.memPid_);
     dumpParameter->SetOpts(opts);
     return DumpStatus::DUMP_OK;
 }

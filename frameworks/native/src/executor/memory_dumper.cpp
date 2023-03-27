@@ -36,8 +36,6 @@ DumpStatus MemoryDumper::PreExecute(const shared_ptr<DumperParameter> &parameter
 {
     pid_ = parameter->GetOpts().memPid_;
     isShowMaps_ = parameter->GetOpts().isShowSmaps_;
-    DUMPER_HILOGI(MODULE_SERVICE, "MemoryDumper pid:%{public}d\n", pid_);
-    DUMPER_HILOGI(MODULE_SERVICE, "MemoryDumper isShowMapsvalue is:%{public}d\n", isShowMaps_);
     dumpDatas_ = dumpDatas;
     return DumpStatus::DUMP_OK;
 }
