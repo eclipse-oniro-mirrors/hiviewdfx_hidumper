@@ -52,27 +52,11 @@ bool ParseSmapsInfo::GetHasPidValue(const string &str, string &type, uint64_t &v
     } else if (StringUtils::GetInstance().IsBegin(str, "S")) {
         success = MemoryUtil::GetInstance().GetTypeAndValue(str, type, value);
         if (success) {
-            if (type == "Shared_Clean" || type == "Shared_Dirty" || type == "Swap" || type == "SwapPss") {
+            if (type == "Shared_Clean" || type == "Shared_Dirty" || type == "Swap" || type == "SwapPss" || type == "Size") {
                 return true;
             }
         }
         return false;
-    }
-    return false;
-}
-
-bool ParseSmapsInfo::GetSmapsValueByPid(const string &str, string &type, uint64_t &value)
-{
-    bool success = false;
-    if (StringUtils::GetInstance().IsBegin(str, "R")) {
-        success = MemoryUtil::GetInstance().GetTypeAndValue(str, type, value);
-        return success;
-    } else if (StringUtils::GetInstance().IsBegin(str, "P")) {
-        success = MemoryUtil::GetInstance().GetTypeAndValue(str, type, value);
-        return success;
-    } else if (StringUtils::GetInstance().IsBegin(str, "S")) {
-        success = MemoryUtil::GetInstance().GetTypeAndValue(str, type, value);
-        return success;
     }
     return false;
 }
@@ -98,7 +82,7 @@ bool ParseSmapsInfo::GetSmapsValue(const MemoryFilter::MemoryType &memType, cons
     uint64_t &value)
 {
     if (memType == MemoryFilter::MemoryType::APPOINT_PID) {
-        return GetSmapsValueByPid(str, type, value);
+        return GetHasPidValue(str, type, value);
     }
     return false;
 }
