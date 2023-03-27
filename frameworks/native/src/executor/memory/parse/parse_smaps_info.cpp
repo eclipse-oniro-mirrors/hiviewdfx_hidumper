@@ -52,7 +52,8 @@ bool ParseSmapsInfo::GetHasPidValue(const string &str, string &type, uint64_t &v
     } else if (StringUtils::GetInstance().IsBegin(str, "S")) {
         success = MemoryUtil::GetInstance().GetTypeAndValue(str, type, value);
         if (success) {
-            if (type == "Shared_Clean" || type == "Shared_Dirty" || type == "Swap" || type == "SwapPss" || type == "Size") {
+            if (type == "Shared_Clean" || type == "Shared_Dirty" || type == "Swap" || type == "SwapPss" || 
+            type == "Size") {
                 return true;
             }
         }
