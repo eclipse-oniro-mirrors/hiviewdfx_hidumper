@@ -49,7 +49,7 @@ bool MemoryUtil::IsNameLine(const string &str, string &name, uint64_t &iNode)
         name = str.substr(len, str.size());
     }
     if (name.empty()) {
-        return false;
+        name = "[anno]";
     }
     return true;
 }
