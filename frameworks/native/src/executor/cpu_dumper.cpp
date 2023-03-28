@@ -128,11 +128,12 @@ bool CPUDumper::GetProcCPUInfo()
 {
     bool ret = false;
     if (!DumpCpuInfoUtil::GetInstance().GetOldSpecProcInfo(cpuUsagePid_, oldSpecProc_)) {
+        DumpCpuInfoUtil::GetInstance().UpdateCpuInfo();
         if (!DumpCpuInfoUtil::GetInstance().GetOldSpecProcInfo(cpuUsagePid_, oldSpecProc_)) {
             DUMPER_HILOGE(MODULE_COMMON, "Get old process %{public}d info failed!.", cpuUsagePid_);
             return ret;
         }     
-        DumpCpuInfoUtil::GetInstance().UpdateCpuInfo();
+        
         GetInitOldCPUInfo(oldCPUInfo_, curCPUInfo_);
         usleep(DELAY_VALUE);
         if (!DumpCpuInfoUtil::GetInstance().GetCurCPUInfo(curCPUInfo_)) {
