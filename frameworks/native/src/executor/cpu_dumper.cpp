@@ -133,14 +133,14 @@ bool CPUDumper::GetProcCPUInfo()
             return ret;
         }     
         DumpCpuInfoUtil::GetInstance().UpdateCpuInfo();
+        GetInitOldCPUInfo(oldCPUInfo_, curCPUInfo_);
+        usleep(DELAY_VALUE);
+        if (!DumpCpuInfoUtil::GetInstance().GetCurCPUInfo(curCPUInfo_)) {
+            DUMPER_HILOGE(MODULE_COMMON, "Get current cpu info failed!.");
+            return ret;
+        }
     }
-        
-    GetInitOldCPUInfo(oldCPUInfo_, curCPUInfo_);
-    usleep(DELAY_VALUE);
-    if (!DumpCpuInfoUtil::GetInstance().GetCurCPUInfo(curCPUInfo_)) {
-        DUMPER_HILOGE(MODULE_COMMON, "Get current cpu info failed!.");
-        return ret;
-    }
+
     if (!DumpCpuInfoUtil::GetInstance().GetCurSpecProcInfo(cpuUsagePid_, curSpecProc_)) {
         DUMPER_HILOGE(MODULE_COMMON, "Get current process %{public}d info failed!.", cpuUsagePid_);
         return ret;
