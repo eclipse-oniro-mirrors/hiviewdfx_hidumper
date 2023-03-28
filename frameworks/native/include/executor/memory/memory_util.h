@@ -49,7 +49,7 @@ public:
     void InitMemUsage(MemInfoData::MemUsage &usage);
     void InitGraphicsMemory(MemInfoData::GraphicsMemory &graphicsMemory);
     bool GetTypeAndValue(const std::string &str, std::string &type, uint64_t &value);
-    void SetValue(const std::string &value, std::vector<std::string> &lines, std::vector<std::string> &values);
+    void SetMemTotalValue(const std::string &value, std::vector<std::string> &lines, std::vector<std::string> &values);
 
 private:
 };

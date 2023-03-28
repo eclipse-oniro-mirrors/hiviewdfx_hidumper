@@ -160,14 +160,14 @@ void MemoryInfo::CalcGroup(const GroupMap &infos, StringMatrix result)
     vector<string> lines;
     vector<string> values;
 
-    MemoryUtil::GetInstance().SetValue("Total", lines, values);
-    MemoryUtil::GetInstance().SetValue(to_string(meminfo.pss + meminfo.swapPss), lines, values);
-    MemoryUtil::GetInstance().SetValue(to_string(meminfo.sharedClean), lines, values);
-    MemoryUtil::GetInstance().SetValue(to_string(meminfo.sharedDirty), lines, values);
-    MemoryUtil::GetInstance().SetValue(to_string(meminfo.privateClean), lines, values);
-    MemoryUtil::GetInstance().SetValue(to_string(meminfo.privateDirty), lines, values);
-    MemoryUtil::GetInstance().SetValue(to_string(meminfo.swap), lines, values);
-    MemoryUtil::GetInstance().SetValue(to_string(meminfo.swapPss), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue("Total", lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.pss + meminfo.swapPss), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.sharedClean), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.sharedDirty), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.privateClean), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.privateDirty), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.swap), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.swapPss), lines, values);
 
     result->push_back(lines);
     result->push_back(values);

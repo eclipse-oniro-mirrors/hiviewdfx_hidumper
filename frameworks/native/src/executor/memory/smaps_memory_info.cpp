@@ -160,17 +160,17 @@ void SmapsMemoryInfo::CalcSmapsGroup(const GroupMap &infos, StringMatrix result,
   
     vector<string> lines;
     vector<string> values;
-    MemoryUtil::GetInstance().SetValue(to_string(memSmapsInfo.size), lines, values);
-    MemoryUtil::GetInstance().SetValue(to_string(memSmapsInfo.rss), lines, values);
-    MemoryUtil::GetInstance().SetValue(to_string(memSmapsInfo.pss), lines, values);
-    MemoryUtil::GetInstance().SetValue(to_string(memSmapsInfo.sharedClean), lines, values);
-    MemoryUtil::GetInstance().SetValue(to_string(memSmapsInfo.sharedDirty), lines, values);
-    MemoryUtil::GetInstance().SetValue(to_string(memSmapsInfo.privateClean), lines, values);
-    MemoryUtil::GetInstance().SetValue(to_string(memSmapsInfo.privateDirty), lines, values);
-    MemoryUtil::GetInstance().SetValue(to_string(memSmapsInfo.swap), lines, values);
-    MemoryUtil::GetInstance().SetValue(to_string(memSmapsInfo.swapPss), lines, values);
-    MemoryUtil::GetInstance().SetValue(to_string(memSmapsInfo.counts), lines, values);
-    MemoryUtil::GetInstance().SetValue("Summary", lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.size), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.rss), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.pss), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.sharedClean), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.sharedDirty), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.privateClean), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.privateDirty), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.swap), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.swapPss), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.counts), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue("Summary", lines, values);
 
     result->push_back(lines);
     result->push_back(values);
