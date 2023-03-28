@@ -183,7 +183,7 @@ bool MemoryUtil::GetTypeAndValue(const string &str, string &type, uint64_t &valu
     return false;
 }
 
-void MemoryUtil::SetValue(const string &value, vector<string> &lines, vector<string> &values)
+void MemoryUtil::SetMemTotalValue(const string &value, vector<string> &lines, vector<string> &values)
 {
     string separator = "-";
     string space = " ";
