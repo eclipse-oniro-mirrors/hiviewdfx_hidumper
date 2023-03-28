@@ -37,8 +37,13 @@
 #include "util/string_utils.h"
 #include "common/dumper_constant.h"
 #include "securec.h"
+#include "parameters.h"
 namespace OHOS {
 namespace HiviewDFX {
+namespace {
+constexpr int TWO_PARAM = 2;
+} // namespace
+
 DumpImplement::DumpImplement()
 {
     AddExecutorFactoryToMap();
@@ -156,6 +161,7 @@ DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<Dumpe
         }
         dumpParameter->SetPid(clientPid);
     }
+
     dumpParameter->SetOpts(opts);
     return DumpStatus::DUMP_OK;
 }
@@ -187,12 +193,20 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
                                               {"storage", no_argument, 0, 0},
                                               {"zip", no_argument, 0, 0},
                                               {"test", no_argument, 0, 0},
+                                              {"mem-smaps", required_argument, 0, 0},
                                               {0, 0, 0, 0}};
         int c = getopt_long(argc, argv, optStr, longOptions, &optionIndex);
         if (c == -1) {
             break;
         } else if (c == 0) {
             ParseLongCmdOption(opts_, longOptions, optionIndex, argv);
+            std::string debugMode = "0";
+            debugMode = OHOS::system::GetParameter("const.debuggable", debugMode);
+            if (opts_.isShowSmaps_ && debugMode == "0") {
+                DUMPER_HILOGI(MODULE_SERVICE, "current is not debug");
+                CmdHelp();
+                return DumpStatus::DUMP_HELP;
+            }
         } else if (c == 'h') {
             CmdHelp();
             return DumpStatus::DUMP_HELP;
@@ -304,6 +318,9 @@ DumpStatus DumpImplement::ParseLongCmdOption(DumperOpts &opts_, const struct opt
         opts_.path_ = path_;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "test")) {
         opts_.isTest_ = true;
+    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-smaps")) {
+        opts_.isShowSmaps_ = true;
+        opts_.memPid_ = std::stoi(argv[TWO_PARAM]);
     }
     return DumpStatus::DUMP_OK;
 }

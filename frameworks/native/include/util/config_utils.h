@@ -48,6 +48,9 @@ private:
     bool HandleDumpCpuFreq(std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs);
     bool HandleDumpCpuUsage(std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs);
     bool HandleDumpMem(std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs);
+    bool HandleDumpMemShowMaps(std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs);
+    void HandleDumpMemCommon(std::shared_ptr<DumperParameter> dumpParam,
+        std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs);
     bool HandleDumpStorage(std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs);
     bool HandleDumpNet(std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs);
     bool HandleDumpProcesses(std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs);

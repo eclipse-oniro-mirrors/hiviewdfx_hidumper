@@ -41,7 +41,6 @@ public:
     using StringMatrix = std::shared_ptr<std::vector<std::vector<std::string>>>;
     using ValueMap = std::map<std::string, uint64_t>;
     using GroupMap = std::map<std::string, ValueMap>;
-
     using MemFun = std::function<void(MemInfoData::MemInfo&, uint64_t)>;
 
     bool GetMemoryInfoByPid(const int &pid, StringMatrix result);
@@ -106,7 +105,6 @@ private:
     static void InitMemInfo(MemInfoData::MemInfo &memInfo);
     static void InitMemUsage(MemInfoData::MemUsage &usage);
     void CalcGroup(const GroupMap &infos, StringMatrix result);
-    void SetValue(const std::string &value, std::vector<std::string> &lines, std::vector<std::string> &values);
     void GetSortedMemoryInfoNoPid(StringMatrix result);
     void GetMemoryByAdj(StringMatrix result);
     void SetPss(MemInfoData::MemInfo &meminfo, uint64_t value);

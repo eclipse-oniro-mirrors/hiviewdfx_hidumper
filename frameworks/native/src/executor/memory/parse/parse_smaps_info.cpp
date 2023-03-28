@@ -52,7 +52,8 @@ bool ParseSmapsInfo::GetHasPidValue(const string &str, string &type, uint64_t &v
     } else if (StringUtils::GetInstance().IsBegin(str, "S")) {
         success = MemoryUtil::GetInstance().GetTypeAndValue(str, type, value);
         if (success) {
-            if (type == "Shared_Clean" || type == "Shared_Dirty" || type == "Swap" || type == "SwapPss") {
+            if (type == "Shared_Clean" || type == "Shared_Dirty" || type == "Swap" || type == "SwapPss" ||
+                type == "Size") {
                 return true;
             }
         }
@@ -76,6 +77,15 @@ bool ParseSmapsInfo::GetValue(const MemoryFilter::MemoryType &memType, const str
     } else {
         return GetNoPidValue(str, type, value);
     }
+}
+
+bool ParseSmapsInfo::GetSmapsValue(const MemoryFilter::MemoryType &memType, const string &str, string &type,
+    uint64_t &value)
+{
+    if (memType == MemoryFilter::MemoryType::APPOINT_PID) {
+        return GetHasPidValue(str, type, value);
+    }
+    return false;
 }
 
 /**
@@ -111,6 +121,40 @@ bool ParseSmapsInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int 
     }
     in.close();
     DUMPER_HILOGD(MODULE_SERVICE, "ParseSmapsInfo: GetInfo pid:(%d) end,success!\n", pid);
+    return true;
+}
+
+bool ParseSmapsInfo::ShowSmapsData(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &result,
+    MemInfoData::MemSmapsInfo &memSmapsInfo)
+{
+    string filename = "/proc/" + to_string(pid) + "/smaps";
+    ifstream in(filename);
+    if (!in) {
+        DUMPER_HILOGE(MODULE_SERVICE, "File %s not found.\n", filename.c_str());
+        return false;
+    }
+
+    string content;
+    while (getline(in, content)) {
+        string name;
+        uint64_t iNode = 0;
+        if (StringUtils::GetInstance().IsEnd(content, "B")) {
+            string type;
+            uint64_t value = 0;
+            if (GetSmapsValue(memType, content, type, value)) {
+                MemoryUtil::GetInstance().CalcGroup(memGroup_, type, value, result);
+            }
+        } else if (MemoryUtil::GetInstance().IsNameLine(content, name, iNode)) {
+            memGroup_ = name;
+            if (result.find(memGroup_) != result.end()) {
+                result[memGroup_]["Counts"]++;
+            } else {
+                result[memGroup_].insert(pair<string, uint64_t>("Counts", 1));
+                result[memGroup_].insert(pair<string, uint64_t>("Name", 0));
+            }
+        }
+    }
+    in.close();
     return true;
 }
 } // namespace HiviewDFX

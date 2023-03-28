@@ -43,6 +43,7 @@ struct DumperOpts {
     std::string path_; // for zip
     bool isAppendix_;
     bool isTest_;
+    bool isShowSmaps_;
 public:
     DumperOpts();
     void Reset();

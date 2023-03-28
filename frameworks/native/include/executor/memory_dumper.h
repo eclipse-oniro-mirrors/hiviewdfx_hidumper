@@ -19,6 +19,8 @@
 #include <memory>
 #include "hidumper_executor.h"
 #include "executor/memory/memory_info.h"
+#include "executor/memory/smaps_memory_info.h"
+
 namespace OHOS {
 namespace HiviewDFX {
 class MemoryDumper : public HidumperExecutor {
@@ -32,12 +34,14 @@ public:
     DumpStatus PreExecute(const std::shared_ptr<DumperParameter> &parameter, StringMatrix dumpDatas) override;
     DumpStatus Execute() override;
     DumpStatus AfterExecute() override;
-
+  
 private:
     int pid_ = 0;
+    bool isShowMaps_ = false;
     DumpStatus status_ = DUMP_FAIL;
     StringMatrix dumpDatas_;
     std::unique_ptr<MemoryInfo> memoryInfo_;
+    std::unique_ptr<SmapsMemoryInfo> smapsMemoryInfo_;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

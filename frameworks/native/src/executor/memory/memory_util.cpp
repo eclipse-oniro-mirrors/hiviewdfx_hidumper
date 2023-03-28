@@ -19,9 +19,14 @@
 #include <vector>
 #include "securec.h"
 #include "util/string_utils.h"
+#include "hilog_wrapper.h"
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
+namespace {
+constexpr int WIDTH_PARAM = 28;
+} // namespace
+
 MemoryUtil::MemoryUtil()
 {
 }
@@ -42,6 +47,9 @@ bool MemoryUtil::IsNameLine(const string &str, string &name, uint64_t &iNode)
     }
     if (len < str.size()) {
         name = str.substr(len, str.size());
+    }
+    if (name.empty()) {
+        name = "[anon]";
     }
     return true;
 }
@@ -128,6 +136,23 @@ void MemoryUtil::InitMemInfo(MemInfoData::MemInfo &memInfo)
     memInfo.swapPss = 0;
 }
 
+
+void MemoryUtil::InitMemSmapsInfo(MemInfoData::MemSmapsInfo &memInfo)
+{
+    memInfo.rss = 0;
+    memInfo.pss = 0;
+    memInfo.sharedClean = 0;
+    memInfo.sharedDirty = 0;
+    memInfo.privateClean = 0;
+    memInfo.privateDirty = 0;
+    memInfo.swap = 0;
+    memInfo.swapPss = 0;
+    memInfo.name = "";
+    memInfo.size = 0;
+    memInfo.counts = 0;
+}
+
+
 void MemoryUtil::InitMemUsage(MemInfoData::MemUsage &usage)
 {
     usage.vss = 0;
@@ -156,6 +181,28 @@ bool MemoryUtil::GetTypeAndValue(const string &str, string &type, uint64_t &valu
         return true;
     }
     return false;
+}
+
+void MemoryUtil::SetMemTotalValue(const string &value, vector<string> &lines, vector<string> &values)
+{
+    string separator = "-";
+    string space = " ";
+    StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, space);
+    if (StringUtils::GetInstance().IsSameStr(value, "Summary")) {
+        DUMPER_HILOGI(MODULE_SERVICE, "Summary");
+        StringUtils::GetInstance().SetWidth(WIDTH_PARAM, SEPARATOR_, false, separator);
+    } else {
+        StringUtils::GetInstance().SetWidth(LINE_WIDTH_, SEPARATOR_, false, separator);
+    }
+    lines.push_back(separator);
+    string tempValue = value;
+    if (StringUtils::GetInstance().IsSameStr(value, "Summary")) {
+        tempValue = space + tempValue;
+        StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, true, tempValue);
+    } else {
+        StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, tempValue);
+    }
+    values.push_back(tempValue);
 }
 } // namespace HiviewDFX
 } // namespace OHOS
