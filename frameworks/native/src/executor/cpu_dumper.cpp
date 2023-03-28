@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <unistd.h>
 #include "executor/cpu_dumper.h"
 #include "file_ex.h"
 #include "datetime_ex.h"
@@ -88,12 +89,7 @@ DumpStatus CPUDumper::DumpCpuUsageData()
     }
 
     if (cpuUsagePid_ != -1) {
-        if (!DumpCpuInfoUtil::GetInstance().GetCurSpecProcInfo(cpuUsagePid_, curSpecProc_)) {
-            DUMPER_HILOGE(MODULE_COMMON, "Get current process %{public}d info failed!.", cpuUsagePid_);
-            return DumpStatus::DUMP_FAIL;
-        }
-        if (!DumpCpuInfoUtil::GetInstance().GetOldSpecProcInfo(cpuUsagePid_, oldSpecProc_)) {
-            DUMPER_HILOGE(MODULE_COMMON, "Get old process %{public}d info failed!.", cpuUsagePid_);
+        if (!GetProcCPUInfo()) {
             return DumpStatus::DUMP_FAIL;
         }
     } else {
@@ -126,6 +122,47 @@ DumpStatus CPUDumper::DumpCpuUsageData()
     DumpProcInfo();
     DumpCpuInfoUtil::GetInstance().UpdateCpuInfo();
     return DumpStatus::DUMP_OK;
+}
+
+bool CPUDumper::GetProcCPUInfo()
+{
+    bool ret = false;
+    if (!DumpCpuInfoUtil::GetInstance().GetOldSpecProcInfo(cpuUsagePid_, oldSpecProc_)) {
+        DumpCpuInfoUtil::GetInstance().UpdateCpuInfo();
+        if (!DumpCpuInfoUtil::GetInstance().GetOldSpecProcInfo(cpuUsagePid_, oldSpecProc_)) {
+            DUMPER_HILOGE(MODULE_COMMON, "Get old process %{public}d info failed!.", cpuUsagePid_);
+            return ret;
+        }
+
+        GetInitOldCPUInfo(oldCPUInfo_, curCPUInfo_);
+        usleep(DELAY_VALUE);
+        if (!DumpCpuInfoUtil::GetInstance().GetCurCPUInfo(curCPUInfo_)) {
+            DUMPER_HILOGE(MODULE_COMMON, "Get current cpu info failed!.");
+            return ret;
+        }
+    }
+
+    if (!DumpCpuInfoUtil::GetInstance().GetCurSpecProcInfo(cpuUsagePid_, curSpecProc_)) {
+        DUMPER_HILOGE(MODULE_COMMON, "Get current process %{public}d info failed!.", cpuUsagePid_);
+        return ret;
+    }
+    ret = true;
+    return ret;
+}
+
+void CPUDumper::GetInitOldCPUInfo(std::shared_ptr<CPUInfo> &tar, const std::shared_ptr<CPUInfo> &source)
+{
+    if ((tar == nullptr) || (source == nullptr)) {
+        return;
+    }
+
+    tar->uTime = source->uTime;
+    tar->nTime = source->nTime;
+    tar->sTime = source->sTime;
+    tar->iTime = source->iTime;
+    tar->iowTime = source->iowTime;
+    tar->irqTime = source->irqTime;
+    tar->sirqTime = source->sirqTime;
 }
 
 DumpStatus CPUDumper::ReadLoadAvgInfo(const std::string &filePath, std::string &info)
