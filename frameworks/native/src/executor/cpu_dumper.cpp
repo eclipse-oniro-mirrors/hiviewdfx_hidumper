@@ -90,22 +90,7 @@ DumpStatus CPUDumper::DumpCpuUsageData()
     }
 
     if (cpuUsagePid_ != -1) {
-        if (!DumpCpuInfoUtil::GetInstance().GetOldSpecProcInfo(cpuUsagePid_, oldSpecProc_)) {
-            DumpCpuInfoUtil::GetInstance().UpdateCpuInfo();
-            if (!DumpCpuInfoUtil::GetInstance().GetOldSpecProcInfo(cpuUsagePid_, oldSpecProc_)) {
-                DUMPER_HILOGE(MODULE_COMMON, "Get old process %{public}d info failed!.", cpuUsagePid_);
-                return DumpStatus::DUMP_FAIL;
-            }
-        }
-        
-        GetInitOldCPUInfo(oldCPUInfo_, curCPUInfo_);
-        usleep(500000);
-        if (!DumpCpuInfoUtil::GetInstance().GetCurCPUInfo(curCPUInfo_)) {
-            DUMPER_HILOGE(MODULE_COMMON, "Get current cpu info failed!.");
-            return DumpStatus::DUMP_FAIL;
-        }
-        if (!DumpCpuInfoUtil::GetInstance().GetCurSpecProcInfo(cpuUsagePid_, curSpecProc_)) {
-            DUMPER_HILOGE(MODULE_COMMON, "Get current process %{public}d info failed!.", cpuUsagePid_);
+        if (!GetProcCPUInfo()) {
             return DumpStatus::DUMP_FAIL;
         }
     } else {
@@ -137,6 +122,31 @@ DumpStatus CPUDumper::DumpCpuUsageData()
 
     DumpProcInfo();
     return DumpStatus::DUMP_OK;
+}
+
+bool CPUDumper::GetProcCPUInfo()
+{
+    bool ret = false;
+    if (!DumpCpuInfoUtil::GetInstance().GetOldSpecProcInfo(cpuUsagePid_, oldSpecProc_)) {
+        if (!DumpCpuInfoUtil::GetInstance().GetOldSpecProcInfo(cpuUsagePid_, oldSpecProc_)) {
+            DUMPER_HILOGE(MODULE_COMMON, "Get old process %{public}d info failed!.", cpuUsagePid_);
+            return ret;
+        }     
+        DumpCpuInfoUtil::GetInstance().UpdateCpuInfo();
+    }
+        
+    GetInitOldCPUInfo(oldCPUInfo_, curCPUInfo_);
+    usleep(DELAY_VALUE);
+    if (!DumpCpuInfoUtil::GetInstance().GetCurCPUInfo(curCPUInfo_)) {
+        DUMPER_HILOGE(MODULE_COMMON, "Get current cpu info failed!.");
+        return ret;
+    }
+    if (!DumpCpuInfoUtil::GetInstance().GetCurSpecProcInfo(cpuUsagePid_, curSpecProc_)) {
+        DUMPER_HILOGE(MODULE_COMMON, "Get current process %{public}d info failed!.", cpuUsagePid_);
+        return ret;
+    }
+    ret = true;
+    return ret;
 }
 
 void CPUDumper::GetInitOldCPUInfo(std::shared_ptr<CPUInfo> &tar, const std::shared_ptr<CPUInfo> &source)
