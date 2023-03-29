@@ -44,6 +44,7 @@ ohos_source_set("dump_main") {
     "src/executor/list_dumper.cpp",
     "src/executor/memory/get_cma_info.cpp",
     "src/executor/memory/get_hardware_info.cpp",
+    "src/executor/memory/get_heap_info.cpp",
     "src/executor/memory/get_kernel_info.cpp",
     "src/executor/memory/get_process_info.cpp",
     "src/executor/memory/get_ram_info.cpp",
@@ -111,6 +112,8 @@ ohos_source_set("dump_main") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "ability_runtime:app_manager",
+    "bundle_framework:appexecfwk_core",
   ]
 
   subsystem_name = "hiviewdfx"
@@ -147,6 +150,7 @@ ohos_shared_library("hidumperclient") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "ability_runtime:app_manager",
   ]
 
   subsystem_name = "hiviewdfx"

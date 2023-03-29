@@ -134,6 +134,9 @@ void MemoryUtil::InitMemInfo(MemInfoData::MemInfo &memInfo)
     memInfo.privateDirty = 0;
     memInfo.swap = 0;
     memInfo.swapPss = 0;
+    memInfo.heapSize = 0;
+    memInfo.heapAlloc = 0;
+    memInfo.heapFree = 0;
 }
 
 

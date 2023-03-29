@@ -32,6 +32,9 @@ static const std::string MEMINFO_PRIVATE_CLEAN = "Private_Clean";
 static const std::string MEMINFO_PRIVATE_DIRTY = "Private_Dirty";
 static const std::string MEMINFO_SWAP = "Swap";
 static const std::string MEMINFO_SWAP_PSS = "SwapPss";
+static const std::string MEMINFO_HEAP_SIZE = "Heap_Size";
+static const std::string MEMINFO_HEAP_ALLOC = "Heap_Alloc";
+static const std::string MEMINFO_HEAP_FREE = "Heap_Free";
 }
 class MemoryInfo {
 public:
@@ -114,6 +117,9 @@ private:
     void SetPrivateDirty(MemInfoData::MemInfo &meminfo, uint64_t value);
     void SetSwap(MemInfoData::MemInfo &meminfo, uint64_t value);
     void SetSwapPss(MemInfoData::MemInfo &meminfo, uint64_t value);
+    void SetHeapSize(MemInfoData::MemInfo &meminfo, uint64_t value);
+    void SetHeapAlloc(MemInfoData::MemInfo &meminfo, uint64_t value);
+    void SetHeapFree(MemInfoData::MemInfo &meminfo, uint64_t value);
 };
 } // namespace HiviewDFX
 } // namespace OHOS
