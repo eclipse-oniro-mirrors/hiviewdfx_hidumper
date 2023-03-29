@@ -18,7 +18,7 @@
 #include <vector>
 #include "contrib/minizip/zip.h"
 #include "util/zip/zip_common_type.h"
-#include <gtest/gtest_prod.h>
+#include "gtest/gtest_prod.h"
 namespace OHOS {
 namespace HiviewDFX {
 class ZipWriter {
