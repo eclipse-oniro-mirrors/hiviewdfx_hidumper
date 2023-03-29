@@ -39,7 +39,7 @@ private:
     };
 
     const int numberSys = 1024;
-    const string groupNative = "native heap";
+    const std::string groupNative = "native heap";
     OHOS::sptr<OHOS::AppExecFwk::IAppMgr> GetAppManagerInstance();
 };
 } // namespace HiviewDFX
