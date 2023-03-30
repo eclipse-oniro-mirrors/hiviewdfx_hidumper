@@ -42,7 +42,7 @@ bool GetHeapInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int &pi
     DUMPER_HILOGI(MODULE_SERVICE, "GetHeapInfo: GetInfo memType:%{public}d pid:%{public}d begin.", memType, pid);
     struct MallHeapInfo heapInfo = {0};
     OHOS::sptr<OHOS::AppExecFwk::IAppMgr> appManager_ = GetAppManagerInstance();
-    OHOS::AppExecFwk::MallocInfo mallocInfo = {0};
+    OHOS::AppExecFwk::MallocInfo mallocInfo;
     int ret = appManager_->DumpHeapMemory(pid, mallocInfo);
     if (ret != ERR_OK) {
         DUMPER_HILOGE(MODULE_SERVICE, "DumpHeapMemory return failed, ret is:%{public}d", ret);
