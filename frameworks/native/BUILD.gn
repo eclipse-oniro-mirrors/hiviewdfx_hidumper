@@ -92,7 +92,6 @@ ohos_source_set("dump_main") {
     "${hidumper_service_path}:zidl_config",
     "${hidumper_service_path}:service_config",
     ":hidumper_include",
-    "//third_party/googletest:gtest_config",
   ]
 
   deps = [
