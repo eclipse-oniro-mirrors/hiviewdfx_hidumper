@@ -26,6 +26,7 @@
 #include "executor/memory/get_kernel_info.h"
 #include "executor/memory/get_process_info.h"
 #include "executor/memory/get_ram_info.h"
+#include "executor/memory/get_heap_info.h"
 #include "executor/memory/memory_util.h"
 #include "executor/memory/parse/meminfo_data.h"
 #include "executor/memory/parse/parse_meminfo.h"
@@ -58,6 +59,12 @@ MemoryInfo::MemoryInfo()
         bind(&MemoryInfo::SetSwap, this, placeholders::_1, placeholders::_2)));
     methodVec_.push_back(make_pair(MEMINFO_SWAP_PSS,
         bind(&MemoryInfo::SetSwapPss, this, placeholders::_1, placeholders::_2)));
+    methodVec_.push_back(make_pair(MEMINFO_HEAP_SIZE,
+        bind(&MemoryInfo::SetHeapSize, this, placeholders::_1, placeholders::_2)));
+    methodVec_.push_back(make_pair(MEMINFO_HEAP_ALLOC,
+        bind(&MemoryInfo::SetHeapAlloc, this, placeholders::_1, placeholders::_2)));
+    methodVec_.push_back(make_pair(MEMINFO_HEAP_FREE,
+        bind(&MemoryInfo::SetHeapFree, this, placeholders::_1, placeholders::_2)));
 }
 
 MemoryInfo::~MemoryInfo()
@@ -168,6 +175,9 @@ void MemoryInfo::CalcGroup(const GroupMap &infos, StringMatrix result)
     MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.privateDirty), lines, values);
     MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.swap), lines, values);
     MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.swapPss), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.heapSize), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.heapAlloc), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.heapFree), lines, values);
 
     result->push_back(lines);
     result->push_back(values);
@@ -210,6 +220,12 @@ bool MemoryInfo::GetMemoryInfoByPid(const int &pid, StringMatrix result)
     unique_ptr<ParseSmapsInfo> parseSmapsInfo = make_unique<ParseSmapsInfo>();
     if (!parseSmapsInfo->GetInfo(MemoryFilter::APPOINT_PID, pid, groupMap)) {
         DUMPER_HILOGE(MODULE_SERVICE, "parse smaps info fail");
+        return false;
+    }
+
+    unique_ptr<GetHeapInfo> getHeapInfo = make_unique<GetHeapInfo>();
+    if (!getHeapInfo->GetInfo(MemoryFilter::APPOINT_PID, pid, groupMap)) {
+        DUMPER_HILOGE(MODULE_SERVICE, "get heap info fail");
         return false;
     }
 
@@ -793,6 +809,20 @@ void MemoryInfo::SetSwap(MemInfoData::MemInfo &meminfo, uint64_t value)
 void MemoryInfo::SetSwapPss(MemInfoData::MemInfo &meminfo, uint64_t value)
 {
     meminfo.swapPss += value;
+}
+void MemoryInfo::SetHeapSize(MemInfoData::MemInfo &meminfo, uint64_t value)
+{
+    meminfo.heapSize += value;
+}
+
+void MemoryInfo::SetHeapAlloc(MemInfoData::MemInfo &meminfo, uint64_t value)
+{
+    meminfo.heapAlloc += value;
+}
+
+void MemoryInfo::SetHeapFree(MemInfoData::MemInfo &meminfo, uint64_t value)
+{
+    meminfo.heapFree += value;
 }
 } // namespace HiviewDFX
 } // namespace OHOS

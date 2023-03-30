@@ -33,6 +33,9 @@ public:
         uint64_t privateDirty;
         uint64_t swap;
         uint64_t swapPss;
+        uint64_t heapSize;
+        uint64_t heapAlloc;
+        uint64_t heapFree;
     };
 
     struct MemSmapsInfo {
