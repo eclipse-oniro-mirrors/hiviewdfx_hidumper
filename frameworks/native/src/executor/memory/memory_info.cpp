@@ -810,5 +810,19 @@ void MemoryInfo::SetSwapPss(MemInfoData::MemInfo &meminfo, uint64_t value)
 {
     meminfo.swapPss += value;
 }
+void MemoryInfo::SetHeapSize(MemInfoData::MemInfo &meminfo, uint64_t value)
+{
+    meminfo.heapSize += value;
+}
+
+void MemoryInfo::SetHeapAlloc(MemInfoData::MemInfo &meminfo, uint64_t value)
+{
+    meminfo.heapAlloc += value;
+}
+
+void MemoryInfo::SetHeapFree(MemInfoData::MemInfo &meminfo, uint64_t value)
+{
+    meminfo.heapFree += value;
+}
 } // namespace HiviewDFX
 } // namespace OHOS
