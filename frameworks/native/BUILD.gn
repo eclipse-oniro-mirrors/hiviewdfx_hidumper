@@ -103,7 +103,6 @@ ohos_source_set("dump_main") {
 
   external_deps = [
     "ability_runtime:app_manager",
-    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
     "eventhandler:libeventhandler",
@@ -142,7 +141,6 @@ ohos_shared_library("hidumperclient") {
   ]
 
   external_deps = [
-    "ability_runtime:app_manager",
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog_native:libhilog",
