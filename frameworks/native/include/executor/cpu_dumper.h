@@ -39,6 +39,8 @@ private:
     std::shared_ptr<ProcInfo> GetOldProc(const std::string& pid);
     void DumpProcInfo();
     static bool SortProcInfo(std::shared_ptr<ProcInfo> &left, std::shared_ptr<ProcInfo> &right);
+    void GetInitOldCPUInfo(std::shared_ptr<CPUInfo> &tar, const std::shared_ptr<CPUInfo> &source);
+    bool GetProcCPUInfo();
 
 private:
     static const std::string LOAD_AVG_FILE_PATH;
@@ -47,6 +49,7 @@ private:
     static const int DEC_SYSTEM_VALUE;
     static const int PROC_CPU_LENGTH;
     static const long unsigned HUNDRED_PERCENT_VALUE;
+    static const long unsigned DELAY_VALUE = 500000;
 
     StringMatrix dumpCPUDatas_;
     bool isDumpCpuUsage_ = false;
