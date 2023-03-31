@@ -18,6 +18,9 @@
 #include <vector>
 #include "contrib/minizip/zip.h"
 #include "util/zip/zip_common_type.h"
+#ifdef DUMP_TEST_MODE // for mock test
+#include "gtest/gtest_prod.h"
+#endif // for mock test
 namespace OHOS {
 namespace HiviewDFX {
 class ZipWriter {
@@ -43,6 +46,9 @@ private:
     std::vector<std::pair<std::string, std::string>> zipItems_;
     std::string zipFilePath_;
     zipFile zipFile_;
+#ifdef DUMP_TEST_MODE // for mock test
+    FRIEND_TEST(HidumperConfigUtilsTest, HidumperZipWriter001);
+#endif // for mock test
 };
 } // namespace HiviewDFX
 } // namespace OHOS
