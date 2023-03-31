@@ -43,12 +43,12 @@ using namespace std;
 using namespace OHOS::HDI::Memorytracker::V1_0;
 namespace OHOS {
 namespace HiviewDFX {
-const int LINE_WIDTH_ = 14;
-const int LINE_NAME_VAL_WIDTH_ = 60;
-const int LINE_NAME_KEY_WIDTH_ = 28;
+const int LINE_WIDTH = 14;
+const int LINE_NAME_VAL_WIDTH = 60;
+const int LINE_NAME_KEY_WIDTH = 28;
 const size_t TYPE_SIZE = 2;
-const char SEPARATOR_ = '-';
-const char BLANK_ = ' ';
+const char SEPARATOR = '-';
+const char BLANK = ' ';
 SmapsMemoryInfo::SmapsMemoryInfo()
 {
     sMapsMethodVec_.clear();
@@ -84,13 +84,13 @@ void SmapsMemoryInfo::InsertSmapsTitle(StringMatrix result)
     vector<string> line2;
     vector<string> line3;
     string space = " ";
-    StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, true, space);
+    StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, true, space);
 
     string separator = "-";
-    StringUtils::GetInstance().SetWidth(LINE_WIDTH_, SEPARATOR_, true, separator);
+    StringUtils::GetInstance().SetWidth(LINE_WIDTH, SEPARATOR, true, separator);
 
     string unit = "(" + MemoryUtil::GetInstance().KB_UNIT_ + " )";
-    StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, true, unit);
+    StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, true, unit);
 
     // Add  spaces at the beginning of the line
     line1.push_back(space);
@@ -102,16 +102,16 @@ void SmapsMemoryInfo::InsertSmapsTitle(StringMatrix result)
         StringUtils::GetInstance().StringSplit(str, "_", types);
         if (types.size() == TYPE_SIZE) {
             string title1 = types.at(0);
-            StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, true, title1);
+            StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, true, title1);
             line1.push_back(title1);
             string title2 = types.at(1);
-            StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, true, title2);
+            StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, true, title2);
             line2.push_back(title2);
             line3.push_back(separator);
         } else {
             string title = types.at(0);
             StringUtils::GetInstance().SetWidth(StringUtils::GetInstance().IsSameStr(title, "Name") ?
-                LINE_NAME_KEY_WIDTH_ : LINE_WIDTH_, BLANK_, true, title);
+                LINE_NAME_KEY_WIDTH : LINE_WIDTH, BLANK, true, title);
             line1.push_back(space);
             line2.push_back(title);
             title = TrimStr(title);
@@ -129,7 +129,7 @@ void SmapsMemoryInfo::BuildSmapsResult(const GroupMap &infos, StringMatrix resul
     for (const auto &info : infos) {
         vector<string> tempResult;
         string space = " ";
-        StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, space);
+        StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, false, space);
         auto &valueMap = info.second;
         for (const auto &tag : MemoryFilter::GetInstance().VALUE_SMAPS_WITH_PID) {
             auto it = valueMap.find(tag);
@@ -140,9 +140,9 @@ void SmapsMemoryInfo::BuildSmapsResult(const GroupMap &infos, StringMatrix resul
             if (StringUtils::GetInstance().IsSameStr(tag, "Name")) {
                 DUMPER_HILOGI(MODULE_SERVICE, "tag is Name");
                 value = space + value;
-                StringUtils::GetInstance().SetWidth(LINE_NAME_VAL_WIDTH_, BLANK_, true, value);
+                StringUtils::GetInstance().SetWidth(LINE_NAME_VAL_WIDTH, BLANK, true, value);
             } else {
-                StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, value);
+                StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, false, value);
             }
             tempResult.push_back(value);
         }
