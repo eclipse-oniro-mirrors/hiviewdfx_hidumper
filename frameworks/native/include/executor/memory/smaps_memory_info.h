@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,7 +36,6 @@ static const std::string SMAPS_MEMINFO_SWAP_PSS = "SwapPss";
 static const std::string SMAPS_MEMINFO_SIZE = "Size";
 static const std::string SMAPS_MEMINFO_NAME = "Name";
 static const std::string SMAPS_MEMINFO_COUNTS = "Counts";
-
 }
 class SmapsMemoryInfo {
 public:
@@ -57,19 +56,7 @@ private:
         FAIL_NO_MORE_DATA = 4,
     };
 
-    const int LINE_WIDTH_ = 14;
-    const int LINE_NAME_VAL_WIDTH_ = 60;
-    const int LINE_NAME_KEY_WIDTH_ = 28;
-    const size_t TYPE_SIZE = 2;
-    const char SEPARATOR_ = '-';
-    const char BLANK_ = ' ';
-    const static int NAME_SIZE_ = 2;
-    const static int VSS_BIT = 4;
-    const static int BYTE_PER_KB = 1024;
-    std::future<GroupMap> fut_;
-    std::vector<int> pids_;
-    std::vector<std::pair<std::string, MemSmapsFun>> sMapsMethodVec_;
-    void insertSmapsTitle(StringMatrix result);
+    void InsertSmapsTitle(StringMatrix result);
     void BuildSmapsResult(const GroupMap &infos, StringMatrix result);
     void CalcSmapsGroup(const GroupMap &infos, StringMatrix result, MemInfoData::MemSmapsInfo &memSmapsInfo);
     void SetRss(MemInfoData::MemSmapsInfo &meminfo, uint64_t value);
@@ -83,6 +70,7 @@ private:
     void SetSize(MemInfoData::MemSmapsInfo &meminfo, uint64_t value);
     void SetName(MemInfoData::MemSmapsInfo &meminfo, const std::string &value);
     void SetCounts(MemInfoData::MemSmapsInfo &meminfo, uint64_t value);
+    std::vector<std::pair<std::string, MemSmapsFun>> sMapsMethodVec_;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

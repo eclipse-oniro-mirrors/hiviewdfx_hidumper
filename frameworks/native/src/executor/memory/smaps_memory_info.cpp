@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -43,6 +43,12 @@ using namespace std;
 using namespace OHOS::HDI::Memorytracker::V1_0;
 namespace OHOS {
 namespace HiviewDFX {
+const int LINE_WIDTH_ = 14;
+const int LINE_NAME_VAL_WIDTH_ = 60;
+const int LINE_NAME_KEY_WIDTH_ = 28;
+const size_t TYPE_SIZE = 2;
+const char SEPARATOR_ = '-';
+const char BLANK_ = ' ';
 SmapsMemoryInfo::SmapsMemoryInfo()
 {
     sMapsMethodVec_.clear();
@@ -72,7 +78,7 @@ SmapsMemoryInfo::~SmapsMemoryInfo()
 {
 }
 
-void SmapsMemoryInfo::insertSmapsTitle(StringMatrix result)
+void SmapsMemoryInfo::InsertSmapsTitle(StringMatrix result)
 {
     vector<string> line1;
     vector<string> line2;
@@ -119,7 +125,7 @@ void SmapsMemoryInfo::insertSmapsTitle(StringMatrix result)
 
 void SmapsMemoryInfo::BuildSmapsResult(const GroupMap &infos, StringMatrix result)
 {
-    insertSmapsTitle(result);
+    InsertSmapsTitle(result);
     for (const auto &info : infos) {
         vector<string> tempResult;
         string space = " ";
@@ -157,7 +163,6 @@ void SmapsMemoryInfo::CalcSmapsGroup(const GroupMap &infos, StringMatrix result,
             }
         }
     }
-  
     vector<string> lines;
     vector<string> values;
     MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.size), lines, values);

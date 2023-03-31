@@ -34,7 +34,6 @@ public:
     DumpStatus PreExecute(const std::shared_ptr<DumperParameter> &parameter, StringMatrix dumpDatas) override;
     DumpStatus Execute() override;
     DumpStatus AfterExecute() override;
-  
 private:
     int pid_ = 0;
     bool isShowMaps_ = false;
