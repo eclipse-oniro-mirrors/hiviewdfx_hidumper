@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -43,6 +43,12 @@ using namespace std;
 using namespace OHOS::HDI::Memorytracker::V1_0;
 namespace OHOS {
 namespace HiviewDFX {
+static const int LINE_WIDTH = 14;
+static const int LINE_NAME_VAL_WIDTH = 60;
+static const int LINE_NAME_KEY_WIDTH = 28;
+static const size_t TYPE_SIZE = 2;
+static const char SEPARATOR = '-';
+static const char BLANK = ' ';
 SmapsMemoryInfo::SmapsMemoryInfo()
 {
     sMapsMethodVec_.clear();
@@ -72,19 +78,19 @@ SmapsMemoryInfo::~SmapsMemoryInfo()
 {
 }
 
-void SmapsMemoryInfo::insertSmapsTitle(StringMatrix result)
+void SmapsMemoryInfo::InsertSmapsTitle(StringMatrix result)
 {
     vector<string> line1;
     vector<string> line2;
     vector<string> line3;
     string space = " ";
-    StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, true, space);
+    StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, true, space);
 
     string separator = "-";
-    StringUtils::GetInstance().SetWidth(LINE_WIDTH_, SEPARATOR_, true, separator);
+    StringUtils::GetInstance().SetWidth(LINE_WIDTH, SEPARATOR, true, separator);
 
     string unit = "(" + MemoryUtil::GetInstance().KB_UNIT_ + " )";
-    StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, true, unit);
+    StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, true, unit);
 
     // Add  spaces at the beginning of the line
     line1.push_back(space);
@@ -96,16 +102,16 @@ void SmapsMemoryInfo::insertSmapsTitle(StringMatrix result)
         StringUtils::GetInstance().StringSplit(str, "_", types);
         if (types.size() == TYPE_SIZE) {
             string title1 = types.at(0);
-            StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, true, title1);
+            StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, true, title1);
             line1.push_back(title1);
             string title2 = types.at(1);
-            StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, true, title2);
+            StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, true, title2);
             line2.push_back(title2);
             line3.push_back(separator);
         } else {
             string title = types.at(0);
             StringUtils::GetInstance().SetWidth(StringUtils::GetInstance().IsSameStr(title, "Name") ?
-                LINE_NAME_KEY_WIDTH_ : LINE_WIDTH_, BLANK_, true, title);
+                LINE_NAME_KEY_WIDTH : LINE_WIDTH, BLANK, true, title);
             line1.push_back(space);
             line2.push_back(title);
             title = TrimStr(title);
@@ -119,11 +125,11 @@ void SmapsMemoryInfo::insertSmapsTitle(StringMatrix result)
 
 void SmapsMemoryInfo::BuildSmapsResult(const GroupMap &infos, StringMatrix result)
 {
-    insertSmapsTitle(result);
+    InsertSmapsTitle(result);
     for (const auto &info : infos) {
         vector<string> tempResult;
         string space = " ";
-        StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, space);
+        StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, false, space);
         auto &valueMap = info.second;
         for (const auto &tag : MemoryFilter::GetInstance().VALUE_SMAPS_WITH_PID) {
             auto it = valueMap.find(tag);
@@ -134,9 +140,9 @@ void SmapsMemoryInfo::BuildSmapsResult(const GroupMap &infos, StringMatrix resul
             if (StringUtils::GetInstance().IsSameStr(tag, "Name")) {
                 DUMPER_HILOGI(MODULE_SERVICE, "tag is Name");
                 value = space + value;
-                StringUtils::GetInstance().SetWidth(LINE_NAME_VAL_WIDTH_, BLANK_, true, value);
+                StringUtils::GetInstance().SetWidth(LINE_NAME_VAL_WIDTH, BLANK, true, value);
             } else {
-                StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, value);
+                StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, false, value);
             }
             tempResult.push_back(value);
         }
@@ -157,7 +163,6 @@ void SmapsMemoryInfo::CalcSmapsGroup(const GroupMap &infos, StringMatrix result,
             }
         }
     }
-  
     vector<string> lines;
     vector<string> values;
     MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.size), lines, values);

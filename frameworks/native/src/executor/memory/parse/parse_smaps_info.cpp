@@ -130,7 +130,7 @@ bool ParseSmapsInfo::ShowSmapsData(const MemoryFilter::MemoryType &memType, cons
     string filename = "/proc/" + to_string(pid) + "/smaps";
     ifstream in(filename);
     if (!in) {
-        DUMPER_HILOGE(MODULE_SERVICE, "File %s not found.\n", filename.c_str());
+        DUMPER_HILOGE(MODULE_SERVICE, "File %s not found.", filename.c_str());
         return false;
     }
 
