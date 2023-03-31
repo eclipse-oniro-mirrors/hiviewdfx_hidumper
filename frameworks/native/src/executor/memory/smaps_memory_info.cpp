@@ -43,12 +43,12 @@ using namespace std;
 using namespace OHOS::HDI::Memorytracker::V1_0;
 namespace OHOS {
 namespace HiviewDFX {
-const int LINE_WIDTH = 14;
-const int LINE_NAME_VAL_WIDTH = 60;
-const int LINE_NAME_KEY_WIDTH = 28;
-const size_t TYPE_SIZE = 2;
-const char SEPARATOR = '-';
-const char BLANK = ' ';
+static const int LINE_WIDTH = 14;
+static const int LINE_NAME_VAL_WIDTH = 60;
+static const int LINE_NAME_KEY_WIDTH = 28;
+static const size_t TYPE_SIZE = 2;
+static const char SEPARATOR = '-';
+static const char BLANK = ' ';
 SmapsMemoryInfo::SmapsMemoryInfo()
 {
     sMapsMethodVec_.clear();
