@@ -77,6 +77,7 @@ private:
     std::vector<int> pids_;
     std::vector<MemInfoData::MemUsage> memUsages_;
     std::vector<std::pair<std::string, MemFun>> methodVec_;
+    std::vector<std::string> reclaimPriority_;
     std::map<std::string, std::vector<MemInfoData::MemUsage>> adjMemResult_ = {
         {"System", {}}, {"Foreground", {}}, {"Suspend-delay", {}},
         {"Perceived", {}}, {"Background", {}}, {"Undefined", {}},
