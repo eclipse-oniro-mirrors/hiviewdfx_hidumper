@@ -28,7 +28,7 @@ GetHeapInfo::GetHeapInfo()
 GetHeapInfo::~GetHeapInfo()
 {
 }
-
+#ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
 OHOS::sptr<OHOS::AppExecFwk::IAppMgr> GetHeapInfo::GetAppManagerInstance()
 {
     OHOS::sptr<OHOS::ISystemAbilityManager> systemAbilityManager =
@@ -36,11 +36,13 @@ OHOS::sptr<OHOS::AppExecFwk::IAppMgr> GetHeapInfo::GetAppManagerInstance()
     OHOS::sptr<OHOS::IRemoteObject> appObject = systemAbilityManager->GetSystemAbility(OHOS::APP_MGR_SERVICE_ID);
     return OHOS::iface_cast<OHOS::AppExecFwk::IAppMgr>(appObject);
 }
+#endif
 
 bool GetHeapInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &infos)
 {
     DUMPER_HILOGI(MODULE_SERVICE, "GetHeapInfo: GetInfo memType:%{public}d pid:%{public}d begin.", memType, pid);
     struct MallHeapInfo heapInfo = {0};
+#ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
     OHOS::sptr<OHOS::AppExecFwk::IAppMgr> appManager_ = GetAppManagerInstance();
     OHOS::AppExecFwk::MallocInfo mallocInfo;
     int ret = appManager_->DumpHeapMemory(pid, mallocInfo);
@@ -53,7 +55,7 @@ bool GetHeapInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int &pi
     }
     DUMPER_HILOGD(MODULE_SERVICE, "Dumper GetInfo DumpHeapMemory result: %{public}i, usmblks: %{public}i, uordblks: \
         %{public}i, fordblks: %{public}i", ret, mallocInfo.usmblks, mallocInfo.uordblks, mallocInfo.fordblks);
-
+#endif
     for (const auto &info : infos) {
         vector<string> pageTag;
         StringUtils::GetInstance().StringSplit(info.first, "#", pageTag);

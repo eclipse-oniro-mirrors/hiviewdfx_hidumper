@@ -34,3 +34,13 @@ hidumper_utils_path = "${hidumper_root_path}/utils"
 hidumper_interface = "${hidumper_root_path}/interfaces/native"
 
 system_type = "default"
+
+declare_args() {
+  hidumper_ability_runtime_enable = true
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.ability_ability_runtime)) {
+    hidumper_ability_runtime_enable = false
+  }
+
+  enable_ability_runtime_build = true
+}

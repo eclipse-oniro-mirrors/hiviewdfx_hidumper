@@ -115,6 +115,12 @@ ohos_source_set("dump_main") {
     "samgr:samgr_proxy",
   ]
 
+  defines = []
+  if (hidumper_ability_runtime_enable) {
+     external_deps += [ "ability_runtime:app_manager" ]
+     defines += [ "HIDUMPER_ABILITY_RUNTIME_ENABLE" ]
+  }
+  
   subsystem_name = "hiviewdfx"
 
   part_name = "hidumper"
