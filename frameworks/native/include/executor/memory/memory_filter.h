@@ -50,9 +50,6 @@ public:
         {MEMORY_TRACKER_TYPE_OTHER, "Other"}
     };
 
-    const std::vector<std::string> RECLAIM_PRIORITY = {"System", "Foreground", "Suspend-delay", "Perceived",
-                                                       "Background", "Undefined"};
-
     const std::vector<std::string> VALUE_WITH_PID = {"Pss", "Shared_Clean", "Shared_Dirty", "Private_Clean",
                                                      "Private_Dirty", "Swap", "SwapPss", "Heap_Size", "Heap_Alloc",
                                                      "Heap_Free"};

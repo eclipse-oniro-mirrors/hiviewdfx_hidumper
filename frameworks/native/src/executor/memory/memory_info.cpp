@@ -744,7 +744,13 @@ void MemoryInfo::GetMemoryByAdj(StringMatrix result)
     title.push_back("Total Pss by OOM adjustment:");
     result->push_back(title);
 
-    for (const auto &adjLabel : MemoryFilter::GetInstance().RECLAIM_PRIORITY) {
+    reclaimPriority_.clear();
+    for (auto reclaim : Memory::ReclaimPriorityMapping) {
+        reclaimPriority_.push_back(reclaim.second);
+    }
+    reclaimPriority_.push_back(Memory::RECLAIM_PRIORITY_UNKNOWN_DESC);
+
+    for (const auto &adjLabel : reclaimPriority_) {
         vector<MemInfoData::MemUsage> memUsages = adjMemResult_[adjLabel];
         vector<string> label;
         if (memUsages.size() == 0) {
