@@ -40,9 +40,9 @@ private:
         int free;
     };
 
-    const int numberSys = 1024;
     const std::string groupNative = "native heap";
 #ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
+    const int numberSys = 1024;
     OHOS::sptr<OHOS::AppExecFwk::IAppMgr> GetAppManagerInstance();
 #endif
 };

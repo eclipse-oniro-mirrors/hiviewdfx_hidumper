@@ -41,6 +41,4 @@ declare_args() {
       !defined(global_parts_info.ability_ability_runtime)) {
     hidumper_ability_runtime_enable = false
   }
-
-  enable_ability_runtime_build = true
 }
