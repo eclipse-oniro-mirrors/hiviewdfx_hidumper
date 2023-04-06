@@ -120,6 +120,7 @@ DumpStatus CPUDumper::DumpCpuUsageData()
     AddStrLineToDumpInfo(cpuStatStr);
 
     DumpProcInfo();
+    DumpCpuInfoUtil::GetInstance().UpdateCpuInfo();
     return DumpStatus::DUMP_OK;
 }
 
