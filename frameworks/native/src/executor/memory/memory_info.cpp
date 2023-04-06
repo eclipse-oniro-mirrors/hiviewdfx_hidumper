@@ -744,7 +744,7 @@ void MemoryInfo::GetMemoryByAdj(StringMatrix result)
     title.push_back("Total Pss by OOM adjustment:");
     result->push_back(title);
 
-    reclaimPriority_.clear();
+    vector<string> reclaimPriority_;
     for (auto reclaim : Memory::ReclaimPriorityMapping) {
         reclaimPriority_.push_back(reclaim.second);
     }
