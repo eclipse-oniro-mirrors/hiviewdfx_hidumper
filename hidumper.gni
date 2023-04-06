@@ -37,8 +37,7 @@ system_type = "default"
 
 declare_args() {
   hidumper_ability_runtime_enable = true
-  if (defined(global_parts_info) &&
-      !defined(global_parts_info.ability_ability_runtime)) {
+  if (!defined(global_parts_info.ability_ability_runtime)) {
     hidumper_ability_runtime_enable = false
   }
 }
