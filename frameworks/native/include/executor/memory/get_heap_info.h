@@ -16,8 +16,10 @@
 #define GET_HEAP_INFO_H
 
 #include "executor/memory/memory_filter.h"
+#ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
 #include "app_malloc_info.h"
 #include "app_mgr_interface.h"
+#endif
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 namespace OHOS {
@@ -38,9 +40,11 @@ private:
         int free;
     };
 
-    const int numberSys = 1024;
     const std::string groupNative = "native heap";
+#ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
+    const int numberSys = 1024;
     OHOS::sptr<OHOS::AppExecFwk::IAppMgr> GetAppManagerInstance();
+#endif
 };
 } // namespace HiviewDFX
 } // namespace OHOS
