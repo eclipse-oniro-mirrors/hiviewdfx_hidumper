@@ -150,7 +150,7 @@ bool CPUDumper::GetProcCPUInfo()
     return ret;
 }
 
-void CPUDumper::GetInitOldCPUInfo(std::shared_ptr<CPUInfo> &tar, const std::shared_ptr<CPUInfo> &source)
+void CPUDumper::GetInitOldCPUInfo(std::shared_ptr<CPUInfo> tar, const std::shared_ptr<CPUInfo> source)
 {
     if ((tar == nullptr) || (source == nullptr)) {
         return;
