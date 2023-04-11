@@ -48,6 +48,8 @@ public:
         uint64_t swap;
         uint64_t swapPss;
         std::string name;
+        std::string start;
+        std::string end;
         uint64_t size;
         uint64_t counts;
     };

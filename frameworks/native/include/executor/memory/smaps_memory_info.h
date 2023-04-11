@@ -46,7 +46,7 @@ public:
     using ValueMap = std::map<std::string, uint64_t>;
     using GroupMap = std::map<std::string, ValueMap>;
     using MemSmapsFun = std::function<void(MemInfoData::MemSmapsInfo&, uint64_t)>;
-    bool ShowMemorySmapsByPid(const int &pid, StringMatrix result);
+    bool ShowMemorySmapsByPid(const int &pid, StringMatrix result, bool isShowSmapsInfo);
 
 private:
     enum Status {
@@ -56,9 +56,12 @@ private:
         FAIL_NO_MORE_DATA = 4,
     };
 
-    void InsertSmapsTitle(StringMatrix result);
-    void BuildSmapsResult(const GroupMap &infos, StringMatrix result);
-    void CalcSmapsGroup(const GroupMap &infos, StringMatrix result, MemInfoData::MemSmapsInfo &memSmapsInfo);
+    void InsertSmapsTitle(StringMatrix result, bool isShowSmapsInfo);
+    void BuildSmapsResult(const GroupMap &infos, StringMatrix result, bool isShowSmapsInfo,
+        std::vector<std::map<std::string, std::string>> vectMap);
+    void BuildSmapsInfo(StringMatrix result, std::vector<std::map<std::string, std::string>> vectMap);
+    void CalcSmapsGroup(const GroupMap &infos, StringMatrix result, MemInfoData::MemSmapsInfo &memSmapsInfo,
+        bool isShowSmapsInfo, std::vector<std::map<std::string, std::string>> vectMap);
     void SetRss(MemInfoData::MemSmapsInfo &meminfo, uint64_t value);
     void SetPss(MemInfoData::MemSmapsInfo &meminfo, uint64_t value);
     void SetSharedClean(MemInfoData::MemSmapsInfo &meminfo, uint64_t value);

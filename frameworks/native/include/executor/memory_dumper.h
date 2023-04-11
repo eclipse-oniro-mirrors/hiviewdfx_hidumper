@@ -37,6 +37,7 @@ public:
 private:
     int pid_ = 0;
     bool isShowMaps_ = false;
+    bool isShowSmapsInfo_ = false;
     DumpStatus status_ = DUMP_FAIL;
     StringMatrix dumpDatas_;
     std::unique_ptr<MemoryInfo> memoryInfo_;

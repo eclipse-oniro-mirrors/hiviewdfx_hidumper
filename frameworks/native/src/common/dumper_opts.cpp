@@ -63,6 +63,7 @@ void DumperOpts::Reset()
     isAppendix_ = false;
     isTest_ = false;
     isShowSmaps_ = false;
+    isShowSmapsInfo_ = false;
 }
 
 DumperOpts& DumperOpts::operator = (const DumperOpts& opts)
@@ -93,6 +94,7 @@ DumperOpts& DumperOpts::operator = (const DumperOpts& opts)
     isAppendix_ = opts.isAppendix_;
     isTest_ = opts.isTest_;
     isShowSmaps_ = opts.isShowSmaps_;
+    isShowSmapsInfo_ = opts.isShowSmapsInfo_;
     return *this;
 }
 

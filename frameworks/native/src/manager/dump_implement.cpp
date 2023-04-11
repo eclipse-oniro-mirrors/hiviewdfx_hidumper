@@ -182,7 +182,7 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
 {
     optind = 0; // reset getopt_long
     opterr = 0; // getopt not show error info
-    const char optStr[] = "-ht:lcsa:ep";
+    const char optStr[] = "-ht:lcsa:epv";
     bool loop = true;
     while (loop) {
         int optionIndex = 0;
@@ -353,6 +353,9 @@ DumpStatus DumpImplement::ParseShortCmdOption(int c, DumperOpts &opts_, int argc
             break;
         case 'p':
             opts_.isDumpProcesses_ = true;
+            break;
+        case 'v':
+            opts_.isShowSmapsInfo_ = true;
             break;
         case 't': {
             DumpStatus timeOutStatus = SetCmdIntegerParameter(optarg, opts_.timeout_);

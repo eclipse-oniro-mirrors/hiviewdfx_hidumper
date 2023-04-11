@@ -153,6 +153,8 @@ void MemoryUtil::InitMemSmapsInfo(MemInfoData::MemSmapsInfo &memInfo)
     memInfo.name = "";
     memInfo.size = 0;
     memInfo.counts = 0;
+    memInfo.start = "";
+    memInfo.end = "";
 }
 
 
@@ -186,13 +188,12 @@ bool MemoryUtil::GetTypeAndValue(const string &str, string &type, uint64_t &valu
     return false;
 }
 
-void MemoryUtil::SetMemTotalValue(const string &value, vector<string> &lines, vector<string> &values)
+void MemoryUtil::SetMemTotalValue(const string &value, vector<string> &lines, vector<string> &values, bool flag)
 {
     string separator = "-";
     string space = " ";
-    StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, space);
+    StringUtils::GetInstance().SetWidth(flag ? SMAPS_LINE_WIDTH_ : LINE_WIDTH_, BLANK_, false, space);
     if (StringUtils::GetInstance().IsSameStr(value, "Summary")) {
-        DUMPER_HILOGI(MODULE_SERVICE, "Summary");
         StringUtils::GetInstance().SetWidth(WIDTH_PARAM, SEPARATOR_, false, separator);
     } else {
         StringUtils::GetInstance().SetWidth(LINE_WIDTH_, SEPARATOR_, false, separator);
@@ -201,11 +202,13 @@ void MemoryUtil::SetMemTotalValue(const string &value, vector<string> &lines, ve
     string tempValue = value;
     if (StringUtils::GetInstance().IsSameStr(value, "Summary")) {
         tempValue = space + tempValue;
-        StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, true, tempValue);
+        const int smapsInfoSumWid = 26;
+        StringUtils::GetInstance().SetWidth(flag ? smapsInfoSumWid : SMAPS_LINE_WIDTH_, BLANK_, false, tempValue);
     } else {
-        StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, tempValue);
+        StringUtils::GetInstance().SetWidth(flag ? SMAPS_LINE_WIDTH_ : LINE_WIDTH_, BLANK_, false, tempValue);
     }
     values.push_back(tempValue);
 }
+
 } // namespace HiviewDFX
 } // namespace OHOS

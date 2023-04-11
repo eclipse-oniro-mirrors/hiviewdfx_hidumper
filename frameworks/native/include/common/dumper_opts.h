@@ -44,6 +44,7 @@ struct DumperOpts {
     bool isAppendix_;
     bool isTest_;
     bool isShowSmaps_;
+    bool isShowSmapsInfo_;
 public:
     DumperOpts();
     void Reset();
