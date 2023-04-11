@@ -60,6 +60,8 @@ private:
     void BuildSmapsResult(const GroupMap &infos, StringMatrix result, bool isShowSmapsInfo,
         std::vector<std::map<std::string, std::string>> vectMap);
     void BuildSmapsInfo(StringMatrix result, std::vector<std::map<std::string, std::string>> vectMap);
+    bool CalcSmapsStatData(MemInfoData::MemSmapsInfo &memSmapsInfo, const GroupMap &infos);
+    bool CalcSmapsInfo(MemInfoData::MemSmapsInfo &memSmapsInfo, std::vector<std::map<std::string, std::string>> vectMap);
     void CalcSmapsGroup(const GroupMap &infos, StringMatrix result, MemInfoData::MemSmapsInfo &memSmapsInfo,
         bool isShowSmapsInfo, std::vector<std::map<std::string, std::string>> vectMap);
     void SetRss(MemInfoData::MemSmapsInfo &meminfo, uint64_t value);
