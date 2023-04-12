@@ -203,7 +203,6 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
             std::string debugMode = "0";
             debugMode = OHOS::system::GetParameter("const.debuggable", debugMode);
             if (opts_.isShowSmaps_ && debugMode == "0") {
-                DUMPER_HILOGI(MODULE_SERVICE, "current is not debug");
                 CmdHelp();
                 return DumpStatus::DUMP_HELP;
             }
