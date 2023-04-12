@@ -40,9 +40,6 @@
 #include "parameters.h"
 namespace OHOS {
 namespace HiviewDFX {
-namespace {
-constexpr int TWO_PARAM = 2;
-} // namespace
 
 DumpImplement::DumpImplement()
 {
@@ -199,7 +196,10 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
         if (c == -1) {
             break;
         } else if (c == 0) {
-            ParseLongCmdOption(opts_, longOptions, optionIndex, argv);
+            DumpStatus status = ParseLongCmdOption(opts_, longOptions, optionIndex, argv);
+            if (status != DumpStatus::DUMP_OK) {
+                return status;
+            }
             std::string debugMode = "0";
             debugMode = OHOS::system::GetParameter("const.debuggable", debugMode);
             if (opts_.isShowSmaps_ && debugMode == "0") {
@@ -320,7 +320,10 @@ DumpStatus DumpImplement::ParseLongCmdOption(DumperOpts &opts_, const struct opt
         opts_.isTest_ = true;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-smaps")) {
         opts_.isShowSmaps_ = true;
-        opts_.memPid_ = std::stoi(argv[TWO_PARAM]);
+        DumpStatus status = SetCmdIntegerParameter(argv[ARG_INDEX_OFFSET_LAST_OPTION], opts_.memPid_);
+        if (status != DumpStatus::DUMP_OK) {
+            return status;
+        }
     }
     return DumpStatus::DUMP_OK;
 }
@@ -411,7 +414,9 @@ void DumpImplement::CmdHelp()
         "  --cpufreq                   |dump real CPU frequency of each core\n"
         "  --mem [pid]                 |dump memory usage of total; dump memory usage of specified"
         " pid if pid was specified\n"
-        "  --zip                       |compress output to /data/log/hidumper\n";
+        "  --zip                       |compress output to /data/log/hidumper\n"
+        "  --mem-smaps pid [-v]        |Display the statistical information of pid samples data in the debug version;"
+        " If it contains -v, display the smaps details corresponding to the pid\n";
     if (ptrReqCtl_ == nullptr) {
         return;
     }
