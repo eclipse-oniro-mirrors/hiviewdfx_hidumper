@@ -167,17 +167,17 @@ void MemoryInfo::CalcGroup(const GroupMap &infos, StringMatrix result)
     vector<string> lines;
     vector<string> values;
 
-    MemoryUtil::GetInstance().SetMemTotalValue("Total", lines, values, false);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.pss + meminfo.swapPss), lines, values, false);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.sharedClean), lines, values, false);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.sharedDirty), lines, values, false);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.privateClean), lines, values, false);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.privateDirty), lines, values, false);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.swap), lines, values, false);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.swapPss), lines, values, false);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.heapSize), lines, values, false);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.heapAlloc), lines, values, false);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.heapFree), lines, values, false);
+    MemoryUtil::GetInstance().SetMemTotalValue("Total", lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.pss + meminfo.swapPss), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.sharedClean), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.sharedDirty), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.privateClean), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.privateDirty), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.swap), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.swapPss), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.heapSize), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.heapAlloc), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.heapFree), lines, values);
 
     result->push_back(lines);
     result->push_back(values);

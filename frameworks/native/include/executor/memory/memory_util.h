@@ -51,7 +51,7 @@ public:
     void InitGraphicsMemory(MemInfoData::GraphicsMemory &graphicsMemory);
     bool GetTypeAndValue(const std::string &str, std::string &type, uint64_t &value);
     void SetMemTotalValue(const std::string &value, std::vector<std::string> &lines, std::vector<std::string> &values,
-        bool flag);
+        bool flag = false);
 
 private:
 };

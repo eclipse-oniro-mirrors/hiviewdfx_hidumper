@@ -41,7 +41,7 @@ private:
         uint64_t &value);
     bool GetHasPidValue(const std::string &str, std::string &type, uint64_t &value);
     bool GetNoPidValue(const std::string &str, std::string &type, uint64_t &value);
-    void SetMapByNameLine(const std::string &group, const std::string &content, bool isShowSmapsInfo);
+    void SetMapByNameLine(const std::string &group, const std::string &content);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

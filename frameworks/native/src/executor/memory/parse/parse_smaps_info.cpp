@@ -124,19 +124,17 @@ bool ParseSmapsInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int 
     return true;
 }
 
-void ParseSmapsInfo::SetMapByNameLine(const string &group, const string &content, bool isShowSmapsInfo)
+void ParseSmapsInfo::SetMapByNameLine(const string &group, const string &content)
 {
-    if (isShowSmapsInfo) {
-        memMap_.insert(pair<string, string>("Name", group));
-        vector<string> datas;
-        StringUtils::GetInstance().StringSplit(content, " ", datas);
-        vector<string> startAndEnd;
-        StringUtils::GetInstance().StringSplit(datas.at(0), "-", startAndEnd);
-        string startVal = startAndEnd.at(0);
-        string endVal = startAndEnd.at(1);
-        memMap_.insert(pair<string, string>("Start", startVal));
-        memMap_.insert(pair<string, string>("End", endVal));
-    }
+    memMap_.insert(pair<string, string>("Name", group));
+    vector<string> datas;
+    StringUtils::GetInstance().StringSplit(content, " ", datas);
+    vector<string> startAndEnd;
+    StringUtils::GetInstance().StringSplit(datas.at(0), "-", startAndEnd);
+    string startVal = startAndEnd.at(0);
+    string endVal = startAndEnd.at(1);
+    memMap_.insert(pair<string, string>("Start", startVal));
+    memMap_.insert(pair<string, string>("End", endVal));
 }
 
 bool ParseSmapsInfo::ShowSmapsData(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &result,
@@ -171,7 +169,9 @@ bool ParseSmapsInfo::ShowSmapsData(const MemoryFilter::MemoryType &memType, cons
                 result[memGroup_].insert(pair<string, uint64_t>("Counts", 1));
                 result[memGroup_].insert(pair<string, uint64_t>("Name", 0));
             }
-            SetMapByNameLine(memGroup_, content, isShowSmapsInfo);
+            if (isShowSmapsInfo) {
+                SetMapByNameLine(memGroup_, content);
+            }
         }
     }
     if (!memMap_.empty()) {
