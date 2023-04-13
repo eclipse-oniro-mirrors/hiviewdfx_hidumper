@@ -414,8 +414,7 @@ void DumpImplement::CmdHelp()
         "  --mem [pid]                 |dump memory usage of total; dump memory usage of specified"
         " pid if pid was specified\n"
         "  --zip                       |compress output to /data/log/hidumper\n"
-        "  --mem-smaps pid [-v]        |Display the statistical information of pid samples data in the debug version;"
-        " If it contains -v, display the smaps details corresponding to the pid\n";
+        "  --mem-smaps pid [-v]        |display statistic in proc/pid/smaps, use -v specify more details\n";
     if (ptrReqCtl_ == nullptr) {
         return;
     }
