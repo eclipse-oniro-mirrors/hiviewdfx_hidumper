@@ -138,7 +138,7 @@ void SmapsMemoryInfo::BuildSmapsInfo(StringMatrix result, vector<map<string, str
             tempResult.push_back(value);
         }
         result->push_back(tempResult);
-   }
+    }
 }
 
 void SmapsMemoryInfo::BuildSmapsResult(const GroupMap &infos, StringMatrix result, bool isShowSmapsInfo,
@@ -169,7 +169,7 @@ void SmapsMemoryInfo::BuildSmapsResult(const GroupMap &infos, StringMatrix resul
             tempResult.push_back(value);
         }
         result->push_back(tempResult);
-   }
+    }
 }
 
 bool SmapsMemoryInfo::CalcSmapsStatData(MemInfoData::MemSmapsInfo &memSmapsInfo, const GroupMap &infos)
