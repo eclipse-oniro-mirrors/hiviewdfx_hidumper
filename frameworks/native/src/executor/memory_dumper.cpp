@@ -37,7 +37,6 @@ DumpStatus MemoryDumper::PreExecute(const shared_ptr<DumperParameter> &parameter
     pid_ = parameter->GetOpts().memPid_;
     isShowMaps_ = parameter->GetOpts().isShowSmaps_;
     isShowSmapsInfo_ =  parameter->GetOpts().isShowSmapsInfo_;
-    DUMPER_HILOGI(MODULE_SERVICE, "MemoryDumper pid:%{public}d", pid_);
     dumpDatas_ = dumpDatas;
     return DumpStatus::DUMP_OK;
 }
@@ -47,7 +46,6 @@ DumpStatus MemoryDumper::Execute()
     if (dumpDatas_ != nullptr && memoryInfo_ != nullptr) {
         if (pid_ >= 0) {
             if (isShowMaps_) {
-                DUMPER_HILOGI(MODULE_SERVICE, "isShowMaps is true and current is debugmodel");
                 bool isShowMapsFlag = smapsMemoryInfo_->ShowMemorySmapsByPid(pid_, dumpDatas_, isShowSmapsInfo_);
                 status_ = isShowMapsFlag ? DumpStatus::DUMP_OK : DumpStatus::DUMP_FAIL;
                 return status_;

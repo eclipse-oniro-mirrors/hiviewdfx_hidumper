@@ -230,8 +230,6 @@ void SmapsMemoryInfo::CalcSmapsGroup(const GroupMap &infos, StringMatrix result,
 
 bool SmapsMemoryInfo::ShowMemorySmapsByPid(const int &pid, StringMatrix result, bool isShowSmapsInfo)
 {
-    DUMPER_HILOGI(MODULE_SERVICE, "ShowMemorySmapsByPid");
-    DUMPER_HILOGI(MODULE_SERVICE, "ShowMemorySmapsByPid pid is :%{public}d", pid);
     GroupMap groupMap;
     MemInfoData::MemSmapsInfo memSmapsinfo;
     vector<map<string, string>> vectMap;
