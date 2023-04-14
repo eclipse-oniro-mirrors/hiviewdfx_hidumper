@@ -131,8 +131,8 @@ void ParseSmapsInfo::SetMapByNameLine(const string &group, const string &content
     StringUtils::GetInstance().StringSplit(content, " ", datas);
     vector<string> startAndEnd;
     StringUtils::GetInstance().StringSplit(datas.at(0), "-", startAndEnd);
-    string startVal = startAndEnd.at(0);
-    string endVal = startAndEnd.at(1);
+    string startVal = startAndEnd.front();
+    string endVal = startAndEnd.back();
     memMap_.insert(pair<string, string>("Start", startVal));
     memMap_.insert(pair<string, string>("End", endVal));
 }
