@@ -12,7 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <vector>
 #include "hidumper_configutils_test.h"
+#include "dump_common_utils.h"
 using namespace std;
 using namespace testing::ext;
 using namespace OHOS;
@@ -168,6 +170,61 @@ HWTEST_F(HidumperConfigUtilsTest, HidumperFileUtils001, TestSize.Level3)
     ASSERT_TRUE(fileutils->CreateFolder(testpath));
     ASSERT_TRUE(access(testpath.c_str(), F_OK) == 0);
     system("rm -rf /data/log/testhidumper");
+}
+
+HWTEST_F(HidumperConfigUtilsTest, HidumpCommonUtils001, TestSize.Level3)
+{
+    system("mkdir /data/log/hidumpertest/");
+    system("touch /data/log/hidumpertest/1.log");
+    system("touch /data/log/hidumpertest/a.log");
+    const std::string path = "/data/log/hidumpertest";
+    bool digit = true;
+    std::vector<std::string> strs = DUMP_COMMON_UTILS.GetSubNodes(path, digit);
+    ASSERT_TRUE(strs.size() == 1);
+
+    digit = false;
+    strs = DUMP_COMMON_UTILS.GetSubNodes(path, digit);
+    ASSERT_TRUE(strs.size() == 2);
+    system("rm -rf /data/log/hidumpertest");
+}
+
+HWTEST_F(HidumperConfigUtilsTest, HidumpCommonUtils002, TestSize.Level3)
+{
+    const std::string pathTest = "/data";
+    ASSERT_TRUE(DUMP_COMMON_UTILS.IsDirectory(pathTest));
+
+    system("touch /data/log/hidumpertest.txt");
+    const std::string pathTest2 = "/data/log/hidumpertest.txt";
+    ASSERT_FALSE(DUMP_COMMON_UTILS.IsDirectory(pathTest2));
+    system("rm -rf /data/log/hidumpertest.txt");
+}
+
+HWTEST_F(HidumperConfigUtilsTest, HidumpCommonUtils003, TestSize.Level3)
+{
+    std::vector<int32_t> pids = DUMP_COMMON_UTILS.GetAllPids();
+    ASSERT_FALSE(pids.empty()) << "GetAllPids result is empty.";
+}
+
+HWTEST_F(HidumperConfigUtilsTest, HidumpCommonUtils004, TestSize.Level3)
+{
+    std::vector<DumpCommonUtils::CpuInfo> infos;
+    ASSERT_TRUE(DUMP_COMMON_UTILS.GetCpuInfos(infos));
+}
+
+HWTEST_F(HidumperConfigUtilsTest, HidumpCommonUtils005, TestSize.Level3)
+{
+    std::vector<DumpCommonUtils::PidInfo> infos;
+    ASSERT_TRUE(DUMP_COMMON_UTILS.GetPidInfos(infos));
+    ASSERT_FALSE(infos.empty()) << "GetPidInfos result is empty.";
+
+    std::vector<DumpCommonUtils::PidInfo> infosAll;
+    ASSERT_TRUE(DUMP_COMMON_UTILS.GetPidInfos(infosAll, true));
+}
+
+HWTEST_F(HidumperConfigUtilsTest, HidumpCommonUtils006, TestSize.Level3)
+{
+    std::vector<int> pids;
+    ASSERT_TRUE(DUMP_COMMON_UTILS.GetUserPids(pids));
 }
 } // namespace HiviewDFX
 } // namespace OHOS
