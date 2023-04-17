@@ -36,6 +36,7 @@ public:
     std::string KB_UNIT_ = " kB";
     uint64_t BYTE_TO_KB_ = 1024;
     const int LINE_WIDTH_ = 14;
+    const int SMAPS_LINE_WIDTH_ = 12;
     const char SEPARATOR_ = '-';
     const char BLANK_ = ' ';
 
@@ -49,7 +50,8 @@ public:
     void InitMemUsage(MemInfoData::MemUsage &usage);
     void InitGraphicsMemory(MemInfoData::GraphicsMemory &graphicsMemory);
     bool GetTypeAndValue(const std::string &str, std::string &type, uint64_t &value);
-    void SetMemTotalValue(const std::string &value, std::vector<std::string> &lines, std::vector<std::string> &values);
+    void SetMemTotalValue(const std::string &value, std::vector<std::string> &lines, std::vector<std::string> &values,
+        bool flag = false);
 
 private:
 };

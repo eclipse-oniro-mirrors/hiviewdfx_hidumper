@@ -31,16 +31,17 @@ public:
 
     bool GetInfo(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &result);
     bool ShowSmapsData(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &result,
-        MemInfoData::MemSmapsInfo &memSmapsInfo);
+        bool isShowSmapsInfo, std::vector<std::map<std::string, std::string>> &vectMap);
 
 private:
     std::string memGroup_ = "";
-
+    std::map<std::string, std::string> memMap_;
     bool GetValue(const MemoryFilter::MemoryType &memType, const std::string &str, std::string &type, uint64_t &value);
     bool GetSmapsValue(const MemoryFilter::MemoryType &memType, const std::string &str, std::string &type,
         uint64_t &value);
     bool GetHasPidValue(const std::string &str, std::string &type, uint64_t &value);
     bool GetNoPidValue(const std::string &str, std::string &type, uint64_t &value);
+    void SetMapByNameLine(const std::string &group, const std::string &content);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

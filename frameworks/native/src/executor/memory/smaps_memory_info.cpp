@@ -43,12 +43,12 @@ using namespace std;
 using namespace OHOS::HDI::Memorytracker::V1_0;
 namespace OHOS {
 namespace HiviewDFX {
-static const int LINE_WIDTH = 14;
-static const int LINE_NAME_VAL_WIDTH = 60;
-static const int LINE_NAME_KEY_WIDTH = 28;
-static const size_t TYPE_SIZE = 2;
-static const char SEPARATOR = '-';
-static const char BLANK = ' ';
+static constexpr int LINE_WIDTH = 12;
+static constexpr int LINE_NAME_VAL_WIDTH = 60;
+static constexpr int LINE_START_VAL_WIDTH = 18;
+static constexpr size_t TYPE_SIZE = 2;
+static constexpr char SEPARATOR = '-';
+static constexpr char BLANK = ' ';
 SmapsMemoryInfo::SmapsMemoryInfo()
 {
     sMapsMethodVec_.clear();
@@ -78,26 +78,20 @@ SmapsMemoryInfo::~SmapsMemoryInfo()
 {
 }
 
-void SmapsMemoryInfo::InsertSmapsTitle(StringMatrix result)
+void SmapsMemoryInfo::InsertSmapsTitle(StringMatrix result, bool isShowSmapsInfo)
 {
     vector<string> line1;
     vector<string> line2;
     vector<string> line3;
-    string space = " ";
-    StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, true, space);
-
+    StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, true, space_);
     string separator = "-";
     StringUtils::GetInstance().SetWidth(LINE_WIDTH, SEPARATOR, true, separator);
-
-    string unit = "(" + MemoryUtil::GetInstance().KB_UNIT_ + " )";
-    StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, true, unit);
-
-    // Add  spaces at the beginning of the line
-    line1.push_back(space);
-    line2.push_back(space);
-    line3.push_back(space);
-
-    for (string str : MemoryFilter::GetInstance().TITLE_SMAPS_HAS_PID_) {
+    line1.push_back(space_);
+    line2.push_back(space_);
+    line3.push_back(space_);
+    vector<string> titleVec = isShowSmapsInfo ? MemoryFilter::GetInstance().TITLE_V_SMAPS_HAS_PID_ :
+        MemoryFilter::GetInstance().TITLE_SMAPS_HAS_PID_;
+    for (string str : titleVec) {
         vector<string> types;
         StringUtils::GetInstance().StringSplit(str, "_", types);
         if (types.size() == TYPE_SIZE) {
@@ -110,11 +104,14 @@ void SmapsMemoryInfo::InsertSmapsTitle(StringMatrix result)
             line3.push_back(separator);
         } else {
             string title = types.at(0);
-            StringUtils::GetInstance().SetWidth(StringUtils::GetInstance().IsSameStr(title, "Name") ?
-                LINE_NAME_KEY_WIDTH : LINE_WIDTH, BLANK, true, title);
-            line1.push_back(space);
+            line1.push_back(space_);
+            constexpr int LINE_NAME_KEY_WIDTH = 14;
+            if (StringUtils::GetInstance().IsSameStr(title, "Name")) {
+                StringUtils::GetInstance().SetWidth(LINE_NAME_KEY_WIDTH, BLANK, false, title);
+            } else {
+                StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, true, title);
+            }
             line2.push_back(title);
-            title = TrimStr(title);
             line3.push_back(separator);
     }
     }
@@ -123,23 +120,47 @@ void SmapsMemoryInfo::InsertSmapsTitle(StringMatrix result)
     result->push_back(line3);
 }
 
-void SmapsMemoryInfo::BuildSmapsResult(const GroupMap &infos, StringMatrix result)
+void SmapsMemoryInfo::BuildSmapsInfo(StringMatrix result, vector<map<string, string>> vectMap)
 {
-    InsertSmapsTitle(result);
+    for (auto obj : vectMap) {
+        vector<string> tempResult;
+        StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, false, space_);
+        for (const auto &tag : MemoryFilter::GetInstance().VALUE_SMAPS_V_WITH_PID_) {
+            string value = obj.at(tag);
+            if (StringUtils::GetInstance().IsSameStr(tag, "Name")) {
+                value = space_ + value;
+                StringUtils::GetInstance().SetWidth(LINE_NAME_VAL_WIDTH, BLANK, true, value);
+            } else {
+                StringUtils::GetInstance().SetWidth(StringUtils::GetInstance().IsSameStr(tag, "Start") ?
+                    LINE_START_VAL_WIDTH : LINE_WIDTH, BLANK, false, value);
+            }
+            tempResult.push_back(value);
+        }
+        result->push_back(tempResult);
+    }
+}
+
+void SmapsMemoryInfo::BuildSmapsResult(const GroupMap &infos, StringMatrix result, bool isShowSmapsInfo,
+    vector<map<string, string>> vectMap)
+{
+    InsertSmapsTitle(result, isShowSmapsInfo);
+    if (isShowSmapsInfo) {
+        BuildSmapsInfo(result, vectMap);
+        return;
+    }
     for (const auto &info : infos) {
         vector<string> tempResult;
-        string space = " ";
-        StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, false, space);
+        StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, false, space_);
         auto &valueMap = info.second;
-        for (const auto &tag : MemoryFilter::GetInstance().VALUE_SMAPS_WITH_PID) {
+        for (const auto &tag : MemoryFilter::GetInstance().TITLE_SMAPS_HAS_PID_) {
             auto it = valueMap.find(tag);
             string value = "0";
             if (it != valueMap.end()) {
                 value = StringUtils::GetInstance().IsSameStr(tag, "Name") ? info.first : to_string(it->second);
             }
             if (StringUtils::GetInstance().IsSameStr(tag, "Name")) {
-                DUMPER_HILOGI(MODULE_SERVICE, "tag is Name");
-                value = space + value;
+                StringUtils::GetInstance().SetWidth(LINE_START_VAL_WIDTH, BLANK, false, space_);
+                value = space_ + value;
                 StringUtils::GetInstance().SetWidth(LINE_NAME_VAL_WIDTH, BLANK, true, value);
             } else {
                 StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, false, value);
@@ -150,9 +171,7 @@ void SmapsMemoryInfo::BuildSmapsResult(const GroupMap &infos, StringMatrix resul
     }
 }
 
-
-void SmapsMemoryInfo::CalcSmapsGroup(const GroupMap &infos, StringMatrix result,
-                                     MemInfoData::MemSmapsInfo &memSmapsInfo)
+bool SmapsMemoryInfo::CalcSmapsStatData(MemInfoData::MemSmapsInfo &memSmapsInfo, const GroupMap &infos)
 {
     for (const auto &info : infos) {
         auto &valueMap = info.second;
@@ -163,40 +182,65 @@ void SmapsMemoryInfo::CalcSmapsGroup(const GroupMap &infos, StringMatrix result,
             }
         }
     }
+    return true;
+}
+
+bool SmapsMemoryInfo::CalcSmapsInfo(MemInfoData::MemSmapsInfo &memSmapsInfo, vector<map<string, string>> vectMap)
+{
+    for (auto obj : vectMap) {
+        for (const auto &method : sMapsMethodVec_) {
+            string key = method.first;
+            if (obj.find(key) != obj.end()) {
+                constexpr int BASE = 10;
+                method.second(memSmapsInfo, strtoull(obj.at(key).c_str(), nullptr, BASE));
+            }
+        }
+    }
+    return true;
+}
+
+void SmapsMemoryInfo::CalcSmapsGroup(const GroupMap &infos, StringMatrix result,
+    MemInfoData::MemSmapsInfo &memSmapsInfo, bool isShowSmapsInfo, vector<map<string, string>> vectMap)
+{
+    bool flag = isShowSmapsInfo ? CalcSmapsInfo(memSmapsInfo, vectMap) : CalcSmapsStatData(memSmapsInfo, infos);
+    if (!flag) {
+        return;
+    }
     vector<string> lines;
     vector<string> values;
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.size), lines, values);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.rss), lines, values);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.pss), lines, values);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.sharedClean), lines, values);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.sharedDirty), lines, values);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.privateClean), lines, values);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.privateDirty), lines, values);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.swap), lines, values);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.swapPss), lines, values);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.counts), lines, values);
-    MemoryUtil::GetInstance().SetMemTotalValue("Summary", lines, values);
-
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.size), lines, values, true);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.rss), lines, values, true);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.pss), lines, values, true);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.sharedClean), lines, values, true);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.sharedDirty), lines, values, true);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.privateClean), lines, values, true);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.privateDirty), lines, values, true);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.swap), lines, values, true);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.swapPss), lines, values, true);
+    if (!isShowSmapsInfo) {
+        MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.counts), lines, values, true);
+    } else {
+        MemoryUtil::GetInstance().SetMemTotalValue("", lines, values, true);
+        MemoryUtil::GetInstance().SetMemTotalValue("", lines, values, true);
+    }
+    MemoryUtil::GetInstance().SetMemTotalValue("Summary", lines, values, true);
     result->push_back(lines);
     result->push_back(values);
 }
 
-bool SmapsMemoryInfo::ShowMemorySmapsByPid(const int &pid, StringMatrix result)
+bool SmapsMemoryInfo::ShowMemorySmapsByPid(const int &pid, StringMatrix result, bool isShowSmapsInfo)
 {
-    DUMPER_HILOGI(MODULE_SERVICE, "GetMemoryInfoByPid");
     GroupMap groupMap;
     MemInfoData::MemSmapsInfo memSmapsinfo;
+    vector<map<string, string>> vectMap;
     MemoryUtil::GetInstance().InitMemSmapsInfo(memSmapsinfo);
     unique_ptr<ParseSmapsInfo> parseSmapsInfo = make_unique<ParseSmapsInfo>();
-    if (!parseSmapsInfo->ShowSmapsData(MemoryFilter::APPOINT_PID, pid, groupMap, memSmapsinfo)) {
+    if (!parseSmapsInfo->ShowSmapsData(MemoryFilter::APPOINT_PID, pid, groupMap, isShowSmapsInfo, vectMap)) {
         DUMPER_HILOGE(MODULE_SERVICE, "parse smaps info fail");
         return false;
     }
-
-    MemInfoData::GraphicsMemory graphicsMemory;
-    MemoryUtil::GetInstance().InitGraphicsMemory(graphicsMemory);
-    BuildSmapsResult(groupMap, result);
-    CalcSmapsGroup(groupMap, result, memSmapsinfo);
+    BuildSmapsResult(groupMap, result, isShowSmapsInfo, vectMap);
+    CalcSmapsGroup(groupMap, result, memSmapsinfo, isShowSmapsInfo, vectMap);
     return true;
 }
 

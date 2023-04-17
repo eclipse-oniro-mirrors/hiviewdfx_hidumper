@@ -54,8 +54,8 @@ public:
                                                      "Private_Dirty", "Swap", "SwapPss", "Heap_Size", "Heap_Alloc",
                                                      "Heap_Free"};
 
-    const std::vector<std::string> VALUE_SMAPS_WITH_PID = {"Size", "Rss", "Pss", "Shared_Clean", "Shared_Dirty",
-        "Private_Clean", "Private_Dirty", "Swap", "Swap_Pss", "Counts", "Name"};
+    const std::vector<std::string> VALUE_SMAPS_V_WITH_PID_ = {"Size", "Rss", "Pss", "Shared_Clean", "Shared_Dirty",
+        "Private_Clean", "Private_Dirty", "Swap",  "SwapPss", "Start", "End", "Name"};
 
     const std::vector<std::string> TITLE_HAS_PID_ = {"Pss_Total",     "Shared_Clean", "Shared_Dirty", "Private_Clean",
                                                      "Private_Dirty", "Swap_Total",   "SwapPss_Total", "Heap_Size",
@@ -63,6 +63,9 @@ public:
 
     const std::vector<std::string> TITLE_SMAPS_HAS_PID_ = {"Size", "Rss", "Pss", "Shared_Clean", "Shared_Dirty",
         "Private_Clean", "Private_Dirty", "Swap", "Swap_Pss", "Counts", "Name"};
+
+    const std::vector<std::string> TITLE_V_SMAPS_HAS_PID_ = {"Size", "Rss", "Pss", "Shared_Clean", "Shared_Dirty",
+        "Private_Clean", "Private_Dirty", "Swap",  "Swap_Pss", "Start", "End", "Name"};
 
     const std::vector<std::string> TITLE_NO_PID_ = {"Pss", "SwapPss"};
 

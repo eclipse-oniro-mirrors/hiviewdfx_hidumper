@@ -124,8 +124,21 @@ bool ParseSmapsInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int 
     return true;
 }
 
+void ParseSmapsInfo::SetMapByNameLine(const string &group, const string &content)
+{
+    memMap_.insert(pair<string, string>("Name", group));
+    vector<string> datas;
+    StringUtils::GetInstance().StringSplit(content, " ", datas);
+    vector<string> startAndEnd;
+    StringUtils::GetInstance().StringSplit(datas.at(0), "-", startAndEnd);
+    string startVal = startAndEnd.front();
+    string endVal = startAndEnd.back();
+    memMap_.insert(pair<string, string>("Start", startVal));
+    memMap_.insert(pair<string, string>("End", endVal));
+}
+
 bool ParseSmapsInfo::ShowSmapsData(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &result,
-    MemInfoData::MemSmapsInfo &memSmapsInfo)
+    bool isShowSmapsInfo, vector<map<string, string>> &vectMap)
 {
     string filename = "/proc/" + to_string(pid) + "/smaps";
     ifstream in(filename);
@@ -133,7 +146,6 @@ bool ParseSmapsInfo::ShowSmapsData(const MemoryFilter::MemoryType &memType, cons
         DUMPER_HILOGE(MODULE_SERVICE, "File %s not found.", filename.c_str());
         return false;
     }
-
     string content;
     while (getline(in, content)) {
         string name;
@@ -143,16 +155,28 @@ bool ParseSmapsInfo::ShowSmapsData(const MemoryFilter::MemoryType &memType, cons
             uint64_t value = 0;
             if (GetSmapsValue(memType, content, type, value)) {
                 MemoryUtil::GetInstance().CalcGroup(memGroup_, type, value, result);
+                memMap_.insert(pair<string, string>(type, to_string(value)));
             }
         } else if (MemoryUtil::GetInstance().IsNameLine(content, name, iNode)) {
             memGroup_ = name;
+            if (!memMap_.empty()) {
+                vectMap.push_back(memMap_);
+                memMap_.clear();
+            }
             if (result.find(memGroup_) != result.end()) {
                 result[memGroup_]["Counts"]++;
             } else {
                 result[memGroup_].insert(pair<string, uint64_t>("Counts", 1));
                 result[memGroup_].insert(pair<string, uint64_t>("Name", 0));
             }
+            if (isShowSmapsInfo) {
+                SetMapByNameLine(memGroup_, content);
+            }
         }
+    }
+    if (!memMap_.empty()) {
+        vectMap.push_back(memMap_);
+        memMap_.clear();
     }
     in.close();
     return true;

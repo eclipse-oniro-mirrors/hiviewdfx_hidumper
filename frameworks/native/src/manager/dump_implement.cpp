@@ -40,9 +40,6 @@
 #include "parameters.h"
 namespace OHOS {
 namespace HiviewDFX {
-namespace {
-constexpr int TWO_PARAM = 2;
-} // namespace
 
 DumpImplement::DumpImplement()
 {
@@ -182,7 +179,7 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
 {
     optind = 0; // reset getopt_long
     opterr = 0; // getopt not show error info
-    const char optStr[] = "-ht:lcsa:ep";
+    const char optStr[] = "-ht:lcsa:epv";
     bool loop = true;
     while (loop) {
         int optionIndex = 0;
@@ -199,11 +196,13 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
         if (c == -1) {
             break;
         } else if (c == 0) {
-            ParseLongCmdOption(opts_, longOptions, optionIndex, argv);
+            DumpStatus status = ParseLongCmdOption(opts_, longOptions, optionIndex, argv);
+            if (status != DumpStatus::DUMP_OK) {
+                return status;
+            }
             std::string debugMode = "0";
             debugMode = OHOS::system::GetParameter("const.debuggable", debugMode);
             if (opts_.isShowSmaps_ && debugMode == "0") {
-                DUMPER_HILOGI(MODULE_SERVICE, "current is not debug");
                 CmdHelp();
                 return DumpStatus::DUMP_HELP;
             }
@@ -320,7 +319,10 @@ DumpStatus DumpImplement::ParseLongCmdOption(DumperOpts &opts_, const struct opt
         opts_.isTest_ = true;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-smaps")) {
         opts_.isShowSmaps_ = true;
-        opts_.memPid_ = std::stoi(argv[TWO_PARAM]);
+        DumpStatus status = SetCmdIntegerParameter(argv[ARG_INDEX_OFFSET_LAST_OPTION], opts_.memPid_);
+        if (status != DumpStatus::DUMP_OK) {
+            return status;
+        }
     }
     return DumpStatus::DUMP_OK;
 }
@@ -353,6 +355,9 @@ DumpStatus DumpImplement::ParseShortCmdOption(int c, DumperOpts &opts_, int argc
             break;
         case 'p':
             opts_.isDumpProcesses_ = true;
+            break;
+        case 'v':
+            opts_.isShowSmapsInfo_ = true;
             break;
         case 't': {
             DumpStatus timeOutStatus = SetCmdIntegerParameter(optarg, opts_.timeout_);
@@ -408,7 +413,8 @@ void DumpImplement::CmdHelp()
         "  --cpufreq                   |dump real CPU frequency of each core\n"
         "  --mem [pid]                 |dump memory usage of total; dump memory usage of specified"
         " pid if pid was specified\n"
-        "  --zip                       |compress output to /data/log/hidumper\n";
+        "  --zip                       |compress output to /data/log/hidumper\n"
+        "  --mem-smaps pid [-v]        |display statistic in /proc/pid/smaps, use -v specify more details\n";
     if (ptrReqCtl_ == nullptr) {
         return;
     }
