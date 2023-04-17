@@ -14,6 +14,7 @@
  */
 
 #include "dump_usage.h"
+#include "cpu_dumper.h"
 
 #include <gtest/gtest.h>
 #include <unistd.h>
@@ -151,6 +152,29 @@ HWTEST_F(HiDumperInnerkitsTest, GetCpuUsage001, TestSize.Level1)
 {
     std::unique_ptr<DumpUsage> dumpUsage = std::make_unique<DumpUsage>();
     EXPECT_GT(dumpUsage->GetCpuUsage(pid), 0);
+}
+
+/**
+ * @tc.name: GetProcCpuInfo001
+ * @tc.desc: Test GetProcCpuInfo when a new process appeared.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperInnerkitsTest, GetProcCpuInfo001, TestSize.Level1)
+{
+    auto parameter = std::make_shared<DumperParameter>();
+    DumperOpts opts;
+    opts.isDumpCpuUsage_ = true;
+    opts.cpuUsagePid_ = pid;
+    parameter->SetOpts(opts);
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    auto cpuDumper = std::make_shared<CPUDumper>();
+    int ret = DumpStatus::DUMP_FAIL;
+    ret = cpuDumper->PreExecute(parameter, dumpDatas);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+    ret = cpuDumper->Execute();
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+    ret = cpuDumper->AfterExecute();
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
 } // namespace HiviewDFX
 } // namespace OHOS
