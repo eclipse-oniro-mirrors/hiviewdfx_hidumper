@@ -186,8 +186,13 @@ ohos_unittest("HidumperInnerkitsTest") {
   configs = [ ":module_private_config" ]
 
   deps = [
+    "${hidumper_service_path}:hidumperservice_source",
     "//base/hiviewdfx/hidumper/interfaces/innerkits:lib_dump_usage",
     "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "hiviewdfx_hilog_native:libhilog",
   ]
 }
 
