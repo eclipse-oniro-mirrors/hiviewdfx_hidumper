@@ -52,7 +52,7 @@ void ParseSmapsRollupInfo::GetValue(const string &str, MemInfoData::MemInfo &mem
         if (type == "Pss") {
             memInfo.pss = value;
         } else if (type == "Private_Clean") {
-            memInfo.privateDirty = value;
+            memInfo.privateClean = value;
         } else if (type == "Private_Dirty") {
             memInfo.privateDirty = value;
         }
