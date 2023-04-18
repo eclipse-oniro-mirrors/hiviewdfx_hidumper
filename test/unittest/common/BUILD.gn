@@ -140,10 +140,10 @@ ohos_unittest("HidumperConfigUtilsTest") {
   deps = [
     "//third_party/googletest:gtest_main",
     "//third_party/zlib:libz",
-    "${hidumper_utils_path}:utils",
   ]
 
   external_deps = [
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
