@@ -25,6 +25,7 @@ const int HidumperConfigUtilsTest::PID_EMPTY = -1;
 const int HidumperConfigUtilsTest::UID_EMPTY = -1;
 const int HidumperConfigUtilsTest::PID_TEST = 100;
 const std::string HidumperConfigUtilsTest::DUMPER_NAME = "dumper_kernel_version";
+const OHOS::HiviewDFX::DumpCommonUtils DUMP_COMMON_UTILS = *(std::make_shared<OHOS::HiviewDFX::DumpCommonUtils>());
 void HidumperConfigUtilsTest::SetUpTestCase(void)
 {
 }
