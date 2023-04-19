@@ -91,12 +91,8 @@ DumpStatus ConfigUtils::GetDumperConfigs()
     HandleDumpProcesses(dumpCfgs);
     HandleDumpFaultLog(dumpCfgs);
     HandleDumpAppendix(dumpCfgs);
-    HandleDumpTest(dumpCfgs);
-
     DUMPER_HILOGD(MODULE_COMMON, "debug|dumpCfgs=%{public}zu", dumpCfgs.size());
-
     dumperParam_->SetExecutorConfigList(dumpCfgs);
-
     DUMPER_HILOGD(MODULE_COMMON, "leave|");
     return DumpStatus::DUMP_OK;
 }
