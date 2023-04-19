@@ -439,5 +439,55 @@ HWTEST_F(HiDumperManagerTest, DumpTest020, TestSize.Level0)
     int ret = GetDumpResult(argc, argv);
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
+/**
+ * @tc.name: MemoryDumperTest021
+ * @tc.desc: Test dump statistic in /proc/pid/smaps has correct ret.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest021, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("--mem-smaps"),
+        const_cast<char *>(std::to_string(getpid()).c_str()),
+        const_cast<char *>(""),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+/**
+ * @tc.name: MemoryDumperTest022
+ * @tc.desc: Test dump details in /proc/pid/smaps has correct ret.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest022, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("--mem-smaps"),
+        const_cast<char *>(std::to_string(getpid()).c_str()),
+        const_cast<char *>("-v"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: MemoryDumperTest023
+ * @tc.desc: Test for all infomation.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest023, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>(""),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
 } // namespace HiviewDFX
 } // namespace OHOS

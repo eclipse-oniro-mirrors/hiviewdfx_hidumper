@@ -43,13 +43,13 @@ bool GetHeapInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int &pi
     DUMPER_HILOGI(MODULE_SERVICE, "GetHeapInfo: GetInfo memType:%{public}d pid:%{public}d begin.", memType, pid);
     struct MallHeapInfo heapInfo = {0};
 #ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
-    OHOS::sptr<OHOS::AppExecFwk::IAppMgr> appManager_ = GetAppManagerInstance();
-    if (appManager_ == nullptr) {
-        DUMPER_HILOGE(MODULE_SERVICE, "GetHeapInfo: Get the appManager_ is nullptr.");
+    OHOS::sptr<OHOS::AppExecFwk::IAppMgr> appManager = GetAppManagerInstance();
+    if (appManager == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "GetHeapInfo: Get the appManager is nullptr.");
         return false;
     }
     OHOS::AppExecFwk::MallocInfo mallocInfo;
-    int ret = appManager_->DumpHeapMemory(pid, mallocInfo);
+    int ret = appManager->DumpHeapMemory(pid, mallocInfo);
     if (ret != ERR_OK) {
         DUMPER_HILOGE(MODULE_SERVICE, "DumpHeapMemory return failed, ret is:%{public}d", ret);
     } else {
