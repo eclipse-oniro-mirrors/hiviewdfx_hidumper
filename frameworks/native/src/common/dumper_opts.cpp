@@ -197,40 +197,5 @@ bool DumperOpts::CheckOptions(std::string& errStr) const
     }
     return true;
 }
-
-void DumperOpts::Dump() const
-{
-    DUMPER_HILOGD(MODULE_COMMON, "debug|===============[DumperOpts]=============");
-    DUMPER_HILOGD(MODULE_COMMON, "debug|isDumpCpuFreq=%{public}d", isDumpCpuFreq_);
-    DUMPER_HILOGD(MODULE_COMMON, "debug|isDumpCpuUsage=%{public}d, cpuUsagePid_=%{public}d",
-        isDumpCpuUsage_, cpuUsagePid_);
-    DUMPER_HILOGD(MODULE_COMMON, "debug|isDumpLog=%{public}d", isDumpLog_);
-    for (size_t i = 0; i < logArgs_.size(); i++) {
-        DUMPER_HILOGD(MODULE_COMMON, "debug|    logArgs[%{public}zu]_=%{public}s", i, logArgs_[i].c_str());
-    }
-    DUMPER_HILOGD(MODULE_COMMON, "debug|isDumpMem=%{public}d, memPid=%{public}d", isDumpMem_, memPid_);
-    DUMPER_HILOGD(MODULE_COMMON, "debug|isDumpStorage=%{public}d", isDumpStorage_);
-    DUMPER_HILOGD(MODULE_COMMON, "debug|isDumpNet=%{public}d", isDumpNet_);
-    DUMPER_HILOGD(MODULE_COMMON, "debug|isDumpList=%{public}d,"
-        " isDumpService=%{public}d, isDumpSystemAbility=%{public}d, isDumpSystem=%{public}d",
-        isDumpList_, isDumpService_, isDumpSystemAbility_, isDumpSystem_);
-    for (size_t i = 0; i < systemArgs_.size(); i++) {
-        DUMPER_HILOGD(MODULE_COMMON, "debug|    systemArgs[%{public}zu]=%{public}s", i, systemArgs_[i].c_str());
-    }
-    for (size_t i = 0; i < abilitieNames_.size(); i++) {
-        DUMPER_HILOGD(MODULE_COMMON, "debug|    abilitieNames[%{public}zu]=%{public}s", i, abilitieNames_[i].c_str());
-    }
-    for (size_t i = 0; i < abilitieArgs_.size(); i++) {
-        DUMPER_HILOGD(MODULE_COMMON, "debug|    abilitieArgs[%{public}zu]=%{public}s", i, abilitieArgs_[i].c_str());
-    }
-    DUMPER_HILOGD(MODULE_COMMON, "debug|isDumpProcesses=%{public}d, processPid=%{public}d",
-        isDumpProcesses_, processPid_);
-    DUMPER_HILOGD(MODULE_COMMON, "debug|isFaultLog=%{public}d", isFaultLog_);
-    DUMPER_HILOGD(MODULE_COMMON, "debug|timeout=%{public}d", timeout_);
-    DUMPER_HILOGD(MODULE_COMMON, "debug|limitSize=%{public}d", limitSize_);
-    DUMPER_HILOGD(MODULE_COMMON, "debug|path=%{public}s", path_.c_str());
-    DUMPER_HILOGD(MODULE_COMMON, "debug|isAppendix=%{public}d", isAppendix_);
-    DUMPER_HILOGD(MODULE_COMMON, "debug|isTest=%{public}d", isTest_);
-}
 } // namespace HiviewDFX
 } // namespace OHOS

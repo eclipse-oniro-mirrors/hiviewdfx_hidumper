@@ -502,25 +502,6 @@ bool ConfigUtils::HandleDumpAppendix(std::vector<std::shared_ptr<DumpCfg>> &dump
     return true;
 }
 
-bool ConfigUtils::HandleDumpTest(std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs)
-{
-    const DumperOpts &dumperOpts = dumperParam_->GetOpts();
-    if (!dumperOpts.isTest_) {
-        return false;
-    }
-
-    DUMPER_HILOGD(MODULE_COMMON, "debug|test");
-    currentPidInfo_.Reset();
-    currentPidInfos_.clear();
-
-    std::shared_ptr<OptionArgs> args;
-    GetConfig(CONFIG_GROUP_TEST, dumpCfgs, args);
-
-    currentPidInfos_.clear();
-    currentPidInfo_.Reset();
-    return true;
-}
-
 int ConfigUtils::GetDumpLevelByPid(int uid, const DumpCommonUtils::PidInfo &pidInfo)
 {
     int ret = DumperConstant::LEVEL_NONE;

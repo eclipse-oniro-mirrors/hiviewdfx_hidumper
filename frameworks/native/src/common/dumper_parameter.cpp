@@ -75,10 +75,5 @@ std::shared_ptr<RawParam> DumperParameter::getClientCallback()
 {
     return mPtrReqCtl;
 }
-
-void DumperParameter::Dump() const
-{
-    opts_.Dump();
-}
 } // namespace HiviewDFX
 } // namespace OHOS

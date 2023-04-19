@@ -52,7 +52,6 @@ public:
     bool IsSelectAny() const;
     bool IsDumpZip() const;
     bool CheckOptions(std::string& errStr) const;
-    void Dump() const;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
