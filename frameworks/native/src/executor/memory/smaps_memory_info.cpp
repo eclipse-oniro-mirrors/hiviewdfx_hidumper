@@ -47,7 +47,6 @@ static constexpr int LINE_WIDTH = 12;
 static constexpr int LINE_NAME_VAL_WIDTH = 60;
 static constexpr int LINE_START_VAL_WIDTH = 18;
 static constexpr size_t TYPE_SIZE = 2;
-static constexpr char SEPARATOR = '-';
 static constexpr char BLANK = ' ';
 SmapsMemoryInfo::SmapsMemoryInfo()
 {
@@ -82,13 +81,6 @@ void SmapsMemoryInfo::InsertSmapsTitle(StringMatrix result, bool isShowSmapsInfo
 {
     vector<string> line1;
     vector<string> line2;
-    vector<string> line3;
-    StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, true, space_);
-    string separator = "-";
-    StringUtils::GetInstance().SetWidth(LINE_WIDTH, SEPARATOR, true, separator);
-    line1.push_back(space_);
-    line2.push_back(space_);
-    line3.push_back(space_);
     vector<string> titleVec = isShowSmapsInfo ? MemoryFilter::GetInstance().TITLE_V_SMAPS_HAS_PID_ :
         MemoryFilter::GetInstance().TITLE_SMAPS_HAS_PID_;
     for (string str : titleVec) {
@@ -101,30 +93,28 @@ void SmapsMemoryInfo::InsertSmapsTitle(StringMatrix result, bool isShowSmapsInfo
             string title2 = types.at(1);
             StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, true, title2);
             line2.push_back(title2);
-            line3.push_back(separator);
         } else {
             string title = types.at(0);
+            StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, true, space_);
             line1.push_back(space_);
-            constexpr int LINE_NAME_KEY_WIDTH = 14;
+            constexpr int LINE_NAME_KEY_WIDTH = 22;
             if (StringUtils::GetInstance().IsSameStr(title, "Name")) {
-                StringUtils::GetInstance().SetWidth(LINE_NAME_KEY_WIDTH, BLANK, false, title);
+                StringUtils::GetInstance().SetWidth(isShowSmapsInfo ? LINE_START_VAL_WIDTH : LINE_NAME_KEY_WIDTH,
+                    BLANK, false, title);
             } else {
                 StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, true, title);
             }
             line2.push_back(title);
-            line3.push_back(separator);
     }
     }
     result->push_back(line1);
     result->push_back(line2);
-    result->push_back(line3);
 }
 
 void SmapsMemoryInfo::BuildSmapsInfo(StringMatrix result, vector<map<string, string>> vectMap)
 {
     for (auto obj : vectMap) {
         vector<string> tempResult;
-        StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, false, space_);
         for (const auto &tag : MemoryFilter::GetInstance().VALUE_SMAPS_V_WITH_PID_) {
             string value = obj.at(tag);
             if (StringUtils::GetInstance().IsSameStr(tag, "Name")) {
@@ -132,7 +122,7 @@ void SmapsMemoryInfo::BuildSmapsInfo(StringMatrix result, vector<map<string, str
                 StringUtils::GetInstance().SetWidth(LINE_NAME_VAL_WIDTH, BLANK, true, value);
             } else {
                 StringUtils::GetInstance().SetWidth(StringUtils::GetInstance().IsSameStr(tag, "Start") ?
-                    LINE_START_VAL_WIDTH : LINE_WIDTH, BLANK, false, value);
+                    LINE_START_VAL_WIDTH : LINE_WIDTH, BLANK, true, value);
             }
             tempResult.push_back(value);
         }
@@ -150,7 +140,6 @@ void SmapsMemoryInfo::BuildSmapsResult(const GroupMap &infos, StringMatrix resul
     }
     for (const auto &info : infos) {
         vector<string> tempResult;
-        StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, false, space_);
         auto &valueMap = info.second;
         for (const auto &tag : MemoryFilter::GetInstance().TITLE_SMAPS_HAS_PID_) {
             auto it = valueMap.find(tag);
@@ -163,7 +152,7 @@ void SmapsMemoryInfo::BuildSmapsResult(const GroupMap &infos, StringMatrix resul
                 value = space_ + value;
                 StringUtils::GetInstance().SetWidth(LINE_NAME_VAL_WIDTH, BLANK, true, value);
             } else {
-                StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, false, value);
+                StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, true, value);
             }
             tempResult.push_back(value);
         }
