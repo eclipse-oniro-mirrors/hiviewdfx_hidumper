@@ -192,7 +192,10 @@ ohos_unittest("HidumperInnerkitsTest") {
     "//third_party/googletest:gtest_main",
   ]
 
-  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
+  external_deps = [
+    "hiviewdfx_hilog_native:libhilog",
+    "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
+  ]
 }
 
 ohos_unittest("HidumperManagerTest") {
