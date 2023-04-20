@@ -439,6 +439,7 @@ HWTEST_F(HiDumperManagerTest, DumpTest020, TestSize.Level0)
     int ret = GetDumpResult(argc, argv);
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
+
 /**
  * @tc.name: MemoryDumperTest021
  * @tc.desc: Test dump statistic in /proc/pid/smaps has correct ret.
@@ -456,6 +457,7 @@ HWTEST_F(HiDumperManagerTest, DumpTest021, TestSize.Level0)
     int ret = GetDumpResult(argc, argv);
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
+
 /**
  * @tc.name: MemoryDumperTest022
  * @tc.desc: Test dump details in /proc/pid/smaps has correct ret.
