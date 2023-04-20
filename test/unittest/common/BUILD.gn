@@ -193,8 +193,8 @@ ohos_unittest("HidumperInnerkitsTest") {
   ]
 
   external_deps = [
-    "hiviewdfx_hilog_native:libhilog",
     "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
+    "hiviewdfx_hilog_native:libhilog",
   ]
 }
 
