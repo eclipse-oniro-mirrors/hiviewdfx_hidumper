@@ -77,7 +77,6 @@ private:
     void SetName(MemInfoData::MemSmapsInfo &meminfo, const std::string &value);
     void SetCounts(MemInfoData::MemSmapsInfo &meminfo, uint64_t value);
     std::vector<std::pair<std::string, MemSmapsFun>> sMapsMethodVec_;
-    std::string space_ = " ";
 };
 } // namespace HiviewDFX
 } // namespace OHOS

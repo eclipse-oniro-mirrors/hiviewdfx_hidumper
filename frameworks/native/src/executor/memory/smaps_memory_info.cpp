@@ -95,14 +95,16 @@ void SmapsMemoryInfo::InsertSmapsTitle(StringMatrix result, bool isShowSmapsInfo
             line2.push_back(title2);
         } else {
             string title = types.at(0);
-            StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, true, space_);
-            line1.push_back(space_);
+            string space = " ";
+            StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, true, space);
+            line1.push_back(space);
             constexpr int LINE_NAME_KEY_WIDTH = 22;
             if (StringUtils::GetInstance().IsSameStr(title, "Name")) {
                 StringUtils::GetInstance().SetWidth(isShowSmapsInfo ? LINE_START_VAL_WIDTH : LINE_NAME_KEY_WIDTH,
                     BLANK, false, title);
             } else {
-                StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, true, title);
+                StringUtils::GetInstance().SetWidth(StringUtils::GetInstance().IsSameStr(title, "Start") ?
+                    LINE_START_VAL_WIDTH : LINE_WIDTH, BLANK, true, title);
             }
             line2.push_back(title);
     }
@@ -118,7 +120,9 @@ void SmapsMemoryInfo::BuildSmapsInfo(StringMatrix result, vector<map<string, str
         for (const auto &tag : MemoryFilter::GetInstance().VALUE_SMAPS_V_WITH_PID_) {
             string value = obj.at(tag);
             if (StringUtils::GetInstance().IsSameStr(tag, "Name")) {
-                value = space_ + value;
+                string space = " ";
+                StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, false, space);
+                value = space + value;
                 StringUtils::GetInstance().SetWidth(LINE_NAME_VAL_WIDTH, BLANK, true, value);
             } else {
                 StringUtils::GetInstance().SetWidth(StringUtils::GetInstance().IsSameStr(tag, "Start") ?
@@ -148,8 +152,9 @@ void SmapsMemoryInfo::BuildSmapsResult(const GroupMap &infos, StringMatrix resul
                 value = StringUtils::GetInstance().IsSameStr(tag, "Name") ? info.first : to_string(it->second);
             }
             if (StringUtils::GetInstance().IsSameStr(tag, "Name")) {
-                StringUtils::GetInstance().SetWidth(LINE_START_VAL_WIDTH, BLANK, false, space_);
-                value = space_ + value;
+                string space = " ";
+                StringUtils::GetInstance().SetWidth(LINE_START_VAL_WIDTH, BLANK, false, space);
+                value = space + value;
                 StringUtils::GetInstance().SetWidth(LINE_NAME_VAL_WIDTH, BLANK, true, value);
             } else {
                 StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, true, value);
