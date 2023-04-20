@@ -105,9 +105,9 @@ void HiDumperInnerkitsTest::StopProcess()
 
 void HiDumperInnerkitsTest::GetAppManagerPids()
 {
-    std::vector<std::string> processes = {"com.ohos.launcher", "com.ohos.medialibrary.medialibrarydata", "hiview", 
+    std::vector<std::string> processes = {"com.ohos.launcher", "com.ohos.medialibrary.medialibrarydata", "hiview",
         "com.ohos.settingsdata", "com.ohos.systemui", "render_service"};
-    for (std::vector<std::string>::iterator iter = processes.begin();iter != processes.end();iter++) {
+    for (std::vector<std::string>::iterator iter = processes.begin(); iter != processes.end(); iter++) {
         int res = GetAppManagerPid(*iter);
         if (res > 0) {
             g_appManagerPid = res;
