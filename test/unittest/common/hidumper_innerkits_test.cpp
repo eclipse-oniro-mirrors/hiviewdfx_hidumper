@@ -15,6 +15,10 @@
 
 #include "dump_usage.h"
 #include "cpu_dumper.h"
+#include "executor/memory/get_heap_info.h"
+#include "executor/memory/memory_info.h"
+#include "executor/memory/parse/parse_smaps_info.h"
+#include "securec.h"
 
 #include <gtest/gtest.h>
 #include <unistd.h>
@@ -23,19 +27,26 @@ using namespace testing::ext;
 namespace OHOS {
 namespace HiviewDFX {
 static constexpr int MALLOC_SIZE = 1024;
+static int32_t LAUNCHER_PID_BUFFER_SIZE = 6;
 static int pid = -1;
+static int g_appManagerPid = -1;
 class HiDumperInnerkitsTest : public testing::Test {
 public:
+    using ValueMap = std::map<std::string, uint64_t>;
+    using GroupMap = std::map<std::string, ValueMap>;
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
+    static void GetAppManagerPids();
+    static int GetAppManagerPid();
     static void StartTestProcess();
     static void StopProcess();
 };
 
 void HiDumperInnerkitsTest::SetUpTestCase(void)
 {
+    GetAppManagerPids();
     StartTestProcess();
     if (pid < 0) {
         printf("[SetUpTestCase] fork process failure!\n");
@@ -90,6 +101,40 @@ void HiDumperInnerkitsTest::StopProcess()
 {
     std::string stopCmd = "kill " + std::to_string(pid);
     system(stopCmd.c_str());
+}
+
+void HiDumperInnerkitsTest::GetAppManagerPids()
+{
+    std::vector<std::string> processes = {"com.ohos.launcher", "com.ohos.medialibrary.medialibrarydata", "hiview", "com.ohos.settingsdata"
+        , "com.ohos.systemui", "render_service"};
+    for (int i = 0;i < processes.size();i++) {
+        int res = GetAppManagerPid();
+        if (res > 0) {
+            g_appManagerPid = res;
+            break;
+        }
+    }
+}
+
+int HiDumperInnerkitsTest::GetAppManagerPid()
+{
+    char appManagerPidChar[LAUNCHER_PID_BUFFER_SIZE] = {"\0"};
+    int appManagerPid = -1;
+    FILE *fp = nullptr;
+    fp = popen("pidof com.ohos.launcher", "r");
+    if (fp == nullptr) {
+        return -1;
+    }
+    if (fgets(appManagerPidChar, sizeof(appManagerPidChar), fp) != nullptr) {
+        pclose(fp);
+        int ret = sscanf_s(appManagerPidChar, "%d", &appManagerPid);
+        if (ret <= 0) {
+            return -1;
+        }
+        return appManagerPid;
+    }
+    pclose(fp);
+    return -1;
 }
 
 /**
@@ -175,6 +220,25 @@ HWTEST_F(HiDumperInnerkitsTest, GetProcCpuInfo001, TestSize.Level1)
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
     ret = cpuDumper->AfterExecute();
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: GetProcCpuInfo001
+ * @tc.desc: Test GetProcCpuInfo when a new process appeared.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperInnerkitsTest, GetHeapInfo001, TestSize.Level1)
+{
+    int testPid = -1;
+    if (g_appManagerPid == -1) {
+        testPid = pid;
+    }
+    GroupMap groupMap;
+    std::map<std::string, uint64_t> value = {};
+    value["test"] = 1;
+    groupMap["test"] = value;
+    std::unique_ptr<GetHeapInfo> getHeapInfo = std::make_unique<GetHeapInfo>();
+    ASSERT_TRUE(getHeapInfo->GetInfo(MemoryFilter::APPOINT_PID, testPid, groupMap));
 }
 } // namespace HiviewDFX
 } // namespace OHOS
