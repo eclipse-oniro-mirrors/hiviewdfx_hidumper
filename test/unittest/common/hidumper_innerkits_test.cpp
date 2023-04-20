@@ -27,7 +27,7 @@ using namespace testing::ext;
 namespace OHOS {
 namespace HiviewDFX {
 static constexpr int MALLOC_SIZE = 1024;
-static int32_t LAUNCHER_PID_BUFFER_SIZE = 6;
+static constexpr int LAUNCHER_PID_BUFFER_SIZE = 6;
 static int pid = -1;
 static int g_appManagerPid = -1;
 class HiDumperInnerkitsTest : public testing::Test {
@@ -39,7 +39,7 @@ public:
     void SetUp();
     void TearDown();
     static void GetAppManagerPids();
-    static int GetAppManagerPid();
+    static int GetAppManagerPid(std::string process);
     static void StartTestProcess();
     static void StopProcess();
 };
@@ -107,8 +107,8 @@ void HiDumperInnerkitsTest::GetAppManagerPids()
 {
     std::vector<std::string> processes = {"com.ohos.launcher", "com.ohos.medialibrary.medialibrarydata", "hiview", "com.ohos.settingsdata"
         , "com.ohos.systemui", "render_service"};
-    for (int i = 0;i < processes.size();i++) {
-        int res = GetAppManagerPid();
+    for (std::vector<std::string>::iterator iter = processes.begin();iter != processes.end();iter++) {
+        int res = GetAppManagerPid(*iter);
         if (res > 0) {
             g_appManagerPid = res;
             break;
@@ -116,12 +116,13 @@ void HiDumperInnerkitsTest::GetAppManagerPids()
     }
 }
 
-int HiDumperInnerkitsTest::GetAppManagerPid()
+int HiDumperInnerkitsTest::GetAppManagerPid(std::string process)
 {
+    std::string cmd = "pidof " + process;
     char appManagerPidChar[LAUNCHER_PID_BUFFER_SIZE] = {"\0"};
     int appManagerPid = -1;
     FILE *fp = nullptr;
-    fp = popen("pidof com.ohos.launcher", "r");
+    fp = popen(cmd.c_str(), "r");
     if (fp == nullptr) {
         return -1;
     }
