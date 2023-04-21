@@ -91,12 +91,8 @@ DumpStatus ConfigUtils::GetDumperConfigs()
     HandleDumpProcesses(dumpCfgs);
     HandleDumpFaultLog(dumpCfgs);
     HandleDumpAppendix(dumpCfgs);
-    HandleDumpTest(dumpCfgs);
-
     DUMPER_HILOGD(MODULE_COMMON, "debug|dumpCfgs=%{public}zu", dumpCfgs.size());
-
     dumperParam_->SetExecutorConfigList(dumpCfgs);
-
     DUMPER_HILOGD(MODULE_COMMON, "leave|");
     return DumpStatus::DUMP_OK;
 }
@@ -497,25 +493,6 @@ bool ConfigUtils::HandleDumpAppendix(std::vector<std::shared_ptr<DumpCfg>> &dump
     } else {
         DUMPER_HILOGE(MODULE_COMMON, "No permission to perform dump stack operation, uid=%d", callingUid);
     }
-    currentPidInfos_.clear();
-    currentPidInfo_.Reset();
-    return true;
-}
-
-bool ConfigUtils::HandleDumpTest(std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs)
-{
-    const DumperOpts &dumperOpts = dumperParam_->GetOpts();
-    if (!dumperOpts.isTest_) {
-        return false;
-    }
-
-    DUMPER_HILOGD(MODULE_COMMON, "debug|test");
-    currentPidInfo_.Reset();
-    currentPidInfos_.clear();
-
-    std::shared_ptr<OptionArgs> args;
-    GetConfig(CONFIG_GROUP_TEST, dumpCfgs, args);
-
     currentPidInfos_.clear();
     currentPidInfo_.Reset();
     return true;

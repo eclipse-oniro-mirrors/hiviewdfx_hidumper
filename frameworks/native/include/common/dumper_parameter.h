@@ -59,7 +59,6 @@ public:
     {
         return pid_;
     };
-    void Dump() const;
 private:
     int uid_ {-1};
     int pid_ {-1};
