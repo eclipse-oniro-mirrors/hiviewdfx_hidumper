@@ -188,24 +188,23 @@ void MemoryUtil::SetMemTotalValue(const string &value, vector<string> &lines, ve
 {
     string separator = "-";
     string space = " ";
-    StringUtils::GetInstance().SetWidth(flag ? SMAPS_LINE_WIDTH_ : LINE_WIDTH_, BLANK_, false, space);
-    if (StringUtils::GetInstance().IsSameStr(value, "Summary")) {
-        constexpr int WIDTH_PARAM = 28;
-        StringUtils::GetInstance().SetWidth(WIDTH_PARAM, SEPARATOR_, false, separator);
-    } else {
+    if (!flag) {
+        StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, space);
         StringUtils::GetInstance().SetWidth(LINE_WIDTH_, SEPARATOR_, false, separator);
+        lines.push_back(separator);
     }
-    lines.push_back(separator);
     string tempValue = value;
-    if (StringUtils::GetInstance().IsSameStr(value, "Summary")) {
-        tempValue = space + tempValue;
-        constexpr int SMPAPS_INFO_WIDTH = 26;
-        StringUtils::GetInstance().SetWidth(flag ? SMPAPS_INFO_WIDTH : SMAPS_LINE_WIDTH_, BLANK_, false, tempValue);
+    if (flag) {
+        if (StringUtils::GetInstance().IsSameStr(value, "Summary")) {
+            constexpr int SMPAPS_INFO_WIDTH = 25;
+            StringUtils::GetInstance().SetWidth(SMPAPS_INFO_WIDTH, BLANK_, false, tempValue);
+        } else {
+            StringUtils::GetInstance().SetWidth(SMAPS_LINE_WIDTH_, BLANK_, true, tempValue);
+        }
     } else {
-        StringUtils::GetInstance().SetWidth(flag ? SMAPS_LINE_WIDTH_ : LINE_WIDTH_, BLANK_, false, tempValue);
+        StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, tempValue);
     }
     values.push_back(tempValue);
 }
-
 } // namespace HiviewDFX
 } // namespace OHOS
