@@ -456,16 +456,16 @@ string MemoryInfo::GetProcName(const int &pid)
     string str = "grep \"Name\" /proc/" + to_string(pid) + "/status";
     string procName = "unknown";
     vector<string> cmdResult;
-    if (MemoryUtil::GetInstance().RunCMD(str, cmdResult) && cmdResult.size() > 0) {
-        vector<string> names;
-        StringUtils::GetInstance().StringSplit(cmdResult.at(0), ":", names);
-        if (names.size() == NAME_SIZE_) {
-            procName = names.at(1);
-            StringUtils::GetInstance().ReplaceAll(procName, " ", "");
-            return procName;
-        }
+    if (!MemoryUtil::GetInstance().RunCMD(str, cmdResult) || cmdResult.size() == 0) {
+        DUMPER_HILOGE(MODULE_SERVICE, "GetProcName fail! pid = %d", pid);
+        return procName;
     }
-    DUMPER_HILOGE(MODULE_SERVICE, "GetProcName fail! pid = %d", pid);
+    vector<string> names;
+    StringUtils::GetInstance().StringSplit(cmdResult.at(0), ":", names);
+    if (names.empty()) {
+        return procName;
+    }
+    procName = cmdResult.at(0).substr(names[0].length() + 1);
     return procName;
 }
 
@@ -568,6 +568,7 @@ void MemoryInfo::MemUsageToMatrix(const MemInfoData::MemUsage &memUsage, StringM
 
     uint64_t pss = memUsage.pss + memUsage.swapPss;
     string totalPss = to_string(pss) + "(" + to_string(memUsage.swapPss) + " in SwapPss) kB";
+    StringUtils::GetInstance().SetWidth(PSS_WIDTH_, BLANK_, false, totalPss);
     strs.push_back(totalPss);
 
     uint64_t vss = memUsage.vss;
@@ -611,10 +612,13 @@ void MemoryInfo::AddMemByProcessTitle(StringMatrix result, string sortType)
     title.push_back(pid);
 
     string name = "Name";
+    string preBlank = "   ";
     StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, name);
+    title.push_back(preBlank.append(name));
     title.push_back(name);
 
     string totalPss = "Total Pss(xxx in SwapPss)";
+    StringUtils::GetInstance().SetWidth(PSS_WIDTH_, BLANK_, false, totalPss);
     title.push_back(totalPss);
 
     string totalVss = "Total Vss";

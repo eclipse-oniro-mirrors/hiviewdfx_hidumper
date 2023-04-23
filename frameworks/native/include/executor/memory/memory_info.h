@@ -65,6 +65,7 @@ private:
     const static int NAME_SIZE_ = 2;
     const int PID_WIDTH_ = 5;
     const int NAME_WIDTH_ = 20;
+    const int PSS_WIDTH_ = 25;
     const int KB_WIDTH_ = 12;
     const int NAME_AND_PID_WIDTH = 30;
     const static int VSS_BIT = 4;
