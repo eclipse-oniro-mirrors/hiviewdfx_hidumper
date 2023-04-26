@@ -50,7 +50,7 @@ bool RawParam::Init(std::vector<std::u16string> &args)
         deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new ClientDeathRecipient(reqId_, canceled_));
     }
     DUMPER_HILOGD(MODULE_SERVICE, "debug|argc=%{public}zu", args.size());
-    for (size_t i = 0; i < args.size(); i++) {
+    for (size_t i = 0; i < args.size() && i <= ARG_MAX_COUNT; i++) {
         argValues_[i] = std::make_unique<ArgValue>();
         if (sprintf_s(argValues_[i]->value, SINGLE_ARG_MAXLEN, "%s", Str16ToStr8(args[i]).c_str()) < 0) {
             return false;
