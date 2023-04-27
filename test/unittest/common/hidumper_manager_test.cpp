@@ -14,7 +14,7 @@
  */
 #include <gtest/gtest.h>
 #include <map>
-#include <stdlib.h>
+#include <cstdlib>
 #include <unistd.h>
 #include <vector>
 
@@ -29,7 +29,7 @@ namespace OHOS {
 namespace HiviewDFX {
 
 const std::string TOOL_NAME = "hidumper";
-char FILE_NAME[] = "/tmp/test.XXXXXX";
+char file_name[] = "/tmp/test.XXXXXX";
 int g_fd = -1;
 class HiDumperManagerTest : public testing::Test {
 public:
@@ -43,7 +43,7 @@ public:
 
 void HiDumperManagerTest::SetUpTestCase(void)
 {
-    g_fd = mkstemp(FILE_NAME);
+    g_fd = mkstemp(file_name);
     if (g_fd == -1) {
         printf("create tmp file fail!");
         return;
@@ -54,7 +54,7 @@ void HiDumperManagerTest::TearDownTestCase(void)
     if (g_fd != -1) {
         close(g_fd);
     }
-    unlink(FILE_NAME);
+    unlink(file_name);
 }
 void HiDumperManagerTest::SetUp(void)
 {
