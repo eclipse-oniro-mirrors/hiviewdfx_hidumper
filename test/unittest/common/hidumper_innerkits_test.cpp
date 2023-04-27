@@ -99,7 +99,7 @@ void HiDumperInnerkitsTest::StartTestProcess()
 
 void HiDumperInnerkitsTest::StopProcess()
 {
-    std::string stopCmd = "kill " + std::to_string(pid);
+    std::string stopCmd = "kill " + std::to_string(g_pid);
     system(stopCmd.c_str());
 }
 
