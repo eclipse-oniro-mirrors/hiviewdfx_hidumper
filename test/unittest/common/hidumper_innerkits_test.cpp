@@ -29,7 +29,7 @@ namespace HiviewDFX {
 static constexpr int MALLOC_SIZE = 1024;
 static constexpr int LAUNCHER_PID_BUFFER_SIZE = 6;
 static int g_pid = -1;
-static int g_appManagerPid = -1; 
+static int g_appManagerPid = -1;
 class HiDumperInnerkitsTest : public testing::Test {
 public:
     using ValueMap = std::map<std::string, uint64_t>;
