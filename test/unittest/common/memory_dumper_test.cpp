@@ -147,5 +147,3 @@ HWTEST_F(MemoryDumperTest, MemoryUtilTest003, TestSize.Level1)
 }
 } // namespace HiviewDFX
 } // namespace OHOS
-
-
