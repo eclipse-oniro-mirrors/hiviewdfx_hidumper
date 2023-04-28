@@ -615,7 +615,6 @@ void MemoryInfo::AddMemByProcessTitle(StringMatrix result, string sortType)
     string preBlank = "   ";
     StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, name);
     title.push_back(preBlank.append(name));
-    title.push_back(name);
 
     string totalPss = "Total Pss(xxx in SwapPss)";
     StringUtils::GetInstance().SetWidth(PSS_WIDTH_, BLANK_, false, totalPss);
