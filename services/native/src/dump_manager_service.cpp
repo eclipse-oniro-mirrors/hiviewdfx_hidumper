@@ -163,11 +163,14 @@ int32_t DumpManagerService::ScanPidOverLimit(std::string requestType, int32_t li
     if (!HasDumpPermission()) {
         return DumpStatus::DUMP_FAIL;
     }
+    if (limitSize < 0) {
+        return DumpStatus::DUMP_FAIL;
+    }
     int32_t ret = DumpStatus::DUMP_OK;
     std::vector<int32_t> pids = DumpCommonUtils::GetAllPids();
     for (const auto &pid : pids) {
         uint32_t num = GetFileDescriptorNums(pid, requestType);
-        if (num < limitSize) {
+        if (num < static_cast<uint32_t>(limitSize)) {
             continue;
         }
         auto it = std::find(pidList.begin(), pidList.end(), pid);
@@ -192,11 +195,12 @@ std::string DumpManagerService::GetFdLinkNum(const std::string &linkPath) const
 
 void DumpManagerService::RecordDetailFdInfo(std::string &detailFdInfo, std::string &topLeakedType)
 {
-    if (linkCnt_.size() <= 0) {
+    int size = linkCnt_.size();
+    if (size <= 0) {
         return;
     }
     topLeakedType = linkCnt_[0].first;
-    for (int i = 0; i < linkCnt_.size() && i < FD_LOG_NUM; i++) {
+    for (int i = 0; i < size && i < FD_LOG_NUM; i++) {
         detailFdInfo += std::to_string(linkCnt_[i].second) + "\t" + linkCnt_[i].first + "\n";
     }
 }
