@@ -107,7 +107,7 @@ public:
     }
     static void Execute(int id, int fd, StringMatrix Data)
     {
-        char *buff = (char *)malloc(LINE_LENGTH);
+        char *buff = static_cast<char *>(malloc(LINE_LENGTH));
         if (buff == nullptr) {
             return;
         }

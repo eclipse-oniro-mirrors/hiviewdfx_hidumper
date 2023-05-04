@@ -28,7 +28,7 @@ namespace OHOS {
 namespace HiviewDFX {
 static constexpr int MALLOC_SIZE = 1024;
 static constexpr int LAUNCHER_PID_BUFFER_SIZE = 6;
-static int pid = -1;
+static int g_pid = -1;
 static int g_appManagerPid = -1;
 class HiDumperInnerkitsTest : public testing::Test {
 public:
@@ -48,22 +48,22 @@ void HiDumperInnerkitsTest::SetUpTestCase(void)
 {
     GetAppManagerPids();
     StartTestProcess();
-    if (pid < 0) {
+    if (g_pid < 0) {
         printf("[SetUpTestCase] fork process failure!\n");
         return;
     }
-    if (pid == 0) {
+    if (g_pid == 0) {
         printf("[SetUpTestCase] this process's pid is %d, it's should be child process\n", getpid());
         return;
     }
 }
 void HiDumperInnerkitsTest::TearDownTestCase(void)
 {
-    if (pid < 0) {
+    if (g_pid < 0) {
         printf("[TearDownTestCase] fork process failure!\n");
         return;
     }
-    if (pid == 0) {
+    if (g_pid == 0) {
         printf("[TearDownTestCase] this process's pid is %d, it's should be child process\n", getpid());
         return;
     }
@@ -93,13 +93,13 @@ void HiDumperInnerkitsTest::StartTestProcess()
             free(p);
         }
     } else {
-        pid = processNum;
+        g_pid = processNum;
     }
 }
 
 void HiDumperInnerkitsTest::StopProcess()
 {
-    std::string stopCmd = "kill " + std::to_string(pid);
+    std::string stopCmd = "kill " + std::to_string(g_pid);
     system(stopCmd.c_str());
 }
 
@@ -148,7 +148,7 @@ HWTEST_F(HiDumperInnerkitsTest, GetMemInfoTest001, TestSize.Level1)
 {
     std::unique_ptr<DumpUsage> dumpUsage = std::make_unique<DumpUsage>();
     MemInfoData::MemInfo info;
-    EXPECT_TRUE(dumpUsage->GetMemInfo(pid, info));
+    EXPECT_TRUE(dumpUsage->GetMemInfo(g_pid, info));
     EXPECT_GT(info.pss, 0);
 }
 
@@ -161,7 +161,7 @@ HWTEST_F(HiDumperInnerkitsTest, GetMemInfoTest001, TestSize.Level1)
 HWTEST_F(HiDumperInnerkitsTest, GetPssTest001, TestSize.Level1)
 {
     std::unique_ptr<DumpUsage> dumpUsage = std::make_unique<DumpUsage>();
-    EXPECT_GT(dumpUsage->GetPss(pid), 0);
+    EXPECT_GT(dumpUsage->GetPss(g_pid), 0);
 }
 
 /**
@@ -173,7 +173,7 @@ HWTEST_F(HiDumperInnerkitsTest, GetPssTest001, TestSize.Level1)
 HWTEST_F(HiDumperInnerkitsTest, GetPrivateDirtyTest001, TestSize.Level1)
 {
     std::unique_ptr<DumpUsage> dumpUsage = std::make_unique<DumpUsage>();
-    EXPECT_GE(dumpUsage->GetPrivateDirty(pid), 0);
+    EXPECT_GE(dumpUsage->GetPrivateDirty(g_pid), 0);
 }
 
 /**
@@ -185,7 +185,7 @@ HWTEST_F(HiDumperInnerkitsTest, GetPrivateDirtyTest001, TestSize.Level1)
 HWTEST_F(HiDumperInnerkitsTest, GetSharedDirtyTest001, TestSize.Level1)
 {
     std::unique_ptr<DumpUsage> dumpUsage = std::make_unique<DumpUsage>();
-    EXPECT_GE(dumpUsage->GetSharedDirty(pid), 0);
+    EXPECT_GE(dumpUsage->GetSharedDirty(g_pid), 0);
 }
 
 /**
@@ -197,7 +197,7 @@ HWTEST_F(HiDumperInnerkitsTest, GetSharedDirtyTest001, TestSize.Level1)
 HWTEST_F(HiDumperInnerkitsTest, GetCpuUsage001, TestSize.Level1)
 {
     std::unique_ptr<DumpUsage> dumpUsage = std::make_unique<DumpUsage>();
-    EXPECT_GT(dumpUsage->GetCpuUsage(pid), 0);
+    EXPECT_GT(dumpUsage->GetCpuUsage(g_pid), 0);
 }
 
 /**
@@ -210,7 +210,7 @@ HWTEST_F(HiDumperInnerkitsTest, GetProcCpuInfo001, TestSize.Level1)
     auto parameter = std::make_shared<DumperParameter>();
     DumperOpts opts;
     opts.isDumpCpuUsage_ = true;
-    opts.cpuUsagePid_ = pid;
+    opts.cpuUsagePid_ = g_pid;
     parameter->SetOpts(opts);
     auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
     auto cpuDumper = std::make_shared<CPUDumper>();
@@ -230,7 +230,7 @@ HWTEST_F(HiDumperInnerkitsTest, GetProcCpuInfo001, TestSize.Level1)
  */
 HWTEST_F(HiDumperInnerkitsTest, GetHeapInfo001, TestSize.Level1)
 {
-    int testPid = pid;
+    int testPid = g_pid;
     GroupMap groupMap;
     std::map<std::string, uint64_t> value = {};
     value["test"] = 1;
