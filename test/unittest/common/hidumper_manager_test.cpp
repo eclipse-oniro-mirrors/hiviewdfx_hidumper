@@ -29,7 +29,7 @@ namespace OHOS {
 namespace HiviewDFX {
 
 const std::string TOOL_NAME = "hidumper";
-char file_name[] = "/tmp/test.XXXXXX";
+char g_fileName[] = "/tmp/test.XXXXXX";
 int g_fd = -1;
 class HiDumperManagerTest : public testing::Test {
 public:
@@ -43,7 +43,7 @@ public:
 
 void HiDumperManagerTest::SetUpTestCase(void)
 {
-    g_fd = mkstemp(file_name);
+    g_fd = mkstemp(g_fileName);
     if (g_fd == -1) {
         printf("create tmp file fail!");
         return;
@@ -54,7 +54,7 @@ void HiDumperManagerTest::TearDownTestCase(void)
     if (g_fd != -1) {
         close(g_fd);
     }
-    unlink(file_name);
+    unlink(g_fileName);
 }
 void HiDumperManagerTest::SetUp(void)
 {
