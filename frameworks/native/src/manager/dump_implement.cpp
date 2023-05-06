@@ -196,7 +196,7 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
         if (c == -1) {
             break;
         } else if (c == 0) {
-            DumpStatus status = ParseLongCmdOption(opts_, longOptions, optionIndex, argv);
+            DumpStatus status = ParseLongCmdOption(argc, opts_, longOptions, optionIndex, argv);
             if (status != DumpStatus::DUMP_OK) {
                 return status;
             }
@@ -296,7 +296,7 @@ std::string DumpImplement::GetTime()
     return currentTime;
 }
 
-DumpStatus DumpImplement::ParseLongCmdOption(DumperOpts &opts_, const struct option longOptions[],
+DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts_, const struct option longOptions[],
                                              const int &optionIndex, char *argv[])
 {
     path_ = "";
@@ -319,7 +319,12 @@ DumpStatus DumpImplement::ParseLongCmdOption(DumperOpts &opts_, const struct opt
         opts_.isTest_ = true;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-smaps")) {
         opts_.isShowSmaps_ = true;
-        DumpStatus status = SetCmdIntegerParameter(argv[ARG_INDEX_OFFSET_LAST_OPTION], opts_.memPid_);
+        DumpStatus status = DumpStatus::DUMP_OK;
+        if (ARG_INDEX_OFFSET_LAST_OPTION < 0 || ARG_INDEX_OFFSET_LAST_OPTION >= argc) {
+            status = DumpStatus::DUMP_FAIL;
+        } else {
+            status = SetCmdIntegerParameter(argv[ARG_INDEX_OFFSET_LAST_OPTION], opts_.memPid_);
+        }
         if (status != DumpStatus::DUMP_OK) {
             return status;
         }

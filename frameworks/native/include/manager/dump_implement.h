@@ -72,7 +72,7 @@ private:
     bool IsShortOptionReqArg(const char* optStr);
     void SendErrorMessage(const std::string& errorStr);
     void SendPidErrorMessage(int pid);
-    DumpStatus ParseLongCmdOption(DumperOpts& opts_, const struct option longOptions[],
+    DumpStatus ParseLongCmdOption(int argc, DumperOpts& opts_, const struct option longOptions[],
         const int& optionIndex, char* argv[]);
     DumpStatus ParseShortCmdOption(int c, DumperOpts& opts_, int argc, char* argv[]);
     void CheckIncorrectCmdOption(const char* optStr, char* argv[]);
