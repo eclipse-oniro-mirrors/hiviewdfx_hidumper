@@ -11,11 +11,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/hiviewdfx/hidumper/hidumper.gni")
+import("../hidumper.gni")
 
 config("utils_config") {
   include_dirs = [
-    "//commonlibrary/c_utils/base/include",
     "${hidumper_utils_path}/native/include",
   ]
 }

@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/hiviewdfx/hidumper/hidumper.gni")
+import("../../hidumper.gni")
 
 config("hidumper_include") {
   include_dirs = [
@@ -19,8 +19,6 @@ config("hidumper_include") {
     "//third_party/json/single_include",
     "//third_party/json/include",
     "${hidumper_frameworks_path}/include",
-    "//commonlibrary/c_utils/base/include",
-    "//foundation/resourceschedule/memmgr/interface/innerkits/include",
   ]
 }
 
@@ -112,6 +110,7 @@ ohos_source_set("dump_main") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "memmgr:memmgrclient",
   ]
 
   defines = []
