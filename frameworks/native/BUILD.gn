@@ -108,9 +108,9 @@ ohos_source_set("dump_main") {
     "hisysevent_native:libhisysevent",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "memmgr:memmgrclient",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "memmgr:memmgrclient",
   ]
 
   defines = []
