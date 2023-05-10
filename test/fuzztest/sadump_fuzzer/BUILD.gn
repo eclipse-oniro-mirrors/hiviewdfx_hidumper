@@ -11,9 +11,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../../hidumper.gni")
 import("//build/config/features.gni")
 import("//build/test.gni")
+import("../../../hidumper.gni")
 
 module_output_path = "hiviewdfx/hidumper"
 
