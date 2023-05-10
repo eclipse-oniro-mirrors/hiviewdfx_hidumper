@@ -14,9 +14,7 @@
 import("../hidumper.gni")
 
 config("utils_config") {
-  include_dirs = [
-    "${hidumper_utils_path}/native/include",
-  ]
+  include_dirs = [ "${hidumper_utils_path}/native/include" ]
 }
 
 ohos_source_set("utils") {

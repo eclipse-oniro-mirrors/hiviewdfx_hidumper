@@ -21,15 +21,11 @@ config("interface_include") {
 }
 
 config("service_config") {
-  include_dirs = [
-    "native/include",
-  ]
+  include_dirs = [ "native/include" ]
 }
 
 config("zidl_config") {
-  include_dirs = [
-    "zidl/include",
-  ]
+  include_dirs = [ "zidl/include" ]
 }
 
 ohos_source_set("zidl_client") {
@@ -153,7 +149,7 @@ ohos_source_set("hidumperservice_source") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
-  
+
   subsystem_name = "${hidumper_subsystem_name}"
 
   part_name = "${hidumper_part_name}"
