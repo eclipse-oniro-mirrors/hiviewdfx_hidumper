@@ -195,12 +195,8 @@ std::string DumpManagerService::GetFdLinkNum(const std::string &linkPath) const
 
 void DumpManagerService::RecordDetailFdInfo(std::string &detailFdInfo, std::string &topLeakedType)
 {
-    int size = linkCnt_.size();
-    if (size <= 0) {
-        return;
-    }
     topLeakedType = linkCnt_[0].first;
-    for (int i = 0; i < size && i < FD_LOG_NUM; i++) {
+    for (size_t i = 0; i < linkCnt_.size() && i < FD_LOG_NUM; i++) {
         detailFdInfo += std::to_string(linkCnt_[i].second) + "\t" + linkCnt_[i].first + "\n";
     }
 }
