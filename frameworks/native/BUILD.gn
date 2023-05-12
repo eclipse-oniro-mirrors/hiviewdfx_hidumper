@@ -108,10 +108,17 @@ ohos_source_set("dump_main") {
     "hisysevent_native:libhisysevent",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "memmgr:memmgrclient",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
+
+  if (hidumper_report_memmgr) {
+    external_deps += [ "memmgr:memmgrclient" ]
+  }
+
+  if (hidumper_report_memmge_plugins) {
+    external_deps += [ "memmgr_plugin:memmgrclient" ]
+  }
 
   defines = []
   if (hidumper_ability_runtime_enable) {
@@ -145,14 +152,11 @@ ohos_shared_library("hidumperclient") {
   ]
 
   external_deps = [
-    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
     "init:libbegetutil",
-    "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
   ]
 
   subsystem_name = "hiviewdfx"
