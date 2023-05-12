@@ -116,7 +116,7 @@ ohos_source_set("dump_main") {
     external_deps += [ "memmgr:memmgrclient" ]
   }
 
-  if (hidumper_report_memmge_plugins) {
+  if (hidumper_report_memmgr_plugins) {
     external_deps += [ "memmgr_plugin:memmgrclient" ]
   }
 
