@@ -11,12 +11,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/hiviewdfx/hidumper/hidumper.gni")
+import("../../hidumper.gni")
 
 config("innerkits_test_config") {
   visibility = [ ":*" ]
 
-  include_dirs = [ "//base/hiviewdfx/hidumper/interfaces/innerkits/include" ]
+  include_dirs = [ "../../interfaces/innerkits/include" ]
 }
 
 ohos_executable("innerkits_test") {
@@ -24,7 +24,7 @@ ohos_executable("innerkits_test") {
 
   configs = [ ":innerkits_test_config" ]
   sources = [ "main.cpp" ]
-  deps = [ "//base/hiviewdfx/hidumper/interfaces/innerkits:lib_dump_usage" ]
+  deps = [ "../../interfaces/innerkits:lib_dump_usage" ]
 
   subsystem_name = "hiviewdfx"
   part_name = "hidumper"

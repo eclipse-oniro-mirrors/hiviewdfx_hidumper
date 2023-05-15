@@ -11,12 +11,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/hiviewdfx/hidumper/hidumper.gni")
 import("//build/test.gni")
+import("../../../hidumper.gni")
 
 module_output_path = "hiviewdfx/hidumper"
 
-source_path = "//base/hiviewdfx/hidumper/frameworks/native"
+source_path = "${hidumper_frameworks_path}"
 
 ###############################################################################
 config("module_private_config") {
@@ -29,14 +29,13 @@ config("module_private_config") {
     "//third_party/json/include",
     "${hidumper_interface}/innerkits/include/",
     "${hidumper_interface}/native/innerkits/include/",
-    "//base/hiviewdfx/hidumper/utils/native/include/",
-    "//base/hiviewdfx/hidumper/services/zidl/include",
-    "//base/hiviewdfx/hidumper/services/native/include",
-    "//base/hiviewdfx/hidumper/frameworks/native/include",
+    "../../../utils/native/include/",
+    "../../../services/zidl/include",
+    "../../../services/native/include",
+    "${source_path}/include",
     "${source_path}/",
     "${source_path}/manager",
     "${source_path}/dumpers",
-    "//commonlibrary/c_utils/base/include",
     "include",
     "${hidumper_frameworks_path}",
     "${hidumper_frameworks_path}/include",
@@ -46,7 +45,6 @@ config("module_private_config") {
     "${hidumper_service_path}:interface_include",
     "${hidumper_service_path}/zidl/include",
     "${hidumper_service_path}/native/include",
-    "//utils/system/safwk/native/include",
   ]
 
   cflags_cc = [ "-DDUMP_TEST_MODE" ]
@@ -188,7 +186,7 @@ ohos_unittest("HidumperInnerkitsTest") {
 
   deps = [
     "${hidumper_service_path}:hidumperservice_source",
-    "//base/hiviewdfx/hidumper/interfaces/innerkits:lib_dump_usage",
+    "../../../interfaces/innerkits:lib_dump_usage",
     "//third_party/googletest:gtest_main",
   ]
 

@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/hiviewdfx/hidumper/hidumper.gni")
+import("../../hidumper.gni")
 
 config("hidumper_include") {
   include_dirs = [
@@ -19,8 +19,6 @@ config("hidumper_include") {
     "//third_party/json/single_include",
     "//third_party/json/include",
     "${hidumper_frameworks_path}/include",
-    "//commonlibrary/c_utils/base/include",
-    "//foundation/resourceschedule/memmgr/interface/innerkits/include",
   ]
 }
 
@@ -114,6 +112,14 @@ ohos_source_set("dump_main") {
     "samgr:samgr_proxy",
   ]
 
+  if (hidumper_report_memmgr) {
+    external_deps += [ "memmgr:memmgrclient" ]
+  }
+
+  if (hidumper_report_memmgr_plugins) {
+    external_deps += [ "memmgr_plugin:memmgrclient" ]
+  }
+
   defines = []
   if (hidumper_ability_runtime_enable) {
     external_deps += [ "ability_runtime:app_manager" ]
@@ -146,14 +152,11 @@ ohos_shared_library("hidumperclient") {
   ]
 
   external_deps = [
-    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
     "init:libbegetutil",
-    "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
   ]
 
   subsystem_name = "hiviewdfx"

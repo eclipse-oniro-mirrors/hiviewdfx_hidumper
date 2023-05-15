@@ -36,8 +36,16 @@ hidumper_interface = "${hidumper_root_path}/interfaces/native"
 system_type = "default"
 
 declare_args() {
+  hidumper_report_memmgr = false
+  hidumper_report_memmgr_plugins = false
   hidumper_ability_runtime_enable = true
   if (!defined(global_parts_info.ability_ability_runtime)) {
     hidumper_ability_runtime_enable = false
+  }
+  if (defined(global_parts_info.resourceschedule_memmgr)) {
+    hidumper_report_memmgr = true
+  }
+  if (defined(global_parts_info.resourceschedule_memmgr_plugin)) {
+    hidumper_report_memmgr_plugins = true
   }
 }

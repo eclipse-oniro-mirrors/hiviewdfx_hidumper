@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/hiviewdfx/hidumper/hidumper.gni")
+import("../../hidumper.gni")
 
 config("dump_usage_config") {
   visibility = [ "*:*" ]
@@ -32,7 +32,7 @@ ohos_shared_library("lib_dump_usage") {
     "${hidumper_frameworks_path}/src/executor/memory/parse/parse_smaps_rollup_info.cpp",
     "${hidumper_frameworks_path}/src/util/dump_cpu_info_util.cpp",
     "${hidumper_frameworks_path}/src/util/string_utils.cpp",
-    "//base/hiviewdfx/hidumper/interfaces/innerkits/dump_usage.cpp",
+    "../../interfaces/innerkits/dump_usage.cpp",
   ]
 
   external_deps = [
