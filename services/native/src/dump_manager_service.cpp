@@ -37,7 +37,7 @@ namespace OHOS {
 namespace HiviewDFX {
 namespace {
 const std::string DUMPMGR_SERVICE_NAME = "HiDumperManagerService";
-auto dumpManagerService = DelayedSpSingleton<DumpManagerService>::GetInstance();
+auto dumpManagerService = DumpDelayedSpSingleton<DumpManagerService>::GetInstance();
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(dumpManagerService.GetRefPtr());
 static const int32_t STOP_WAIT = 3;
 static const int32_t REQUEST_MAX = 2;
@@ -79,7 +79,7 @@ void DumpManagerService::OnStart()
         eventRunner_->Run();
     }
 
-    if (!Publish(DelayedSpSingleton<DumpManagerService>::GetInstance())) {
+    if (!Publish(DumpDelayedSpSingleton<DumpManagerService>::GetInstance())) {
         DUMPER_HILOGE(MODULE_SERVICE, "error|register to system ability manager failed.");
         return;
     }
@@ -153,10 +153,6 @@ bool DumpManagerService::HasDumpPermission() const
 
 uint32_t DumpManagerService::GetFileDescriptorNums(int32_t pid, std::string requestType) const
 {
-    if (requestType.find("..") != -1) {
-        DUMPER_HILOGE(MODULE_SERVICE, "requestType is invalid, please check!");
-        return DumpStatus::DUMP_INVALID_ARG;
-    }
     std::string taskPath = "/proc/" + std::to_string(pid) + "/" + requestType;
     std::vector<std::string> fdList = DumpCommonUtils::GetSubNodes(taskPath, true);
     return fdList.size();
@@ -174,9 +170,6 @@ int32_t DumpManagerService::ScanPidOverLimit(std::string requestType, int32_t li
     std::vector<int32_t> pids = DumpCommonUtils::GetAllPids();
     for (const auto &pid : pids) {
         uint32_t num = GetFileDescriptorNums(pid, requestType);
-        if (num == DumpStatus::DUMP_INVALID_ARG) {
-            return DumpStatus::DUMP_INVALID_ARG;
-        }
         if (num < static_cast<uint32_t>(limitSize)) {
             continue;
         }

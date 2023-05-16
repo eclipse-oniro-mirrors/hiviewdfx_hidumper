@@ -143,10 +143,10 @@ DumpStatus FileStreamDumper::Execute()
 {
     DumpStatus ret = DumpStatus::DUMP_OK;
     if (need_loop_) {
-        // dump one line
+        // file dump one line
         return ReadLine();
     } else {
-        // dump all line
+        // file dump all line
         do {
             if (IsCanceled()) {
                 break;

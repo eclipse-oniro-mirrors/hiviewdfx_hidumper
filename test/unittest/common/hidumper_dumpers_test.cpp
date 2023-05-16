@@ -67,26 +67,26 @@ void HidumperDumpersTest::TearDown(void)
  */
 HWTEST_F(HidumperDumpersTest, FileDumperTest001, TestSize.Level3)
 {
-    auto parameter = std::make_shared<DumperParameter>();
-    auto dump_datas = std::make_shared<std::vector<std::vector<std::string>>>();
-    auto file_dumper = make_shared<FileStreamDumper>();
-    auto config = std::make_shared<DumpCfg>();
-    config->name_ = "FileDumperTest";
-    std::string file_name = FILE_CPUINFO;
-    config->target_ = file_name;
-    config->loop_ = DumperConstant::LOOP;
-    config->args_ = OptionArgs::Create();
-    config->args_->SetPid(DEFAULT_PID, DEFAULT_UID);
-    file_dumper->SetDumpConfig(config);
-    DumpStatus ret = file_dumper->DoPreExecute(parameter, dump_datas);
+    auto parameter1 = std::make_shared<DumperParameter>();
+    auto dump_datas1 = std::make_shared<std::vector<std::vector<std::string>>>();
+    auto file_dumper1 = make_shared<FileStreamDumper>();
+    auto config1 = std::make_shared<DumpCfg>();
+    config1->name_ = "FileDumperTest";
+    std::string file_name1 = FILE_CPUINFO;
+    config1->target_ = file_name1;
+    config1->loop_ = DumperConstant::LOOP;
+    config1->args_ = OptionArgs::Create();
+    config1->args_->SetPid(DEFAULT_PID, DEFAULT_UID);
+    file_dumper1->SetDumpConfig(config1);
+    DumpStatus ret = file_dumper1->DoPreExecute(parameter1, dump_datas1);
     ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "PreExecute failed.";
 
     ret = DumpStatus::DUMP_MORE_DATA;
     while (ret == DumpStatus::DUMP_MORE_DATA) {
         // loop for all lines
-        ret = file_dumper->DoExecute();
+        ret = file_dumper1->DoExecute();
         ASSERT_TRUE(ret == DumpStatus::DUMP_OK || ret == DumpStatus::DUMP_MORE_DATA) << "Execute failed.";
-        ret = file_dumper->DoAfterExecute();
+        ret = file_dumper1->DoAfterExecute();
         ASSERT_TRUE(ret == DumpStatus::DUMP_OK || ret == DumpStatus::DUMP_MORE_DATA) << "Execute failed.";
     }
 }
@@ -98,24 +98,24 @@ HWTEST_F(HidumperDumpersTest, FileDumperTest001, TestSize.Level3)
  */
 HWTEST_F(HidumperDumpersTest, FileDumperTest002, TestSize.Level3)
 {
-    auto parameter = std::make_shared<DumperParameter>();
-    auto dump_datas = std::make_shared<std::vector<std::vector<std::string>>>();
-    auto file_dumper = make_shared<FileStreamDumper>();
-    auto config = std::make_shared<DumpCfg>();
-    config->name_ = "FileDumperTest";
-    std::string file_name = FILE_CPUINFO;
-    config->target_ = file_name;
-    config->loop_ = DumperConstant::NONE;
-    file_dumper->SetDumpConfig(config);
-    DumpStatus ret = file_dumper->DoPreExecute(parameter, dump_datas);
+    auto parameter2 = std::make_shared<DumperParameter>();
+    auto dump_datas2 = std::make_shared<std::vector<std::vector<std::string>>>();
+    auto file_dumper2 = make_shared<FileStreamDumper>();
+    auto config2 = std::make_shared<DumpCfg>();
+    config2->name_ = "FileDumperTest";
+    std::string file_name2 = FILE_CPUINFO;
+    config2->target_ = file_name2;
+    config2->loop_ = DumperConstant::NONE;
+    file_dumper2->SetDumpConfig(config2);
+    DumpStatus ret = file_dumper2->DoPreExecute(parameter2, dump_datas2);
     ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "PreExecute failed.";
 
     ret = DumpStatus::DUMP_MORE_DATA;
     while (ret == DumpStatus::DUMP_MORE_DATA) {
         // loop for all lines
-        ret = file_dumper->DoExecute();
+        ret = file_dumper2->DoExecute();
         ASSERT_TRUE(ret == DumpStatus::DUMP_OK || ret == DumpStatus::DUMP_MORE_DATA) << "Execute failed.";
-        ret = file_dumper->DoAfterExecute();
+        ret = file_dumper2->DoAfterExecute();
         ASSERT_TRUE(ret == DumpStatus::DUMP_OK || ret == DumpStatus::DUMP_MORE_DATA) << "Execute failed.";
     }
 }
@@ -160,16 +160,16 @@ HWTEST_F(HidumperDumpersTest, APIDumperTest001, TestSize.Level3)
 {
     auto parameter = std::make_shared<DumperParameter>();
     auto dump_datas = std::make_shared<std::vector<std::vector<std::string>>>();
-    auto fapi_dumper = make_shared<APIDumper>();
+    auto fapi_dumper1 = make_shared<APIDumper>();
     auto config = std::make_shared<DumpCfg>();
     config->name_ = "dumper_build_id";
     config->target_ = "build_version";
-    fapi_dumper->SetDumpConfig(config);
-    DumpStatus ret = fapi_dumper->DoPreExecute(parameter, dump_datas);
+    fapi_dumper1->SetDumpConfig(config);
+    DumpStatus ret = fapi_dumper1->DoPreExecute(parameter, dump_datas);
     ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "PreExecute failed.";
-    ret = fapi_dumper->DoExecute();
+    ret = fapi_dumper1->DoExecute();
     ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "Execute failed.";
-    ret = fapi_dumper->DoAfterExecute();
+    ret = fapi_dumper1->DoAfterExecute();
     ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "AfterExecute failed.";
 }
 
@@ -182,16 +182,16 @@ HWTEST_F(HidumperDumpersTest, APIDumperTest002, TestSize.Level3)
 {
     auto parameter = std::make_shared<DumperParameter>();
     auto dump_datas = std::make_shared<std::vector<std::vector<std::string>>>();
-    auto fapi_dumper = make_shared<APIDumper>();
+    auto fapi_dumper2 = make_shared<APIDumper>();
     auto config = std::make_shared<DumpCfg>();
     config->name_ = "dumper_release_type";
     config->target_ = "hw_sc.build.os.releasetype";
-    fapi_dumper->SetDumpConfig(config);
-    DumpStatus ret = fapi_dumper->DoPreExecute(parameter, dump_datas);
+    fapi_dumper2->SetDumpConfig(config);
+    DumpStatus ret = fapi_dumper2->DoPreExecute(parameter, dump_datas);
     ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "PreExecute failed.";
-    ret = fapi_dumper->DoExecute();
+    ret = fapi_dumper2->DoExecute();
     ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "Execute failed.";
-    ret = fapi_dumper->DoAfterExecute();
+    ret = fapi_dumper2->DoAfterExecute();
     ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "AfterExecute failed.";
 }
 
@@ -204,16 +204,16 @@ HWTEST_F(HidumperDumpersTest, APIDumperTest003, TestSize.Level3)
 {
     auto parameter = std::make_shared<DumperParameter>();
     auto dump_datas = std::make_shared<std::vector<std::vector<std::string>>>();
-    auto fapi_dumper = make_shared<APIDumper>();
+    auto fapi_dumper3 = make_shared<APIDumper>();
     auto config = std::make_shared<DumpCfg>();
     config->name_ = "dumper_os_version";
     config->target_ = "hw_sc.build.os.version";
-    fapi_dumper->SetDumpConfig(config);
-    DumpStatus ret = fapi_dumper->DoPreExecute(parameter, dump_datas);
+    fapi_dumper3->SetDumpConfig(config);
+    DumpStatus ret = fapi_dumper3->DoPreExecute(parameter, dump_datas);
     ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "PreExecute failed.";
-    ret = fapi_dumper->DoExecute();
+    ret = fapi_dumper3->DoExecute();
     ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "Execute failed.";
-    ret = fapi_dumper->DoAfterExecute();
+    ret = fapi_dumper3->DoAfterExecute();
     ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "AfterExecute failed.";
 }
 
@@ -226,16 +226,16 @@ HWTEST_F(HidumperDumpersTest, APIDumperTest004, TestSize.Level3)
 {
     auto parameter = std::make_shared<DumperParameter>();
     auto dump_datas = std::make_shared<std::vector<std::vector<std::string>>>();
-    auto fapi_dumper = make_shared<APIDumper>();
+    auto fapi_dumper4 = make_shared<APIDumper>();
     auto config = std::make_shared<DumpCfg>();
     config->name_ = "dumper_system_param";
     config->target_ = "system_param";
-    fapi_dumper->SetDumpConfig(config);
-    DumpStatus ret = fapi_dumper->DoPreExecute(parameter, dump_datas);
+    fapi_dumper4->SetDumpConfig(config);
+    DumpStatus ret = fapi_dumper4->DoPreExecute(parameter, dump_datas);
     ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "PreExecute failed.";
-    ret = fapi_dumper->DoExecute();
+    ret = fapi_dumper4->DoExecute();
     ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "Execute failed.";
-    ret = fapi_dumper->DoAfterExecute();
+    ret = fapi_dumper4->DoAfterExecute();
     ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "AfterExecute failed.";
 }
 
@@ -248,12 +248,12 @@ HWTEST_F(HidumperDumpersTest, VersionDumperTest001, TestSize.Level3)
 {
     auto parameter = std::make_shared<DumperParameter>();
     auto dump_datas = std::make_shared<std::vector<std::vector<std::string>>>();
-    auto fapi_dumper = make_shared<VersionDumper>();
-    DumpStatus ret = fapi_dumper->DoPreExecute(parameter, dump_datas);
+    auto fversion_dumper = make_shared<VersionDumper>();
+    DumpStatus ret = fversion_dumper->DoPreExecute(parameter, dump_datas);
     ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "PreExecute failed.";
-    ret = fapi_dumper->DoExecute();
+    ret = fversion_dumper->DoExecute();
     ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "Execute failed.";
-    ret = fapi_dumper->DoAfterExecute();
+    ret = fversion_dumper->DoAfterExecute();
     ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "AfterExecute failed.";
 }
 
@@ -266,22 +266,22 @@ HWTEST_F(HidumperDumpersTest, CMDDumperTest001, TestSize.Level3)
 {
     auto parameter = std::make_shared<DumperParameter>();
     auto dump_datas = std::make_shared<std::vector<std::vector<std::string>>>();
-    auto cmd_dumper = make_shared<CMDDumper>();
+    auto cmd_dumper1 = make_shared<CMDDumper>();
     auto config = std::make_shared<DumpCfg>();
     config->name_ = "CmdDumperTest";
     std::string cmd = "ps -ef";
     config->target_ = cmd;
     config->loop_ = DumperConstant::LOOP;
-    cmd_dumper->SetDumpConfig(config);
-    DumpStatus ret = cmd_dumper->DoPreExecute(parameter, dump_datas);
+    cmd_dumper1->SetDumpConfig(config);
+    DumpStatus ret = cmd_dumper1->DoPreExecute(parameter, dump_datas);
     ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "PreExecute failed.";
 
     ret = DumpStatus::DUMP_MORE_DATA;
     while (ret == DumpStatus::DUMP_MORE_DATA) {
         // loop for all lines
-        ret = cmd_dumper->DoExecute();
+        ret = cmd_dumper1->DoExecute();
         ASSERT_TRUE(ret == DumpStatus::DUMP_OK || ret == DumpStatus::DUMP_MORE_DATA) << "Execute failed.";
-        ret = cmd_dumper->DoAfterExecute();
+        ret = cmd_dumper1->DoAfterExecute();
         ASSERT_TRUE(ret == DumpStatus::DUMP_OK || ret == DumpStatus::DUMP_MORE_DATA) << "Execute failed.";
     }
 }
@@ -295,22 +295,22 @@ HWTEST_F(HidumperDumpersTest, CMDDumperTest002, TestSize.Level3)
 {
     auto parameter = std::make_shared<DumperParameter>();
     auto dump_datas = std::make_shared<std::vector<std::vector<std::string>>>();
-    auto cmd_dumper = make_shared<CMDDumper>();
+    auto cmd_dumper2 = make_shared<CMDDumper>();
     auto config = std::make_shared<DumpCfg>();
     config->name_ = "CmdDumperTest";
     std::string cmd = "ps -ef";
     config->target_ = cmd;
     config->loop_ = DumperConstant::NONE;
-    cmd_dumper->SetDumpConfig(config);
-    DumpStatus ret = cmd_dumper->DoPreExecute(parameter, dump_datas);
+    cmd_dumper2->SetDumpConfig(config);
+    DumpStatus ret = cmd_dumper2->DoPreExecute(parameter, dump_datas);
     ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "PreExecute failed.";
 
     ret = DumpStatus::DUMP_MORE_DATA;
     while (ret == DumpStatus::DUMP_MORE_DATA) {
         // loop for all lines
-        ret = cmd_dumper->DoExecute();
+        ret = cmd_dumper2->DoExecute();
         ASSERT_TRUE(ret == DumpStatus::DUMP_OK || ret == DumpStatus::DUMP_MORE_DATA) << "Execute failed.";
-        ret = cmd_dumper->DoAfterExecute();
+        ret = cmd_dumper2->DoAfterExecute();
         ASSERT_TRUE(ret == DumpStatus::DUMP_OK || ret == DumpStatus::DUMP_MORE_DATA) << "Execute failed.";
     }
 }
@@ -344,11 +344,11 @@ HWTEST_F(HidumperDumpersTest, MemoryDumperTest002, TestSize.Level1)
     memoryDumper->pid_ = -1;
     auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
     memoryDumper->dumpDatas_ = dumpDatas;
-    int ret = DumpStatus::DUMP_MORE_DATA;
-    while (ret == DumpStatus::DUMP_MORE_DATA) {
-        ret = memoryDumper->Execute();
+    int res = DumpStatus::DUMP_MORE_DATA;
+    while (res == DumpStatus::DUMP_MORE_DATA) {
+        res = memoryDumper->Execute();
     }
-    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+    ASSERT_EQ(res, DumpStatus::DUMP_OK);
 }
 
 /**
@@ -447,17 +447,17 @@ HWTEST_F(HidumperDumpersTest, ListDumperTest001, TestSize.Level1)
 {
     auto parameter = std::make_shared<DumperParameter>();
     auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
-    auto listDumper = std::make_shared<ListDumper>();
+    auto listDumper1 = std::make_shared<ListDumper>();
     auto config = std::make_shared<DumpCfg>();
     config->target_ = ConfigUtils::STR_ABILITY;
-    listDumper->SetDumpConfig(config);
+    listDumper1->SetDumpConfig(config);
 
     int ret = DumpStatus::DUMP_FAIL;
-    ret = listDumper->PreExecute(parameter, dumpDatas);
+    ret = listDumper1->PreExecute(parameter, dumpDatas);
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
-    ret = listDumper->Execute();
+    ret = listDumper1->Execute();
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
-    ret = listDumper->AfterExecute();
+    ret = listDumper1->AfterExecute();
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
 
@@ -470,17 +470,17 @@ HWTEST_F(HidumperDumpersTest, ListDumperTest002, TestSize.Level1)
 {
     auto parameter = std::make_shared<DumperParameter>();
     auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
-    auto listDumper = std::make_shared<ListDumper>();
+    auto listDumper2 = std::make_shared<ListDumper>();
     auto config = std::make_shared<DumpCfg>();
     config->target_ = ConfigUtils::STR_SYSTEM;
-    listDumper->SetDumpConfig(config);
+    listDumper2->SetDumpConfig(config);
 
     int ret = DumpStatus::DUMP_FAIL;
-    ret = listDumper->PreExecute(parameter, dumpDatas);
+    ret = listDumper2->PreExecute(parameter, dumpDatas);
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
-    ret = listDumper->Execute();
+    ret = listDumper2->Execute();
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
-    ret = listDumper->AfterExecute();
+    ret = listDumper2->AfterExecute();
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
 } // namespace HiviewDFX

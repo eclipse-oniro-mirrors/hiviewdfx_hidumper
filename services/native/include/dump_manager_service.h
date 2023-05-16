@@ -66,7 +66,7 @@ public:
     void SetTestMainFunc(DumpManagerServiceTestMainFunc testMainFunc);
 #endif // for mock test
 private:
-    friend DelayedSpSingleton<DumpManagerService>;
+    friend DumpDelayedSpSingleton<DumpManagerService>;
 private:
     bool Init();
     std::shared_ptr<RawParam> AddRequestRawParam(std::vector<std::u16string> &args, int outfd);
