@@ -141,7 +141,7 @@ DumpStatus FileStreamDumper::ReadLine()
 
 DumpStatus FileStreamDumper::Execute()
 {
-    DumpStatus ret = DumpStatus::DUMP_OK;
+    DumpStatus status = DumpStatus::DUMP_OK;
     if (need_loop_) {
         // file dump one line
         return ReadLine();
@@ -151,10 +151,10 @@ DumpStatus FileStreamDumper::Execute()
             if (IsCanceled()) {
                 break;
             }
-            ret = ReadLine();
-        } while (ret == DumpStatus::DUMP_MORE_DATA);
+            status = ReadLine();
+        } while (status == DumpStatus::DUMP_MORE_DATA);
     }
-    return ret;
+    return status;
 }
 
 DumpStatus FileStreamDumper::AfterExecute()
