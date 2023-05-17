@@ -319,7 +319,7 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts_, const 
         opts_.isTest_ = true;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-smaps")) {
         opts_.isShowSmaps_ = true;
-        DumpStatus status = DumpStatus::DUMP_OK;
+        DumpStatus status;
         if (ARG_INDEX_OFFSET_LAST_OPTION < 0 || ARG_INDEX_OFFSET_LAST_OPTION >= argc) {
             status = DumpStatus::DUMP_FAIL;
         } else {
