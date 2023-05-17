@@ -186,9 +186,9 @@ bool MemoryUtil::GetTypeAndValue(const string &str, string &type, uint64_t &valu
 
 void MemoryUtil::SetMemTotalValue(const string &value, vector<string> &lines, vector<string> &values, bool flag)
 {
-    string separator = "-";
-    string space = " ";
     if (!flag) {
+        string separator = "-";
+        string space = " ";
         StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, space);
         StringUtils::GetInstance().SetWidth(LINE_WIDTH_, SEPARATOR_, false, separator);
         lines.push_back(separator);
