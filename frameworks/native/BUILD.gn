@@ -122,7 +122,7 @@ ohos_source_set("dump_main") {
     external_deps += [ "memmgr_plugin:memmgrclient" ]
     defines += [ "HIDUMPER_MEMMGR_ENABLE" ]
   }
- 
+
   if (hidumper_ability_runtime_enable) {
     external_deps += [ "ability_runtime:app_manager" ]
     defines += [ "HIDUMPER_ABILITY_RUNTIME_ENABLE" ]
