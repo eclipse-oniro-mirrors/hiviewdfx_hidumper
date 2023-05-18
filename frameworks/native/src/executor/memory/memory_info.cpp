@@ -34,7 +34,9 @@
 #include "executor/memory/parse/parse_smaps_info.h"
 #include "hdf_base.h"
 #include "hilog_wrapper.h"
+#ifdef HIDUMPER_MEMMGR_ENABLE
 #include "mem_mgr_constant.h"
+#endif
 #include "securec.h"
 #include "string_ex.h"
 #include "util/string_utils.h"
@@ -469,6 +471,7 @@ string MemoryInfo::GetProcName(const int &pid)
     return procName;
 }
 
+#ifdef HIDUMPER_MEMMGR_ENABLE
 string MemoryInfo::GetProcessAdjLabel(const int pid)
 {
     string cmd = "cat /proc/" + to_string(pid) + "/oom_score_adj";
@@ -490,6 +493,7 @@ string MemoryInfo::GetProcessAdjLabel(const int pid)
     }
     return adjLabel;
 }
+#endif
 
 bool MemoryInfo::GetPids()
 {
@@ -538,7 +542,9 @@ bool MemoryInfo::GetMemByProcessPid(const int &pid, MemInfoData::MemUsage &usage
         usage.swapPss = memInfo.swapPss;
         usage.name = GetProcName(pid);
         usage.pid = pid;
+    #ifdef HIDUMPER_MEMMGR_ENABLE
         usage.adjLabel = GetProcessAdjLabel(pid);
+    #endif
         success = true;
     }
 
@@ -693,8 +699,9 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
 
     GetSortedMemoryInfoNoPid(result);
     AddBlankLine(result);
-
+#ifdef HIDUMPER_MEMMGR_ENABLE
     GetMemoryByAdj(result);
+#endif
     AddBlankLine(result);
 
     GroupMap smapsResult = fut_.get();
@@ -741,6 +748,7 @@ void MemoryInfo::GetSortedMemoryInfoNoPid(StringMatrix result)
     }
 }
 
+#ifdef HIDUMPER_MEMMGR_ENABLE
 void MemoryInfo::GetMemoryByAdj(StringMatrix result)
 {
     vector<string> title;
@@ -784,6 +792,7 @@ void MemoryInfo::GetMemoryByAdj(StringMatrix result)
         }
     }
 }
+#endif
 
 void MemoryInfo::SetPss(MemInfoData::MemInfo &meminfo, uint64_t value)
 {

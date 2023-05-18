@@ -105,12 +105,16 @@ private:
     void AddMemByProcessTitle(StringMatrix result, std::string sortType);
     static uint64_t GetVss(const int &pid);
     static std::string GetProcName(const int &pid);
+#ifdef HIDUMPER_MEMMGR_ENABLE
     static std::string GetProcessAdjLabel(const int pid);
+#endif
     static void InitMemInfo(MemInfoData::MemInfo &memInfo);
     static void InitMemUsage(MemInfoData::MemUsage &usage);
     void CalcGroup(const GroupMap &infos, StringMatrix result);
     void GetSortedMemoryInfoNoPid(StringMatrix result);
+#ifdef HIDUMPER_MEMMGR_ENABLE
     void GetMemoryByAdj(StringMatrix result);
+#endif
     void SetPss(MemInfoData::MemInfo &meminfo, uint64_t value);
     void SetSharedClean(MemInfoData::MemInfo &meminfo, uint64_t value);
     void SetSharedDirty(MemInfoData::MemInfo &meminfo, uint64_t value);
