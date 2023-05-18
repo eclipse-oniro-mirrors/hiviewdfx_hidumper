@@ -112,15 +112,17 @@ ohos_source_set("dump_main") {
     "samgr:samgr_proxy",
   ]
 
+  defines = []
   if (hidumper_report_memmgr) {
     external_deps += [ "memmgr:memmgrclient" ]
+    defines += [ "HIDUMPER_MEMMGR_ENABLE" ]
   }
 
   if (hidumper_report_memmgr_plugins) {
     external_deps += [ "memmgr_plugin:memmgrclient" ]
+    defines += [ "HIDUMPER_MEMMGR_ENABLE" ]
   }
-
-  defines = []
+ 
   if (hidumper_ability_runtime_enable) {
     external_deps += [ "ability_runtime:app_manager" ]
     defines += [ "HIDUMPER_ABILITY_RUNTIME_ENABLE" ]

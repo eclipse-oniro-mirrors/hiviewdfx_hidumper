@@ -34,7 +34,6 @@
 #include "executor/memory/parse/parse_smaps_info.h"
 #include "hdf_base.h"
 #include "hilog_wrapper.h"
-#include "mem_mgr_constant.h"
 #include "securec.h"
 #include "string_ex.h"
 #include "util/string_utils.h"
