@@ -16,7 +16,6 @@
 
 #include "executor/memory/parse/parse_smaps_rollup_info.h"
 #include "util/dump_cpu_info_util.h"
-#include "executor/memory/memory_util.h"
 
 using namespace std;
 namespace OHOS {
@@ -29,9 +28,21 @@ DumpUsage::~DumpUsage()
 {
 }
 
+void DumpUsage::InitMemInfo(MemInfoData::MemInfo &memInfo)
+{
+    memInfo.rss = 0;
+    memInfo.pss = 0;
+    memInfo.sharedClean = 0;
+    memInfo.sharedDirty = 0;
+    memInfo.privateClean = 0;
+    memInfo.privateDirty = 0;
+    memInfo.swap = 0;
+    memInfo.swapPss = 0;
+}
+
 bool DumpUsage::GetMemInfo(const int &pid, MemInfoData::MemInfo &info)
 {
-    MemoryUtil::GetInstance().InitMemInfo(info);
+    InitMemInfo(info);
     unique_ptr<ParseSmapsRollupInfo> parseSmapsRollupInfo = make_unique<ParseSmapsRollupInfo>();
     return parseSmapsRollupInfo->GetMemInfo(pid, info);
 }

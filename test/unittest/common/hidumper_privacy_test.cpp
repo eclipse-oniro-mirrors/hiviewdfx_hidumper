@@ -47,19 +47,19 @@ void HidumperPrivacyTest::TearDown(void)
 
 bool HidumperPrivacyTest::IsExistInCmdResult(const std::string &cmd, const std::string &str)
 {
-    bool res = false;
+    bool ret = false;
     char* buffer = nullptr;
     size_t len = 0;
     FILE *fp = popen(cmd.c_str(), "r");
     while (getline(&buffer, &len, fp) != -1) {
         std::string line = buffer;
         if (line.find(str) != string::npos) {
-            res = true;
+            ret = true;
             break;
         }
     }
     pclose(fp);
-    return res;
+    return ret;
 }
 
 /**

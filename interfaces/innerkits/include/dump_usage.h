@@ -30,6 +30,7 @@ public:
     float GetCpuUsage(const int &pid);
 
 private:
+    void InitMemInfo(MemInfoData::MemInfo &memInfo);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

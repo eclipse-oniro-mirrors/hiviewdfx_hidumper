@@ -20,7 +20,7 @@
 namespace OHOS {
 namespace HiviewDFX {
 template<typename T>
-class DumpDelayedSpSingleton : public NoCopyable {
+class DelayedSpSingleton : public NoCopyable {
 public:
     static sptr<T> GetInstance();
     static void DestroyInstance();
@@ -30,13 +30,13 @@ private:
 };
 
 template<typename T>
-sptr<T> DumpDelayedSpSingleton<T>::instance_ = nullptr;
+sptr<T> DelayedSpSingleton<T>::instance_ = nullptr;
 
 template<typename T>
-std::mutex DumpDelayedSpSingleton<T>::mutex_;
+std::mutex DelayedSpSingleton<T>::mutex_;
 
 template<typename T>
-sptr<T> DumpDelayedSpSingleton<T>::GetInstance()
+sptr<T> DelayedSpSingleton<T>::GetInstance()
 {
     if (!instance_) {
         std::lock_guard<std::mutex> lock(mutex_);
@@ -48,7 +48,7 @@ sptr<T> DumpDelayedSpSingleton<T>::GetInstance()
 }
 
 template<typename T>
-void DumpDelayedSpSingleton<T>::DestroyInstance()
+void DelayedSpSingleton<T>::DestroyInstance()
 {
     std::lock_guard<std::mutex> lock(mutex_);
     if (instance_) {
