@@ -134,7 +134,7 @@ bool CPUDumper::GetProcCPUInfo()
             return ret;
         }
 
-        DumpCpuInfoUtil::GetInstance().CopyCpuInfo(oldCPUInfo_, curCPUInfo_);
+        GetInitOldCPUInfo(oldCPUInfo_, curCPUInfo_);
         usleep(DELAY_VALUE);
         if (!DumpCpuInfoUtil::GetInstance().GetCurCPUInfo(curCPUInfo_)) {
             DUMPER_HILOGE(MODULE_COMMON, "Get current cpu info failed!.");
@@ -148,6 +148,21 @@ bool CPUDumper::GetProcCPUInfo()
     }
     ret = true;
     return ret;
+}
+
+void CPUDumper::GetInitOldCPUInfo(std::shared_ptr<CPUInfo> tar, const std::shared_ptr<CPUInfo> source)
+{
+    if ((tar == nullptr) || (source == nullptr)) {
+        return;
+    }
+
+    tar->uTime = source->uTime;
+    tar->nTime = source->nTime;
+    tar->sTime = source->sTime;
+    tar->iTime = source->iTime;
+    tar->iowTime = source->iowTime;
+    tar->irqTime = source->irqTime;
+    tar->sirqTime = source->sirqTime;
 }
 
 DumpStatus CPUDumper::ReadLoadAvgInfo(const std::string &filePath, std::string &info)

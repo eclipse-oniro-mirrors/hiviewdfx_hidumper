@@ -39,6 +39,7 @@ private:
     std::shared_ptr<ProcInfo> GetOldProc(const std::string& pid);
     void DumpProcInfo();
     static bool SortProcInfo(std::shared_ptr<ProcInfo> &left, std::shared_ptr<ProcInfo> &right);
+    void GetInitOldCPUInfo(std::shared_ptr<CPUInfo> tar, const std::shared_ptr<CPUInfo> source);
     bool GetProcCPUInfo();
 
 private:

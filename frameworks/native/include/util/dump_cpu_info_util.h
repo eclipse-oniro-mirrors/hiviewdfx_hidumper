@@ -53,12 +53,12 @@ public:
     bool GetOldCPUInfo(std::shared_ptr<CPUInfo> &cpuInfo);
     bool GetOldProcInfo(std::vector<std::shared_ptr<ProcInfo>> &procInfos);
     bool GetOldSpecProcInfo(int pid, std::shared_ptr<ProcInfo> &specProc);
-    void CopyCpuInfo(std::shared_ptr<CPUInfo> &tar, const std::shared_ptr<CPUInfo> &source);
 
 private:
     void SetCPUInfo(long unsigned& info, const std::string& strInfo);
     void GetProcessDirFiles(const std::string& path, const std::string& file,
         std::vector<std::string>& files);
+    void CopyCpuInfo(std::shared_ptr<CPUInfo> &tar, const std::shared_ptr<CPUInfo> &source);
     void CopyProcInfo(std::shared_ptr<ProcInfo> &tar, const std::shared_ptr<ProcInfo> &source);
     bool CheckFrequentDumpping();
 
