@@ -202,6 +202,10 @@ std::string DumpManagerService::GetFdLinkNum(const std::string &linkPath) const
 
 void DumpManagerService::RecordDetailFdInfo(std::string &detailFdInfo, std::string &topLeakedType)
 {
+    if (linkCnt_.empty()) {
+        DUMPER_HILOGE(MODULE_SERVICE, "linkCnt_ is empty!");
+        return;
+    }
     topLeakedType = linkCnt_[0].first;
     for (size_t i = 0; i < linkCnt_.size() && i < FD_LOG_NUM; i++) {
         detailFdInfo += std::to_string(linkCnt_[i].second) + "\t" + linkCnt_[i].first + "\n";
