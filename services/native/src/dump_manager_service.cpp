@@ -153,9 +153,9 @@ bool DumpManagerService::HasDumpPermission() const
 
 uint32_t DumpManagerService::GetFileDescriptorNums(int32_t pid, std::string requestType) const
 {
-    if (requestType.find("..") != -1) {
+    if (requestType.find("..") != std::string::npos) {
         DUMPER_HILOGE(MODULE_SERVICE, "requestType is invalid, please check!");
-        return DumpStatus::DUMP_INVALID_ARG;
+        return 0;
     }
     std::string taskPath = "/proc/" + std::to_string(pid) + "/" + requestType;
     std::vector<std::string> fdList = DumpCommonUtils::GetSubNodes(taskPath, true);
@@ -174,9 +174,6 @@ int32_t DumpManagerService::ScanPidOverLimit(std::string requestType, int32_t li
     std::vector<int32_t> pids = DumpCommonUtils::GetAllPids();
     for (const auto &pid : pids) {
         uint32_t num = GetFileDescriptorNums(pid, requestType);
-        if (num == DumpStatus::DUMP_INVALID_ARG) {
-            return DumpStatus::DUMP_INVALID_ARG;
-        }
         if (num < static_cast<uint32_t>(limitSize)) {
             continue;
         }
