@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-service hidumper_service /system/bin/sa_main /system/profile/hidumper_service.xml
+service hidumper_service /system/bin/sa_main /system/profile/hidumper_service.json
     class z_core
     seclabel u:r:hiview:s0
 
