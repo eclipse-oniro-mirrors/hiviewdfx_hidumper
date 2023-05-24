@@ -150,14 +150,14 @@ HWTEST_F(HidumperOutputTest, HidumperOutputTest003, TestSize.Level3)
     // Touch Buffer Size - 1
     {
         std::string line_content;
-        line_content = "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
+        line_content = "HidumperOutputTest003 big one!"
+                       "HidumperOutputTest003 big one!"
+                       "HidumperOutputTest003 big one!"
+                       "HidumperOutputTest003 big one!"
+                       "HidumperOutputTest003 big one!"
+                       "HidumperOutputTest003 big one!"
+                       "HidumperOutputTest003 big one!"
+                       "HidumperOutputTest003 big one!"
                        "HidumperOu12345";
         std::vector<std::string> line_vector;
         line_vector.push_back(line_content);
@@ -192,14 +192,14 @@ HWTEST_F(HidumperOutputTest, HidumperOutputTest004, TestSize.Level3)
     // Touch Buffer Size + 1
     {
         std::string line_content;
-        line_content = "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
+        line_content = "HidumperOutputTest004 big one!"
+                       "HidumperOutputTest004 big one!"
+                       "HidumperOutputTest004 big one!"
+                       "HidumperOutputTest004 big one!"
+                       "HidumperOutputTest004 big one!"
+                       "HidumperOutputTest004 big one!"
+                       "HidumperOutputTest004 big one!"
+                       "HidumperOutputTest004 big one!"
                        "HidumperOu1234567";
         std::vector<std::string> line_vector;
         line_vector.push_back(line_content);
@@ -234,20 +234,20 @@ HWTEST_F(HidumperOutputTest, HidumperOutputTest005, TestSize.Level3)
     // Multi lines
     for (int i = 1; i < 1000; i++) {
         std::string line_content;
-        line_content = "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!"
-                       "HidumperOutputTest001 big one!";
+        line_content = "HidumperOutputTest005 big one!"
+                       "HidumperOutputTest005 big two!"
+                       "HidumperOutputTest005 big three!"
+                       "HidumperOutputTest005 big four!"
+                       "HidumperOutputTest005 big five!"
+                       "HidumperOutputTest005 big six!"
+                       "HidumperOutputTest005 big seven!"
+                       "HidumperOutputTest005 big eight!"
+                       "HidumperOutputTest005 big nine!"
+                       "HidumperOutputTest005 big ten!"
+                       "HidumperOutputTest005 big eleven!"
+                       "HidumperOutputTest005 big twelve!"
+                       "HidumperOutputTest005 big thirteen!"
+                       "HidumperOutputTest005 big fourteen!";
         std::vector<std::string> line_vector;
         line_vector.push_back(line_content);
         dump_datas->push_back(line_vector);
