@@ -75,15 +75,15 @@ DumpStatus CMDDumper::Execute()
 {
     DumpStatus ret = DumpStatus::DUMP_OK;
     if (needLoop_) {
-        // dump one line
-        return ReadLine();
+        // cmd dump one line
+        return ReadLineInCmd();
     } else {
-        // dump all line
+        // cmd dump all line
         do {
             if (IsCanceled()) {
                 break;
             }
-            ret = ReadLine();
+            ret = ReadLineInCmd();
         } while (ret == DumpStatus::DUMP_MORE_DATA);
     }
     return ret;
@@ -154,7 +154,7 @@ DumpStatus CMDDumper::GetLineData(FILE* fp, StringMatrix dumpDatas)
 }
 
 // read one line
-DumpStatus CMDDumper::ReadLine()
+DumpStatus CMDDumper::ReadLineInCmd()
 {
     if (fp_ == nullptr) {
         return DumpStatus::DUMP_FAIL;

@@ -200,7 +200,7 @@ void RawParam::ClientDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &rem
     if (remote == nullptr || remote.promote() == nullptr) {
         return;
     }
-    auto dumpManagerService = DelayedSpSingleton<DumpManagerService>::GetInstance();
+    auto dumpManagerService = DumpDelayedSpSingleton<DumpManagerService>::GetInstance();
     if (dumpManagerService == nullptr) {
         return;
     }

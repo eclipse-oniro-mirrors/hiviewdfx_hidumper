@@ -28,9 +28,6 @@ public:
     uint64_t GetPrivateDirty(const int &pid);
     uint64_t GetSharedDirty(const int &pid);
     float GetCpuUsage(const int &pid);
-
-private:
-    void InitMemInfo(MemInfoData::MemInfo &memInfo);
 };
 } // namespace HiviewDFX
 } // namespace OHOS
