@@ -56,6 +56,29 @@ const std::string ConfigData::STR_ABILITY = "ability";
 const std::string ConfigData::STR_BASE = "base";
 const std::string ConfigData::STR_SERVICE = "service";
 const std::string ConfigData::STR_SYSTEM = "system";
+
+const ConfigData::ItemCfg BASE_ITEM_NONE = {
+    .name_ = "",
+    .desc_ = "",
+    .target_ = "",
+    .section_ = "",
+    .class_ = DumperConstant::FD_OUTPUT,
+    .level_ = DumperConstant::NONE,
+    .loop_ = DumperConstant::NONE,
+    .filterCfg_ = "",
+};
+
+const ConfigData::ItemCfg BASE_ITEM_LOOP = {
+    .name_ = "",
+    .desc_ = "",
+    .target_ = "",
+    .section_ = "",
+    .class_ = DumperConstant::FD_OUTPUT,
+    .level_ = DumperConstant::NONE,
+    .loop_ = DumperConstant::LOOP,
+    .filterCfg_ = "",
+};
+
 const ConfigData::ItemCfg ConfigData::baseInfoDumper_[] = {
     {
         .name_ = "dumper_base_info",
@@ -67,16 +90,7 @@ const ConfigData::ItemCfg ConfigData::baseInfoDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::kernelVersionDumper_[] = {
@@ -90,16 +104,7 @@ const ConfigData::ItemCfg ConfigData::kernelVersionDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::cmdlineDumper_[] = {
@@ -113,16 +118,7 @@ const ConfigData::ItemCfg ConfigData::cmdlineDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::kernelWakeSourcesDumper_[] = {
@@ -136,16 +132,7 @@ const ConfigData::ItemCfg ConfigData::kernelWakeSourcesDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::kernelCpufreqDumper_[] = {
@@ -159,16 +146,7 @@ const ConfigData::ItemCfg ConfigData::kernelCpufreqDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
     {
         .name_ = "",
         .desc_ = "",
@@ -179,16 +157,7 @@ const ConfigData::ItemCfg ConfigData::kernelCpufreqDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::uptimeDumper_[] = {
@@ -202,16 +171,7 @@ const ConfigData::ItemCfg ConfigData::uptimeDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::cpuUsageDumper_[] = {
@@ -225,16 +185,7 @@ const ConfigData::ItemCfg ConfigData::cpuUsageDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::cpuFreqDumper_[] = {
@@ -248,16 +199,7 @@ const ConfigData::ItemCfg ConfigData::cpuFreqDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
     {
         .name_ = "",
         .desc_ = "",
@@ -268,16 +210,7 @@ const ConfigData::ItemCfg ConfigData::cpuFreqDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::memDumper_[] = {
@@ -291,16 +224,7 @@ const ConfigData::ItemCfg ConfigData::memDumper_[] = {
         .loop_ = DumperConstant::LOOP,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::LOOP,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_LOOP,
 };
 
 const ConfigData::ItemCfg ConfigData::envDumper_[] = {
@@ -314,16 +238,7 @@ const ConfigData::ItemCfg ConfigData::envDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::kernelModuleDumper_[] = {
@@ -337,16 +252,7 @@ const ConfigData::ItemCfg ConfigData::kernelModuleDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
     {
         .name_ = "",
         .desc_ = "",
@@ -357,16 +263,7 @@ const ConfigData::ItemCfg ConfigData::kernelModuleDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::dumpFormatVersionDumper_[] = {
@@ -380,16 +277,7 @@ const ConfigData::ItemCfg ConfigData::dumpFormatVersionDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::slabinfoDumper_[] = {
@@ -403,16 +291,7 @@ const ConfigData::ItemCfg ConfigData::slabinfoDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::zoneinfoDumper_[] = {
@@ -426,16 +305,7 @@ const ConfigData::ItemCfg ConfigData::zoneinfoDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::vmStatDumper_[] = {
@@ -449,16 +319,7 @@ const ConfigData::ItemCfg ConfigData::vmStatDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::vmAllocInfoDumper_[] = {
@@ -472,16 +333,7 @@ const ConfigData::ItemCfg ConfigData::vmAllocInfoDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::crashDumper_[] = {
@@ -495,16 +347,7 @@ const ConfigData::ItemCfg ConfigData::crashDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::kernelLogDumper_[] = {
@@ -518,16 +361,7 @@ const ConfigData::ItemCfg ConfigData::kernelLogDumper_[] = {
         .loop_ = DumperConstant::LOOP,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::LOOP,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_LOOP,
 };
 
 const ConfigData::ItemCfg ConfigData::hilogDumper_[] = {
@@ -541,16 +375,7 @@ const ConfigData::ItemCfg ConfigData::hilogDumper_[] = {
         .loop_ = DumperConstant::LOOP,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::LOOP,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_LOOP,
 };
 
 const ConfigData::ItemCfg ConfigData::portDumper_[] = {
@@ -564,16 +389,7 @@ const ConfigData::ItemCfg ConfigData::portDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::packetDumper_[] = {
@@ -587,16 +403,7 @@ const ConfigData::ItemCfg ConfigData::packetDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
     {
         .name_ = "",
         .desc_ = "",
@@ -607,16 +414,7 @@ const ConfigData::ItemCfg ConfigData::packetDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
     {
         .name_ = "",
         .desc_ = "",
@@ -627,16 +425,7 @@ const ConfigData::ItemCfg ConfigData::packetDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
     {
         .name_ = "",
         .desc_ = "",
@@ -647,16 +436,7 @@ const ConfigData::ItemCfg ConfigData::packetDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
     {
         .name_ = "",
         .desc_ = "",
@@ -667,16 +447,7 @@ const ConfigData::ItemCfg ConfigData::packetDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::ipDumper_[] = {
@@ -690,16 +461,7 @@ const ConfigData::ItemCfg ConfigData::ipDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::ipTableDumper_[] = {
@@ -713,16 +475,7 @@ const ConfigData::ItemCfg ConfigData::ipTableDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
     {
         .name_ = "",
         .desc_ = "",
@@ -733,16 +486,7 @@ const ConfigData::ItemCfg ConfigData::ipTableDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
     {
         .name_ = "",
         .desc_ = "",
@@ -753,16 +497,7 @@ const ConfigData::ItemCfg ConfigData::ipTableDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
     {
         .name_ = "",
         .desc_ = "",
@@ -773,16 +508,7 @@ const ConfigData::ItemCfg ConfigData::ipTableDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
     {
         .name_ = "",
         .desc_ = "",
@@ -793,16 +519,7 @@ const ConfigData::ItemCfg ConfigData::ipTableDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
     {
         .name_ = "",
         .desc_ = "",
@@ -813,16 +530,7 @@ const ConfigData::ItemCfg ConfigData::ipTableDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
     {
         .name_ = "",
         .desc_ = "",
@@ -833,16 +541,7 @@ const ConfigData::ItemCfg ConfigData::ipTableDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::routeTableDumper_[] = {
@@ -856,16 +555,7 @@ const ConfigData::ItemCfg ConfigData::routeTableDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::ipcDumper_[] = {
@@ -879,16 +569,7 @@ const ConfigData::ItemCfg ConfigData::ipcDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
     {
         .name_ = "",
         .desc_ = "",
@@ -899,16 +580,7 @@ const ConfigData::ItemCfg ConfigData::ipcDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
     {
         .name_ = "",
         .desc_ = "",
@@ -919,16 +591,7 @@ const ConfigData::ItemCfg ConfigData::ipcDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
     {
         .name_ = "",
         .desc_ = "",
@@ -939,16 +602,7 @@ const ConfigData::ItemCfg ConfigData::ipcDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
     {
         .name_ = "",
         .desc_ = "",
@@ -959,16 +613,7 @@ const ConfigData::ItemCfg ConfigData::ipcDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::ipRulesDumper_[] = {
@@ -982,16 +627,7 @@ const ConfigData::ItemCfg ConfigData::ipRulesDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
     {
         .name_ = "",
         .desc_ = "",
@@ -1002,16 +638,7 @@ const ConfigData::ItemCfg ConfigData::ipRulesDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
     {
         .name_ = "",
         .desc_ = "",
@@ -1022,16 +649,7 @@ const ConfigData::ItemCfg ConfigData::ipRulesDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
     {
         .name_ = "",
         .desc_ = "",
@@ -1042,16 +660,7 @@ const ConfigData::ItemCfg ConfigData::ipRulesDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
     {
         .name_ = "",
         .desc_ = "",
@@ -1062,16 +671,7 @@ const ConfigData::ItemCfg ConfigData::ipRulesDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::storageStateDumper_[] = {
@@ -1085,16 +685,7 @@ const ConfigData::ItemCfg ConfigData::storageStateDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::blockDumper_[] = {
@@ -1108,16 +699,7 @@ const ConfigData::ItemCfg ConfigData::blockDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::fileDumper_[] = {
@@ -1131,16 +713,7 @@ const ConfigData::ItemCfg ConfigData::fileDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::topIoDumper_[] = {
@@ -1164,16 +737,7 @@ const ConfigData::ItemCfg ConfigData::topIoDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::mountsDumper_[] = {
@@ -1187,16 +751,7 @@ const ConfigData::ItemCfg ConfigData::mountsDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::threadsDumper_[] = {
@@ -1210,16 +765,7 @@ const ConfigData::ItemCfg ConfigData::threadsDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::threadsPidDumper_[] = {
@@ -1233,16 +779,7 @@ const ConfigData::ItemCfg ConfigData::threadsPidDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::smapDumper_[] = {
@@ -1256,16 +793,7 @@ const ConfigData::ItemCfg ConfigData::smapDumper_[] = {
         .loop_ = DumperConstant::LOOP,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::LOOP,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_LOOP,
 };
 
 const ConfigData::ItemCfg ConfigData::mapDumper_[] = {
@@ -1279,16 +807,7 @@ const ConfigData::ItemCfg ConfigData::mapDumper_[] = {
         .loop_ = DumperConstant::LOOP,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::LOOP,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_LOOP,
 };
 
 const ConfigData::ItemCfg ConfigData::blockChannelDumper_[] = {
@@ -1302,16 +821,7 @@ const ConfigData::ItemCfg ConfigData::blockChannelDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::excuteTimeDumper_[] = {
@@ -1325,16 +835,7 @@ const ConfigData::ItemCfg ConfigData::excuteTimeDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::mountInfoDumper_[] = {
@@ -1348,16 +849,7 @@ const ConfigData::ItemCfg ConfigData::mountInfoDumper_[] = {
         .loop_ = DumperConstant::LOOP,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::LOOP,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_LOOP,
 };
 
 const ConfigData::ItemCfg ConfigData::systemAbilityDumper_[] = {
@@ -1371,16 +863,7 @@ const ConfigData::ItemCfg ConfigData::systemAbilityDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::stackDumper_[] = {
@@ -1394,16 +877,7 @@ const ConfigData::ItemCfg ConfigData::stackDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::listServiceDumper_[] = {
@@ -1417,16 +891,7 @@ const ConfigData::ItemCfg ConfigData::listServiceDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::listSystemAbilityDumper_[] = {
@@ -1440,16 +905,7 @@ const ConfigData::ItemCfg ConfigData::listSystemAbilityDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::listSystemDumper_[] = {
@@ -1463,16 +919,7 @@ const ConfigData::ItemCfg ConfigData::listSystemDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::ItemCfg ConfigData::testDumper_[] = {
@@ -1486,16 +933,7 @@ const ConfigData::ItemCfg ConfigData::testDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
     {
         .name_ = "",
         .desc_ = "",
@@ -1506,16 +944,7 @@ const ConfigData::ItemCfg ConfigData::testDumper_[] = {
         .loop_ = DumperConstant::NONE,
         .filterCfg_ = "",
     },
-    {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FD_OUTPUT,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
-    },
+    BASE_ITEM_NONE,
 };
 
 const ConfigData::DumperCfg ConfigData::dumpers_[] = {

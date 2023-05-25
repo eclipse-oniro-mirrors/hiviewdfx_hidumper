@@ -21,6 +21,16 @@ class ConfigData {
 public:
     ConfigData();
     ~ConfigData();
+    struct ItemCfg {
+        const std::string &name_;
+        const std::string &desc_;
+        const std::string &target_;
+        const std::string &section_;
+        const int &class_;
+        const int &level_;
+        const int &loop_;
+        const std::string &filterCfg_;
+    };
     static const std::string CONFIG_NAME_SPLIT;
     static const std::string CONFIG_GROUP;
     static const std::string CONFIG_GROUP_;
@@ -64,16 +74,6 @@ public:
     static const std::string STR_SERVICE;
     static const std::string STR_SYSTEM;
 protected:
-    struct ItemCfg {
-        const std::string &name_;
-        const std::string &desc_;
-        const std::string &target_;
-        const std::string &section_;
-        const int &class_;
-        const int &level_;
-        const int &loop_;
-        const std::string &filterCfg_;
-    };
     struct DumperCfg {
         const std::string &name_;
         const std::string &desc_;
