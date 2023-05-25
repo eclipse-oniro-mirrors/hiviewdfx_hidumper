@@ -31,7 +31,7 @@ public:
     DumpStatus GetCmdInterface(const std::string& cmd, StringMatrix dumpDatas);
 
 private:
-    DumpStatus ReadLine();
+    DumpStatus ReadLineInCmd();
     void ReplacePidInCmd(std::string& cmd, int pid);
     void ReplaceCpuIdInCmd(std::string &cmd, int cpuId);
 

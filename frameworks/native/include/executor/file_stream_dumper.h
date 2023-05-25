@@ -30,7 +30,7 @@ public:
 
 private:
     DumpStatus ReadFile();
-    DumpStatus ReadLine();
+    DumpStatus ReadLineInFile();
     void BuildFileNames(const std::string& target, bool arg_pid, int pid,
         bool arg_cpuid, int cpuid);
     void ReplacePidInFilename(std::string& filename, int pid);

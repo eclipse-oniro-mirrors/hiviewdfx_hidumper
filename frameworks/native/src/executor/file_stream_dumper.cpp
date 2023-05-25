@@ -97,7 +97,7 @@ int FileStreamDumper::OpenNextFile()
 }
 
 // read one line
-DumpStatus FileStreamDumper::ReadLine()
+DumpStatus FileStreamDumper::ReadLineInFile()
 {
     DumpStatus ret = DumpStatus::DUMP_MORE_DATA;
     if (fp_ == nullptr) {
@@ -143,15 +143,15 @@ DumpStatus FileStreamDumper::Execute()
 {
     DumpStatus ret = DumpStatus::DUMP_OK;
     if (need_loop_) {
-        // dump one line
-        return ReadLine();
+        // file dump one line
+        return ReadLineInFile();
     } else {
-        // dump all line
+        // file dump all line
         do {
             if (IsCanceled()) {
                 break;
             }
-            ret = ReadLine();
+            ret = ReadLineInFile();
         } while (ret == DumpStatus::DUMP_MORE_DATA);
     }
     return ret;

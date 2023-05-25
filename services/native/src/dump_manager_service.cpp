@@ -37,7 +37,7 @@ namespace OHOS {
 namespace HiviewDFX {
 namespace {
 const std::string DUMPMGR_SERVICE_NAME = "HiDumperManagerService";
-auto dumpManagerService = DelayedSpSingleton<DumpManagerService>::GetInstance();
+auto dumpManagerService = DumpDelayedSpSingleton<DumpManagerService>::GetInstance();
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(dumpManagerService.GetRefPtr());
 static const int32_t STOP_WAIT = 3;
 static const int32_t REQUEST_MAX = 2;
@@ -79,7 +79,7 @@ void DumpManagerService::OnStart()
         eventRunner_->Run();
     }
 
-    if (!Publish(DelayedSpSingleton<DumpManagerService>::GetInstance())) {
+    if (!Publish(DumpDelayedSpSingleton<DumpManagerService>::GetInstance())) {
         DUMPER_HILOGE(MODULE_SERVICE, "error|register to system ability manager failed.");
         return;
     }
