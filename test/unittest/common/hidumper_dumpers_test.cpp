@@ -92,7 +92,8 @@ void HidumperDumpersTest::HandleDumperExcute(std::string dumperType)
         dumper = std::make_shared<ListDumper>();
     }
     dumper->SetDumpConfig(g_config);
-    if (StringUtils::GetInstance().IsSameStr(dumperType, "SADumper") || StringUtils::GetInstance().IsSameStr(dumperType, "ListDumper")) {
+    if (StringUtils::GetInstance().IsSameStr(dumperType, "SADumper")
+        || StringUtils::GetInstance().IsSameStr(dumperType, "ListDumper")) {
         int ret = DumpStatus::DUMP_FAIL;
         ret = dumper->PreExecute(g_parameter, g_dump_datas);
         ASSERT_EQ(ret, DumpStatus::DUMP_OK);
