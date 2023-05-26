@@ -75,8 +75,7 @@ MemoryInfo::~MemoryInfo()
 {
 }
 
-static double sumPidsMemGL_ = 0.0;
-std::string processName_ = "";
+static double g_sumPidsMemGL = 0.0;
 std::vector<MemoryGraphic> memGraphicVec_;
 
 void MemoryInfo::insertMemoryTitle(StringMatrix result)
@@ -191,7 +190,7 @@ void MemoryInfo::CalcGroup(const GroupMap &infos, StringMatrix result)
     result->push_back(values);
 }
 
-bool MemoryInfo::GetRenderServiceGraphics(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory) 
+bool MemoryInfo::GetRenderServiceGraphics(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory)
 {
     bool ret = false;
     sptr<IMemoryTrackerInterface> memtrack = IMemoryTrackerInterface::Get(true);
@@ -255,7 +254,7 @@ bool MemoryInfo::GetMemoryInfoByPid(const int &pid, StringMatrix result)
     if ((IsRenderService(pid))) {
         GetMemGraphics();
         GetRenderServiceGraphics(pid, graphicsMemory);
-        graphicsMemory.gl -= sumPidsMemGL_;
+        graphicsMemory.gl -= g_sumPidsMemGL;
 
     } else {
         auto& rsClient = Rosen::RSInterfaces::GetInstance();
@@ -564,10 +563,10 @@ bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &gra
     bool ret = false;
     if (memGraphicVec_.empty()) {
         return ret;
-    }   
-    if (IsRenderService(pid)) {            
+    }
+    if (IsRenderService(pid)) {        
         GetRenderServiceGraphics(pid, graphicsMemory);
-        graphicsMemory.gl -= sumPidsMemGL_;
+        graphicsMemory.gl -= g_sumPidsMemGL;
         return true;
     }
     for (auto it = memGraphicVec_.begin(); it != memGraphicVec_.end(); it++) {
@@ -706,11 +705,10 @@ void MemoryInfo::GetMemGraphics()
     auto& rsClient = Rosen::RSInterfaces::GetInstance();
     memGraphicVec_ = rsClient.GetMemoryGraphics();
     auto sumPidsMemGL = 0;
-    auto sumPidsMemGraph = 0;
     for (auto it = memGraphicVec_.begin(); it != memGraphicVec_.end(); it++) {
         sumPidsMemGL += it-> GetGpuMemorySize();
     }
-    sumPidsMemGL_ = sumPidsMemGL / BYTE_PER_KB;
+    g_sumPidsMemGL = sumPidsMemGL / BYTE_PER_KB;
 }
 
 DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
