@@ -110,6 +110,7 @@ ohos_source_set("dump_main") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "graphic_standard:librender_service_client",
   ]
 
   defines = []

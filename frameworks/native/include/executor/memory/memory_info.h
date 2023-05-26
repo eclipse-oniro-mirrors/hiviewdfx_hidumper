@@ -89,7 +89,6 @@ private:
     static bool GetMemByProcessPid(const int &pid, MemInfoData::MemUsage &usage);
     static bool GetSmapsInfoNoPid(const int &pid, GroupMap &result);
     bool GetMeminfo(ValueMap &result);
-    static bool GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory);
     bool GetHardWareUsage(StringMatrix result);
     bool GetCMAUsage(StringMatrix result);
     bool GetKernelUsage(const ValueMap &infos, StringMatrix result);
@@ -112,6 +111,10 @@ private:
     static void InitMemUsage(MemInfoData::MemUsage &usage);
     void CalcGroup(const GroupMap &infos, StringMatrix result);
     void GetSortedMemoryInfoNoPid(StringMatrix result);
+    static void GetMemGraphics();
+    static bool GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory);
+    static bool GetRenderServiceGraphics(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory);
+    static bool IsRenderService(int32_t pid);
 #ifdef HIDUMPER_MEMMGR_ENABLE
     void GetMemoryByAdj(StringMatrix result);
 #endif

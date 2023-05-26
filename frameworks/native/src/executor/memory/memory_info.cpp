@@ -40,8 +40,10 @@
 #include "securec.h"
 #include "string_ex.h"
 #include "util/string_utils.h"
+#include "transaction/rs_interfaces.h"
 using namespace std;
 using namespace OHOS::HDI::Memorytracker::V1_0;
+using namespace OHOS::Rosen;
 namespace OHOS {
 namespace HiviewDFX {
 MemoryInfo::MemoryInfo()
@@ -72,6 +74,10 @@ MemoryInfo::MemoryInfo()
 MemoryInfo::~MemoryInfo()
 {
 }
+
+static double sumPidsMemGL_ = 0.0;
+std::string processName_ = "";
+std::vector<MemoryGraphic> memGraphicVec_;
 
 void MemoryInfo::insertMemoryTitle(StringMatrix result)
 {
@@ -185,7 +191,7 @@ void MemoryInfo::CalcGroup(const GroupMap &infos, StringMatrix result)
     result->push_back(values);
 }
 
-bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory)
+bool MemoryInfo::GetRenderServiceGraphics(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory) 
 {
     bool ret = false;
     sptr<IMemoryTrackerInterface> memtrack = IMemoryTrackerInterface::Get(true);
@@ -216,6 +222,20 @@ bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &gra
     return ret;
 }
 
+bool MemoryInfo::IsRenderService(int32_t pid)
+{
+    bool ret = false;
+    std::string rsName = "render_service";
+    std::string processName = GetProcName(pid);
+    const char whitespace[] = " \n\t\v\r\f";
+    processName.erase(0, processName.find_first_not_of(whitespace));
+    processName.erase(processName.find_last_not_of(whitespace) + 1U);
+    if (processName == rsName) {
+        ret = true;
+    }
+    return ret;
+}
+
 bool MemoryInfo::GetMemoryInfoByPid(const int &pid, StringMatrix result)
 {
     GroupMap groupMap;
@@ -230,10 +250,20 @@ bool MemoryInfo::GetMemoryInfoByPid(const int &pid, StringMatrix result)
         DUMPER_HILOGE(MODULE_SERVICE, "get heap info fail");
         return false;
     }
-
     MemInfoData::GraphicsMemory graphicsMemory;
     MemoryUtil::GetInstance().InitGraphicsMemory(graphicsMemory);
-    if (GetGraphicsMemory(pid, graphicsMemory)) {
+    if ((IsRenderService(pid))) {
+        GetMemGraphics();
+        GetRenderServiceGraphics(pid, graphicsMemory);
+        graphicsMemory.gl -= sumPidsMemGL_;
+
+    } else {
+        auto& rsClient = Rosen::RSInterfaces::GetInstance();
+        unique_ptr<MemoryGraphic> memGraphic = make_unique<MemoryGraphic>(rsClient.GetMemoryGraphic(pid));
+        graphicsMemory.gl = memGraphic-> GetGpuMemorySize() / BYTE_PER_KB;
+        graphicsMemory.graph = memGraphic-> GetCpuMemorySize() / BYTE_PER_KB;
+    }
+
         map<string, uint64_t> valueMap;
         valueMap.insert(pair<string, uint64_t>("Pss", graphicsMemory.gl));
         valueMap.insert(pair<string, uint64_t>("Private_Dirty", graphicsMemory.gl));
@@ -242,7 +272,7 @@ bool MemoryInfo::GetMemoryInfoByPid(const int &pid, StringMatrix result)
         valueMap.insert(pair<string, uint64_t>("Pss", graphicsMemory.graph));
         valueMap.insert(pair<string, uint64_t>("Private_Dirty", graphicsMemory.graph));
         groupMap.insert(pair<string, map<string, uint64_t>>("AnonPage # Graph", valueMap));
-    }
+
     BuildResult(groupMap, result);
     CalcGroup(groupMap, result);
     return true;
@@ -529,6 +559,28 @@ uint64_t MemoryInfo::GetVss(const int &pid)
     return res;
 }
 
+bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory)
+{
+    bool ret = false;
+    if (memGraphicVec_.empty()) {
+        return ret;
+    }   
+    if (IsRenderService(pid)) {            
+        GetRenderServiceGraphics(pid, graphicsMemory);
+        graphicsMemory.gl -= sumPidsMemGL_;
+        return true;
+    }
+    for (auto it = memGraphicVec_.begin(); it != memGraphicVec_.end(); it++) {
+        if (pid == it->GetPid()) {
+            graphicsMemory.gl = it-> GetGpuMemorySize() / BYTE_PER_KB;
+            memGraphicVec_.erase(it);
+            ret = true;
+            break;
+        }
+    }
+    return ret;
+}
+
 bool MemoryInfo::GetMemByProcessPid(const int &pid, MemInfoData::MemUsage &usage)
 {
     bool success = false;
@@ -649,6 +701,18 @@ void MemoryInfo::AddMemByProcessTitle(StringMatrix result, string sortType)
     result->push_back(title);
 }
 
+void MemoryInfo::GetMemGraphics()
+{
+    auto& rsClient = Rosen::RSInterfaces::GetInstance();
+    memGraphicVec_ = rsClient.GetMemoryGraphics();
+    auto sumPidsMemGL = 0;
+    auto sumPidsMemGraph = 0;
+    for (auto it = memGraphicVec_.begin(); it != memGraphicVec_.end(); it++) {
+        sumPidsMemGL += it-> GetGpuMemorySize();
+    }
+    sumPidsMemGL_ = sumPidsMemGL / BYTE_PER_KB;
+}
+
 DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
 {
     if (!isReady_) {
@@ -660,6 +724,8 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
         if (!GetPids()) {
             return DUMP_FAIL;
         }
+        memGraphicVec_.clear();
+        GetMemGraphics();
         isReady_ = true;
         return DUMP_MORE_DATA;
     }
