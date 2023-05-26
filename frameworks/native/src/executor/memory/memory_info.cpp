@@ -563,7 +563,7 @@ bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &gra
     if (memGraphicVec_.empty()) {
         return ret;
     }
-    if (IsRenderService(pid)) {        
+    if (IsRenderService(pid)) {
         GetRenderServiceGraphics(pid, graphicsMemory);
         graphicsMemory.gl -= g_sumPidsMemGL;
         return true;
