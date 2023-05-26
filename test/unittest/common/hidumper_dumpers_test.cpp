@@ -94,7 +94,7 @@ void HidumperDumpersTest::HandleDumperExcute(std::string dumperType)
     dumper->SetDumpConfig(g_config);
     if (StringUtils::GetInstance().IsSameStr(dumperType, "SADumper")
         || StringUtils::GetInstance().IsSameStr(dumperType, "ListDumper")) {
-        int ret = DumpStatus::DUMP_FAIL;
+        DumpStatus ret = DumpStatus::DUMP_FAIL;
         ret = dumper->PreExecute(g_parameter, g_dump_datas);
         ASSERT_EQ(ret, DumpStatus::DUMP_OK);
         ret = dumper->Execute();
@@ -122,7 +122,7 @@ void HidumperDumpersTest::HandleCpuDumperTest(int pid)
     parameter->SetOpts(opts);
     auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
     auto cpuDumper = std::make_shared<CPUDumper>();
-    int ret = DumpStatus::DUMP_FAIL;
+    DumpStatus ret = DumpStatus::DUMP_FAIL;
     ret = cpuDumper->PreExecute(parameter, dumpDatas);
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
     ret = cpuDumper->Execute();
