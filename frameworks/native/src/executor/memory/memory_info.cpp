@@ -255,7 +255,6 @@ bool MemoryInfo::GetMemoryInfoByPid(const int &pid, StringMatrix result)
         GetMemGraphics();
         GetRenderServiceGraphics(pid, graphicsMemory);
         graphicsMemory.gl -= g_sumPidsMemGL;
-
     } else {
         auto& rsClient = Rosen::RSInterfaces::GetInstance();
         unique_ptr<MemoryGraphic> memGraphic = make_unique<MemoryGraphic>(rsClient.GetMemoryGraphic(pid));
