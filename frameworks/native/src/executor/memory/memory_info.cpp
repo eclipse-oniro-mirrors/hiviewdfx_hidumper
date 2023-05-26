@@ -705,7 +705,7 @@ void MemoryInfo::GetMemGraphics()
     memGraphicVec_ = rsClient.GetMemoryGraphics();
     auto sumPidsMemGL = 0;
     for (auto it = memGraphicVec_.begin(); it != memGraphicVec_.end(); it++) {
-        sumPidsMemGL += it-> GetGpuMemorySize();
+        sumPidsMemGL += it->GetGpuMemorySize();
     }
     g_sumPidsMemGL = sumPidsMemGL / BYTE_PER_KB;
 }
