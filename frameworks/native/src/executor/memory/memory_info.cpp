@@ -223,16 +223,15 @@ bool MemoryInfo::GetRenderServiceGraphics(int32_t pid, MemInfoData::GraphicsMemo
 
 bool MemoryInfo::IsRenderService(int32_t pid)
 {
-    bool ret = false;
     std::string rsName = "render_service";
     std::string processName = GetProcName(pid);
     const char whitespace[] = " \n\t\v\r\f";
     processName.erase(0, processName.find_first_not_of(whitespace));
     processName.erase(processName.find_last_not_of(whitespace) + 1U);
     if (processName == rsName) {
-        ret = true;
+        return true;
     }
-    return ret;
+    return false;
 }
 
 bool MemoryInfo::GetMemoryInfoByPid(const int &pid, StringMatrix result)
@@ -559,9 +558,8 @@ uint64_t MemoryInfo::GetVss(const int &pid)
 
 bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory)
 {
-    bool ret = false;
     if (memGraphicVec_.empty()) {
-        return ret;
+        return false;
     }
     if (IsRenderService(pid)) {
         GetRenderServiceGraphics(pid, graphicsMemory);
@@ -572,11 +570,10 @@ bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &gra
         if (pid == it->GetPid()) {
             graphicsMemory.gl = it-> GetGpuMemorySize() / BYTE_PER_KB;
             memGraphicVec_.erase(it);
-            ret = true;
-            break;
+            return true;
         }
     }
-    return ret;
+    return false;
 }
 
 bool MemoryInfo::GetMemByProcessPid(const int &pid, MemInfoData::MemUsage &usage)
