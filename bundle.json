@@ -30,8 +30,14 @@
                 "init",
                 "ipc",
                 "memmgr",
+                "memmgr_plugin",
                 "safwk",
                 "samgr",
+                "drivers_interface_memorytracker",
+                "hdf_core",
+                "ability_runtime"
+            ],
+            "third_party": [
                 "zlib"
             ]
         },
