@@ -25,6 +25,7 @@
 #include "hdf_base.h"
 #include "executor/memory/memory_filter.h"
 #include "executor/memory/memory_util.h"
+#include "hidumper_test_utils.h"
 
 using namespace testing::ext;
 using namespace OHOS::HDI::Memorytracker::V1_0;
@@ -36,7 +37,6 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
-    bool IsExistInCmdResult(const std::string &cmd, const std::string &str);
 };
 
 void MemoryDumperTest::SetUpTestCase(void)
@@ -52,23 +52,6 @@ void MemoryDumperTest::TearDown(void)
 {
 }
 
-bool MemoryDumperTest::IsExistInCmdResult(const std::string &cmd, const std::string &str)
-{
-    bool ret = false;
-    char* buffer = nullptr;
-    size_t len = 0;
-    FILE *fp = popen(cmd.c_str(), "r");
-    while (getline(&buffer, &len, fp) != -1) {
-        std::string line = buffer;
-        if (line.find(str) != string::npos) {
-            ret = true;
-            break;
-        }
-    }
-    pclose(fp);
-    return ret;
-}
-
 /**
  * @tc.name: MemoryDumperTest001
  * @tc.desc: Test MemoryDumper has correct group.
@@ -79,7 +62,7 @@ HWTEST_F(MemoryDumperTest, MemoryDumperTest001, TestSize.Level3)
 {
     std::string cmd = "hidumper --mem";
     std::string str = "Anonymous Page";
-    ASSERT_TRUE(IsExistInCmdResult(cmd, str));
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
 }
 
 /**
@@ -96,7 +79,7 @@ HWTEST_F(MemoryDumperTest, MemoryDumperTest002, TestSize.Level3)
     }
     std::string cmd = "hidumper --mem";
     std::string str = "DMA";
-    ASSERT_TRUE(IsExistInCmdResult(cmd, str));
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
 }
 
 /**

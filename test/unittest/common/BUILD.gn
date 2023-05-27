@@ -152,7 +152,10 @@ ohos_unittest("HidumperConfigUtilsTest") {
 ohos_unittest("MemoryDumperTest") {
   module_out_path = module_output_path
 
-  sources = [ "memory_dumper_test.cpp" ]
+  sources = [
+    "hidumper_test_utils.cpp",
+    "memory_dumper_test.cpp",
+  ]
 
   configs = [ ":module_private_config" ]
 
@@ -162,6 +165,7 @@ ohos_unittest("MemoryDumperTest") {
   ]
 
   external_deps = [
+    "c_utils:utils",
     "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
     "hiviewdfx_hilog_native:libhilog",
   ]
@@ -170,11 +174,16 @@ ohos_unittest("MemoryDumperTest") {
 ohos_unittest("HidumperPrivacyTest") {
   module_out_path = module_output_path
 
-  sources = [ "hidumper_privacy_test.cpp" ]
+  sources = [
+    "hidumper_privacy_test.cpp",
+    "hidumper_test_utils.cpp",
+  ]
 
   configs = [ ":module_private_config" ]
 
   deps = [ "//third_party/googletest:gtest_main" ]
+
+  external_deps = [ "c_utils:utils" ]
 }
 
 ohos_unittest("HidumperInnerkitsTest") {
@@ -199,7 +208,10 @@ ohos_unittest("HidumperInnerkitsTest") {
 ohos_unittest("HidumperManagerTest") {
   module_out_path = module_output_path
 
-  sources = [ "hidumper_manager_test.cpp" ]
+  sources = [
+    "hidumper_manager_test.cpp",
+    "hidumper_test_utils.cpp",
+  ]
 
   configs = [ ":module_private_config" ]
 
