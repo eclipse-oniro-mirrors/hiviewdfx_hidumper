@@ -103,7 +103,6 @@ ohos_source_set("dump_main") {
     "c_utils:utils",
     "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
     "eventhandler:libeventhandler",
-    "graphic_standard:librender_service_client",
     "hdf_core:libhdf_utils",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
@@ -112,8 +111,12 @@ ohos_source_set("dump_main") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
-
   defines = []
+  if (hidumper_graphic_enable) {
+    external_deps += [ "graphic_standard:librender_service_client" ]
+    defines += [ "HIDUMPER_GRAPHIC_ENABLE" ]
+  }
+
   if (hidumper_report_memmgr) {
     external_deps += [ "memmgr:memmgrclient" ]
     defines += [ "HIDUMPER_MEMMGR_ENABLE" ]

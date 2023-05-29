@@ -40,10 +40,14 @@
 #include "securec.h"
 #include "string_ex.h"
 #include "util/string_utils.h"
+#ifdef HIDUMPER_GRAPHIC_ENABLE
 #include "transaction/rs_interfaces.h"
+#endif
 using namespace std;
 using namespace OHOS::HDI::Memorytracker::V1_0;
+#ifdef HIDUMPER_GRAPHIC_ENABLE
 using namespace OHOS::Rosen;
+#endif
 namespace OHOS {
 namespace HiviewDFX {
 MemoryInfo::MemoryInfo()
@@ -76,7 +80,9 @@ MemoryInfo::~MemoryInfo()
 }
 
 static double g_sumPidsMemGL = 0.0;
+#ifdef HIDUMPER_GRAPHIC_ENABLE
 std::vector<MemoryGraphic> memGraphicVec_;
+#endif
 
 void MemoryInfo::insertMemoryTitle(StringMatrix result)
 {
@@ -251,14 +257,18 @@ bool MemoryInfo::GetMemoryInfoByPid(const int &pid, StringMatrix result)
     MemInfoData::GraphicsMemory graphicsMemory;
     MemoryUtil::GetInstance().InitGraphicsMemory(graphicsMemory);
     if ((IsRenderService(pid))) {
+        #ifdef HIDUMPER_GRAPHIC_ENABLE
         GetMemGraphics();
+        #endif
         GetRenderServiceGraphics(pid, graphicsMemory);
         graphicsMemory.gl -= g_sumPidsMemGL;
     } else {
+        #ifdef HIDUMPER_GRAPHIC_ENABLE
         auto& rsClient = Rosen::RSInterfaces::GetInstance();
         unique_ptr<MemoryGraphic> memGraphic = make_unique<MemoryGraphic>(rsClient.GetMemoryGraphic(pid));
         graphicsMemory.gl = memGraphic-> GetGpuMemorySize() / BYTE_PER_KB;
         graphicsMemory.graph = memGraphic-> GetCpuMemorySize() / BYTE_PER_KB;
+        #endif
     }
 
         map<string, uint64_t> valueMap;
@@ -558,13 +568,14 @@ uint64_t MemoryInfo::GetVss(const int &pid)
 
 bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory)
 {
-    if (memGraphicVec_.empty()) {
-        return false;
-    }
     if (IsRenderService(pid)) {
         GetRenderServiceGraphics(pid, graphicsMemory);
         graphicsMemory.gl -= g_sumPidsMemGL;
         return true;
+    }
+    #ifdef HIDUMPER_GRAPHIC_ENABLE
+    if (memGraphicVec_.empty()) {
+        return false;
     }
     for (auto it = memGraphicVec_.begin(); it != memGraphicVec_.end(); it++) {
         if (pid == it->GetPid()) {
@@ -574,6 +585,7 @@ bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &gra
             return true;
         }
     }
+    #endif
     return false;
 }
 
@@ -697,6 +709,7 @@ void MemoryInfo::AddMemByProcessTitle(StringMatrix result, string sortType)
     result->push_back(title);
 }
 
+#ifdef HIDUMPER_GRAPHIC_ENABLE
 void MemoryInfo::GetMemGraphics()
 {
     auto& rsClient = Rosen::RSInterfaces::GetInstance();
@@ -707,6 +720,7 @@ void MemoryInfo::GetMemGraphics()
     }
     g_sumPidsMemGL = sumPidsMemGL / BYTE_PER_KB;
 }
+#endif
 
 DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
 {
@@ -719,8 +733,10 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
         if (!GetPids()) {
             return DUMP_FAIL;
         }
+        #ifdef HIDUMPER_GRAPHIC_ENABLE
         memGraphicVec_.clear();
         GetMemGraphics();
+        #endif
         isReady_ = true;
         return DUMP_MORE_DATA;
     }
