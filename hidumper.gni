@@ -52,5 +52,4 @@ declare_args() {
   if (!defined(global_parts_info.graphic_graphic_standard)) {
     hidumper_graphic_enable = false
   }
-
 }
