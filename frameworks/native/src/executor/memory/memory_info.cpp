@@ -42,12 +42,12 @@
 #include "util/string_utils.h"
 #ifdef HIDUMPER_GRAPHIC_ENABLE
 #include "transaction/rs_interfaces.h"
-#endif
-using namespace std;
-using namespace OHOS::HDI::Memorytracker::V1_0;
-#ifdef HIDUMPER_GRAPHIC_ENABLE
 using namespace OHOS::Rosen;
 #endif
+
+using namespace std;
+using namespace OHOS::HDI::Memorytracker::V1_0;
+
 namespace OHOS {
 namespace HiviewDFX {
 MemoryInfo::MemoryInfo()
