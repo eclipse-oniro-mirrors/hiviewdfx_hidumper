@@ -111,7 +111,9 @@ private:
     static void InitMemUsage(MemInfoData::MemUsage &usage);
     void CalcGroup(const GroupMap &infos, StringMatrix result);
     void GetSortedMemoryInfoNoPid(StringMatrix result);
+#ifdef HIDUMPER_GRAPHIC_ENABLE
     static void GetMemGraphics();
+#endif
     static bool GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory);
     static bool GetRenderServiceGraphics(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory);
     static bool IsRenderService(int32_t pid);

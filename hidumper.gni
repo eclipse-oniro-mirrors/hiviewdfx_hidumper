@@ -39,6 +39,7 @@ declare_args() {
   hidumper_report_memmgr = false
   hidumper_report_memmgr_plugins = false
   hidumper_ability_runtime_enable = true
+  hidumper_graphic_enable = true
   if (!defined(global_parts_info.ability_ability_runtime)) {
     hidumper_ability_runtime_enable = false
   }
@@ -47,5 +48,8 @@ declare_args() {
   }
   if (defined(global_parts_info.resourceschedule_memmgr_plugin)) {
     hidumper_report_memmgr_plugins = true
+  }
+  if (!defined(global_parts_info.graphic_graphic_standard)) {
+    hidumper_graphic_enable = false
   }
 }
