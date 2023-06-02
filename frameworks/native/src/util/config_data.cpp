@@ -63,7 +63,7 @@ const ConfigData::ItemCfg ConfigData::baseInfoDumper_[] = {
         DumperConstant::API_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -74,7 +74,7 @@ const ConfigData::ItemCfg ConfigData::kernelVersionDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -85,7 +85,7 @@ const ConfigData::ItemCfg ConfigData::cmdlineDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -107,7 +107,7 @@ const ConfigData::ItemCfg ConfigData::kernelCpufreqDumper_[] = {
         "", DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
@@ -115,7 +115,7 @@ const ConfigData::ItemCfg ConfigData::kernelCpufreqDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -137,7 +137,7 @@ const ConfigData::ItemCfg ConfigData::cpuUsageDumper_[] = {
         DumperConstant::CPU_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -148,7 +148,7 @@ const ConfigData::ItemCfg ConfigData::cpuFreqDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
@@ -156,7 +156,7 @@ const ConfigData::ItemCfg ConfigData::cpuFreqDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -178,7 +178,7 @@ const ConfigData::ItemCfg ConfigData::envDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -189,14 +189,15 @@ const ConfigData::ItemCfg ConfigData::kernelModuleDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "lsmod", "", DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
+        "", "", "lsmod", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -207,7 +208,7 @@ const ConfigData::ItemCfg ConfigData::dumpFormatVersionDumper_[] = {
         DumperConstant::VERSION_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -218,7 +219,7 @@ const ConfigData::ItemCfg ConfigData::slabinfoDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -229,7 +230,7 @@ const ConfigData::ItemCfg ConfigData::zoneinfoDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -240,7 +241,7 @@ const ConfigData::ItemCfg ConfigData::vmStatDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -273,7 +274,7 @@ const ConfigData::ItemCfg ConfigData::kernelLogDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::LOOP, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::LOOP, ""
     },
 };
@@ -284,7 +285,7 @@ const ConfigData::ItemCfg ConfigData::hilogDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::LOOP, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::LOOP, ""
     },
 };
@@ -295,7 +296,7 @@ const ConfigData::ItemCfg ConfigData::portDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -306,7 +307,7 @@ const ConfigData::ItemCfg ConfigData::packetDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
@@ -314,7 +315,7 @@ const ConfigData::ItemCfg ConfigData::packetDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
@@ -322,7 +323,7 @@ const ConfigData::ItemCfg ConfigData::packetDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
@@ -330,7 +331,7 @@ const ConfigData::ItemCfg ConfigData::packetDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
@@ -338,7 +339,7 @@ const ConfigData::ItemCfg ConfigData::packetDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -349,7 +350,7 @@ const ConfigData::ItemCfg ConfigData::ipDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -360,7 +361,7 @@ const ConfigData::ItemCfg ConfigData::ipTableDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
@@ -368,7 +369,7 @@ const ConfigData::ItemCfg ConfigData::ipTableDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
@@ -376,7 +377,7 @@ const ConfigData::ItemCfg ConfigData::ipTableDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
@@ -400,7 +401,7 @@ const ConfigData::ItemCfg ConfigData::ipTableDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
@@ -408,7 +409,7 @@ const ConfigData::ItemCfg ConfigData::ipTableDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -419,7 +420,7 @@ const ConfigData::ItemCfg ConfigData::routeTableDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -430,7 +431,7 @@ const ConfigData::ItemCfg ConfigData::ipcDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
@@ -438,7 +439,7 @@ const ConfigData::ItemCfg ConfigData::ipcDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
@@ -446,7 +447,7 @@ const ConfigData::ItemCfg ConfigData::ipcDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
@@ -454,7 +455,7 @@ const ConfigData::ItemCfg ConfigData::ipcDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
@@ -462,7 +463,7 @@ const ConfigData::ItemCfg ConfigData::ipcDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -473,7 +474,7 @@ const ConfigData::ItemCfg ConfigData::ipRulesDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
@@ -481,7 +482,7 @@ const ConfigData::ItemCfg ConfigData::ipRulesDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
@@ -489,7 +490,7 @@ const ConfigData::ItemCfg ConfigData::ipRulesDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
@@ -497,7 +498,7 @@ const ConfigData::ItemCfg ConfigData::ipRulesDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
@@ -505,7 +506,7 @@ const ConfigData::ItemCfg ConfigData::ipRulesDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -527,7 +528,7 @@ const ConfigData::ItemCfg ConfigData::blockDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -538,7 +539,7 @@ const ConfigData::ItemCfg ConfigData::fileDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -553,7 +554,7 @@ const ConfigData::ItemCfg ConfigData::topIoDumper_[] = {
         DumperConstant::FILE_FORMAT_DUMP_FILTER, DumperConstant::LEVEL_ALL, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -564,7 +565,7 @@ const ConfigData::ItemCfg ConfigData::mountsDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -575,7 +576,7 @@ const ConfigData::ItemCfg ConfigData::threadsDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -586,7 +587,7 @@ const ConfigData::ItemCfg ConfigData::threadsPidDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -597,7 +598,7 @@ const ConfigData::ItemCfg ConfigData::smapDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::LOOP, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::LOOP, ""
     },
 };
@@ -608,7 +609,7 @@ const ConfigData::ItemCfg ConfigData::mapDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::LOOP, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::LOOP, ""
     },
 };
@@ -619,7 +620,7 @@ const ConfigData::ItemCfg ConfigData::blockChannelDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -630,7 +631,7 @@ const ConfigData::ItemCfg ConfigData::excuteTimeDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -652,7 +653,7 @@ const ConfigData::ItemCfg ConfigData::systemAbilityDumper_[] = {
         DumperConstant::SA_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -663,7 +664,7 @@ const ConfigData::ItemCfg ConfigData::stackDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -674,7 +675,7 @@ const ConfigData::ItemCfg ConfigData::listServiceDumper_[] = {
         DumperConstant::LIST_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -685,7 +686,7 @@ const ConfigData::ItemCfg ConfigData::listSystemAbilityDumper_[] = {
         DumperConstant::LIST_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -696,7 +697,7 @@ const ConfigData::ItemCfg ConfigData::listSystemDumper_[] = {
         DumperConstant::LIST_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -707,7 +708,7 @@ const ConfigData::ItemCfg ConfigData::testDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
@@ -715,7 +716,7 @@ const ConfigData::ItemCfg ConfigData::testDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
