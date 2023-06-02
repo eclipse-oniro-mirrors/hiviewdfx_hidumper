@@ -96,7 +96,7 @@ const ConfigData::ItemCfg ConfigData::kernelWakeSourcesDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -167,7 +167,7 @@ const ConfigData::ItemCfg ConfigData::memDumper_[] = {
         DumperConstant::MEMORY_DUMPER, DumperConstant::NONE, DumperConstant::LOOP, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::LOOP, ""
     },
 };
@@ -252,7 +252,7 @@ const ConfigData::ItemCfg ConfigData::vmAllocInfoDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -716,7 +716,7 @@ const ConfigData::ItemCfg ConfigData::testDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "",
+        "", "", "", "", 
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
