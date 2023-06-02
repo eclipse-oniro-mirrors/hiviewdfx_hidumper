@@ -262,7 +262,7 @@ const ConfigData::ItemCfg ConfigData::crashDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -392,7 +392,7 @@ const ConfigData::ItemCfg ConfigData::ipTableDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
@@ -516,7 +516,7 @@ const ConfigData::ItemCfg ConfigData::storageStateDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };

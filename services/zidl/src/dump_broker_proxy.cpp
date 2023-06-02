@@ -58,7 +58,7 @@ int32_t DumpBrokerProxy::ScanPidOverLimit(std::string requestType, int32_t limit
     }
     MessageParcel data;
     MessageOption option;
-    MessageParcel reply; 
+    MessageParcel reply;
     if (!data.WriteInterfaceToken(DumpBrokerProxy::GetDescriptor())) {
         return ret;
     }
