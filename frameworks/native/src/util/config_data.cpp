@@ -57,894 +57,667 @@ const std::string ConfigData::STR_BASE = "base";
 const std::string ConfigData::STR_SERVICE = "service";
 const std::string ConfigData::STR_SYSTEM = "system";
 
-const ConfigData::ItemCfg BASE_ITEM_NONE = {
-    .name_ = "",
-    .desc_ = "",
-    .target_ = "",
-    .section_ = "",
-    .class_ = DumperConstant::FD_OUTPUT,
-    .level_ = DumperConstant::NONE,
-    .loop_ = DumperConstant::NONE,
-    .filterCfg_ = "",
-};
-
-const ConfigData::ItemCfg BASE_ITEM_LOOP = {
-    .name_ = "",
-    .desc_ = "",
-    .target_ = "",
-    .section_ = "",
-    .class_ = DumperConstant::FD_OUTPUT,
-    .level_ = DumperConstant::NONE,
-    .loop_ = DumperConstant::LOOP,
-    .filterCfg_ = "",
-};
-
 const ConfigData::ItemCfg ConfigData::baseInfoDumper_[] = {
     {
-        .name_ = "dumper_base_info",
-        .desc_ = "Base Information",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::API_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_base_info", "Base Information", "", "",
+        DumperConstant::API_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::kernelVersionDumper_[] = {
     {
-        .name_ = "dumper_kernel_version",
-        .desc_ = "Kernel Version",
-        .target_ = "/proc/version",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_kernel_version", "Kernel Version", "/proc/version", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::cmdlineDumper_[] = {
     {
-        .name_ = "dumper_command_line",
-        .desc_ = "Command Line",
-        .target_ = "/proc/cmdline",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_command_line", "Command Line", "/proc/cmdline", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::kernelWakeSourcesDumper_[] = {
     {
-        .name_ = "dumper_kernel_wake_sources",
-        .desc_ = "KERNEL WAKE SOURCES",
-        .target_ = "/sys/kernel/debug/wakeup_sources",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_kernel_wake_sources", "KERNEL WAKE SOURCES", "/sys/kernel/debug/wakeup_sources", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::kernelCpufreqDumper_[] = {
     {
-        .name_ = "dumper_kernel_cpu_freq",
-        .desc_ = "KERNEL CPUFREQ",
-        .target_ = "cat /sys/devices/system/cpu/cpu%cpuid/cpufreq/cpuinfo_cur_freq",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_kernel_cpu_freq", "KERNEL CPUFREQ", "cat /sys/devices/system/cpu/cpu%cpuid/cpufreq/cpuinfo_cur_freq",
+        "", DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
     {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "cat /sys/devices/system/cpu/cpu%cpuid/cpufreq/cpuinfo_max_freq",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "cat /sys/devices/system/cpu/cpu%cpuid/cpufreq/cpuinfo_max_freq", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::uptimeDumper_[] = {
     {
-        .name_ = "dumper_uptime",
-        .desc_ = "Up Time",
-        .target_ = "uptime -p",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_uptime", "Up Time", "uptime -p", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::cpuUsageDumper_[] = {
     {
-        .name_ = "dumper_cpu_usage",
-        .desc_ = "CPU Usage",
-        .target_ = "%pid",
-        .section_ = "",
-        .class_ = DumperConstant::CPU_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_cpu_usage", "CPU Usage", "%pid", "",
+        DumperConstant::CPU_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::cpuFreqDumper_[] = {
     {
-        .name_ = "dumper_cpu_freq",
-        .desc_ = "CPU Frequency",
-        .target_ = "cat /sys/devices/system/cpu/cpu%cpuid/cpufreq/cpuinfo_cur_freq",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_cpu_freq", "CPU Frequency", "cat /sys/devices/system/cpu/cpu%cpuid/cpufreq/cpuinfo_cur_freq", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
     {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "cat /sys/devices/system/cpu/cpu%cpuid/cpufreq/cpuinfo_max_freq",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "cat /sys/devices/system/cpu/cpu%cpuid/cpufreq/cpuinfo_max_freq", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::memDumper_[] = {
     {
-        .name_ = "dumper_mem",
-        .desc_ = "Memory Information",
-        .target_ = "%pid",
-        .section_ = "",
-        .class_ = DumperConstant::MEMORY_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::LOOP,
-        .filterCfg_ = "",
+        "dumper_mem", "Memory Information", "%pid", "",
+        DumperConstant::MEMORY_DUMPER, DumperConstant::NONE, DumperConstant::LOOP, ""
     },
-    BASE_ITEM_LOOP,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::LOOP, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::envDumper_[] = {
     {
-        .name_ = "dumper_env",
-        .desc_ = "Environment Variable",
-        .target_ = "printenv",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_env", "Environment Variable", "printenv", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::kernelModuleDumper_[] = {
     {
-        .name_ = "dumper_kernel_module",
-        .desc_ = "Kernel Module",
-        .target_ = "/proc/modules",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_kernel_module", "Kernel Module", "/proc/modules", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
     {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "lsmod",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "lsmod", "", DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::dumpFormatVersionDumper_[] = {
     {
-        .name_ = "dumper_dump_format_version",
-        .desc_ = "HiDumper Version",
-        .target_ = "HiDumper version:x.x",
-        .section_ = "",
-        .class_ = DumperConstant::VERSION_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_dump_format_version", "HiDumper Version", "HiDumper version:x.x", "",
+        DumperConstant::VERSION_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::slabinfoDumper_[] = {
     {
-        .name_ = "dumper_slabinfo",
-        .desc_ = "SLAB INFO",
-        .target_ = "/proc/slabinfo",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_slabinfo", "SLAB INFO", "/proc/slabinfo", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::zoneinfoDumper_[] = {
     {
-        .name_ = "dumper_zoneinfo",
-        .desc_ = "ZONE INFO",
-        .target_ = "/proc/zoneinfo",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_zoneinfo", "ZONE INFO", "/proc/zoneinfo", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::vmStatDumper_[] = {
     {
-        .name_ = "dumper_vmstat",
-        .desc_ = "VIRTUAL MEMORY STATS",
-        .target_ = "/proc/vmstat",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_vmstat", "VIRTUAL MEMORY STATS", "/proc/vmstat", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::vmAllocInfoDumper_[] = {
     {
-        .name_ = "dumper_vmallocinfo",
-        .desc_ = "VIRTUAL MEMORY STATS",
-        .target_ = "/proc/vmallocinfo",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_vmallocinfo", "VIRTUAL MEMORY STATS", "/proc/vmallocinfo", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::crashDumper_[] = {
     {
-        .name_ = "dumper_crash",
-        .desc_ = "Crash Log",
-        .target_ = "/data/log/faultlog/faultlogger",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_crash", "Crash Log", "/data/log/faultlog/faultlogger", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::kernelLogDumper_[] = {
     {
-        .name_ = "dumper_kernel_log",
-        .desc_ = "Kernel Log",
-        .target_ = "dmesg",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::LOOP,
-        .filterCfg_ = "",
+        "dumper_kernel_log", "Kernel Log", "dmesg", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::LOOP, ""
     },
-    BASE_ITEM_LOOP,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::LOOP, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::hilogDumper_[] = {
     {
-        .name_ = "dumper_hilog",
-        .desc_ = "Hilog",
-        .target_ = "hilog -x --exit",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::LOOP,
-        .filterCfg_ = "",
+        "dumper_hilog", "Hilog", "hilog -x --exit", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::LOOP, ""
     },
-    BASE_ITEM_LOOP,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::LOOP, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::portDumper_[] = {
     {
-        .name_ = "dumper_port",
-        .desc_ = "Port Information",
-        .target_ = "netstat -nW",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_port", "Port Information", "netstat -nW", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::packetDumper_[] = {
     {
-        .name_ = "dumper_packet",
-        .desc_ = "Packet State",
-        .target_ = "/proc/net/dev",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_packet", "Packet State", "/proc/net/dev", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
     {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "/proc/net/xt_qtaguid/iface_stat_all",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
     {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "/proc/net/xt_qtaguid/iface_stat_fmt",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "", "", "/proc/net/xt_qtaguid/iface_stat_all", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
     {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "/proc/net/xt_qtaguid/ctrl",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
     {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "/proc/net/xt_qtaguid/stats",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "", "", "/proc/net/xt_qtaguid/iface_stat_fmt", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "/proc/net/xt_qtaguid/ctrl", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "/proc/net/xt_qtaguid/stats", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::ipDumper_[] = {
     {
-        .name_ = "dumper_ip",
-        .desc_ = "IP v4/6 State",
-        .target_ = "ifconfig -a",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_ip", "IP v4/6 State", "ifconfig -a", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::ipTableDumper_[] = {
     {
-        .name_ = "dumper_ip_table",
-        .desc_ = "IPTable v4/6 Information",
-        .target_ = "iptables -L -nvx",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_ip_table", "IPTable v4/6 Information", "iptables -L -nvx", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
     {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "ip6tables -L -nvx",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
     {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "iptables -t nat -L -nvx",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "", "", "ip6tables -L -nvx", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
     {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "iptables -t mangle -L -nvx",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
     {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "ip6tables -t mangle -L -nvx",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "", "", "iptables -t nat -L -nvx", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
     {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "iptables -t raw -L -nvx",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
     {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "ip6tables -t raw -L -nvx",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "", "", "iptables -t mangle -L -nvx", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "ip6tables -t mangle -L -nvx", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "iptables -t raw -L -nvx", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "ip6tables -t raw -L -nvx", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::routeTableDumper_[] = {
     {
-        .name_ = "dumper_route_table",
-        .desc_ = "IP Table v4/6 Information",
-        .target_ = "/data/misc/net/rt_tables",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_route_table", "IP Table v4/6 Information", "/data/misc/net/rt_tables", "", 
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::ipcDumper_[] = {
     {
-        .name_ = "dumper_ipc",
-        .desc_ = "IPC Information",
-        .target_ = "/sys/kernel/debug/binder/failed_transaction_log",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_ipc", "IPC Information", "/sys/kernel/debug/binder/failed_transaction_log", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
     {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "/sys/kernel/debug/binder/transaction_log",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
     {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "/sys/kernel/debug/binder/transactions",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "", "", "/sys/kernel/debug/binder/transaction_log", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
     {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "/sys/kernel/debug/binder/stats",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
     {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "/sys/kernel/debug/binder/state",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "", "", "/sys/kernel/debug/binder/transactions", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "/sys/kernel/debug/binder/stats", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "/sys/kernel/debug/binder/state", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::ipRulesDumper_[] = {
     {
-        .name_ = "dumper_ip_rules",
-        .desc_ = "IP RULES v4/6",
-        .target_ = "ip link",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_ip_rules", "IP RULES v4/6", "ip link", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
     {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "ip -4 addr show",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
     {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "ip -6 addr show",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "", "", "ip -4 addr show", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
     {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "ip rule show",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
     {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "ip -6 rule show",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "", "", "ip -6 addr show", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "ip rule show", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "ip -6 rule show", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::storageStateDumper_[] = {
     {
-        .name_ = "dumper_storage_state",
-        .desc_ = "Storage State",
-        .target_ = "storaged -u -p",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_storage_state", "Storage State", "storaged -u -p", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::blockDumper_[] = {
     {
-        .name_ = "dumper_block",
-        .desc_ = "Block Information",
-        .target_ = "df -k",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_block", "Block Information", "df -k", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::fileDumper_[] = {
     {
-        .name_ = "dumper_file",
-        .desc_ = "File Information",
-        .target_ = "lsof",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_file", "File Information", "lsof", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::topIoDumper_[] = {
     {
-        .name_ = "dumper_top_io",
-        .desc_ = "TOP IO Information",
-        .target_ = "iotop -n 1 -m 100",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_top_io", "TOP IO Information", "iotop -n 1 -m 100", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, "",
     },
     {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_FORMAT_DUMP_FILTER,
-        .level_ = DumperConstant::LEVEL_ALL,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "", "", "", "",
+        DumperConstant::FILE_FORMAT_DUMP_FILTER, DumperConstant::LEVEL_ALL, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::mountsDumper_[] = {
     {
-        .name_ = "dumper_mounts",
-        .desc_ = "Mount List",
-        .target_ = "/proc/mounts",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_mounts", "Mount List", "/proc/mounts", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::threadsDumper_[] = {
     {
-        .name_ = "dumper_threads",
-        .desc_ = "Processes/Threads List",
-        .target_ = "ps -efT",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_threads", "Processes/Threads List", "ps -efT", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::threadsPidDumper_[] = {
     {
-        .name_ = "dumper_threads_pid",
-        .desc_ = "Processes/Threads List",
-        .target_ = "ps -efT -p %pid",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_threads_pid", "Processes/Threads List", "ps -efT -p %pid", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::smapDumper_[] = {
     {
-        .name_ = "dumper_smap",
-        .desc_ = "Process SMAP Information",
-        .target_ = "/proc/%pid/smaps",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::LOOP,
-        .filterCfg_ = "",
+        "dumper_smap", "Process SMAP Information", "/proc/%pid/smaps", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::LOOP, ""
     },
-    BASE_ITEM_LOOP,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::LOOP, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::mapDumper_[] = {
     {
-        .name_ = "dumper_map",
-        .desc_ = "Process MAP Information",
-        .target_ = "/proc/%pid/maps",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::LOOP,
-        .filterCfg_ = "",
+        "dumper_map", "Process MAP Information", "/proc/%pid/maps", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::LOOP, ""
     },
-    BASE_ITEM_LOOP,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::LOOP, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::blockChannelDumper_[] = {
     {
-        .name_ = "dumper_block_channel",
-        .desc_ = "Block Channel",
-        .target_ = "/proc/%pid/wchan",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_block_channel", "Block Channel", "/proc/%pid/wchan", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::excuteTimeDumper_[] = {
     {
-        .name_ = "dumper_excute_time",
-        .desc_ = "Excute Time",
-        .target_ = "ps -o \"TIME\" -p %pid",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_excute_time", "Excute Time", "ps -o \"TIME\" -p %pid", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::mountInfoDumper_[] = {
     {
-        .name_ = "dumper_mount_info",
-        .desc_ = "Mount Information",
-        .target_ = "/proc/%pid/mountinfo",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::LOOP,
-        .filterCfg_ = "",
+        "dumper_mount_info", "Mount Information", "/proc/%pid/mountinfo", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::LOOP, ""
     },
-    BASE_ITEM_LOOP,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::LOOP, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::systemAbilityDumper_[] = {
     {
-        .name_ = "dumper_system_ability",
-        .desc_ = "System Ability Information",
-        .target_ = ConfigData::STR_ABILITY,
-        .section_ = "",
-        .class_ = DumperConstant::SA_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_system_ability", "System Ability Information", ConfigData::STR_ABILITY, "",
+        DumperConstant::SA_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::stackDumper_[] = {
     {
-        .name_ = "dumper_stack",
-        .desc_ = "Dump Stack Info",
-        .target_ = "dumpcatcher -p %pid",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_stack", "Dump Stack Info", "dumpcatcher -p %pid", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::listServiceDumper_[] = {
     {
-        .name_ = ConfigData::CONFIG_DUMPER_LIST_SERVICE,
-        .desc_ = "list service",
-        .target_ = ConfigData::STR_SERVICE,
-        .section_ = "",
-        .class_ = DumperConstant::LIST_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        ConfigData::CONFIG_DUMPER_LIST_SERVICE, "list service", ConfigData::STR_SERVICE, "",
+        DumperConstant::LIST_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::listSystemAbilityDumper_[] = {
     {
-        .name_ = ConfigData::CONFIG_DUMPER_LIST_SYSTEM_ABILITY,
-        .desc_ = "list system ability",
-        .target_ = ConfigData::STR_ABILITY,
-        .section_ = "",
-        .class_ = DumperConstant::LIST_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        ConfigData::CONFIG_DUMPER_LIST_SYSTEM_ABILITY, "list system ability", ConfigData::STR_ABILITY, "",
+        DumperConstant::LIST_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::listSystemDumper_[] = {
     {
-        .name_ = ConfigData::CONFIG_DUMPER_LIST_SYSTEM,
-        .desc_ = "list system",
-        .target_ = ConfigData::STR_SYSTEM,
-        .section_ = "",
-        .class_ = DumperConstant::LIST_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        ConfigData::CONFIG_DUMPER_LIST_SYSTEM, "list system", ConfigData::STR_SYSTEM, "",
+        DumperConstant::LIST_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::ItemCfg ConfigData::testDumper_[] = {
     {
-        .name_ = "dumper_test",
-        .desc_ = "test used dumper",
-        .target_ = "/data/local/tmp/hidumper_mockdata_0001.txt",
-        .section_ = "",
-        .class_ = DumperConstant::FILE_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "dumper_test", "test used dumper", "/data/local/tmp/hidumper_mockdata_0001.txt", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
     {
-        .name_ = "",
-        .desc_ = "",
-        .target_ = "cat /data/local/tmp/hidumper_mockdata_0002.txt",
-        .section_ = "",
-        .class_ = DumperConstant::CMD_DUMPER,
-        .level_ = DumperConstant::NONE,
-        .loop_ = DumperConstant::NONE,
-        .filterCfg_ = "",
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
-    BASE_ITEM_NONE,
+    {
+        "", "", "cat /data/local/tmp/hidumper_mockdata_0002.txt", "",
+        DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "", "", 
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
 };
 
 const ConfigData::DumperCfg ConfigData::dumpers_[] = {
