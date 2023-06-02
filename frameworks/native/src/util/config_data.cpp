@@ -126,7 +126,7 @@ const ConfigData::ItemCfg ConfigData::uptimeDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
@@ -384,7 +384,7 @@ const ConfigData::ItemCfg ConfigData::ipTableDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
@@ -415,7 +415,7 @@ const ConfigData::ItemCfg ConfigData::ipTableDumper_[] = {
 
 const ConfigData::ItemCfg ConfigData::routeTableDumper_[] = {
     {
-        "dumper_route_table", "IP Table v4/6 Information", "/data/misc/net/rt_tables", "", 
+        "dumper_route_table", "IP Table v4/6 Information", "/data/misc/net/rt_tables", "",
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
@@ -641,7 +641,7 @@ const ConfigData::ItemCfg ConfigData::mountInfoDumper_[] = {
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::LOOP, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::LOOP, ""
     },
 };
