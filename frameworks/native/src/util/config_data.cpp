@@ -716,7 +716,7 @@ const ConfigData::ItemCfg ConfigData::testDumper_[] = {
         DumperConstant::CMD_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
-        "", "", "", "", 
+        "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
