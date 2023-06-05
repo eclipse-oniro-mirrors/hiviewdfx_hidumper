@@ -41,5 +41,6 @@ ohos_shared_library("lib_dump_usage") {
   ]
 
   subsystem_name = "hiviewdfx"
+  innerapi_tags = [ "platformsdk" ]
   part_name = "hidumper"
 }
