@@ -39,6 +39,10 @@ int DumpClientMain::Main(int argc, char* argv[], int outFd)
         return DumpStatus::DUMP_INVALID_ARG;
     }
     for (int i = 0; i < argc; i++) {
+        if (argv == nullptr) {
+            LOG_ERR("argument is null.\n");
+            return DumpStatus::DUMP_INVALID_ARG;
+        }
         if (argv[i] == nullptr) {
             LOG_ERR("argument(%d) is null.\n", i);
             return DumpStatus::DUMP_INVALID_ARG;
