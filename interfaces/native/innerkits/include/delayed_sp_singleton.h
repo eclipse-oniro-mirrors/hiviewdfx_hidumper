@@ -36,6 +36,16 @@ template<typename T>
 std::mutex DumpDelayedSpSingleton<T>::mutex_;
 
 template<typename T>
+void DumpDelayedSpSingleton<T>::DestroyInstance()
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (instance_) {
+        instance_.clear();
+        instance_ = nullptr;
+    }
+}
+
+template<typename T>
 sptr<T> DumpDelayedSpSingleton<T>::GetInstance()
 {
     if (!instance_) {
@@ -45,16 +55,6 @@ sptr<T> DumpDelayedSpSingleton<T>::GetInstance()
         }
     }
     return instance_;
-}
-
-template<typename T>
-void DumpDelayedSpSingleton<T>::DestroyInstance()
-{
-    std::lock_guard<std::mutex> lock(mutex_);
-    if (instance_) {
-        instance_.clear();
-        instance_ = nullptr;
-    }
 }
 } // namespace HiviewDFX
 } // namespace OHOS

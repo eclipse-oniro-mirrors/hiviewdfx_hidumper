@@ -57,8 +57,8 @@ int32_t DumpBrokerProxy::ScanPidOverLimit(std::string requestType, int32_t limit
         return ret;
     }
     MessageParcel data;
-    MessageParcel reply;
     MessageOption option;
+    MessageParcel reply;
     if (!data.WriteInterfaceToken(DumpBrokerProxy::GetDescriptor())) {
         return ret;
     }
@@ -88,12 +88,12 @@ int32_t DumpBrokerProxy::CountFdNums(int32_t pid, uint32_t &fdNums,
         return ret;
     }
     MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
     if (!data.WriteInterfaceToken(DumpBrokerProxy::GetDescriptor())) {
         return ret;
     }
     data.WriteInt32(pid);
+    MessageParcel reply;
+    MessageOption option;
     int res = remote->SendRequest(static_cast<int>(IDumpBroker::COUNT_FD_NUMS),
         data, reply, option);
     if (res != ERR_OK) {

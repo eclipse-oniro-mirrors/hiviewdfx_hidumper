@@ -93,8 +93,8 @@ std::vector<std::string> DumpCommonUtils::GetSubDir(const std::string &path, boo
 std::vector<int32_t> DumpCommonUtils::GetAllPids()
 {
     std::string path = "/proc";
-    std::vector<std::string> allPids = GetSubDir(path, true);
     std::vector<int32_t> pids;
+    std::vector<std::string> allPids = GetSubDir(path, true);
     for (const auto &pid : allPids) {
         if (!isdigit(pid[0])) {
             continue;

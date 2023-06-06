@@ -28,9 +28,9 @@ public:
     // Used for dump request
     int32_t Request(std::vector<std::u16string> &args, int outfd);
 public:
+    bool IsConnected();
     // Used for connect to hidump SA.
     ErrCode Connect();
-    bool IsConnected();
     // Used for reset connect.
     void Reset();
 private:
@@ -38,11 +38,13 @@ private:
     public:
         DumpManagerDeathRecipient() = default;
         ~DumpManagerDeathRecipient() = default;
+        // Used for remote connect exits
         void OnRemoteDied(const wptr<IRemoteObject>& remote);
     private:
         DISALLOW_COPY_AND_MOVE(DumpManagerDeathRecipient);
     };
 private:
+    // Used for reset proxy.
     void ResetProxy(const wptr<IRemoteObject>& remote);
     ErrCode OnDemandStart(sptr<ISystemAbilityManager> sam, sptr<IRemoteObject> &remoteObject);
 private:

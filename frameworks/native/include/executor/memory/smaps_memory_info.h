@@ -19,9 +19,10 @@
 #include <future>
 #include <string>
 #include <vector>
-#include "executor/memory/parse/meminfo_data.h"
 #include "common.h"
 #include "time.h"
+#include "executor/memory/parse/meminfo_data.h"
+
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
