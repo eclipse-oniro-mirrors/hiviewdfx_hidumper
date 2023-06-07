@@ -38,11 +38,11 @@ int DumpClientMain::Main(int argc, char* argv[], int outFd)
         LOG_ERR("too many arguments(%d), limit size %d.\n", argc, ARG_MAX_COUNT);
         return DumpStatus::DUMP_INVALID_ARG;
     }
+    if (argv == nullptr) {
+        LOG_ERR("argument is null.\n");
+        return DumpStatus::DUMP_INVALID_ARG;
+    }
     for (int i = 0; i < argc; i++) {
-        if (argv == nullptr) {
-            LOG_ERR("argument is null.\n");
-            return DumpStatus::DUMP_INVALID_ARG;
-        }
         if (argv[i] == nullptr) {
             LOG_ERR("argument(%d) is null.\n", i);
             return DumpStatus::DUMP_INVALID_ARG;
