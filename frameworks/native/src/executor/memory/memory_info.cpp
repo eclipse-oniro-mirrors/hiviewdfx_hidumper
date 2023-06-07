@@ -79,7 +79,7 @@ MemoryInfo::~MemoryInfo()
 {
 }
 
-static double g_sumPidsMemGL = 0.0;
+static uint64_t g_sumPidsMemGL = 0.0;
 #ifdef HIDUMPER_GRAPHIC_ENABLE
 std::vector<MemoryGraphic> memGraphicVec_;
 #endif
@@ -718,7 +718,7 @@ void MemoryInfo::GetMemGraphics()
     for (auto it = memGraphicVec_.begin(); it != memGraphicVec_.end(); it++) {
         sumPidsMemGL += it->GetGpuMemorySize();
     }
-    g_sumPidsMemGL = sumPidsMemGL / BYTE_PER_KB;
+    g_sumPidsMemGL = static_cast<uint64_t>(sumPidsMemGL / BYTE_PER_KB);
 }
 #endif
 
