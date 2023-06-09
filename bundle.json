@@ -12,9 +12,6 @@
     "component": {
         "name": "hidumper",
         "subsystem": "hiviewdfx",
-        "syscap": [
-            "SystemCapability.HiviewDFX.HiDumper"
-        ],
         "adapted_system_type": [
             "standard"
         ],
@@ -35,7 +32,8 @@
                 "samgr",
                 "drivers_interface_memorytracker",
                 "hdf_core",
-                "ability_runtime"
+                "ability_runtime",
+                "graphic_standard"
             ],
             "third_party": [
                 "zlib"
