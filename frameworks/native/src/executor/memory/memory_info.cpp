@@ -79,7 +79,7 @@ MemoryInfo::~MemoryInfo()
 {
 }
 
-static uint64_t g_sumPidsMemGL = 0.0;
+static uint64_t g_sumPidsMemGL = 0;
 #ifdef HIDUMPER_GRAPHIC_ENABLE
 std::vector<MemoryGraphic> memGraphicVec_;
 #endif

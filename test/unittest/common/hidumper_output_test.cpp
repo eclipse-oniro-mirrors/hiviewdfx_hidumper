@@ -20,6 +20,7 @@
 #include "directory_ex.h"
 #include "executor/zip_output.h"
 #include "executor/fd_output.h"
+#include "executor/zipfolder_output.h"
 #define private public
 #include "raw_param.h"
 #undef private
@@ -296,6 +297,42 @@ HWTEST_F(HidumperOutputTest, HidumperOutputTest006, TestSize.Level3)
 
     ret = zip_output->AfterExecute();
     ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "AfterExecute failed.";
+}
+
+/**
+ * @tc.name: HidumperOutputTest008
+ * @tc.desc: Test ZipOutpu with short string.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperOutputTest, HidumperOutputTest008, TestSize.Level3)
+{
+    auto parameter = std::make_shared<DumperParameter>();
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    auto zipFdOutput = make_shared<ZipFolderOutput>();
+
+    DumperOpts opts;
+    opts.path_ = FILE_ROOT + "zipOutputTest.gz";
+    parameter->SetOpts(opts);
+
+    // system("touch /data/log/zipWriterTest.txt");
+    // system("echo hidumpertest > /data/log/zipWriterTest.txt");
+    std::string srcpath = "/data/log/hilog";
+    std::vector<std::u16string> args;
+    auto rawparam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    rawparam->SetFolder(srcpath);
+    parameter->setClientCallback(rawparam);
+    
+
+    DumpStatus ret = zipFdOutput -> PreExecute(parameter, dumpDatas); 
+    ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "PreExecute failed.";
+
+    ret = zipFdOutput->Execute();
+    ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "Execute failed.";
+
+    ret = zipFdOutput->AfterExecute();
+    ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "AfterExecute failed.";
+
+    zipFdOutput->Reset();
 }
 
 /**
