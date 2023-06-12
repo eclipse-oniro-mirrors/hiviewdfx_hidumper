@@ -314,8 +314,6 @@ HWTEST_F(HidumperOutputTest, HidumperOutputTest008, TestSize.Level3)
     opts.path_ = FILE_ROOT + "zipOutputTest.gz";
     parameter->SetOpts(opts);
 
-    // system("touch /data/log/zipWriterTest.txt");
-    // system("echo hidumpertest > /data/log/zipWriterTest.txt");
     std::string srcpath = "/data/log/hilog";
     std::vector<std::u16string> args;
     auto rawparam = std::make_shared<RawParam>(0, 1, 0, args, -1);
