@@ -15,14 +15,19 @@
 #include "util/dump_cpu_info_util.h"
 #include <dirent.h>
 #include <unistd.h>
+#include <chrono>
 #include "file_ex.h"
 #include "string_ex.h"
 #include "hilog_wrapper.h"
+#include "datetime_ex.h"
+
 namespace OHOS {
 namespace HiviewDFX {
-const std::string DumpCpuInfoUtil::LOAD_AVG_FILE_PATH = "/proc/loadavg";
 const std::string DumpCpuInfoUtil::PROC_STAT_FILE_PATH = "/proc/stat";
 const std::string DumpCpuInfoUtil::SPACE = " ";
+const int DumpCpuInfoUtil::TM_START_YEAR = 1900;
+const int DumpCpuInfoUtil::DEC_SYSTEM_VALUE = 10;
+
 DumpCpuInfoUtil::DumpCpuInfoUtil()
 {
     DUMPER_HILOGD(MODULE_COMMON, "create debug|");
@@ -41,12 +46,13 @@ DumpCpuInfoUtil::~DumpCpuInfoUtil()
 
 void DumpCpuInfoUtil::UpdateCpuInfo()
 {
-    DUMPER_HILOGD(MODULE_COMMON, "UpdateCpuInfo debug|");
-    std::unique_lock<std::mutex> lock(mutex_);
+    DUMPER_HILOGI(MODULE_COMMON, "UpdateCpuInfo debug|enter");
     CopyCpuInfo(oldCPUInfo_, curCPUInfo_);
     GetCurCPUInfo(curCPUInfo_);
     oldProcs_.assign(curProcs_.begin(), curProcs_.end());
     GetCurProcInfo(curProcs_);
+    GetDateAndTime(startTime_);
+    DUMPER_HILOGI(MODULE_COMMON, "UpdateCpuInfo debug|exit");
 }
 
 bool DumpCpuInfoUtil::GetCurCPUInfo(std::shared_ptr<CPUInfo> &cpuInfo)
@@ -301,6 +307,17 @@ bool DumpCpuInfoUtil::CheckFrequentDumpping()
     return false;
 }
 
+bool DumpCpuInfoUtil::CpuRefreshFrequency()
+{
+    std::chrono::milliseconds ms = std::chrono::duration_cast< std::chrono::milliseconds >(
+        std::chrono::system_clock::now().time_since_epoch());
+    if (lastCpuTimeMs_ > 0 && (ms.count() - lastCpuTimeMs_) < CUP_REFRESH_MIN_TIME) {
+        return true;
+    }
+    lastCpuTimeMs_ = ms.count();
+    return false;
+}
+
 float DumpCpuInfoUtil::GetCpuUsage(const int pid)
 {
     std::shared_ptr<CPUInfo> oldCPUInfo = std::make_shared<CPUInfo>();
@@ -336,5 +353,48 @@ float DumpCpuInfoUtil::GetCpuUsage(const int pid)
         return 0;
     }
 }
+
+void DumpCpuInfoUtil::GetUpdateCpuStartTime(std::string& dateTime)
+{
+    dateTime = startTime_;
+}
+
+bool DumpCpuInfoUtil::GetDateAndTime(std::string &dateTime)
+{
+    struct tm timeData = {0};
+    if (!GetSystemCurrentTime(&timeData)) {
+        return false;
+    }
+
+    dateTime = " ";
+    dateTime.append(std::to_string(TM_START_YEAR + timeData.tm_year));
+    dateTime.append("-");
+    if (1 + timeData.tm_mon < DEC_SYSTEM_VALUE) {
+        dateTime.append(std::to_string(0));
+    }
+    dateTime.append(std::to_string(1 + timeData.tm_mon));
+    dateTime.append("-");
+    if (timeData.tm_mday < DEC_SYSTEM_VALUE) {
+        dateTime.append(std::to_string(0));
+    }
+    dateTime.append(std::to_string(timeData.tm_mday));
+    dateTime.append(" ");
+    if (timeData.tm_hour < DEC_SYSTEM_VALUE) {
+        dateTime.append(std::to_string(0));
+    }
+    dateTime.append(std::to_string(timeData.tm_hour));
+    dateTime.append(":");
+    if (timeData.tm_min < DEC_SYSTEM_VALUE) {
+        dateTime.append(std::to_string(0));
+    }
+    dateTime.append(std::to_string(timeData.tm_min));
+    dateTime.append(":");
+    if (timeData.tm_sec < DEC_SYSTEM_VALUE) {
+        dateTime.append(std::to_string(0));
+    }
+    dateTime.append(std::to_string(timeData.tm_sec));
+    return true;
+}
+
 } // namespace HiviewDFX
 } // namespace OHOS

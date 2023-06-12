@@ -24,6 +24,10 @@ public:
     DISALLOW_COPY_AND_MOVE(DumpBrokerStub);
     DumpBrokerStub() = default;
     virtual ~DumpBrokerStub() = default;
+    virtual void DelayUnloadTask()
+    {
+        return;
+    }
 public:
     int OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 private:

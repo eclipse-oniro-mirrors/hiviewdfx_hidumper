@@ -18,18 +18,19 @@
 #include <refbase.h>
 namespace OHOS {
 namespace HiviewDFX {
-class DumpManagerService;
+class DumpManagerCpuService;
 class DumpEventHandler : public AppExecFwk::EventHandler {
 public:
     DumpEventHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner,
-        const wptr<DumpManagerService>& service);
+        const wptr<DumpManagerCpuService>& service);
     ~DumpEventHandler() = default;
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
 public:
     static const int MSG_GET_CPU_INFO_ID;
+    static const int GET_CPU_INFO_DELAY_TIME_INIT;
     static const int GET_CPU_INFO_DELAY_TIME;
 private:
-    wptr<DumpManagerService> service_;
+    wptr<DumpManagerCpuService> service_{nullptr};
 };
 } // namespace HiviewDFX
 } // namespace OHOS

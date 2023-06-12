@@ -19,7 +19,10 @@
         "ram": "~2000KB",
         "deps": {
             "components": [
+                "ability_base",
                 "access_token",
+                "battery_manager",
+                "common_event_service",
                 "c_utils",
                 "eventhandler",
                 "hilog_native",
@@ -60,9 +63,21 @@
                     "header": {
                       "header_files": [
                         "idump_broker.h",
-                        "dump_broker_proxy.h"
+                        "idump_cpu_broker.h",
+                        "dump_broker_proxy.h",
+                        "dump_broker_cpu_proxy.h"
                       ],
                       "header_base": "//base/hiviewdfx/hidumper/interfaces/native/innerkits/include/"
+                    }
+                },
+                {
+                    "type": "so",
+                    "name": "//base/hiviewdfx/hidumper/services:hidumperservice_cpu_source",
+                    "header": {
+                      "header_files": [
+                        "dump_manager_cpu_service.h"
+                      ],
+                      "header_base": "//base/hiviewdfx/hidumper/services/native/include/"
                     }
                 }
             ],

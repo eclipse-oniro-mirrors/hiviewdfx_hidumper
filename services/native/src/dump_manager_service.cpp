@@ -42,6 +42,8 @@ const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(dumpManager
 static const int32_t STOP_WAIT = 3;
 static const int32_t REQUEST_MAX = 2;
 static const uint32_t REQUESTID_MAX = 100000;
+const std::string TASK_ID = "unload";
+constexpr int32_t DELAY_TIME = 60000;
 } // namespace
 namespace {
 static const int32_t FD_LOG_NUM = 10;
@@ -74,11 +76,7 @@ void DumpManagerService::OnStart()
         DUMPER_HILOGE(MODULE_SERVICE, "error|init fail, nothing to do.");
         return;
     }
-
-    if (eventRunner_ != nullptr) {
-        eventRunner_->Run();
-    }
-
+    DelayUnloadTask();
     if (!Publish(DumpDelayedSpSingleton<DumpManagerService>::GetInstance())) {
         DUMPER_HILOGE(MODULE_SERVICE, "error|register to system ability manager failed.");
         return;
@@ -247,11 +245,6 @@ int32_t DumpManagerService::CountFdNums(int32_t pid, uint32_t &fdNums,
     return ret;
 }
 
-std::shared_ptr<DumpEventHandler> DumpManagerService::GetHandler() const
-{
-    return handler_;
-}
-
 #ifdef DUMP_TEST_MODE // for mock test
 void DumpManagerService::SetTestMainFunc(DumpManagerServiceTestMainFunc testMainFunc)
 {
@@ -269,9 +262,12 @@ bool DumpManagerService::Init()
         }
     }
     if (!handler_) {
-        handler_ = std::make_shared<DumpEventHandler>(eventRunner_, dumpManagerService);
+        handler_ = std::make_shared<AppExecFwk::EventHandler>(eventRunner_);
+        if (handler_ == nullptr) {
+            DUMPER_HILOGE(MODULE_SERVICE, "error|create EventHandler");
+            return false;
+        }
     }
-    handler_->SendEvent(DumpEventHandler::MSG_GET_CPU_INFO_ID, DumpEventHandler::GET_CPU_INFO_DELAY_TIME);
     return true;
 }
 
@@ -361,6 +357,26 @@ void DumpManagerService::RequestMain(const std::shared_ptr<RawParam> rawParam)
     rawParam->CloseOutputFd();
     EraseRequestRawParam(rawParam);
     DUMPER_HILOGD(MODULE_SERVICE, "leave|");
+}
+
+void DumpManagerService::DelayUnloadTask()
+{
+    DUMPER_HILOGI(MODULE_SERVICE, "delay unload task begin");
+    auto task = [this]() {
+        DUMPER_HILOGI(MODULE_SERVICE, "do unload task");
+        auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        if (samgrProxy == nullptr) {
+            DUMPER_HILOGE(MODULE_SERVICE, "get samgr failed");
+            return;
+        }
+        int32_t ret = samgrProxy->UnloadSystemAbility(DFX_SYS_HIDUMPER_ABILITY_ID);
+        if (ret != ERR_OK) {
+            DUMPER_HILOGE(MODULE_SERVICE, "remove system ability failed");
+            return;
+        }
+    };
+    handler_->RemoveTask(TASK_ID);
+    handler_->PostTask(task, TASK_ID, DELAY_TIME);
 }
 } // namespace HiviewDFX
 } // namespace OHOS
