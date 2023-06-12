@@ -767,7 +767,11 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
         pids_.erase(pids_.begin());
         return DUMP_MORE_DATA;
     }
+    return DealResult(result);
+}
 
+DumpStatus MemoryInfo::DealResult(StringMatrix result)
+{
     ValueMap meminfoResult;
     if (!GetMeminfo(meminfoResult)) {
         DUMPER_HILOGE(MODULE_SERVICE, "Get meminfo error\n");
