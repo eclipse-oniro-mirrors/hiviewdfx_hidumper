@@ -40,6 +40,10 @@ enum DumperSubModule {
     MODULE_ZIDL,
     MODULE_CLIENT,
     MODULE_SERVICE,
+    MODULE_CPU_SERVICE,
+    MODULE_CPU_ZIDL,
+    MODULE_CPU_CLIENT,
+    MODULE_CPU_DATA,
     MODULE_MAX,
 };
 // 0xD002900: subsystem:DumperMgr module:DumperManager, 8 bits reserved.
@@ -49,12 +53,20 @@ enum DumperMgrDomainId {
     DUMPER_ZIDL_DOMAIN,
     DUMPER_CLIENT_DOMAIN,
     DUMPER_SERVICE_DOMAIN,
+    DUMPER_CPU_SERVICE_DOMAIN,
+    DUMPER_CPU_ZIDL_DOMAIN,
+    DUMPER_CPU_CLIENT_DOMAIN,
+    DUMPER_CPU_DATA
 };
 static constexpr OHOS::HiviewDFX::HiLogLabel DUMPER_LABEL[MODULE_MAX] = {
     {LOG_CORE, DUMPER_COMMON_DOMAIN, "DumperCommon"},
     {LOG_CORE, DUMPER_ZIDL_DOMAIN, "DumperZIDL"},
     {LOG_CORE, DUMPER_CLIENT_DOMAIN, "DumperClient"},
     {LOG_CORE, DUMPER_SERVICE_DOMAIN, "DumperService"},
+    {LOG_CORE, DUMPER_CPU_SERVICE_DOMAIN, "DumperCpuService"},
+    {LOG_CORE, DUMPER_CPU_ZIDL_DOMAIN, "DumperCpuZIDL"},
+    {LOG_CORE, DUMPER_CPU_CLIENT_DOMAIN, "DumperCpuClient"},
+    {LOG_CORE, DUMPER_CPU_DATA, "DumperCpuData"},
 };
 // In order to improve performance, do not check the module range.
 // Besides, make sure module is less than DUMPER_MAX_DOMAIN.

@@ -53,7 +53,10 @@ public:
     bool GetOldCPUInfo(std::shared_ptr<CPUInfo> &cpuInfo);
     bool GetOldProcInfo(std::vector<std::shared_ptr<ProcInfo>> &procInfos);
     bool GetOldSpecProcInfo(int pid, std::shared_ptr<ProcInfo> &specProc);
+    bool CpuRefreshFrequency();
     void CopyCpuInfo(std::shared_ptr<CPUInfo> &tar, const std::shared_ptr<CPUInfo> &source);
+    void GetUpdateCpuStartTime(std::string& dateTime);
+    bool GetDateAndTime(std::string& dateTime);
 
 private:
     void SetCPUInfo(long unsigned& info, const std::string& strInfo);
@@ -63,10 +66,11 @@ private:
     bool CheckFrequentDumpping();
 
 private:
-    static const std::string LOAD_AVG_FILE_PATH;
-    static const size_t LOAD_AVG_INFO_COUNT = 3;
     static const std::string PROC_STAT_FILE_PATH;
     static const std::string SPACE;
+    static const int TM_START_YEAR;
+    static const int DEC_SYSTEM_VALUE;
+
     static const int CPU_STAT_USER_TIME_INDEX = 1;
     static const int CPU_STAT_NICE_TIME_INDEX = 2;
     static const int CPU_STAT_SYS_TIME_INDEX = 3;
@@ -80,13 +84,15 @@ private:
     static const int PROC_INFO_MAJOR_FAULT_INDEX = 11;
     static const int CONSTANT_NUM_10 = 10;
     static const int DUMP_TIME_INTERVAL = 5;
+    static const int CUP_REFRESH_MIN_TIME = 5 * 1000;
 
     std::shared_ptr<CPUInfo> curCPUInfo_;
     std::shared_ptr<CPUInfo> oldCPUInfo_;
     std::vector<std::shared_ptr<ProcInfo>> curProcs_;
     std::vector<std::shared_ptr<ProcInfo>> oldProcs_;
-    int dumpTimeSec_ = 0;
-    std::mutex mutex_;
+    int dumpTimeSec_{0};
+    long long lastCpuTimeMs_{0};
+    std::string startTime_;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

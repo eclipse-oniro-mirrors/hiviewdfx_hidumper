@@ -12,15 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef HIDUMPER_SERVICE_ID_H
-#define HIDUMPER_SERVICE_ID_H
-
-#include <system_ability_definition.h>
-
+#ifndef HIDUMPER_ZIDL_IDUMP_CPU_BROKER_H
+#define HIDUMPER_ZIDL_IDUMP_CPU_BROKER_H
+#include <string>
+#include <iremote_broker.h>
+#include <iremote_object.h>
+#include "dump_cpu_data.h"
 namespace OHOS {
-enum DumperAbilityId {
-    DFX_SYS_HIDUMPER_ABILITY_ID = DFX_HI_DUMPER_SERVICE_ABILITY_ID,
-    DFX_SYS_HIDUMPER_CPU_ABILITY_ID = DFX_HI_DUMPER_CPU_SERVICE_ABILITY_ID,
+namespace HiviewDFX {
+class IDumpCpuBroker : public IRemoteBroker {
+public:
+    enum IDumpCpuBrokerID {
+        DUMP_REQUEST_CPUINFO
+    };
+    // Used for dump request
+    // return: = 0 OK; < 0 Error;
+    virtual int32_t Request(DumpCpuData &dumpCpuData) = 0;
+    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.HiviewDFX.HiDumper.IDumpCpuBroker");
 };
+} // namespace HiviewDFX
 } // namespace OHOS
-#endif // HIDUMPER_SERVICE_ID_H
+#endif // HIDUMPER_ZIDL_IDUMP_BROKER_H

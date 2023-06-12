@@ -16,6 +16,7 @@
 #define CPU_DUMPER_H
 #include "util/dump_cpu_info_util.h"
 #include "hidumper_executor.h"
+#include "dump_cpu_data.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -29,26 +30,7 @@ public:
     DumpStatus AfterExecute() override;
 
 private:
-    DumpStatus DumpCpuUsageData();
-    DumpStatus ReadLoadAvgInfo(const std::string& filePath, std::string& info);
-    bool GetDateAndTime(std::string& dateTime);
-    void CreateDumpTimeString(const std::string& startTime, const std::string& endTime,
-        std::string& timeStr);
-    void AddStrLineToDumpInfo(const std::string& strLine);
-    void CreateCPUStatString(std::string& str);
-    std::shared_ptr<ProcInfo> GetOldProc(const std::string& pid);
-    void DumpProcInfo();
-    static bool SortProcInfo(std::shared_ptr<ProcInfo> &left, std::shared_ptr<ProcInfo> &right);
-    bool GetProcCPUInfo();
-
-private:
-    static const std::string LOAD_AVG_FILE_PATH;
-    static const size_t LOAD_AVG_INFO_COUNT;
-    static const int TM_START_YEAR;
-    static const int DEC_SYSTEM_VALUE;
-    static const int PROC_CPU_LENGTH;
-    static const long unsigned HUNDRED_PERCENT_VALUE;
-    static const long unsigned DELAY_VALUE = 500000;
+    DumpCpuData getDumpCpuData();
 
     StringMatrix dumpCPUDatas_;
     bool isDumpCpuUsage_ = false;

@@ -17,10 +17,11 @@
 #include <map>
 #include <vector>
 #include <system_ability.h>
+#include "event_runner.h"
+#include "event_handler.h"
 #include "delayed_sp_singleton.h"
 #include "dump_common_utils.h"
 #include "dump_broker_stub.h"
-#include "dump_event_handler.h"
 namespace OHOS {
 namespace HiviewDFX {
 enum WpId {
@@ -61,7 +62,7 @@ public:
     {
         return started_;
     }
-    std::shared_ptr<DumpEventHandler> GetHandler() const;
+    void DelayUnloadTask() override;
 #ifdef DUMP_TEST_MODE // for mock test
     void SetTestMainFunc(DumpManagerServiceTestMainFunc testMainFunc);
 #endif // for mock test
@@ -83,7 +84,7 @@ private:
 private:
     std::mutex mutex_;
     std::shared_ptr<AppExecFwk::EventRunner> eventRunner_;
-    std::shared_ptr<DumpEventHandler> handler_;
+    std::shared_ptr<AppExecFwk::EventHandler> handler_;
     bool started_ {false};
     bool blockRequest_ {false};
     uint32_t requestIndex_ {0};
