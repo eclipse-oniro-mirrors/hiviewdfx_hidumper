@@ -320,8 +320,7 @@ HWTEST_F(HidumperOutputTest, HidumperOutputTest008, TestSize.Level3)
     rawparam->SetFolder(srcpath);
     parameter->setClientCallback(rawparam);
     
-
-    DumpStatus ret = zipFdOutput -> PreExecute(parameter, dumpDatas); 
+    DumpStatus ret = zipFdOutput -> PreExecute(parameter, dumpDatas);
     ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "PreExecute failed.";
 
     ret = zipFdOutput->Execute();
