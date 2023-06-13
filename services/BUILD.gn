@@ -208,15 +208,8 @@ ohos_source_set("hidumperservice_cpu_source") {
   sources = [
     "native/src/dump_app_state_observer.cpp",
     "native/src/dump_battery_stats_subscriber.cpp",
-    "native/src/dump_common_utils.cpp",
-    "native/src/dump_cpu_data.cpp",
     "native/src/dump_event_handler.cpp",
-    "native/src/dump_log_manager.cpp",
-    "native/src/dump_manager_cpu_client.cpp",
     "native/src/dump_manager_cpu_service.cpp",
-    "native/src/dump_on_demand_load.cpp",
-    "native/src/raw_param.cpp",
-    "zidl/src/dump_broker_cpu_proxy.cpp",
   ]
 
   configs = [
@@ -228,9 +221,8 @@ ohos_source_set("hidumperservice_cpu_source") {
   ]
 
   deps = [
-    "${hidumper_frameworks_path}:dump_main",
+    "${hidumper_service_path}:hidumperservice_source",
     "${hidumper_service_path}:zidl_cpu_service",
-    "${hidumper_utils_path}:utils",
   ]
 
   external_deps = [
@@ -244,7 +236,6 @@ ohos_source_set("hidumperservice_cpu_source") {
     "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
-    "hisysevent_native:libhisyseventmanager",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
@@ -284,7 +275,6 @@ ohos_source_set("hidumperservice_cpu_source_test") {
     "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
-    "hisysevent_native:libhisyseventmanager",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
