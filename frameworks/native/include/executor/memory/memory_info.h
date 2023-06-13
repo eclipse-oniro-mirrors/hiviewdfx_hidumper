@@ -48,6 +48,7 @@ public:
 
     bool GetMemoryInfoByPid(const int &pid, StringMatrix result);
     DumpStatus GetMemoryInfoNoPid(StringMatrix result);
+    DumpStatus DealResult(StringMatrix result);
 
 private:
     enum Status {
