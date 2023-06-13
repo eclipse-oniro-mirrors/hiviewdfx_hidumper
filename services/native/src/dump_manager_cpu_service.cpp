@@ -34,7 +34,6 @@
 #include "dump_utils.h"
 #include "util/string_utils.h"
 #include "hisysevent.h"
-#include "hisysevent_manager.h"
 #include "dump_app_state_observer.h"
 #include "dump_battery_stats_subscriber.h"
 
