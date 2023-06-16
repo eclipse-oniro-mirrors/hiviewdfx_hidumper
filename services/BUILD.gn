@@ -226,13 +226,9 @@ ohos_source_set("hidumperservice_cpu_source") {
   ]
 
   external_deps = [
-    "ability_base:want",
-    "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "access_token:libtoken_setproc",
-    "battery_manager:batterysrv_client",
     "c_utils:utils",
-    "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "hisysevent_native:libhisysevent",
@@ -240,6 +236,17 @@ ohos_source_set("hidumperservice_cpu_source") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
+  defines = []
+  if (hidumper_ablility_base_enable) {
+    external_deps += [ "ability_base:want" ]
+    defines += [ "HIDUMPER_ABILITY_BASE_ENABLE" ]
+  }
+
+  if (hidumper_battery_manager_enable && hidumper_common_event_enable) {
+    external_deps += [ "battery_manager:batterysrv_client" ]
+    external_deps += [ "common_event_service:cesfwk_innerkits" ]
+    defines += [ "HIDUMPER_BATTERY_ENABLE" ]
+  }
 
   subsystem_name = "${hidumper_subsystem_name}"
 

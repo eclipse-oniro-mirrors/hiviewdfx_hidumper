@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifdef HIDUMPER_BATTERY_ENABLE
 #include "dump_battery_stats_subscriber.h"
 #include "common_event_data.h"
 #include "common_event_manager.h"
@@ -49,3 +50,4 @@ void DumpBatteryStatsSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEven
 }
 } // namespace HiviewDFX
 } // namespace OHOS
+#endif
