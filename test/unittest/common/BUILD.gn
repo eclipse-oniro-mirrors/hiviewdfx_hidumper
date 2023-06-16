@@ -247,6 +247,7 @@ ohos_unittest("HidumperCpuServiceTest") {
   deps = [ "//third_party/googletest:gtest_main" ]
 
   external_deps = [
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "safwk:system_ability_fwk",

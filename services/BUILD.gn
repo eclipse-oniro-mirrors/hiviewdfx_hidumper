@@ -226,6 +226,7 @@ ohos_source_set("hidumperservice_cpu_source") {
   ]
 
   external_deps = [
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "ipc:ipc_core",
@@ -268,6 +269,7 @@ ohos_source_set("hidumperservice_cpu_source_test") {
   deps = [ "${hidumper_service_path}:zidl_cpu_service" ]
 
   external_deps = [
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog_native:libhilog",
     "safwk:system_ability_fwk",

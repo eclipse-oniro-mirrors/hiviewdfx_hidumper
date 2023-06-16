@@ -18,6 +18,7 @@
 #include <map>
 #include <string>
 
+#include "app_mgr_interface.h"
 #include "application_state_observer_stub.h"
 #include "singleton.h"
 
