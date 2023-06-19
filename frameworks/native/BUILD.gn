@@ -105,7 +105,6 @@ ohos_source_set("dump_main") {
     "eventhandler:libeventhandler",
     "hdf_core:libhdf_utils",
     "hilog_native:libhilog",
-    "hisysevent_native:libhisysevent",
     "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
@@ -160,7 +159,6 @@ ohos_shared_library("hidumperclient") {
   external_deps = [
     "eventhandler:libeventhandler",
     "hilog_native:libhilog",
-    "hisysevent_native:libhisysevent",
     "init:libbegetutil",
     "safwk:system_ability_fwk",
   ]
