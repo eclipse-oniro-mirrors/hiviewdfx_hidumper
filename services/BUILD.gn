@@ -64,7 +64,7 @@ ohos_source_set("zidl_client") {
 
   external_deps = [
     "c_utils:utils",
-    "hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
@@ -88,7 +88,7 @@ ohos_source_set("zidl_service") {
 
   external_deps = [
     "c_utils:utils",
-    "hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
@@ -113,7 +113,7 @@ ohos_source_set("zidl_cpu_service") {
 
   external_deps = [
     "c_utils:utils",
-    "hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
@@ -147,7 +147,7 @@ ohos_source_set("hidumper_client") {
 
   external_deps = [
     "c_utils:utils",
-    "hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
@@ -188,7 +188,7 @@ ohos_source_set("hidumperservice_source") {
     "access_token:libtoken_setproc",
     "c_utils:utils",
     "eventhandler:libeventhandler",
-    "hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
@@ -224,7 +224,7 @@ ohos_source_set("hidumperservice_cpu_source") {
   external_deps = [
     "c_utils:utils",
     "eventhandler:libeventhandler",
-    "hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
@@ -268,7 +268,7 @@ ohos_source_set("hidumperservice_cpu_source_test") {
   external_deps = [
     "c_utils:utils",
     "eventhandler:libeventhandler",
-    "hilog_native:libhilog",
+    "hilog:libhilog",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
