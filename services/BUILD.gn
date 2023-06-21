@@ -64,8 +64,7 @@ ohos_source_set("zidl_client") {
 
   external_deps = [
     "c_utils:utils",
-    "hilog_native:libhilog",
-    "hisysevent_native:libhisysevent",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
@@ -89,8 +88,7 @@ ohos_source_set("zidl_service") {
 
   external_deps = [
     "c_utils:utils",
-    "hilog_native:libhilog",
-    "hisysevent_native:libhisysevent",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
@@ -115,8 +113,7 @@ ohos_source_set("zidl_cpu_service") {
 
   external_deps = [
     "c_utils:utils",
-    "hilog_native:libhilog",
-    "hisysevent_native:libhisysevent",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
@@ -150,7 +147,7 @@ ohos_source_set("hidumper_client") {
 
   external_deps = [
     "c_utils:utils",
-    "hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
@@ -190,8 +187,7 @@ ohos_source_set("hidumperservice_source") {
     "access_token:libtoken_setproc",
     "c_utils:utils",
     "eventhandler:libeventhandler",
-    "hilog_native:libhilog",
-    "hisysevent_native:libhisysevent",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
@@ -225,20 +221,25 @@ ohos_source_set("hidumperservice_cpu_source") {
   ]
 
   external_deps = [
-    "ability_base:want",
-    "ability_runtime:app_manager",
-    "access_token:libaccesstoken_sdk",
-    "access_token:libtoken_setproc",
-    "battery_manager:batterysrv_client",
     "c_utils:utils",
-    "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
-    "hilog_native:libhilog",
-    "hisysevent_native:libhisysevent",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
+  defines = []
+  if (hidumper_ablility_base_enable) {
+    external_deps += [ "ability_base:want" ]
+    external_deps += [ "ability_runtime:app_manager" ]
+    defines += [ "HIDUMPER_ABILITY_BASE_ENABLE" ]
+  }
+
+  if (hidumper_battery_manager_enable && hidumper_common_event_enable) {
+    external_deps += [ "battery_manager:batterysrv_client" ]
+    external_deps += [ "common_event_service:cesfwk_innerkits" ]
+    defines += [ "HIDUMPER_BATTERY_ENABLE" ]
+  }
 
   subsystem_name = "${hidumper_subsystem_name}"
 
@@ -264,20 +265,24 @@ ohos_source_set("hidumperservice_cpu_source_test") {
   deps = [ "${hidumper_service_path}:zidl_cpu_service" ]
 
   external_deps = [
-    "ability_base:want",
-    "ability_runtime:app_manager",
-    "access_token:libaccesstoken_sdk",
-    "access_token:libtoken_setproc",
-    "battery_manager:batterysrv_client",
     "c_utils:utils",
-    "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
-    "hilog_native:libhilog",
-    "hisysevent_native:libhisysevent",
-    "ipc:ipc_core",
+    "hilog:libhilog",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
+  defines = []
+  if (hidumper_ablility_base_enable) {
+    external_deps += [ "ability_base:want" ]
+    external_deps += [ "ability_runtime:app_manager" ]
+    defines += [ "HIDUMPER_ABILITY_BASE_ENABLE" ]
+  }
+
+  if (hidumper_battery_manager_enable && hidumper_common_event_enable) {
+    external_deps += [ "battery_manager:batterysrv_client" ]
+    external_deps += [ "common_event_service:cesfwk_innerkits" ]
+    defines += [ "HIDUMPER_BATTERY_ENABLE" ]
+  }
 
   subsystem_name = "${hidumper_subsystem_name}"
 

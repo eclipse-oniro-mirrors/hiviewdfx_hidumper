@@ -20,6 +20,7 @@ namespace OHOS {
 namespace HiviewDFX {
 int DumpBrokerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    DUMPER_HILOGI(MODULE_ZIDL, "DumpBrokerStub OnRemoteRequest enter code=%{public}d", code);
     std::u16string descripter = DumpBrokerStub::GetDescriptor();
     std::u16string remoteDescripter = data.ReadInterfaceToken();
     if (descripter != remoteDescripter) {

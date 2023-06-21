@@ -31,6 +31,7 @@
 #include "raw_param.h"
 #include "token_setproc.h"
 #include "accesstoken_kit.h"
+#include "system_ability_ondemand_reason.h"
 
 using namespace std;
 namespace OHOS {
@@ -44,6 +45,8 @@ static const int32_t REQUEST_MAX = 2;
 static const uint32_t REQUESTID_MAX = 100000;
 const std::string TASK_ID = "unload";
 constexpr int32_t DELAY_TIME = 60000;
+const std::string EVENT_ID = "eventId";
+constexpr int32_t UNLOAD_IMMEDIATELY = 0;
 } // namespace
 namespace {
 static const int32_t FD_LOG_NUM = 10;
@@ -101,6 +104,22 @@ void DumpManagerService::OnStop()
     started_ = false;
     blockRequest_ = false;
     DUMPER_HILOGD(MODULE_SERVICE, "leave|");
+}
+
+int32_t DumpManagerService::OnIdle(const SystemAbilityOnDemandReason& idleReason)
+{
+    DUMPER_HILOGI(MODULE_SERVICE, "on idle enter, idle reason %{public}d, %{public}s, %{public}s, request sum=%{public}d",
+        idleReason.GetId(), idleReason.GetName().c_str(), idleReason.GetValue().c_str(), GetRequestSum());
+
+    if (idleReason.GetId() == OnDemandReasonId::INTERFACE_CALL) {
+        if (GetRequestSum() == 0) {
+            return UNLOAD_IMMEDIATELY;
+        } else {
+            return DELAY_TIME;
+        }
+    } else {
+        return UNLOAD_IMMEDIATELY;
+    }
 }
 
 int32_t DumpManagerService::Dump(int32_t fd, const std::vector<std::u16string> &args)

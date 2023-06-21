@@ -33,9 +33,12 @@
 #include "manager/dump_implement.h"
 #include "dump_utils.h"
 #include "util/string_utils.h"
-#include "hisysevent.h"
+#ifdef HIDUMPER_ABILITY_BASE_ENABLE
 #include "dump_app_state_observer.h"
+#endif
+#ifdef HIDUMPER_BATTERY_ENABLE
 #include "dump_battery_stats_subscriber.h"
+#endif
 
 using namespace std;
 namespace OHOS {
@@ -83,12 +86,17 @@ void DumpManagerCpuService::OnStop()
         return;
     }
     ResetParam();
+
+#ifdef HIDUMPER_ABILITY_BASE_ENABLE
     RemoveSystemAbilityListener(APP_MGR_SERVICE_ID);
+    DumpAppStateObserver::GetInstance().UnsubscribeAppState();
+#endif
+#ifdef HIDUMPER_BATTERY_ENABLE
     RemoveSystemAbilityListener(COMMON_EVENT_SERVICE_ID);
-    DumpAppStateObserver::GetInstance().SubscribeAppState();
     if (!OHOS::EventFwk::CommonEventManager::UnSubscribeCommonEvent(subscriberPtr_)) {
         DUMPER_HILOGE(MODULE_CPU_SERVICE, "unregister to commonevent manager failed");
     }
+#endif
 
     DUMPER_HILOGI(MODULE_CPU_SERVICE, "cpu service leave");
 }
@@ -131,13 +139,17 @@ bool DumpManagerCpuService::Init()
         DUMPER_HILOGE(MODULE_CPU_SERVICE, "systemAbilityManager is null");
         return false;
     }
+#ifdef HIDUMPER_ABILITY_BASE_ENABLE
     if (systemAbilityManager->SubscribeSystemAbility(APP_MGR_SERVICE_ID, sysAbilityListener_) != ERR_OK) {
         DUMPER_HILOGE(MODULE_CPU_SERVICE, "subscribe system ability id: %{public}d failed", APP_MGR_SERVICE_ID);
     }
+#endif
+#ifdef HIDUMPER_BATTERY_ENABLE
     if (systemAbilityManager->SubscribeSystemAbility(COMMON_EVENT_SERVICE_ID, sysAbilityListener_) != ERR_OK) {
         DUMPER_HILOGE(MODULE_CPU_SERVICE, "subscribe system ability id: %{public}d failed",
             COMMON_EVENT_SERVICE_ID);
     }
+#endif
 
     return true;
 }
@@ -192,12 +204,16 @@ void DumpManagerCpuService::SystemAbilityStatusChangeListener::OnAddSystemAbilit
     DUMPER_HILOGI(MODULE_CPU_SERVICE, "systemAbilityId=%{public}d, deviceId=%{private}s", systemAbilityId,
         deviceId.c_str());
 
+#ifdef HIDUMPER_ABILITY_BASE_ENABLE
     if (systemAbilityId == APP_MGR_SERVICE_ID) {
         dumpManagerCpuService->SubscribeAppStateEvent();
     }
+#endif
+#ifdef HIDUMPER_BATTERY_ENABLE
     if (systemAbilityId == COMMON_EVENT_SERVICE_ID) {
         dumpManagerCpuService->SubscribeCommonEvent();
     }
+#endif
 
     dumpManagerCpuService->EventHandlerInit();
 }
@@ -208,11 +224,14 @@ void DumpManagerCpuService::SystemAbilityStatusChangeListener::OnRemoveSystemAbi
     DUMPER_HILOGI(MODULE_CPU_SERVICE, "Remove system ability, system ability id");
 }
 
+#ifdef HIDUMPER_ABILITY_BASE_ENABLE
 bool DumpManagerCpuService::SubscribeAppStateEvent()
 {
     return DumpAppStateObserver::GetInstance().SubscribeAppState();
 }
+#endif
 
+#ifdef HIDUMPER_BATTERY_ENABLE
 bool DumpManagerCpuService::SubscribeCommonEvent()
 {
     DUMPER_HILOGI(MODULE_CPU_SERVICE, "Subscribe CommonEvent enter");
@@ -231,6 +250,7 @@ bool DumpManagerCpuService::SubscribeCommonEvent()
     }
     return result;
 }
+#endif
 
 void DumpManagerCpuService::InitParam(DumpCpuData &dumpCpuData)
 {
@@ -300,7 +320,7 @@ int DumpManagerCpuService::DumpCpuUsageData()
     AddStrLineToDumpInfo(cpuStatStr);
 
     DumpProcInfo();
-    DumpCpuInfoUtil::GetInstance().UpdateCpuInfo();
+    SendImmediateEvent();
     return DumpStatus::DUMP_OK;
 }
 

@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifdef HIDUMPER_ABILITY_BASE_ENABLE
 #include "dump_app_state_observer.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
@@ -115,3 +116,4 @@ void DumpAppStateObserver::AppProcessState::OnProcessDied(const AppExecFwk::Proc
 }
 } // namespace HiviewDFX
 } // namespace OHOS
+#endif
