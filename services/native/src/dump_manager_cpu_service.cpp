@@ -224,11 +224,14 @@ void DumpManagerCpuService::SystemAbilityStatusChangeListener::OnRemoveSystemAbi
     DUMPER_HILOGI(MODULE_CPU_SERVICE, "Remove system ability, system ability id");
 }
 
+#ifdef HIDUMPER_ABILITY_BASE_ENABLE
 bool DumpManagerCpuService::SubscribeAppStateEvent()
 {
     return DumpAppStateObserver::GetInstance().SubscribeAppState();
 }
+#endif
 
+#ifdef HIDUMPER_BATTERY_ENABLE
 bool DumpManagerCpuService::SubscribeCommonEvent()
 {
     DUMPER_HILOGI(MODULE_CPU_SERVICE, "Subscribe CommonEvent enter");
@@ -247,6 +250,7 @@ bool DumpManagerCpuService::SubscribeCommonEvent()
     }
     return result;
 }
+#endif
 
 void DumpManagerCpuService::InitParam(DumpCpuData &dumpCpuData)
 {
