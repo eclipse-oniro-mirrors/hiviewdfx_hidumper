@@ -20,6 +20,7 @@ namespace OHOS {
 namespace HiviewDFX {
 int32_t DumpBrokerCpuProxy::Request(DumpCpuData &dumpCpuData)
 {
+    DUMPER_HILOGI(MODULE_CPU_ZIDL, "DumpBrokerCpuProxy Request enter");
     int32_t ret = -1;
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {

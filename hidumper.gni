@@ -40,6 +40,9 @@ declare_args() {
   hidumper_report_memmgr_plugins = false
   hidumper_ability_runtime_enable = true
   hidumper_graphic_enable = true
+  hidumper_battery_manager_enable = false
+  hidumper_ablility_base_enable = false
+  hidumper_common_event_enable = false
   if (!defined(global_parts_info.ability_ability_runtime)) {
     hidumper_ability_runtime_enable = false
   }
@@ -51,5 +54,14 @@ declare_args() {
   }
   if (!defined(global_parts_info.graphic_graphic_standard)) {
     hidumper_graphic_enable = false
+  }
+  if (defined(global_parts_info.powermgr_battery_manager)) {
+    hidumper_battery_manager_enable = true
+  }
+  if (defined(global_parts_info.ability_ability_base)) {
+    hidumper_ablility_base_enable = true
+  }
+  if (defined(global_parts_info.notification_common_event_service)) {
+    hidumper_common_event_enable = true
   }
 }

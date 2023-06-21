@@ -12,6 +12,9 @@
     "component": {
         "name": "hidumper",
         "subsystem": "hiviewdfx",
+        "syscap": [
+            "SystemCapability.HiviewDFX.HiDumper"
+        ],
         "adapted_system_type": [
             "standard"
         ],
@@ -25,8 +28,7 @@
                 "common_event_service",
                 "c_utils",
                 "eventhandler",
-                "hilog_native",
-                "hisysevent_native",
+                "hilog",
                 "init",
                 "ipc",
                 "memmgr",

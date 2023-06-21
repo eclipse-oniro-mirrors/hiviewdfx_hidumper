@@ -69,8 +69,7 @@ ohos_unittest("HidumperServiceTest") {
   external_deps = [
     "c_utils:utils",
     "eventhandler:libeventhandler",
-    "hisysevent_native:libhisyseventmanager",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
@@ -93,10 +92,7 @@ ohos_unittest("HidumperDumpersTest") {
     "//third_party/googletest:gtest_main",
   ]
 
-  external_deps = [
-    "hisysevent_native:libhisyseventmanager",
-    "hiviewdfx_hilog_native:libhilog",
-  ]
+  external_deps = [ "hilog:libhilog" ]
 }
 
 ohos_unittest("HidumperOutputTest") {
@@ -117,7 +113,7 @@ ohos_unittest("HidumperOutputTest") {
 
   external_deps = [
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 }
@@ -150,7 +146,7 @@ ohos_unittest("HidumperConfigUtilsTest") {
 
   external_deps = [
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
@@ -175,7 +171,7 @@ ohos_unittest("MemoryDumperTest") {
   external_deps = [
     "c_utils:utils",
     "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
   ]
 }
 
@@ -209,7 +205,7 @@ ohos_unittest("HidumperInnerkitsTest") {
 
   external_deps = [
     "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
   ]
 }
 
@@ -229,7 +225,7 @@ ohos_unittest("HidumperManagerTest") {
   ]
 
   external_deps = [
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "init:libbegetutil",
   ]
 }
@@ -247,17 +243,23 @@ ohos_unittest("HidumperCpuServiceTest") {
   deps = [ "//third_party/googletest:gtest_main" ]
 
   external_deps = [
-    "ability_base:want",
-    "battery_manager:batterysrv_client",
     "c_utils:utils",
-    "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
-    "hisysevent_native:libhisyseventmanager",
-    "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
+    "hilog:libhilog",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
+  defines = []
+  if (hidumper_ablility_base_enable) {
+    external_deps += [ "ability_base:want" ]
+    defines += [ "HIDUMPER_ABILITY_BASE_ENABLE" ]
+  }
+
+  if (hidumper_battery_manager_enable && hidumper_common_event_enable) {
+    external_deps += [ "battery_manager:batterysrv_client" ]
+    external_deps += [ "common_event_service:cesfwk_innerkits" ]
+    defines += [ "HIDUMPER_BATTERY_ENABLE" ]
+  }
 }
 
 ###############################################################################
