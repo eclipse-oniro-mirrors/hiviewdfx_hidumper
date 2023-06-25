@@ -240,7 +240,11 @@ ohos_unittest("HidumperCpuServiceTest") {
     ":module_private_config",
   ]
 
-  deps = [ "//third_party/googletest:gtest_main" ]
+  deps = [
+    "${hidumper_service_path}:hidumperservice_cpu_source_test",
+    "${hidumper_service_path}:hidumperservice_source",
+    "//third_party/googletest:gtest_main",
+  ]
 
   external_deps = [
     "c_utils:utils",
@@ -252,6 +256,7 @@ ohos_unittest("HidumperCpuServiceTest") {
   defines = []
   if (hidumper_ablility_base_enable) {
     external_deps += [ "ability_base:want" ]
+    external_deps += [ "ability_runtime:app_manager" ]
     defines += [ "HIDUMPER_ABILITY_BASE_ENABLE" ]
   }
 
@@ -260,6 +265,10 @@ ohos_unittest("HidumperCpuServiceTest") {
     external_deps += [ "common_event_service:cesfwk_innerkits" ]
     defines += [ "HIDUMPER_BATTERY_ENABLE" ]
   }
+
+  cflags = [
+    "-Dprivate=public",  #allow test code access private members
+  ]
 }
 
 ###############################################################################
