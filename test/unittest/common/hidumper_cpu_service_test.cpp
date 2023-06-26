@@ -81,6 +81,7 @@ HWTEST_F(HidumperCpuServiceTest, HidumperCpuServiceTest002, TestSize.Level3)
 
     dumpManagerCpuService->EventHandlerInit();
     auto handler_ = dumpManagerCpuService->GetHandler();
+    dumpManagerCpuService->SendImmediateEvent();
 
     auto dumpCpuData = std::make_shared<DumpCpuData>();
     int ret = dumpManagerCpuService->Request(*dumpCpuData);
@@ -120,6 +121,7 @@ HWTEST_F(HidumperCpuServiceTest, DumpBatteryStatsSubscriber001, TestSize.Level3)
     const EventFwk::CommonEventSubscribeInfo subscribeInfo;
     DumpBatteryStatsSubscriber* subscriber = new DumpBatteryStatsSubscriber(subscribeInfo);
 
+    subscriber->lastCapacity_ = -1;
     subscriber->OnReceiveEvent(data);
 }
 #endif
