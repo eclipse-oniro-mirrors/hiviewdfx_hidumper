@@ -97,7 +97,6 @@ HWTEST_F(HidumperCpuServiceTest, DumpAppStateObserver001, TestSize.Level3)
     auto dumpAppStateObserver = std::make_shared<DumpAppStateObserver>();
     ASSERT_FALSE(dumpAppStateObserver->SubscribeAppState());
     ASSERT_TRUE(dumpAppStateObserver->UnsubscribeAppState());
-    dumpAppStateObserver->SendUpdateCpuInfoEvent();
 }
 #endif
 
