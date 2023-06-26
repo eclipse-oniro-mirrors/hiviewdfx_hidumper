@@ -79,6 +79,9 @@ HWTEST_F(HidumperCpuServiceTest, HidumperCpuServiceTest002, TestSize.Level3)
     dumpManagerCpuService->started_ = true;
     dumpManagerCpuService->OnStart();
 
+    dumpManagerCpuService->EventHandlerInit();
+    auto handler_ = dumpManagerCpuService->GetHandler();
+
     auto dumpCpuData = std::make_shared<DumpCpuData>();
     int ret = dumpManagerCpuService->Request(*dumpCpuData);
     ASSERT_TRUE(ret == 0) << "dump cpuusage failed.";
