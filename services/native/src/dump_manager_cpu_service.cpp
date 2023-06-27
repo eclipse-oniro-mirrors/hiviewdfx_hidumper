@@ -46,11 +46,12 @@ namespace HiviewDFX {
 namespace {
 const std::string DUMPMGR_CPU_SERVICE_NAME = "HiDumperCpuService";
 auto dumpManagerCpuService = DumpDelayedSpSingleton<DumpManagerCpuService>::GetInstance();
-static const std::string LOAD_AVG_FILE_PATH = "/proc/loadavg";
-static const size_t LOAD_AVG_INFO_COUNT = 3;
-static const int PROC_CPU_LENGTH = 256;
-static const long unsigned HUNDRED_PERCENT_VALUE = 100;
-static const long unsigned DELAY_VALUE = 500000;
+static constexpr std::string LOAD_AVG_FILE_PATH = "/proc/loadavg";
+static constexpr size_t LOAD_AVG_INFO_COUNT = 3;
+static constexpr int PROC_CPU_LENGTH = 256;
+static constexpr long unsigned HUNDRED_PERCENT_VALUE = 100;
+static constexpr long unsigned DELAY_VALUE = 500000;
+static constexpr int INVALID_PID = -1;
 }
 DumpManagerCpuService::DumpManagerCpuService() : SystemAbility(DFX_SYS_HIDUMPER_CPU_ABILITY_ID, true)
 {
@@ -135,7 +136,6 @@ bool DumpManagerCpuService::Init()
     sptr<ISystemAbilityManager> systemAbilityManager
         = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (systemAbilityManager == nullptr) {
-        delete sysAbilityListener_;
         DUMPER_HILOGE(MODULE_CPU_SERVICE, "systemAbilityManager is null");
         return false;
     }
@@ -239,7 +239,7 @@ bool DumpManagerCpuService::SubscribeCommonEvent()
     OHOS::EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_BATTERY_CHANGED);
     OHOS::EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
-    if (!subscriberPtr_) {
+    if (subscriberPtr_ == nullptr) {
         subscriberPtr_ = std::make_shared<DumpBatteryStatsSubscriber>(subscribeInfo);
     }
     result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(subscriberPtr_);
@@ -255,7 +255,7 @@ bool DumpManagerCpuService::SubscribeCommonEvent()
 void DumpManagerCpuService::InitParam(DumpCpuData &dumpCpuData)
 {
     cpuUsagePid_ = dumpCpuData.cpuUsagePid_;
-    if (cpuUsagePid_ != -1) {
+    if (cpuUsagePid_ != INVALID_PID) {
         curSpecProc_ = std::make_shared<ProcInfo>();
         oldSpecProc_ = std::make_shared<ProcInfo>();
     }
@@ -270,7 +270,7 @@ void DumpManagerCpuService::ResetParam()
     oldCPUInfo_.reset();
     curProcs_.clear();
     oldProcs_.clear();
-    if (cpuUsagePid_ != -1) {
+    if (cpuUsagePid_ != INVALID_PID) {
         curSpecProc_.reset();
         oldSpecProc_.reset();
     }
@@ -287,7 +287,7 @@ int DumpManagerCpuService::DumpCpuUsageData()
         return DumpStatus::DUMP_FAIL;
     }
 
-    if (cpuUsagePid_ != -1) {
+    if (cpuUsagePid_ != INVALID_PID) {
         if (!GetProcCPUInfo()) {
             return DumpStatus::DUMP_FAIL;
         }
@@ -401,7 +401,7 @@ void DumpManagerCpuService::CreateCPUStatString(std::string &str)
                                     + curCPUInfo_->iowTime + curCPUInfo_->irqTime + curCPUInfo_->sirqTime)
                                    - (oldCPUInfo_->uTime + oldCPUInfo_->nTime + oldCPUInfo_->sTime + oldCPUInfo_->iTime
                                       + oldCPUInfo_->iowTime + oldCPUInfo_->irqTime + oldCPUInfo_->sirqTime);
-    if (cpuUsagePid_ != -1) {
+    if (cpuUsagePid_ != INVALID_PID) {
         curSpecProc_->userSpaceUsage =
             (curSpecProc_->uTime - oldSpecProc_->uTime) * HUNDRED_PERCENT_VALUE / totalDeltaTime;
         curSpecProc_->sysSpaceUsage =
@@ -466,7 +466,7 @@ void DumpManagerCpuService::DumpProcInfo()
     AddStrLineToDumpInfo("Details of Processes:");
     AddStrLineToDumpInfo("    PID   Total Usage	   User Space    Kernel Space    Page Fault Minor"
                          "    Page Fault Major    Name");
-    if (cpuUsagePid_ != -1) {
+    if (cpuUsagePid_ != INVALID_PID) {
         char format[PROC_CPU_LENGTH] = {0};
         int ret = sprintf_s(format, PROC_CPU_LENGTH,
                             "    %-5s    %3lu%%             %3lu%%"

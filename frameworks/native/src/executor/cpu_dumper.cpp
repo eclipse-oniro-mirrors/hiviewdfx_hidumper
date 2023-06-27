@@ -50,7 +50,7 @@ DumpStatus CPUDumper::Execute()
 {
     if (isDumpCpuUsage_) {
         auto& dumpManagerCpuClient = DumpManagerCpuClient::GetInstance();
-        DumpCpuData dumpData = getDumpCpuData();
+        DumpCpuData dumpData = GetDumpCpuData();
         dumpManagerCpuClient.Request(dumpData);
         dumpCPUDatas_->clear();
         for (auto it = dumpData.dumpCPUDatas_.begin(); it != dumpData.dumpCPUDatas_.end(); it++) {
@@ -79,7 +79,7 @@ DumpStatus CPUDumper::AfterExecute()
     return DumpStatus::DUMP_OK;
 }
 
-DumpCpuData CPUDumper::getDumpCpuData()
+DumpCpuData CPUDumper::GetDumpCpuData()
 {
     DumpCpuData dumpCpu;
     dumpCpu.startTime_ = startTime_;

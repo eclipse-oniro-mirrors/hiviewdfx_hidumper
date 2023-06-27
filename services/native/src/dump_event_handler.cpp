@@ -30,7 +30,6 @@ DumpEventHandler::DumpEventHandler(const std::shared_ptr<AppExecFwk::EventRunner
 
 void DumpEventHandler::ProcessEvent([[maybe_unused]] const AppExecFwk::InnerEvent::Pointer& event)
 {
-    DUMPER_HILOGI(MODULE_SERVICE, "ProcessEvent|enter");
     auto dmsptr = service_.promote();
     if (dmsptr == nullptr) {
         DUMPER_HILOGE(MODULE_SERVICE, "service is nullptr!");
@@ -46,7 +45,7 @@ void DumpEventHandler::ProcessEvent([[maybe_unused]] const AppExecFwk::InnerEven
     switch (eventId) {
         case MSG_GET_CPU_INFO_ID: {
             DUMPER_HILOGI(MODULE_SERVICE, "MSG_GET_CPU_INFO_ID!");
-            if (DumpCpuInfoUtil::GetInstance().CpuRefreshFrequency()) {
+            if (DumpCpuInfoUtil::GetInstance().IsNeedRefreshCpu()) {
                 break;
             }
             DumpCpuInfoUtil::GetInstance().UpdateCpuInfo();
