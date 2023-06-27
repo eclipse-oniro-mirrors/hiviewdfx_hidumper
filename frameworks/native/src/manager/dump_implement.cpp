@@ -484,9 +484,7 @@ DumpStatus DumpImplement::DumpDatas(const std::vector<std::shared_ptr<HidumperEx
     std::string groupName = "";
     std::vector<size_t> loopStack;
     const size_t executorSum = executors.size();
-    DUMPER_HILOGI(MODULE_COMMON, "DumpImplement DumpDatas enter %{public}zu", executorSum);
     for (size_t index = 0; index < executorSum; index++) {
-        DUMPER_HILOGI(MODULE_COMMON, "DumpImplement DumpDatas enter %{public}zu", index);
         callback->UpdateProgress(executors.size(), index);
         if (callback->IsCanceled()) {
             break;
@@ -524,7 +522,6 @@ DumpStatus DumpImplement::DumpDatas(const std::vector<std::shared_ptr<HidumperEx
         executor->Reset();
     }
     callback->UpdateProgress(executors.size(), executors.size());
-    DUMPER_HILOGI(MODULE_COMMON, "DumpImplement DumpDatas exit %{public}zu", executorSum);
     return DumpStatus::DUMP_OK;
 }
 

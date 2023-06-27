@@ -45,7 +45,6 @@ static const int32_t REQUEST_MAX = 2;
 static const uint32_t REQUESTID_MAX = 100000;
 const std::string TASK_ID = "unload";
 constexpr int32_t DELAY_TIME = 60000;
-const std::string EVENT_ID = "eventId";
 constexpr int32_t UNLOAD_IMMEDIATELY = 0;
 } // namespace
 namespace {

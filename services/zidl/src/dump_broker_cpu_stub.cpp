@@ -21,7 +21,6 @@ namespace OHOS {
 namespace HiviewDFX {
 int DumpBrokerCpuStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    DUMPER_HILOGI(MODULE_CPU_ZIDL, "DumpBrokerCpuStub OnRemoteRequest enter code=%{public}d", code);
     std::u16string descripter = DumpBrokerCpuStub::GetDescriptor();
     std::u16string remoteDescripter = data.ReadInterfaceToken();
     if (descripter != remoteDescripter) {
