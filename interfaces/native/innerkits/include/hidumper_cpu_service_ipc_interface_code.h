@@ -18,7 +18,7 @@
 /* SAID:1215 */
 namespace OHOS {
 namespace HiviewDFX {
-enum class HidumperCpuServiceInterfaceCode{
+enum class HidumperCpuServiceInterfaceCode {
     DUMP_REQUEST_CPUINFO
 };
 } // namespace HiviewDFX
