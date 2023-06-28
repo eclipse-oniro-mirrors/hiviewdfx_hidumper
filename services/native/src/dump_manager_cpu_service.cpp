@@ -46,7 +46,7 @@ namespace HiviewDFX {
 namespace {
 const std::string DUMPMGR_CPU_SERVICE_NAME = "HiDumperCpuService";
 auto dumpManagerCpuService = DumpDelayedSpSingleton<DumpManagerCpuService>::GetInstance();
-static constexpr std::string LOAD_AVG_FILE_PATH = "/proc/loadavg";
+static const std::string LOAD_AVG_FILE_PATH = "/proc/loadavg";
 static constexpr size_t LOAD_AVG_INFO_COUNT = 3;
 static constexpr int PROC_CPU_LENGTH = 256;
 static constexpr long unsigned HUNDRED_PERCENT_VALUE = 100;
