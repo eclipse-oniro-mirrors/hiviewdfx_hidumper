@@ -14,9 +14,10 @@
  */
 #include "dump_broker_cpu_stub.h"
 #include <message_parcel.h>
-#include "dump_errors.h"
-#include "hilog_wrapper.h"
 #include "dump_cpu_data.h"
+#include "dump_errors.h"
+#include "hidumper_cpu_service_ipc_interface_code.h"
+#include "hilog_wrapper.h"
 namespace OHOS {
 namespace HiviewDFX {
 int DumpBrokerCpuStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -28,7 +29,7 @@ int DumpBrokerCpuStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Messa
     }
     int ret = ERR_OK;
     switch (code) {
-        case static_cast<int>(IDumpCpuBroker::DUMP_REQUEST_CPUINFO): {
+        case static_cast<int>(HidumperCpuServiceInterfaceCode::DUMP_REQUEST_CPUINFO): {
             std::shared_ptr<DumpCpuData> dumpCpuData(data.ReadParcelable<DumpCpuData>());
             if (dumpCpuData == nullptr) {
                 DUMPER_HILOGE(MODULE_CPU_ZIDL, "error|DumpBrokerCpuStub error");

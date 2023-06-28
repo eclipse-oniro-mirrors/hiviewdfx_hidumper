@@ -15,6 +15,7 @@
 #include "dump_broker_proxy.h"
 #include <message_parcel.h>
 #include "dump_errors.h"
+#include "hidumper_service_ipc_interface_code.h"
 #include "hilog_wrapper.h"
 namespace OHOS {
 namespace HiviewDFX {
@@ -37,7 +38,7 @@ int32_t DumpBrokerProxy::Request(std::vector<std::u16string> &args, int outfd)
     if (!data.WriteFileDescriptor(outfd)) {
         return ERROR_WRITE_PARCEL;
     }
-    int res = remote->SendRequest(static_cast<int>(IDumpBroker::DUMP_REQUEST_FILEFD),
+    int res = remote->SendRequest(static_cast<int>(HidumperServiceInterfaceCode::DUMP_REQUEST_FILEFD),
         data, reply, option);
     if (res != ERR_OK) {
         DUMPER_HILOGE(MODULE_ZIDL, "error|SendRequest error code: %{public}d", res);
@@ -64,7 +65,7 @@ int32_t DumpBrokerProxy::ScanPidOverLimit(std::string requestType, int32_t limit
     }
     data.WriteString(requestType);
     data.WriteInt32(limitSize);
-    int res = remote->SendRequest(static_cast<int>(IDumpBroker::SCAN_PID_OVER_LIMIT),
+    int res = remote->SendRequest(static_cast<int>(HidumperServiceInterfaceCode::SCAN_PID_OVER_LIMIT),
         data, reply, option);
     if (res != ERR_OK) {
         DUMPER_HILOGE(MODULE_ZIDL, "send ScanPidOverLimit error code: %{public}d.", res);
@@ -94,7 +95,7 @@ int32_t DumpBrokerProxy::CountFdNums(int32_t pid, uint32_t &fdNums,
     data.WriteInt32(pid);
     MessageParcel reply;
     MessageOption option;
-    int res = remote->SendRequest(static_cast<int>(IDumpBroker::COUNT_FD_NUMS),
+    int res = remote->SendRequest(static_cast<int>(HidumperServiceInterfaceCode::COUNT_FD_NUMS),
         data, reply, option);
     if (res != ERR_OK) {
         DUMPER_HILOGE(MODULE_ZIDL, "send CountFdNums error code: %{public}d.", res);
