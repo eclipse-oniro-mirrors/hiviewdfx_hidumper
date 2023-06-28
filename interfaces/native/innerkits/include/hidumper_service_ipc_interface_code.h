@@ -18,7 +18,7 @@
 /* SAID:1212 */
 namespace OHOS {
 namespace HiviewDFX {
-enum class HidumperServiceInterfaceCode{
+enum class HidumperServiceInterfaceCode {
     DUMP_REQUEST_FILEFD,
     SCAN_PID_OVER_LIMIT,
     COUNT_FD_NUMS
