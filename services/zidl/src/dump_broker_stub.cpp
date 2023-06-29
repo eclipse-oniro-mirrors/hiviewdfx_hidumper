@@ -15,6 +15,7 @@
 #include "dump_broker_stub.h"
 #include <message_parcel.h>
 #include "dump_errors.h"
+#include "hidumper_service_ipc_interface_code.h"
 #include "hilog_wrapper.h"
 namespace OHOS {
 namespace HiviewDFX {
@@ -27,17 +28,17 @@ int DumpBrokerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageP
     }
     int ret = ERR_OK;
     switch (code) {
-        case static_cast<int>(IDumpBroker::DUMP_REQUEST_FILEFD): {
+        case static_cast<int>(HidumperServiceInterfaceCode::DUMP_REQUEST_FILEFD): {
             DUMPER_HILOGD(MODULE_ZIDL, "debug|RequestFileFdStub");
             ret = RequestFileFdStub(data, reply);
             break;
         }
-        case static_cast<int>(IDumpBroker::SCAN_PID_OVER_LIMIT): {
+        case static_cast<int>(HidumperServiceInterfaceCode::SCAN_PID_OVER_LIMIT): {
             DUMPER_HILOGD(MODULE_ZIDL, "debug|ScanPidOverLimitStub");
             ret = ScanPidOverLimitStub(data, reply);
             break;
         }
-        case static_cast<int>(IDumpBroker::COUNT_FD_NUMS): {
+        case static_cast<int>(HidumperServiceInterfaceCode::COUNT_FD_NUMS): {
             DUMPER_HILOGD(MODULE_ZIDL, "debug|CountFdNumsStub");
             ret = CountFdNumsStub(data, reply);
             break;

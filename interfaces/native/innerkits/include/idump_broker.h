@@ -21,12 +21,6 @@ namespace OHOS {
 namespace HiviewDFX {
 class IDumpBroker : public IRemoteBroker {
 public:
-    enum IDumpBrokerID {
-        DUMP_REQUEST_FILEFD,
-        SCAN_PID_OVER_LIMIT,
-        COUNT_FD_NUMS,
-    };
-
     // Used for fd leak judeg and log dump request
     // return: = 0 OK; < 0 Error;
     virtual int32_t ScanPidOverLimit(std::string requestType, int32_t limitSize, std::vector<int32_t> &pidList) = 0;

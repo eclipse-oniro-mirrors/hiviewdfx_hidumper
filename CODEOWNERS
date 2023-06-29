@@ -12,21 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef HIDUMPER_ZIDL_IDUMP_CPU_BROKER_H
-#define HIDUMPER_ZIDL_IDUMP_CPU_BROKER_H
-#include <string>
-#include <iremote_broker.h>
-#include <iremote_object.h>
-#include "dump_cpu_data.h"
-namespace OHOS {
-namespace HiviewDFX {
-class IDumpCpuBroker : public IRemoteBroker {
-public:
-    // Used for dump request
-    // return: = 0 OK; < 0 Error;
-    virtual int32_t Request(DumpCpuData &dumpCpuData) = 0;
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.HiviewDFX.HiDumper.IDumpCpuBroker");
-};
-} // namespace HiviewDFX
-} // namespace OHOS
-#endif // HIDUMPER_ZIDL_IDUMP_BROKER_H
+
+# any change to behind files needs to be reviewed by @leonchan5
+interfaces/native/innerkits/include/hidumper_service_ipc_interface_code.h @leonchan5
+interfaces/native/innerkits/include/hidumper_cpu_service_ipc_interface_code.h @leonchan5
