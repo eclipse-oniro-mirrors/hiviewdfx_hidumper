@@ -24,9 +24,6 @@
 #include "securec.h"
 
 #include "common/dumper_constant.h"
-#include "common_event_data.h"
-#include "common_event_manager.h"
-#include "common_event_support.h"
 #include "dump_log_manager.h"
 #include "hilog_wrapper.h"
 #include "inner/dump_service_id.h"
@@ -37,6 +34,9 @@
 #include "dump_app_state_observer.h"
 #endif
 #ifdef HIDUMPER_BATTERY_ENABLE
+#include "common_event_data.h"
+#include "common_event_manager.h"
+#include "common_event_support.h"
 #include "dump_battery_stats_subscriber.h"
 #endif
 

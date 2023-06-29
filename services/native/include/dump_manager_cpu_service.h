@@ -25,7 +25,9 @@
 #include "dump_event_handler.h"
 #include "dump_cpu_data.h"
 #include "common.h"
+#ifdef HIDUMPER_BATTERY_ENABLE
 #include "common_event_subscriber.h"
+#endif
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -80,7 +82,9 @@ private:
     std::vector<std::shared_ptr<ProcInfo>> oldProcs_;
     int cpuUsagePid_{-1};
     StringMatrix dumpCPUDatas_{nullptr};
+#ifdef HIDUMPER_BATTERY_ENABLE
     std::shared_ptr<EventFwk::CommonEventSubscriber> subscriberPtr_{nullptr};
+#endif
 
 class SystemAbilityStatusChangeListener : public OHOS::SystemAbilityStatusChangeStub {
 public:
