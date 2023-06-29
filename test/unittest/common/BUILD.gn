@@ -74,6 +74,10 @@ ohos_unittest("HidumperServiceTest") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
+
+  cflags = [
+    "-Dprivate=public",  #allow test code access private members
+  ]
 }
 
 ohos_unittest("HidumperDumpersTest") {

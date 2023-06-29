@@ -53,5 +53,21 @@ HWTEST_F(HidumperServiceTest, HidumperServiceTest001, TestSize.Level3)
     int32_t result = sam->LoadSystemAbility(DFX_SYS_HIDUMPER_ABILITY_ID, loadCallback);
     ASSERT_TRUE(result == ERR_OK) << "GetSystemAbility failed.";
 }
+
+HWTEST_F(HidumperServiceTest, DumpManagerService002, TestSize.Level3)
+{
+    auto dumpManagerService = std::make_shared<DumpManagerService>();
+    dumpManagerService->OnStart();
+    dumpManagerService->started_ = true;
+    std::vector<std::u16string> args;
+    int32_t ret = ERR_OK;
+    ret =  dumpManagerService->Dump(-1, args);
+    ASSERT_TRUE(ret == ERR_OK);
+    ret = dumpManagerService->Request(args, -1);
+    ASSERT_TRUE(ret == ERR_OK);
+    ASSERT_TRUE(dumpManagerService->HasDumpPermission());
+
+    dumpManagerService->OnStop();
+}
 } // namespace HiviewDFX
 } // namespace OHOS
