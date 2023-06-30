@@ -23,6 +23,8 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
+protected:
+    static const int32_t LIMIT_SIZE;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
