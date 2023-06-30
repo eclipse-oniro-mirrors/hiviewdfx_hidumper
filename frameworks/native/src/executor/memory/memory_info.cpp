@@ -577,12 +577,14 @@ bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &gra
     if (memGraphicVec_.empty()) {
         return false;
     }
-    for (auto it = memGraphicVec_.begin(); it != memGraphicVec_.end(); it++) {
+    for (auto it = memGraphicVec_.begin(); it != memGraphicVec_.end();) {
         if (pid == it->GetPid()) {
             graphicsMemory.gl = it-> GetGpuMemorySize() / BYTE_PER_KB;
             graphicsMemory.graph = it-> GetCpuMemorySize() / BYTE_PER_KB;
-            memGraphicVec_.erase(it);
+            it = memGraphicVec_.erase(it);
             return true;
+        } else {
+            ++it;
         }
     }
     #endif
