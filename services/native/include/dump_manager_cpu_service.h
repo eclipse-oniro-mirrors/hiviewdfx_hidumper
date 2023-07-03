@@ -39,7 +39,6 @@ public:
     ~DumpManagerCpuService();
 public:
     virtual void OnStart() override;
-    virtual void OnStop() override;
 public:
     // Used for dump request
     int32_t Request(DumpCpuData &dumpCpuData) override;

@@ -79,29 +79,6 @@ void DumpManagerCpuService::OnStart()
     started_ = true;
 }
 
-void DumpManagerCpuService::OnStop()
-{
-    DUMPER_HILOGI(MODULE_CPU_SERVICE, "cpu service onStop");
-    if (!started_) {
-        DUMPER_HILOGI(MODULE_CPU_SERVICE, "is not ready, nothing to do");
-        return;
-    }
-    ResetParam();
-
-#ifdef HIDUMPER_ABILITY_BASE_ENABLE
-    RemoveSystemAbilityListener(APP_MGR_SERVICE_ID);
-    DumpAppStateObserver::GetInstance().UnsubscribeAppState();
-#endif
-#ifdef HIDUMPER_BATTERY_ENABLE
-    RemoveSystemAbilityListener(COMMON_EVENT_SERVICE_ID);
-    if (!OHOS::EventFwk::CommonEventManager::UnSubscribeCommonEvent(subscriberPtr_)) {
-        DUMPER_HILOGE(MODULE_CPU_SERVICE, "unregister to commonevent manager failed");
-    }
-#endif
-
-    DUMPER_HILOGI(MODULE_CPU_SERVICE, "cpu service leave");
-}
-
 int32_t DumpManagerCpuService::Request(DumpCpuData &dumpCpuData)
 {
     DUMPER_HILOGI(MODULE_CPU_SERVICE, "enter");
