@@ -22,9 +22,6 @@ namespace OHOS {
 namespace HiviewDFX {
 class IDumpCpuBroker : public IRemoteBroker {
 public:
-    enum IDumpCpuBrokerID {
-        DUMP_REQUEST_CPUINFO
-    };
     // Used for dump request
     // return: = 0 OK; < 0 Error;
     virtual int32_t Request(DumpCpuData &dumpCpuData) = 0;

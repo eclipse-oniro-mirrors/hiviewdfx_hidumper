@@ -15,6 +15,7 @@
 #include "dump_broker_cpu_proxy.h"
 #include <message_parcel.h>
 #include "dump_errors.h"
+#include "hidumper_cpu_service_ipc_interface_code.h"
 #include "hilog_wrapper.h"
 namespace OHOS {
 namespace HiviewDFX {
@@ -34,7 +35,7 @@ int32_t DumpBrokerCpuProxy::Request(DumpCpuData &dumpCpuData)
     if (!data.WriteParcelable(&dumpCpuData)) {
         return ERROR_WRITE_PARCEL;
     }
-    int res = remote->SendRequest(static_cast<int>(IDumpCpuBroker::DUMP_REQUEST_CPUINFO),
+    int res = remote->SendRequest(static_cast<int>(HidumperCpuServiceInterfaceCode::DUMP_REQUEST_CPUINFO),
         data, reply, option);
     if (res != ERR_OK) {
         DUMPER_HILOGE(MODULE_CPU_ZIDL, "error|SendCpuRequest error code: %{public}d", res);
