@@ -107,8 +107,8 @@ void DumpManagerService::OnStop()
 
 int32_t DumpManagerService::OnIdle(const SystemAbilityOnDemandReason& idleReason)
 {
-    DUMPER_HILOGI(MODULE_SERVICE, "on idle enter, idle reason %{public}d, %{public}s, %{public}s, request sum=%{public}d",
-        idleReason.GetId(), idleReason.GetName().c_str(), idleReason.GetValue().c_str(), GetRequestSum());
+    DUMPER_HILOGI(MODULE_SERVICE, "on idle enter, idle reason %{public}d, %{public}s, request sum=%{public}d",
+        idleReason.GetId(), idleReason.GetName().c_str(), GetRequestSum());
 
     if (idleReason.GetId() == OnDemandReasonId::INTERFACE_CALL) {
         if (GetRequestSum() == 0) {
