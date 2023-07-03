@@ -164,6 +164,7 @@ ohos_source_set("hidumperservice_source") {
     "native/src/dump_log_manager.cpp",
     "native/src/dump_manager_cpu_client.cpp",
     "native/src/dump_manager_service.cpp",
+    "native/src/dump_on_demand_load.cpp",
     "native/src/raw_param.cpp",
     "zidl/src/dump_broker_cpu_proxy.cpp",
   ]
