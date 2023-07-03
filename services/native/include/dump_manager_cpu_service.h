@@ -25,7 +25,9 @@
 #include "dump_event_handler.h"
 #include "dump_cpu_data.h"
 #include "common.h"
+#ifdef HIDUMPER_BATTERY_ENABLE
 #include "common_event_subscriber.h"
+#endif
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -37,7 +39,6 @@ public:
     ~DumpManagerCpuService();
 public:
     virtual void OnStart() override;
-    virtual void OnStop() override;
 public:
     // Used for dump request
     int32_t Request(DumpCpuData &dumpCpuData) override;
@@ -80,7 +81,9 @@ private:
     std::vector<std::shared_ptr<ProcInfo>> oldProcs_;
     int cpuUsagePid_{-1};
     StringMatrix dumpCPUDatas_{nullptr};
+#ifdef HIDUMPER_BATTERY_ENABLE
     std::shared_ptr<EventFwk::CommonEventSubscriber> subscriberPtr_{nullptr};
+#endif
 
 class SystemAbilityStatusChangeListener : public OHOS::SystemAbilityStatusChangeStub {
 public:

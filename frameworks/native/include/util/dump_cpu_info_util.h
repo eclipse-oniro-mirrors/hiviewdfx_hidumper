@@ -53,7 +53,7 @@ public:
     bool GetOldCPUInfo(std::shared_ptr<CPUInfo> &cpuInfo);
     bool GetOldProcInfo(std::vector<std::shared_ptr<ProcInfo>> &procInfos);
     bool GetOldSpecProcInfo(int pid, std::shared_ptr<ProcInfo> &specProc);
-    bool CpuRefreshFrequency();
+    bool IsNeedRefreshCpu();
     void CopyCpuInfo(std::shared_ptr<CPUInfo> &tar, const std::shared_ptr<CPUInfo> &source);
     void GetUpdateCpuStartTime(std::string& dateTime);
     bool GetDateAndTime(std::string& dateTime);

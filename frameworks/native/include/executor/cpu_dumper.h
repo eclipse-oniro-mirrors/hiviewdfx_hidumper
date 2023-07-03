@@ -30,7 +30,7 @@ public:
     DumpStatus AfterExecute() override;
 
 private:
-    DumpCpuData getDumpCpuData();
+    DumpCpuData GetDumpCpuData();
 
     StringMatrix dumpCPUDatas_;
     bool isDumpCpuUsage_ = false;
