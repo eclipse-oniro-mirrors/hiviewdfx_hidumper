@@ -257,18 +257,18 @@ bool MemoryInfo::GetMemoryInfoByPid(const int &pid, StringMatrix result)
     MemInfoData::GraphicsMemory graphicsMemory;
     MemoryUtil::GetInstance().InitGraphicsMemory(graphicsMemory);
     if ((IsRenderService(pid))) {
-        #ifdef HIDUMPER_GRAPHIC_ENABLE
+#ifdef HIDUMPER_GRAPHIC_ENABLE
         GetMemGraphics();
-        #endif
+#endif
         GetRenderServiceGraphics(pid, graphicsMemory);
         graphicsMemory.gl -= g_sumPidsMemGL;
     } else {
-        #ifdef HIDUMPER_GRAPHIC_ENABLE
+#ifdef HIDUMPER_GRAPHIC_ENABLE
         auto& rsClient = Rosen::RSInterfaces::GetInstance();
         unique_ptr<MemoryGraphic> memGraphic = make_unique<MemoryGraphic>(rsClient.GetMemoryGraphic(pid));
         graphicsMemory.gl = memGraphic-> GetGpuMemorySize() / BYTE_PER_KB;
         graphicsMemory.graph = memGraphic-> GetCpuMemorySize() / BYTE_PER_KB;
-        #endif
+#endif
     }
 
         map<string, uint64_t> valueMap;
@@ -573,7 +573,7 @@ bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &gra
         graphicsMemory.gl -= g_sumPidsMemGL;
         return true;
     }
-    #ifdef HIDUMPER_GRAPHIC_ENABLE
+#ifdef HIDUMPER_GRAPHIC_ENABLE
     if (memGraphicVec_.empty()) {
         return false;
     }
@@ -587,7 +587,7 @@ bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &gra
             ++it;
         }
     }
-    #endif
+#endif
     return false;
 }
 
@@ -604,9 +604,9 @@ bool MemoryInfo::GetMemByProcessPid(const int &pid, MemInfoData::MemUsage &usage
         usage.swapPss = memInfo.swapPss;
         usage.name = GetProcName(pid);
         usage.pid = pid;
-    #ifdef HIDUMPER_MEMMGR_ENABLE
+#ifdef HIDUMPER_MEMMGR_ENABLE
         usage.adjLabel = GetProcessAdjLabel(pid);
-    #endif
+#endif
         success = true;
     }
 
@@ -735,10 +735,10 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
         if (!GetPids()) {
             return DUMP_FAIL;
         }
-        #ifdef HIDUMPER_GRAPHIC_ENABLE
+#ifdef HIDUMPER_GRAPHIC_ENABLE
         memGraphicVec_.clear();
         GetMemGraphics();
-        #endif
+#endif
         isReady_ = true;
         return DUMP_MORE_DATA;
     }

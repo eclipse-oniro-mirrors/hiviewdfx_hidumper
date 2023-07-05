@@ -232,6 +232,10 @@ ohos_unittest("HidumperManagerTest") {
     "hilog:libhilog",
     "init:libbegetutil",
   ]
+
+  cflags = [
+    "-Dprivate=public",  #allow test code access private members
+  ]
 }
 
 ohos_unittest("HidumperCpuServiceTest") {
