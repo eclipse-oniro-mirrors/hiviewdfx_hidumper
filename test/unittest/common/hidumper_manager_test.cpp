@@ -17,12 +17,12 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <vector>
+#include <cerrno>
 
-#define private public
 #include "iservice_registry.h"
 #include "manager/dump_implement.h"
 #include "raw_param.h"
-#undef private
+#include "dump_utils.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -45,7 +45,7 @@ void HiDumperManagerTest::SetUpTestCase(void)
 {
     g_fd = mkstemp(g_fileName);
     if (g_fd == -1) {
-        printf("create tmp file fail!");
+        printf("create tmp file fail! erro = %s", DumpUtils::ErrnoToMsg(errno).c_str());
         return;
     }
 }
@@ -422,7 +422,7 @@ HWTEST_F(HiDumperManagerTest, DumpTest019, TestSize.Level0)
 }
 
 /**
- * @tc.name: MemoryDumperTest019
+ * @tc.name: MemoryDumperTest020
  * @tc.desc: Test compress has correct ret.
  * @tc.type: FUNC
  * @tc.require: issueI5NWZQ
@@ -436,7 +436,11 @@ HWTEST_F(HiDumperManagerTest, DumpTest020, TestSize.Level0)
         const_cast<char *>(""),
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
-    int ret = GetDumpResult(argc, argv);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, g_fd);
+    std::string srcpath = "/data/log/hilog/";
+    rawParam->SetFolder(srcpath);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
 
