@@ -59,7 +59,7 @@ public:
     std::vector<std::shared_ptr<ProcInfo>> curProcs_;
     std::vector<std::shared_ptr<ProcInfo>> oldProcs_;
     int cpuUsagePid_ = -1;
-    StringCpuMatrix dumpCPUDatas_{nullptr};
+    StringCpuMatrix dumpCPUDatas_;
     DumperError errorCode;
 private:
     friend DumpDelayedSpSingleton<DumpCpuData>;
