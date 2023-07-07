@@ -112,7 +112,7 @@ ohos_source_set("dump_main") {
   ]
   defines = []
   if (hidumper_graphic_enable) {
-    external_deps += [ "graphic_standard:librender_service_client" ]
+    external_deps += [ "graphic_2d:librender_service_client" ]
     defines += [ "HIDUMPER_GRAPHIC_ENABLE" ]
   }
 

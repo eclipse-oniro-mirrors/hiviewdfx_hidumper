@@ -52,7 +52,7 @@ declare_args() {
   if (defined(global_parts_info.resourceschedule_memmgr_plugin)) {
     hidumper_report_memmgr_plugins = true
   }
-  if (!defined(global_parts_info.graphic_graphic_standard)) {
+  if (!defined(global_parts_info.graphic_graphic_2d)) {
     hidumper_graphic_enable = false
   }
   if (defined(global_parts_info.powermgr_battery_manager)) {

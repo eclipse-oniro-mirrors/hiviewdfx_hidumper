@@ -38,7 +38,7 @@
                 "drivers_interface_memorytracker",
                 "hdf_core",
                 "ability_runtime",
-                "graphic_standard"
+                "graphic_2d"
             ],
             "third_party": [
                 "zlib"
