@@ -85,7 +85,7 @@ private:
 private:
     using ExecutorFactoryMap = std::map<int, std::shared_ptr<ExecutorFactory>>;
     static const int ARG_INDEX_OFFSET_LAST_OPTION = 2;
-    const std::string unrecognizedError_ = "hidumper: unrecognized option: ";
+    const std::string unrecognizedError_ = "hidumper: option pis missed. ";
     const std::string invalidError_ = "hidumper: invalid arg: ";
     const std::string requireError_ = "hidumper: option requires an argument: ";
     const std::string pidError_ = "hidumper: No such process: %d\n";
