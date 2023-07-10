@@ -52,15 +52,8 @@ public:
 public:
     std::string startTime_;
     std::string endTime_;
-    std::shared_ptr<CPUInfo> curCPUInfo_;
-    std::shared_ptr<CPUInfo> oldCPUInfo_;
-    std::shared_ptr<ProcInfo> curSpecProc_;
-    std::shared_ptr<ProcInfo> oldSpecProc_;
-    std::vector<std::shared_ptr<ProcInfo>> curProcs_;
-    std::vector<std::shared_ptr<ProcInfo>> oldProcs_;
     int cpuUsagePid_ = -1;
     StringCpuMatrix dumpCPUDatas_;
-    DumperError errorCode;
 private:
     friend DumpDelayedSpSingleton<DumpCpuData>;
 };
