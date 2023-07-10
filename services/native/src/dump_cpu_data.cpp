@@ -89,7 +89,7 @@ bool DumpCpuData::ReadStringMatrix(std::vector<std::vector<std::string>> &martri
     }
     DUMPER_HILOGI(MODULE_CPU_DATA, "ReadStringMatrix size = %{public}d", size);
     if (size > INT_MAX) {
-        return flase;
+        return false;
     }
     martrixVec.clear();
     for (int i = 0; i < size; i++) {
