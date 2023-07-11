@@ -82,9 +82,12 @@ void DumpManagerCpuService::OnStart()
 int32_t DumpManagerCpuService::Request(DumpCpuData &dumpCpuData)
 {
     DUMPER_HILOGI(MODULE_CPU_SERVICE, "enter");
+    static std::mutex mutex_;
+    unique_lock<mutex> lock(mutex_);
     InitParam(dumpCpuData);
     int32_t ret = DumpCpuUsageData();
     dumpCpuData.dumpCPUDatas_ = *dumpCPUDatas_;
+    ResetParam();
     return ret;
 }
 
