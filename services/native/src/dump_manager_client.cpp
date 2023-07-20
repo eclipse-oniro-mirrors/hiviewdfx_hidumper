@@ -141,9 +141,12 @@ ErrCode DumpManagerClient::OnDemandStart(sptr<ISystemAbilityManager> sam, sptr<I
 
     int32_t loop = SLEEP_DUR / SLEEP_UNIT;
     while (loop-- > 0) {
-        sptr<IRemoteObject> remoteObj = loadCallback->GetLoadSystemAbilityRemoteObj();
-        if (remoteObj != nullptr) {
-            remoteObject = remoteObj;
+        if (!loadCallback->CheckLoadSystemAbilityStatus()) {
+            usleep(SLEEP_UNIT);
+            continue;
+        }
+        remoteObject = sam->CheckSystemAbility(DFX_SYS_HIDUMPER_ABILITY_ID);
+        if (remoteObject != nullptr) {
             return ERR_OK;
         } else {
             usleep(SLEEP_UNIT);
