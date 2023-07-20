@@ -23,7 +23,9 @@ public:
     ~OnDemandLoadCallback();
     void OnLoadSystemAbilitySuccess(int32_t systemAbilityId, const sptr<IRemoteObject>& remoteObject) override;
     void OnLoadSystemAbilityFail(int32_t systemAbilityId) override;
-    sptr<IRemoteObject> GetLoadSystemAbilityRemoteObj();
+    bool CheckLoadSystemAbilityStatus();
+private:
+    bool isRemoteObject_{false};
 };
 } // namespace HiviewDFX
 } // namespace OHOS

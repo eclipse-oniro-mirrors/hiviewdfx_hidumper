@@ -45,7 +45,6 @@ namespace OHOS {
 namespace HiviewDFX {
 namespace {
 const std::string DUMPMGR_CPU_SERVICE_NAME = "HiDumperCpuService";
-auto dumpManagerCpuService = DumpDelayedSpSingleton<DumpManagerCpuService>::GetInstance();
 static const std::string LOAD_AVG_FILE_PATH = "/proc/loadavg";
 static constexpr size_t LOAD_AVG_INFO_COUNT = 3;
 static constexpr int PROC_CPU_LENGTH = 256;
@@ -95,6 +94,7 @@ std::shared_ptr<DumpEventHandler> DumpManagerCpuService::GetHandler()
 {
     if (handler_ == nullptr) {
         DUMPER_HILOGI(MODULE_CPU_SERVICE, "init handler at get handler");
+        auto dumpManagerCpuService = DumpDelayedSpSingleton<DumpManagerCpuService>::GetInstance();
         handler_ = std::make_shared<DumpEventHandler>(eventRunner_, dumpManagerCpuService);
     }
     return handler_;
@@ -150,6 +150,7 @@ void DumpManagerCpuService::EventHandlerInit()
 
     if (handler_ == nullptr) {
         DUMPER_HILOGI(MODULE_CPU_SERVICE, "init handler at init");
+        auto dumpManagerCpuService = DumpDelayedSpSingleton<DumpManagerCpuService>::GetInstance();
         handler_ = std::make_shared<DumpEventHandler>(eventRunner_, dumpManagerCpuService);
     }
     handler_->SendEvent(DumpEventHandler::MSG_GET_CPU_INFO_ID, DumpEventHandler::GET_CPU_INFO_DELAY_TIME_INIT);
@@ -172,6 +173,7 @@ bool DumpManagerCpuService::SendImmediateEvent()
     }
 
     if (handler_ == nullptr) {
+        auto dumpManagerCpuService = DumpDelayedSpSingleton<DumpManagerCpuService>::GetInstance();
         handler_ = std::make_shared<DumpEventHandler>(eventRunner_, dumpManagerCpuService);
     }
 
@@ -184,6 +186,7 @@ void DumpManagerCpuService::SystemAbilityStatusChangeListener::OnAddSystemAbilit
 {
     DUMPER_HILOGI(MODULE_CPU_SERVICE, "systemAbilityId=%{public}d, deviceId=%{private}s", systemAbilityId,
         deviceId.c_str());
+    auto dumpManagerCpuService = DumpDelayedSpSingleton<DumpManagerCpuService>::GetInstance();
 
 #ifdef HIDUMPER_ABILITY_BASE_ENABLE
     if (systemAbilityId == APP_MGR_SERVICE_ID) {
@@ -502,10 +505,7 @@ void DumpManagerCpuService::StartService()
         DUMPER_HILOGE(MODULE_CPU_SERVICE, "failed to find SystemAbilityManager.");
         return;
     }
-    if (dumpManagerCpuService == nullptr) {
-        DUMPER_HILOGE(MODULE_CPU_SERVICE, "DumpManagerCpuService service is null.");
-        return;
-    }
+    auto dumpManagerCpuService = DumpDelayedSpSingleton<DumpManagerCpuService>::GetInstance();
     int ret = samgr->AddSystemAbility(DFX_SYS_HIDUMPER_CPU_ABILITY_ID, dumpManagerCpuService);
     if (ret != 0) {
         DUMPER_HILOGE(MODULE_CPU_SERVICE, "failed to add sys dump cpu service ability.");
