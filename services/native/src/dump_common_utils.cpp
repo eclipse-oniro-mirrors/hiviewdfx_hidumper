@@ -175,13 +175,14 @@ bool DumpCommonUtils::IsUserPid(const std::string &pid)
 {
     string filename = "/proc/" + pid + "/smaps";
     std::ifstream in(filename);
-    if (in) {
-        string line;
-        getline(in, line);
-        if (!line.empty()) {
-            return true;
-        }
-        in.close();
+    if (in.fail()) {
+        DUMPER_HILOGE(MODULE_SERVICE, "failed to open file:%{public}s", filename.c_str());
+        return false;
+    }
+    string line;
+    getline(in, line);
+    if (!line.empty()) {
+        return true;
     }
     return false;
 }
