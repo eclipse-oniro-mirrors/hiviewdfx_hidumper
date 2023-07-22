@@ -30,6 +30,7 @@
 #include "manager/dump_implement.h"
 #include "dump_utils.h"
 #include "util/string_utils.h"
+#include "util/file_utils.h"
 #ifdef HIDUMPER_ABILITY_BASE_ENABLE
 #include "dump_app_state_observer.h"
 #endif
@@ -340,7 +341,7 @@ DumpStatus DumpManagerCpuService::ReadLoadAvgInfo(const std::string &filePath, s
     }
 
     std::string rawData;
-    if (!LoadStringFromFile(filePath, rawData)) {
+    if (!FileUtils::LoadStringFromProc(filePath, rawData)) {
         return DumpStatus::DUMP_FAIL;
     }
     DUMPER_HILOGD(MODULE_CPU_SERVICE, "rawData is %{public}s", rawData.c_str());

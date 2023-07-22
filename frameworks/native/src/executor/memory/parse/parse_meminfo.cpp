@@ -54,18 +54,22 @@ void ParseMeminfo::SetData(const string &str, ValueMap &result)
 bool ParseMeminfo::GetMeminfo(ValueMap &result)
 {
     string filename = "/proc/meminfo";
-    ifstream in(filename);
-    if (!in) {
-        DUMPER_HILOGE(MODULE_SERVICE, "File %s not found.\n", filename.c_str());
+    auto fp = std::unique_ptr<FILE, decltype(&fclose)>{fopen(filename.c_str(), "re"), fclose};
+    if (fp == nullptr) {
         return false;
     }
-
-    string str;
-    while (getline(in, str)) {
+    char *line = nullptr;
+    ssize_t lineLen;
+    size_t lineAlloc = 0;
+    while ((lineLen = getline(&line, &lineAlloc, fp.get())) > 0) {
+        line[lineLen] = '\0';
+        string str = line;
         SetData(str, result);
     }
-
-    in.close();
+    if (line != nullptr) {
+        free(line);
+        line = nullptr;
+    }
 
     return true;
 }
