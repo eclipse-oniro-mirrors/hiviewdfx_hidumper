@@ -99,14 +99,16 @@ bool ParseSmapsInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int 
 {
     DUMPER_HILOGD(MODULE_SERVICE, "ParseSmapsInfo: GetInfo pid:(%d) begin.\n", pid);
     string filename = "/proc/" + to_string(pid) + "/smaps";
-    ifstream in(filename);
-    if (!in) {
-        DUMPER_HILOGE(MODULE_SERVICE, "File %s not found.\n", filename.c_str());
+    auto fp = std::unique_ptr<FILE, decltype(&fclose)>{fopen(filename.c_str(), "re"), fclose};
+    if (fp == nullptr) {
         return false;
     }
-
-    string content;
-    while (getline(in, content)) {
+    char *line = nullptr;
+    ssize_t lineLen;
+    size_t lineAlloc = 0;
+    while ((lineLen = getline(&line, &lineAlloc, fp.get())) > 0) {
+        line[lineLen] = '\0';
+        string content = line;
         string name;
         uint64_t iNode = 0;
         if (StringUtils::GetInstance().IsEnd(content, "B")) {
@@ -119,7 +121,10 @@ bool ParseSmapsInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int 
             MemoryFilter::GetInstance().ParseMemoryGroup(name, memGroup_, iNode);
         }
     }
-    in.close();
+    if (line != nullptr) {
+        free(line);
+        line = nullptr;
+    }
     DUMPER_HILOGD(MODULE_SERVICE, "ParseSmapsInfo: GetInfo pid:(%d) end,success!\n", pid);
     return true;
 }
@@ -141,13 +146,16 @@ bool ParseSmapsInfo::ShowSmapsData(const MemoryFilter::MemoryType &memType, cons
     bool isShowSmapsInfo, vector<map<string, string>> &vectMap)
 {
     string filename = "/proc/" + to_string(pid) + "/smaps";
-    ifstream in(filename);
-    if (!in) {
-        DUMPER_HILOGE(MODULE_SERVICE, "File %s not found.", filename.c_str());
+    auto fp = std::unique_ptr<FILE, decltype(&fclose)>{fopen(filename.c_str(), "re"), fclose};
+    if (fp == nullptr) {
         return false;
     }
-    string content;
-    while (getline(in, content)) {
+    char *line = nullptr;
+    ssize_t lineLen;
+    size_t lineAlloc = 0;
+    while ((lineLen = getline(&line, &lineAlloc, fp.get())) > 0) {
+        line[lineLen] = '\0';
+        string content = line;
         string name;
         uint64_t iNode = 0;
         if (StringUtils::GetInstance().IsEnd(content, "B")) {
@@ -174,11 +182,14 @@ bool ParseSmapsInfo::ShowSmapsData(const MemoryFilter::MemoryType &memType, cons
             }
         }
     }
+    if (line != nullptr) {
+        free(line);
+        line = nullptr;
+    }
     if (!memMap_.empty()) {
         vectMap.push_back(memMap_);
         memMap_.clear();
     }
-    in.close();
     return true;
 }
 } // namespace HiviewDFX

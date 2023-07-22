@@ -47,24 +47,26 @@ void ParseVmallocinfo::CaclVmalloclValue(const string &str, uint64_t &totalValue
 bool ParseVmallocinfo::GetVmallocinfo(uint64_t &value)
 {
     value = 0;
-
     string filename = "/proc/vmallocinfo";
-    ifstream in(filename);
-    if (!in) {
-        DUMPER_HILOGE(MODULE_SERVICE, "File %s not found.\n", filename.c_str());
+    auto fp = std::unique_ptr<FILE, decltype(&fclose)>{fopen(filename.c_str(), "re"), fclose};
+    if (fp == nullptr) {
         return false;
     }
-
-    string str;
-    while (getline(in, str)) {
+    char *line = nullptr;
+    ssize_t lineLen;
+    size_t lineAlloc = 0;
+    while ((lineLen = getline(&line, &lineAlloc, fp.get())) > 0) {
+        line[lineLen] = '\0';
+        string str = line;
         if (str.find("pages=") == string::npos) {
             continue;
         }
         CaclVmalloclValue(str, value);
     }
-
-    in.close();
-
+    if (line != nullptr) {
+        free(line);
+        line = nullptr;
+    }
     return true;
 }
 } // namespace HiviewDFX

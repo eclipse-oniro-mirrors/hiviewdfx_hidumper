@@ -24,6 +24,7 @@ FileUtils::FileUtils()
 FileUtils::~FileUtils()
 {
 }
+
 bool FileUtils::CreateFolder(const string &path)
 {
     if (!access(path.c_str(), F_OK) || path == "") {
@@ -46,5 +47,29 @@ bool FileUtils::CreateFolder(const string &path)
     }
     return false;
 }
+
+bool FileUtils::LoadStringFromProc(const std::string& path, std::string& content, bool oneLine)
+{
+    auto fp = std::unique_ptr<FILE, decltype(&fclose)>{fopen(path.c_str(), "re"), fclose};
+    if (fp == nullptr) {
+        return false;
+    }
+    char *line = nullptr;
+    ssize_t lineLen;
+    size_t lineAlloc = 0;
+    while ((lineLen = getline(&line, &lineAlloc, fp.get())) > 0) {
+        line[lineLen] = '\0';
+        content += line;
+        if (oneLine) {
+            break;
+        }
+    }
+    if (line != nullptr) {
+        free(line);
+        line = nullptr;
+    }
+    return true;
+}
+
 } // namespace HiviewDFX
 } // namespace OHOS

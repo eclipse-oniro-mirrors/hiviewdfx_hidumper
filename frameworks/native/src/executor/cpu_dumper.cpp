@@ -14,7 +14,6 @@
  */
 #include <unistd.h>
 #include "executor/cpu_dumper.h"
-#include "file_ex.h"
 #include "datetime_ex.h"
 #include "dump_utils.h"
 #include "securec.h"
