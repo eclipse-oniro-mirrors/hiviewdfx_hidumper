@@ -23,7 +23,7 @@
 
 namespace OHOS {
 namespace HiviewDFX {
-const std::string DumpCpuInfoUtil::PROC_STAT_FILE_PATH = "/proc/stat";
+const std::string DumpCpuInfoUtil::PROC_STAT_PATH = "/proc/stat";
 const std::string DumpCpuInfoUtil::SPACE = " ";
 const int DumpCpuInfoUtil::TM_START_YEAR = 1900;
 const int DumpCpuInfoUtil::DEC_SYSTEM_VALUE = 10;
@@ -61,7 +61,7 @@ bool DumpCpuInfoUtil::GetCurCPUInfo(std::shared_ptr<CPUInfo> &cpuInfo)
         return false;
     }
     std::string statRawData;
-    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(PROC_STAT_FILE_PATH, false, [&](std::string& line) -> void {
+    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(PROC_STAT_PATH, false, [&](std::string& line) -> void {
         statRawData += line;
     });
     if (!ret) {
