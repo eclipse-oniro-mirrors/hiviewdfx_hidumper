@@ -18,6 +18,7 @@
 #include <sstream>
 #include "executor/memory/memory_util.h"
 #include "hilog_wrapper.h"
+#include "util/file_utils.h"
 
 using namespace std;
 namespace OHOS {
@@ -47,27 +48,13 @@ void ParseVmallocinfo::CaclVmalloclValue(const string &str, uint64_t &totalValue
 bool ParseVmallocinfo::GetVmallocinfo(uint64_t &value)
 {
     value = 0;
-    string filename = "/proc/vmallocinfo";
-    auto fp = std::unique_ptr<FILE, decltype(&fclose)>{fopen(filename.c_str(), "re"), fclose};
-    if (fp == nullptr) {
-        return false;
-    }
-    char *line = nullptr;
-    ssize_t lineLen;
-    size_t lineAlloc = 0;
-    while ((lineLen = getline(&line, &lineAlloc, fp.get())) > 0) {
-        line[lineLen] = '\0';
-        string str = line;
-        if (str.find("pages=") == string::npos) {
-            continue;
+    string path = "/proc/vmallocinfo";
+    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, [&](string& line) -> void {
+        if (line.find("pages=") != string::npos) {
+            CaclVmalloclValue(line, value);
         }
-        CaclVmalloclValue(str, value);
-    }
-    if (line != nullptr) {
-        free(line);
-        line = nullptr;
-    }
-    return true;
+    });
+    return ret;
 }
 } // namespace HiviewDFX
 } // namespace OHOS
