@@ -58,7 +58,11 @@ bool FileUtils::LoadStringFromProcCb(const std::string& path, bool oneLine, cons
     ssize_t lineLen;
     size_t lineAlloc = 0;
     while ((lineLen = getline(&lineBuf, &lineAlloc, fp.get())) > 0) {
-        lineBuf[lineLen] = '\0';
+        if (lineBuf[lineLen-1] == '\n') {
+            lineBuf[lineLen-1] = '\0';
+        } else {
+            lineBuf[lineLen] = '\0';
+        }
         string content = lineBuf;
         func(content);
         if (oneLine) {
