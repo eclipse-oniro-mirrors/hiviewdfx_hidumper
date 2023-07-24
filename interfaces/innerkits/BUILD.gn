@@ -31,6 +31,7 @@ ohos_shared_library("lib_dump_usage") {
     "${hidumper_frameworks_path}/src/executor/memory/memory_util.cpp",
     "${hidumper_frameworks_path}/src/executor/memory/parse/parse_smaps_rollup_info.cpp",
     "${hidumper_frameworks_path}/src/util/dump_cpu_info_util.cpp",
+    "${hidumper_frameworks_path}/src/util/file_utils.cpp",
     "${hidumper_frameworks_path}/src/util/string_utils.cpp",
     "../../interfaces/innerkits/dump_usage.cpp",
   ]

@@ -78,21 +78,23 @@ void ParseSmapsRollupInfo::GetValue(const string &str, MemInfoData::MemInfo &mem
 bool ParseSmapsRollupInfo::GetMemInfo(const int &pid, MemInfoData::MemInfo &memInfo)
 {
     string filename = "/proc/" + to_string(pid) + "/smaps_rollup";
-    ifstream in(filename);
-    if (!in) {
-        DUMPER_HILOGE(MODULE_SERVICE, "File %s not found.\n", filename.c_str());
+    auto fp = std::unique_ptr<FILE, decltype(&fclose)>{fopen(filename.c_str(), "re"), fclose};
+    if (fp == nullptr) {
         return false;
     }
-
     MemoryUtil::GetInstance().InitMemInfo(memInfo);
-
-    string lineContent;
-    while (getline(in, lineContent)) {
-        GetValue(lineContent, memInfo);
+    char *line = nullptr;
+    ssize_t lineLen;
+    size_t lineAlloc = 0;
+    while ((lineLen = getline(&line, &lineAlloc, fp.get())) > 0) {
+        line[lineLen] = '\0';
+        string content = line;
+        GetValue(content, memInfo);
     }
-
-    in.close();
-
+    if (line != nullptr) {
+        free(line);
+        line = nullptr;
+    }
     return true;
 }
 } // namespace HiviewDFX

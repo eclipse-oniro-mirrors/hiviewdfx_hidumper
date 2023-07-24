@@ -30,6 +30,7 @@
 #include "manager/dump_implement.h"
 #include "dump_utils.h"
 #include "util/string_utils.h"
+#include "util/file_utils.h"
 #ifdef HIDUMPER_ABILITY_BASE_ENABLE
 #include "dump_app_state_observer.h"
 #endif
@@ -45,12 +46,11 @@ namespace OHOS {
 namespace HiviewDFX {
 namespace {
 const std::string DUMPMGR_CPU_SERVICE_NAME = "HiDumperCpuService";
-auto dumpManagerCpuService = DumpDelayedSpSingleton<DumpManagerCpuService>::GetInstance();
 static const std::string LOAD_AVG_FILE_PATH = "/proc/loadavg";
 static constexpr size_t LOAD_AVG_INFO_COUNT = 3;
 static constexpr int PROC_CPU_LENGTH = 256;
 static constexpr long unsigned HUNDRED_PERCENT_VALUE = 100;
-static constexpr long unsigned DELAY_VALUE = 500000;
+static constexpr long unsigned DELAY_VALUE = 100000;
 static constexpr int INVALID_PID = -1;
 }
 DumpManagerCpuService::DumpManagerCpuService() : SystemAbility(DFX_SYS_HIDUMPER_CPU_ABILITY_ID, true)
@@ -95,6 +95,7 @@ std::shared_ptr<DumpEventHandler> DumpManagerCpuService::GetHandler()
 {
     if (handler_ == nullptr) {
         DUMPER_HILOGI(MODULE_CPU_SERVICE, "init handler at get handler");
+        auto dumpManagerCpuService = DumpDelayedSpSingleton<DumpManagerCpuService>::GetInstance();
         handler_ = std::make_shared<DumpEventHandler>(eventRunner_, dumpManagerCpuService);
     }
     return handler_;
@@ -136,32 +137,34 @@ bool DumpManagerCpuService::Init()
 
 void DumpManagerCpuService::EventHandlerInit()
 {
-    if (dumpManagerCpuService->registered_) {
+    if (registered_) {
         return;
     }
-    if (dumpManagerCpuService->eventRunner_ == nullptr) {
-        dumpManagerCpuService->eventRunner_ = AppExecFwk::EventRunner::Create(DUMPMGR_CPU_SERVICE_NAME);
-        if (dumpManagerCpuService->eventRunner_ == nullptr) {
+    if (eventRunner_ == nullptr) {
+        eventRunner_ = AppExecFwk::EventRunner::Create(DUMPMGR_CPU_SERVICE_NAME);
+        if (eventRunner_ == nullptr) {
             DUMPER_HILOGE(MODULE_CPU_SERVICE, "create EventRunner");
             return;
         }
     }
-    dumpManagerCpuService->eventRunner_->Run();
+    eventRunner_->Run();
 
-    if (dumpManagerCpuService->handler_ == nullptr) {
+    if (handler_ == nullptr) {
         DUMPER_HILOGI(MODULE_CPU_SERVICE, "init handler at init");
-        dumpManagerCpuService->handler_ = std::make_shared<DumpEventHandler>(dumpManagerCpuService->eventRunner_,
-            dumpManagerCpuService);
+        auto dumpManagerCpuService = DumpDelayedSpSingleton<DumpManagerCpuService>::GetInstance();
+        handler_ = std::make_shared<DumpEventHandler>(eventRunner_, dumpManagerCpuService);
     }
-    dumpManagerCpuService->handler_->SendEvent(DumpEventHandler::MSG_GET_CPU_INFO_ID,
-        DumpEventHandler::GET_CPU_INFO_DELAY_TIME_INIT);
+    handler_->SendEvent(DumpEventHandler::MSG_GET_CPU_INFO_ID, DumpEventHandler::GET_CPU_INFO_DELAY_TIME_INIT);
 
-    dumpManagerCpuService->registered_ = true;
+    registered_ = true;
 }
 
 bool DumpManagerCpuService::SendImmediateEvent()
 {
     DUMPER_HILOGI(MODULE_CPU_SERVICE, "send immediate event");
+    if (DumpCpuInfoUtil::GetInstance().IsNeedRefreshCpu()) {
+        return false;
+    }
     if (eventRunner_ == nullptr) {
         eventRunner_ = AppExecFwk::EventRunner::Create(DUMPMGR_CPU_SERVICE_NAME);
         if (eventRunner_ == nullptr) {
@@ -171,6 +174,7 @@ bool DumpManagerCpuService::SendImmediateEvent()
     }
 
     if (handler_ == nullptr) {
+        auto dumpManagerCpuService = DumpDelayedSpSingleton<DumpManagerCpuService>::GetInstance();
         handler_ = std::make_shared<DumpEventHandler>(eventRunner_, dumpManagerCpuService);
     }
 
@@ -183,6 +187,7 @@ void DumpManagerCpuService::SystemAbilityStatusChangeListener::OnAddSystemAbilit
 {
     DUMPER_HILOGI(MODULE_CPU_SERVICE, "systemAbilityId=%{public}d, deviceId=%{private}s", systemAbilityId,
         deviceId.c_str());
+    auto dumpManagerCpuService = DumpDelayedSpSingleton<DumpManagerCpuService>::GetInstance();
 
 #ifdef HIDUMPER_ABILITY_BASE_ENABLE
     if (systemAbilityId == APP_MGR_SERVICE_ID) {
@@ -219,10 +224,9 @@ bool DumpManagerCpuService::SubscribeCommonEvent()
     OHOS::EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_BATTERY_CHANGED);
     OHOS::EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
-    if (subscriberPtr_ == nullptr) {
-        subscriberPtr_ = std::make_shared<DumpBatteryStatsSubscriber>(subscribeInfo);
-    }
-    result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(subscriberPtr_);
+    std::shared_ptr<EventFwk::CommonEventSubscriber> subscriberPtr =
+        std::make_shared<DumpBatteryStatsSubscriber>(subscribeInfo);
+    result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(subscriberPtr);
     if (!result) {
         DUMPER_HILOGE(MODULE_CPU_SERVICE, "Subscribe CommonEvent failed");
     } else {
@@ -337,7 +341,7 @@ DumpStatus DumpManagerCpuService::ReadLoadAvgInfo(const std::string &filePath, s
     }
 
     std::string rawData;
-    if (!LoadStringFromFile(filePath, rawData)) {
+    if (!FileUtils::LoadStringFromProc(filePath, rawData)) {
         return DumpStatus::DUMP_FAIL;
     }
     DUMPER_HILOGD(MODULE_CPU_SERVICE, "rawData is %{public}s", rawData.c_str());
@@ -502,10 +506,7 @@ void DumpManagerCpuService::StartService()
         DUMPER_HILOGE(MODULE_CPU_SERVICE, "failed to find SystemAbilityManager.");
         return;
     }
-    if (dumpManagerCpuService == nullptr) {
-        DUMPER_HILOGE(MODULE_CPU_SERVICE, "DumpManagerCpuService service is null.");
-        return;
-    }
+    auto dumpManagerCpuService = DumpDelayedSpSingleton<DumpManagerCpuService>::GetInstance();
     int ret = samgr->AddSystemAbility(DFX_SYS_HIDUMPER_CPU_ABILITY_ID, dumpManagerCpuService);
     if (ret != 0) {
         DUMPER_HILOGE(MODULE_CPU_SERVICE, "failed to add sys dump cpu service ability.");

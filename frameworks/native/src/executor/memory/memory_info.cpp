@@ -40,6 +40,7 @@
 #include "securec.h"
 #include "string_ex.h"
 #include "util/string_utils.h"
+#include "util/file_utils.h"
 #ifdef HIDUMPER_GRAPHIC_ENABLE
 #include "transaction/rs_interfaces.h"
 using namespace OHOS::Rosen;
@@ -544,15 +545,11 @@ bool MemoryInfo::GetPids()
 uint64_t MemoryInfo::GetVss(const int &pid)
 {
     string filename = "/proc/" + to_string(pid) + "/statm";
-    ifstream in(filename);
-    if (!in) {
-        LOG_ERR("file %s not found.\n", filename.c_str());
-        return false;
-    }
-
     uint64_t res = 0;
     string lineContent;
-    getline(in, lineContent);
+    if (!FileUtils::LoadStringFromProc(filename, lineContent, true)) {
+        return res;
+    }
     if (!lineContent.empty()) {
         uint64_t tempValue = 0;
         int ret = sscanf_s(lineContent.c_str(), "%lld^*", &tempValue);
@@ -562,7 +559,6 @@ uint64_t MemoryInfo::GetVss(const int &pid)
             DUMPER_HILOGE(MODULE_SERVICE, "GetVss error! pid = %d", pid);
         }
     }
-    in.close();
     return res;
 }
 

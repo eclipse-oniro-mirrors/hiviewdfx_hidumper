@@ -81,9 +81,6 @@ private:
     std::vector<std::shared_ptr<ProcInfo>> oldProcs_;
     int cpuUsagePid_{-1};
     StringMatrix dumpCPUDatas_{nullptr};
-#ifdef HIDUMPER_BATTERY_ENABLE
-    std::shared_ptr<EventFwk::CommonEventSubscriber> subscriberPtr_{nullptr};
-#endif
 
 class SystemAbilityStatusChangeListener : public OHOS::SystemAbilityStatusChangeStub {
 public:

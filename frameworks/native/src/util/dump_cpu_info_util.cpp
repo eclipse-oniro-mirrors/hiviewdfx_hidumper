@@ -16,10 +16,10 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <chrono>
-#include "file_ex.h"
 #include "string_ex.h"
 #include "hilog_wrapper.h"
 #include "datetime_ex.h"
+#include "util/file_utils.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -61,7 +61,7 @@ bool DumpCpuInfoUtil::GetCurCPUInfo(std::shared_ptr<CPUInfo> &cpuInfo)
         return false;
     }
     std::string statRawData;
-    if (!LoadStringFromFile(PROC_STAT_FILE_PATH, statRawData)) {
+    if (!FileUtils::LoadStringFromProc(PROC_STAT_FILE_PATH, statRawData)) {
         return false;
     }
     size_t pos = statRawData.find_first_of("\n");
@@ -107,7 +107,7 @@ bool DumpCpuInfoUtil::GetCurProcInfo(std::vector<std::shared_ptr<ProcInfo>> &pro
     procInfos.clear();
     for (size_t i = 0; i < procFiles.size(); i++) {
         std::string rawData;
-        if (!LoadStringFromFile(procFiles[i], rawData)) {
+        if (!FileUtils::LoadStringFromProc(procFiles[i], rawData)) {
             continue;
         }
 
@@ -173,7 +173,7 @@ bool DumpCpuInfoUtil::GetCurSpecProcInfo(int pid, std::shared_ptr<ProcInfo> &spe
 
     std::string filePath = "/proc/" + std::to_string(pid) + "/stat";
     std::string rawData;
-    if (!LoadStringFromFile(filePath, rawData)) {
+    if (!FileUtils::LoadStringFromProc(filePath, rawData)) {
         return false;
     }
 
