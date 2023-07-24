@@ -66,7 +66,7 @@ private:
     bool CheckFrequentDumpping();
 
 private:
-    static const std::string PROC_STAT_FILE_PATH;
+    static const std::string PROC_STAT_PATH;
     static const std::string SPACE;
     static const int TM_START_YEAR;
     static const int DEC_SYSTEM_VALUE;
