@@ -26,7 +26,8 @@ public:
     void operator=(FileUtils const &) = delete;
 
     bool CreateFolder(const std::string &path);
-    static bool LoadStringFromProc(const std::string& path, std::string& content, bool oneLine = false);
+    using DataHandler = std::function<void(std::string& content)>;
+    bool LoadStringFromProcCb(const std::string& path, bool oneLine, const DataHandler& func);
 
 private:
 };
