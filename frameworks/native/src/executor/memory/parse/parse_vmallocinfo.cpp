@@ -49,7 +49,7 @@ bool ParseVmallocinfo::GetVmallocinfo(uint64_t &value)
 {
     value = 0;
     string path = "/proc/vmallocinfo";
-    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, [&](string& line) -> void {
+    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, true, [&](string& line) -> void {
         if (line.find("pages=") != string::npos) {
             CaclVmalloclValue(line, value);
         }
