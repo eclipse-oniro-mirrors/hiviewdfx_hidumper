@@ -100,7 +100,7 @@ bool ParseSmapsInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int 
 {
     DUMPER_HILOGD(MODULE_SERVICE, "ParseSmapsInfo: GetInfo pid:(%d) begin.\n", pid);
     string path = "/proc/" + to_string(pid) + "/smaps";
-    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, [&](string& line) -> void {
+    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, true, [&](string& line) -> void {
         string name;
         uint64_t iNode = 0;
         if (StringUtils::GetInstance().IsEnd(line, "B")) {
@@ -134,7 +134,7 @@ bool ParseSmapsInfo::ShowSmapsData(const MemoryFilter::MemoryType &memType, cons
     bool isShowSmapsInfo, vector<map<string, string>> &vectMap)
 {
     string path = "/proc/" + to_string(pid) + "/smaps";
-    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, [&](string& line) -> void {
+    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, true, [&](string& line) -> void {
         string name;
         uint64_t iNode = 0;
         if (StringUtils::GetInstance().IsEnd(line, "B")) {

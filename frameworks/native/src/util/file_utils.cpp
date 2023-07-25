@@ -48,7 +48,7 @@ bool FileUtils::CreateFolder(const string &path)
     return false;
 }
 
-bool FileUtils::LoadStringFromProcCb(const std::string& path, bool oneLine, const DataHandler& func)
+bool FileUtils::LoadStringFromProcCb(const std::string& path, bool oneLine, bool endWithoutN, const DataHandler& func)
 {
     auto fp = std::unique_ptr<FILE, decltype(&fclose)>{fopen(path.c_str(), "re"), fclose};
     if (fp == nullptr) {
@@ -58,10 +58,9 @@ bool FileUtils::LoadStringFromProcCb(const std::string& path, bool oneLine, cons
     ssize_t lineLen;
     size_t lineAlloc = 0;
     while ((lineLen = getline(&lineBuf, &lineAlloc, fp.get())) > 0) {
-        if (lineBuf[lineLen-1] == '\n') {
+        lineBuf[lineLen] = '\0';
+        if (endWithoutN && lineBuf[lineLen-1] == '\n') {
             lineBuf[lineLen-1] = '\0';
-        } else {
-            lineBuf[lineLen] = '\0';
         }
         string content = lineBuf;
         func(content);

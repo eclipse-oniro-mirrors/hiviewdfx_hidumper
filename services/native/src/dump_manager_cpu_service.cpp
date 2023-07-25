@@ -341,7 +341,7 @@ DumpStatus DumpManagerCpuService::ReadLoadAvgInfo(const std::string &filePath, s
     }
 
     std::string rawData;
-    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(filePath, false, [&](string& line) -> void {
+    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(filePath, false, false, [&](string& line) -> void {
         rawData += line;
     });
     if (!ret) {
