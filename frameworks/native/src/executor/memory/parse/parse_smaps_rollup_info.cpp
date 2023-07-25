@@ -17,6 +17,7 @@
 #include "executor/memory/memory_util.h"
 #include "hilog_wrapper.h"
 #include "util/string_utils.h"
+#include "util/file_utils.h"
 
 using namespace std;
 
@@ -77,25 +78,11 @@ void ParseSmapsRollupInfo::GetValue(const string &str, MemInfoData::MemInfo &mem
 
 bool ParseSmapsRollupInfo::GetMemInfo(const int &pid, MemInfoData::MemInfo &memInfo)
 {
-    string filename = "/proc/" + to_string(pid) + "/smaps_rollup";
-    auto fp = std::unique_ptr<FILE, decltype(&fclose)>{fopen(filename.c_str(), "re"), fclose};
-    if (fp == nullptr) {
-        return false;
-    }
-    MemoryUtil::GetInstance().InitMemInfo(memInfo);
-    char *line = nullptr;
-    ssize_t lineLen;
-    size_t lineAlloc = 0;
-    while ((lineLen = getline(&line, &lineAlloc, fp.get())) > 0) {
-        line[lineLen] = '\0';
-        string content = line;
-        GetValue(content, memInfo);
-    }
-    if (line != nullptr) {
-        free(line);
-        line = nullptr;
-    }
-    return true;
+    string path = "/proc/" + to_string(pid) + "/smaps_rollup";
+    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, true, [&](string& line) -> void {
+        GetValue(line, memInfo);
+    });
+    return ret;
 }
 } // namespace HiviewDFX
 } // namespace OHOS

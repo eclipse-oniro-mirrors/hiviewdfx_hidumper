@@ -48,25 +48,29 @@ bool FileUtils::CreateFolder(const string &path)
     return false;
 }
 
-bool FileUtils::LoadStringFromProc(const std::string& path, std::string& content, bool oneLine)
+bool FileUtils::LoadStringFromProcCb(const std::string& path, bool oneLine, bool endWithoutN, const DataHandler& func)
 {
     auto fp = std::unique_ptr<FILE, decltype(&fclose)>{fopen(path.c_str(), "re"), fclose};
     if (fp == nullptr) {
         return false;
     }
-    char *line = nullptr;
+    char *lineBuf = nullptr;
     ssize_t lineLen;
     size_t lineAlloc = 0;
-    while ((lineLen = getline(&line, &lineAlloc, fp.get())) > 0) {
-        line[lineLen] = '\0';
-        content += line;
+    while ((lineLen = getline(&lineBuf, &lineAlloc, fp.get())) > 0) {
+        lineBuf[lineLen] = '\0';
+        if (endWithoutN && lineBuf[lineLen-1] == '\n') {
+            lineBuf[lineLen-1] = '\0';
+        }
+        string content = lineBuf;
+        func(content);
         if (oneLine) {
             break;
         }
     }
-    if (line != nullptr) {
-        free(line);
-        line = nullptr;
+    if (lineBuf != nullptr) {
+        free(lineBuf);
+        lineBuf = nullptr;
     }
     return true;
 }

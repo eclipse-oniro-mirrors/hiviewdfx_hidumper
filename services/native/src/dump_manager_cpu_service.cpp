@@ -341,7 +341,10 @@ DumpStatus DumpManagerCpuService::ReadLoadAvgInfo(const std::string &filePath, s
     }
 
     std::string rawData;
-    if (!FileUtils::LoadStringFromProc(filePath, rawData)) {
+    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(filePath, false, false, [&](string& line) -> void {
+        rawData += line;
+    });
+    if (!ret) {
         return DumpStatus::DUMP_FAIL;
     }
     DUMPER_HILOGD(MODULE_CPU_SERVICE, "rawData is %{public}s", rawData.c_str());
