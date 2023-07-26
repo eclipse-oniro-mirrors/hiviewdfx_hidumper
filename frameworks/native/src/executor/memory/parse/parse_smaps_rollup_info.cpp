@@ -17,6 +17,7 @@
 #include "executor/memory/memory_util.h"
 #include "hilog_wrapper.h"
 #include "util/string_utils.h"
+#include "util/file_utils.h"
 
 using namespace std;
 
@@ -77,23 +78,11 @@ void ParseSmapsRollupInfo::GetValue(const string &str, MemInfoData::MemInfo &mem
 
 bool ParseSmapsRollupInfo::GetMemInfo(const int &pid, MemInfoData::MemInfo &memInfo)
 {
-    string filename = "/proc/" + to_string(pid) + "/smaps_rollup";
-    ifstream in(filename);
-    if (!in) {
-        DUMPER_HILOGE(MODULE_SERVICE, "File %s not found.\n", filename.c_str());
-        return false;
-    }
-
-    MemoryUtil::GetInstance().InitMemInfo(memInfo);
-
-    string lineContent;
-    while (getline(in, lineContent)) {
-        GetValue(lineContent, memInfo);
-    }
-
-    in.close();
-
-    return true;
+    string path = "/proc/" + to_string(pid) + "/smaps_rollup";
+    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, true, [&](string& line) -> void {
+        GetValue(line, memInfo);
+    });
+    return ret;
 }
 } // namespace HiviewDFX
 } // namespace OHOS

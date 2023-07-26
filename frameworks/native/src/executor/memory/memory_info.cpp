@@ -40,6 +40,7 @@
 #include "securec.h"
 #include "string_ex.h"
 #include "util/string_utils.h"
+#include "util/file_utils.h"
 #ifdef HIDUMPER_GRAPHIC_ENABLE
 #include "transaction/rs_interfaces.h"
 using namespace OHOS::Rosen;
@@ -543,26 +544,22 @@ bool MemoryInfo::GetPids()
 
 uint64_t MemoryInfo::GetVss(const int &pid)
 {
-    string filename = "/proc/" + to_string(pid) + "/statm";
-    ifstream in(filename);
-    if (!in) {
-        LOG_ERR("file %s not found.\n", filename.c_str());
-        return false;
-    }
-
+    string path = "/proc/" + to_string(pid) + "/statm";
     uint64_t res = 0;
-    string lineContent;
-    getline(in, lineContent);
-    if (!lineContent.empty()) {
-        uint64_t tempValue = 0;
-        int ret = sscanf_s(lineContent.c_str(), "%lld^*", &tempValue);
-        if (ret != -1) {
-            res = tempValue * VSS_BIT;
-        } else {
-            DUMPER_HILOGE(MODULE_SERVICE, "GetVss error! pid = %d", pid);
+    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, true, true, [&](string& line) -> void {
+        if (!line.empty()) {
+            uint64_t tempValue = 0;
+            int retScanf = sscanf_s(line.c_str(), "%lld^*", &tempValue);
+            if (retScanf != -1) {
+                res = tempValue * VSS_BIT;
+            } else {
+                DUMPER_HILOGE(MODULE_SERVICE, "GetVss error! pid = %d", pid);
+            }
         }
+    });
+    if (!ret) {
+        return 0;
     }
-    in.close();
     return res;
 }
 

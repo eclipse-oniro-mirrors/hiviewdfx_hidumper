@@ -18,6 +18,7 @@
 #include "executor/memory/memory_util.h"
 #include "hilog_wrapper.h"
 #include "util/string_utils.h"
+#include "util/file_utils.h"
 
 using namespace std;
 namespace OHOS {
@@ -98,30 +99,22 @@ bool ParseSmapsInfo::GetSmapsValue(const MemoryFilter::MemoryType &memType, cons
 bool ParseSmapsInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &result)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "ParseSmapsInfo: GetInfo pid:(%d) begin.\n", pid);
-    string filename = "/proc/" + to_string(pid) + "/smaps";
-    ifstream in(filename);
-    if (!in) {
-        DUMPER_HILOGE(MODULE_SERVICE, "File %s not found.\n", filename.c_str());
-        return false;
-    }
-
-    string content;
-    while (getline(in, content)) {
+    string path = "/proc/" + to_string(pid) + "/smaps";
+    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, true, [&](string& line) -> void {
         string name;
         uint64_t iNode = 0;
-        if (StringUtils::GetInstance().IsEnd(content, "B")) {
+        if (StringUtils::GetInstance().IsEnd(line, "B")) {
             string type;
             uint64_t value = 0;
-            if (GetValue(memType, content, type, value)) {
+            if (GetValue(memType, line, type, value)) {
                 MemoryUtil::GetInstance().CalcGroup(memGroup_, type, value, result);
             }
-        } else if (MemoryUtil::GetInstance().IsNameLine(content, name, iNode)) {
+        } else if (MemoryUtil::GetInstance().IsNameLine(line, name, iNode)) {
             MemoryFilter::GetInstance().ParseMemoryGroup(name, memGroup_, iNode);
         }
-    }
-    in.close();
+    });
     DUMPER_HILOGD(MODULE_SERVICE, "ParseSmapsInfo: GetInfo pid:(%d) end,success!\n", pid);
-    return true;
+    return ret;
 }
 
 void ParseSmapsInfo::SetMapByNameLine(const string &group, const string &content)
@@ -140,24 +133,18 @@ void ParseSmapsInfo::SetMapByNameLine(const string &group, const string &content
 bool ParseSmapsInfo::ShowSmapsData(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &result,
     bool isShowSmapsInfo, vector<map<string, string>> &vectMap)
 {
-    string filename = "/proc/" + to_string(pid) + "/smaps";
-    ifstream in(filename);
-    if (!in) {
-        DUMPER_HILOGE(MODULE_SERVICE, "File %s not found.", filename.c_str());
-        return false;
-    }
-    string content;
-    while (getline(in, content)) {
+    string path = "/proc/" + to_string(pid) + "/smaps";
+    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, true, [&](string& line) -> void {
         string name;
         uint64_t iNode = 0;
-        if (StringUtils::GetInstance().IsEnd(content, "B")) {
+        if (StringUtils::GetInstance().IsEnd(line, "B")) {
             string type;
             uint64_t value = 0;
-            if (GetSmapsValue(memType, content, type, value)) {
+            if (GetSmapsValue(memType, line, type, value)) {
                 MemoryUtil::GetInstance().CalcGroup(memGroup_, type, value, result);
                 memMap_.insert(pair<string, string>(type, to_string(value)));
             }
-        } else if (MemoryUtil::GetInstance().IsNameLine(content, name, iNode)) {
+        } else if (MemoryUtil::GetInstance().IsNameLine(line, name, iNode)) {
             memGroup_ = name;
             if (!memMap_.empty()) {
                 vectMap.push_back(memMap_);
@@ -170,16 +157,15 @@ bool ParseSmapsInfo::ShowSmapsData(const MemoryFilter::MemoryType &memType, cons
                 result[memGroup_].insert(pair<string, uint64_t>("Name", 0));
             }
             if (isShowSmapsInfo) {
-                SetMapByNameLine(memGroup_, content);
+                SetMapByNameLine(memGroup_, line);
             }
         }
-    }
+    });
     if (!memMap_.empty()) {
         vectMap.push_back(memMap_);
         memMap_.clear();
     }
-    in.close();
-    return true;
+    return ret;
 }
 } // namespace HiviewDFX
 } // namespace OHOS

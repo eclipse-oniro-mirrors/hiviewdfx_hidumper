@@ -16,8 +16,6 @@
 #include "hilog_wrapper.h"
 namespace OHOS {
 namespace HiviewDFX {
-static sptr<IRemoteObject> remoteObjectPtr = nullptr;
-
 OnDemandLoadCallback::OnDemandLoadCallback()
 {
 }
@@ -31,18 +29,18 @@ void OnDemandLoadCallback::OnLoadSystemAbilitySuccess(int32_t systemAbilityId, c
     DUMPER_HILOGD(MODULE_CLIENT,
         "debug|OnLoadSystemAbilitySuccess systemAbilityId:%{public}d IRemoteObject result:%{public}s", systemAbilityId,
         ((remoteObject != nullptr) ? "succeed" : "failed"));
-    remoteObjectPtr = remoteObject;
+    isRemoteObject_ = true;
 }
 
 void OnDemandLoadCallback::OnLoadSystemAbilityFail(int32_t systemAbilityId)
 {
     DUMPER_HILOGD(MODULE_CLIENT, "debug|OnLoadSystemAbilityFail systemAbilityId:%{public}d", systemAbilityId);
-    remoteObjectPtr = nullptr;
+    isRemoteObject_ = false;
 }
 
-sptr<IRemoteObject> OnDemandLoadCallback::GetLoadSystemAbilityRemoteObj()
+bool OnDemandLoadCallback::CheckLoadSystemAbilityStatus()
 {
-    return remoteObjectPtr;
+    return isRemoteObject_;
 }
 } // namespace HiviewDFX
 } // namespace OHOS

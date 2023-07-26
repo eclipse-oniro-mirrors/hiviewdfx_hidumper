@@ -21,6 +21,7 @@
 #include <iostream>
 #include "hilog_wrapper.h"
 #include "sys/stat.h"
+#include "util/file_utils.h"
 
 using namespace std;
 namespace OHOS {
@@ -173,15 +174,16 @@ bool DumpCommonUtils::GetPidInfos(std::vector<PidInfo> &infos, bool all)
 
 bool DumpCommonUtils::IsUserPid(const std::string &pid)
 {
-    string filename = "/proc/" + pid + "/smaps";
-    std::ifstream in(filename);
-    if (in) {
-        string line;
-        getline(in, line);
-        if (!line.empty()) {
-            return true;
-        }
-        in.close();
+    string path = "/proc/" + pid + "/smaps";
+    string lineContent;
+    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, true, false, [&](string& line) -> void {
+        lineContent += line;
+    });
+    if (!ret) {
+        return false;
+    }
+    if (!lineContent.empty()) {
+        return true;
     }
     return false;
 }
@@ -216,7 +218,10 @@ bool DumpCommonUtils::GetUserPids(std::vector<int> &pids)
 bool DumpCommonUtils::GetLinesInFile(const std::string& file, std::vector<std::string>& lines)
 {
     std::string content;
-    if (!LoadStringFromFile(file, content)) {
+    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(file, false, false, [&](string& line) -> void {
+        content += line;
+    });
+    if (!ret) {
         return false;
     }
     SplitStr(content, "\n", lines);
@@ -258,7 +263,10 @@ bool DumpCommonUtils::GetProcessNameByPid(int pid, std::string& name)
     }
     std::string filePath = filesysdir;
     std::string content;
-    if (!LoadStringFromFile(filePath, content)) {
+    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(filePath, false, false, [&](string& line) -> void {
+        content += line;
+    });
+    if (!ret) {
         return false;
     }
     name = content;

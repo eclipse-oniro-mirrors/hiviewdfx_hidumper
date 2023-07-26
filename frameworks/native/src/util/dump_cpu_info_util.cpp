@@ -16,14 +16,14 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <chrono>
-#include "file_ex.h"
 #include "string_ex.h"
 #include "hilog_wrapper.h"
 #include "datetime_ex.h"
+#include "util/file_utils.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-const std::string DumpCpuInfoUtil::PROC_STAT_FILE_PATH = "/proc/stat";
+const std::string DumpCpuInfoUtil::PROC_STAT_PATH = "/proc/stat";
 const std::string DumpCpuInfoUtil::SPACE = " ";
 const int DumpCpuInfoUtil::TM_START_YEAR = 1900;
 const int DumpCpuInfoUtil::DEC_SYSTEM_VALUE = 10;
@@ -61,7 +61,11 @@ bool DumpCpuInfoUtil::GetCurCPUInfo(std::shared_ptr<CPUInfo> &cpuInfo)
         return false;
     }
     std::string statRawData;
-    if (!LoadStringFromFile(PROC_STAT_FILE_PATH, statRawData)) {
+    auto& fileInstance = FileUtils::GetInstance();
+    bool ret = fileInstance.LoadStringFromProcCb(PROC_STAT_PATH, false, false, [&](std::string& line) -> void {
+        statRawData += line;
+    });
+    if (!ret) {
         return false;
     }
     size_t pos = statRawData.find_first_of("\n");
@@ -105,9 +109,13 @@ bool DumpCpuInfoUtil::GetCurProcInfo(std::vector<std::shared_ptr<ProcInfo>> &pro
     }
     // Set procInfos size 0
     procInfos.clear();
+    auto& fileInstance = FileUtils::GetInstance();
     for (size_t i = 0; i < procFiles.size(); i++) {
         std::string rawData;
-        if (!LoadStringFromFile(procFiles[i], rawData)) {
+        bool ret = fileInstance.LoadStringFromProcCb(procFiles[i], false, false, [&](std::string& line) -> void {
+            rawData += line;
+        });
+        if (!ret) {
             continue;
         }
 
@@ -171,9 +179,12 @@ bool DumpCpuInfoUtil::GetCurSpecProcInfo(int pid, std::shared_ptr<ProcInfo> &spe
         return false;
     }
 
-    std::string filePath = "/proc/" + std::to_string(pid) + "/stat";
+    std::string path = "/proc/" + std::to_string(pid) + "/stat";
     std::string rawData;
-    if (!LoadStringFromFile(filePath, rawData)) {
+    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, false, [&](std::string& line) -> void {
+        rawData += line;
+    });
+    if (!ret) {
         return false;
     }
 

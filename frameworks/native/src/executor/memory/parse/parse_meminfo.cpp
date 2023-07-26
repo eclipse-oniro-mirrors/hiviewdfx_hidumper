@@ -19,6 +19,7 @@
 #include "executor/memory/memory_util.h"
 #include "hilog_wrapper.h"
 #include "util/string_utils.h"
+#include "util/file_utils.h"
 
 using namespace std;
 namespace OHOS {
@@ -53,21 +54,11 @@ void ParseMeminfo::SetData(const string &str, ValueMap &result)
  */
 bool ParseMeminfo::GetMeminfo(ValueMap &result)
 {
-    string filename = "/proc/meminfo";
-    ifstream in(filename);
-    if (!in) {
-        DUMPER_HILOGE(MODULE_SERVICE, "File %s not found.\n", filename.c_str());
-        return false;
-    }
-
-    string str;
-    while (getline(in, str)) {
-        SetData(str, result);
-    }
-
-    in.close();
-
-    return true;
+    string path = "/proc/meminfo";
+    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, true, [&](string& line) -> void {
+        SetData(line, result);
+    });
+    return ret;
 }
 } // namespace HiviewDFX
 } // namespace OHOS

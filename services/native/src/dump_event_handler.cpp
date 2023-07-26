@@ -32,22 +32,17 @@ void DumpEventHandler::ProcessEvent([[maybe_unused]] const AppExecFwk::InnerEven
 {
     auto dmsptr = service_.promote();
     if (dmsptr == nullptr) {
-        DUMPER_HILOGE(MODULE_SERVICE, "service is nullptr!");
+        DUMPER_HILOGE(MODULE_CPU_SERVICE, "service is nullptr!");
         return;
     }
-
     if (event == nullptr) {
-        DUMPER_HILOGE(MODULE_SERVICE, "event is nullptr!");
+        DUMPER_HILOGE(MODULE_CPU_SERVICE, "event is nullptr!");
         return;
     }
     auto eventId = event->GetInnerEventId();
-    DUMPER_HILOGI(MODULE_SERVICE, "debug|eventId=%{public}d", eventId);
+    DUMPER_HILOGI(MODULE_CPU_SERVICE, "debug|eventId=%{public}d", eventId);
     switch (eventId) {
         case MSG_GET_CPU_INFO_ID: {
-            DUMPER_HILOGI(MODULE_SERVICE, "MSG_GET_CPU_INFO_ID!");
-            if (DumpCpuInfoUtil::GetInstance().IsNeedRefreshCpu()) {
-                break;
-            }
             DumpCpuInfoUtil::GetInstance().UpdateCpuInfo();
             (dmsptr->GetHandler())->RemoveAllEvents();
             (dmsptr->GetHandler())->SendEvent(MSG_GET_CPU_INFO_ID, GET_CPU_INFO_DELAY_TIME);
