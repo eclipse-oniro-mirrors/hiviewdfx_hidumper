@@ -546,10 +546,10 @@ uint64_t MemoryInfo::GetVss(const int &pid)
 {
     string path = "/proc/" + to_string(pid) + "/statm";
     uint64_t res = 0;
-    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, true, true, [&](string& line) -> void {
+    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, true, true, [&](const string& line) -> void {
         if (!line.empty()) {
             uint64_t tempValue = 0;
-            int retScanf = sscanf_s(line.c_str(), "%lld^*", &tempValue);
+            int retScanf = sscanf_s(line.c_str(), "%ld^*", &tempValue);
             if (retScanf != -1) {
                 res = tempValue * VSS_BIT;
             } else {

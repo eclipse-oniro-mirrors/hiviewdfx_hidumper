@@ -83,6 +83,19 @@ HWTEST_F(MemoryDumperTest, MemoryDumperTest002, TestSize.Level3)
 }
 
 /**
+ * @tc.name: MemoryDumperTest003
+ * @tc.desc: Test MemoryDumper has correct group.
+ * @tc.type: FUNC
+ * @tc.require: issueI5NWZQ
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest003, TestSize.Level3)
+{
+    std::string cmd = "hidumper --mem 1";
+    std::string str = "Total";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+}
+
+/**
  * @tc.name: MemoryUtilTest001
  * @tc.desc: Test IsNameLine has correct ret.
  * @tc.type: FUNC

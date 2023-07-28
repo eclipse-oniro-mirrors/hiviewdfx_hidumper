@@ -62,7 +62,7 @@ bool DumpCpuInfoUtil::GetCurCPUInfo(std::shared_ptr<CPUInfo> &cpuInfo)
     }
     std::string statRawData;
     auto& fileInstance = FileUtils::GetInstance();
-    bool ret = fileInstance.LoadStringFromProcCb(PROC_STAT_PATH, false, false, [&](std::string& line) -> void {
+    bool ret = fileInstance.LoadStringFromProcCb(PROC_STAT_PATH, false, false, [&](const std::string& line) -> void {
         statRawData += line;
     });
     if (!ret) {
@@ -112,7 +112,7 @@ bool DumpCpuInfoUtil::GetCurProcInfo(std::vector<std::shared_ptr<ProcInfo>> &pro
     auto& fileInstance = FileUtils::GetInstance();
     for (size_t i = 0; i < procFiles.size(); i++) {
         std::string rawData;
-        bool ret = fileInstance.LoadStringFromProcCb(procFiles[i], false, false, [&](std::string& line) -> void {
+        bool ret = fileInstance.LoadStringFromProcCb(procFiles[i], false, false, [&](const std::string& line) -> void {
             rawData += line;
         });
         if (!ret) {
@@ -181,7 +181,7 @@ bool DumpCpuInfoUtil::GetCurSpecProcInfo(int pid, std::shared_ptr<ProcInfo> &spe
 
     std::string path = "/proc/" + std::to_string(pid) + "/stat";
     std::string rawData;
-    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, false, [&](std::string& line) -> void {
+    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, false, [&](const std::string& line) -> void {
         rawData += line;
     });
     if (!ret) {

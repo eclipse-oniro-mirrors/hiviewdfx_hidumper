@@ -243,5 +243,18 @@ HWTEST_F(HiDumperInnerkitsTest, GetHeapInfo001, TestSize.Level1)
         ASSERT_TRUE(getHeapInfo->GetInfo(MemoryFilter::APPOINT_PID, testPid, groupMap));
     }
 }
+
+/**
+ * @tc.name: ParseSmapsInfoGetInfoTest001
+ * @tc.desc: Test GetMemInfo.
+ * @tc.type: FUNC
+ * @tc.require: issueI5NWZQ
+ */
+HWTEST_F(HiDumperInnerkitsTest, ParseSmapsInfoGetInfoTest001, TestSize.Level1)
+{
+    std::unique_ptr<ParseSmapsInfo> parseSmapsInfo = std::make_unique<ParseSmapsInfo>();
+    GroupMap groupMap;
+    EXPECT_TRUE(parseSmapsInfo->GetInfo(MemoryFilter::APPOINT_PID, 1, groupMap));
+}
 } // namespace HiviewDFX
 } // namespace OHOS
