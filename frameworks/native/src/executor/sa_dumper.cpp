@@ -81,29 +81,29 @@ class PipeReader {
 public:
     PipeReader(int Id, StringMatrix Data) : id_(Id), spData_(Data)
     {
-        g_fds[PIPE_READ] = PIPE_INIT;
-        g_fds[PIPE_WRITE] = PIPE_INIT;
-        pipe(g_fds);
+        fds_[PIPE_READ] = PIPE_INIT;
+        fds_[PIPE_WRITE] = PIPE_INIT;
+        pipe(fds_);
     }
     ~PipeReader()
     {
-        if (g_wt.joinable()) {
-            g_wt.join();
+        if (wt_.joinable()) {
+            wt_.join();
         }
     }
 
 public:
     int GetWritePipe()
     {
-        return g_fds[PIPE_WRITE];
+        return fds_[PIPE_WRITE];
     }
     void Run()
     {
-        g_wt = std::thread(Execute, id_, g_fds[PIPE_READ], spData_);
+        wt_ = std::thread(Execute, id_, fds_[PIPE_READ], spData_);
     }
     void Stop()
     {
-        close(g_fds[PIPE_WRITE]);
+        close(fds_[PIPE_WRITE]);
     }
     static void Execute(int id, int fd, StringMatrix Data)
     {
@@ -113,7 +113,6 @@ public:
         }
         const int bufSize = 128;
         char buffer[bufSize];
-
         while (!feof(fp)) {
             if (fgets(buffer, bufSize - 1, fp) != nullptr) {
                 MatrixWriter(Data).WriteLine(buffer);
@@ -125,8 +124,8 @@ public:
 private:
     int id_;
     StringMatrix spData_;
-    int g_fds[PIPE_LENGTH];
-    std::thread g_wt;
+    int fds_[PIPE_LENGTH];
+    std::thread wt_;
 };
 } // namespace
 
