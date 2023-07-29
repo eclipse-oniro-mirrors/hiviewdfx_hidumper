@@ -120,7 +120,6 @@ public:
             }
         }
         fclose(fp);
-        }
     }
 
 private:
