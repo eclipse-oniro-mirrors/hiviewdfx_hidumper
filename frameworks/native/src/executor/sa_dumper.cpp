@@ -116,7 +116,7 @@ public:
 
         while (!feof(fp)) {
             if (fgets(buffer, bufSize - 1, fp) != nullptr) {
-                MatrixWriter(Data).WriteLine(buff);
+                MatrixWriter(Data).WriteLine(buffer);
             }
         }
         fclose(fp);
