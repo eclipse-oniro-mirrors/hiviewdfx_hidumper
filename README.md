@@ -162,6 +162,12 @@ The procedure is as follows:
     hidumper --zip
     ```
 
+18. Run the **hidumper --mem-smaps pid [-v]** The pid parameter is mandatory.Run the following command to query the detailed memory usage of a specified process.
+
+    ```
+    hidumper --zip
+    ```
+
 ## Repositories Involved<a name="section1371113476307"></a>
 
 [DFX Subsystem](https://gitee.com/openharmony/docs/blob/master/en/readme/dfx.md)

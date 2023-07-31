@@ -107,26 +107,18 @@ public:
     }
     static void Execute(int id, int fd, StringMatrix Data)
     {
-        char *buff = static_cast<char *>(malloc(LINE_LENGTH));
-        if (buff == nullptr) {
+        FILE *fp = fdopen(fd, "r");
+        if (fp == nullptr) {
             return;
         }
-        FILE *fp = fdopen(fd, "r");
-        if (fp != nullptr) {
-            size_t size = LINE_LENGTH;
-            for (int i = 1;; ++i) {
-                int len = getline(&buff, &size, fp);
-                if (len <= 0) {
-                    break;
-                }
-                if (buff[--len] == '\n') {
-                    buff[len] = 0;
-                }
-                MatrixWriter(Data).WriteLine(buff);
+        const int bufSize = 128;
+        char buffer[bufSize];
+        while (!feof(fp)) {
+            if (fgets(buffer, bufSize - 1, fp) != nullptr) {
+                MatrixWriter(Data).WriteLine(buffer);
             }
-            fclose(fp);
         }
-        free(buff);
+        fclose(fp);
     }
 
 private:
