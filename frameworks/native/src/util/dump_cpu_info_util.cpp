@@ -16,6 +16,7 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <chrono>
+#include <mutex>
 #include "string_ex.h"
 #include "hilog_wrapper.h"
 #include "datetime_ex.h"
@@ -47,6 +48,8 @@ DumpCpuInfoUtil::~DumpCpuInfoUtil()
 void DumpCpuInfoUtil::UpdateCpuInfo()
 {
     DUMPER_HILOGI(MODULE_COMMON, "UpdateCpuInfo debug|enter");
+    static std::mutex mutexUpdateCpu;
+    std::unique_lock<std::mutex> lock(mutexUpdateCpu);
     CopyCpuInfo(oldCPUInfo_, curCPUInfo_);
     GetCurCPUInfo(curCPUInfo_);
     oldProcs_.assign(curProcs_.begin(), curProcs_.end());
