@@ -27,6 +27,7 @@ const int PIPE_INIT = 0;
 const int PIPE_READ = 0;
 const int PIPE_WRITE = 1;
 const int LINE_LENGTH = 256;
+const int BUF_LENGTH = 1024;
 const char *SEPARATOR_TEMPLATE = "\n----------------------------------%s---------------------------------\n";
 
 using StringMatrix = std::shared_ptr<std::vector<std::vector<std::string>>>;
@@ -111,10 +112,9 @@ public:
         if (fp == nullptr) {
             return;
         }
-        const int bufSize = 128;
-        char buffer[bufSize];
+        char buffer[BUF_LENGTH];
         while (!feof(fp)) {
-            if (fgets(buffer, bufSize - 1, fp) != nullptr) {
+            if (fgets(buffer, BUF_LENGTH - 1, fp) != nullptr) {
                 MatrixWriter(Data).WriteLine(buffer);
             }
         }
