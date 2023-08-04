@@ -16,8 +16,6 @@ import("../../hidumper.gni")
 config("hidumper_include") {
   include_dirs = [
     ".",
-    "//third_party/json/single_include",
-    "//third_party/json/include",
     "${hidumper_frameworks_path}/include",
   ]
 }

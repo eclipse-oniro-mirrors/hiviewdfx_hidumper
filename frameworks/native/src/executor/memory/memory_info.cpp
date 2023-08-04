@@ -549,7 +549,7 @@ uint64_t MemoryInfo::GetVss(const int &pid)
     bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, true, true, [&](const string& line) -> void {
         if (!line.empty()) {
             uint64_t tempValue = 0;
-            int retScanf = sscanf_s(line.c_str(), "%ld^*", &tempValue);
+            int retScanf = sscanf_s(line.c_str(), "%llu^*", &tempValue);
             if (retScanf != -1) {
                 res = tempValue * VSS_BIT;
             } else {
@@ -574,15 +574,13 @@ bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &gra
     if (memGraphicVec_.empty()) {
         return false;
     }
-    for (auto it = memGraphicVec_.begin(); it != memGraphicVec_.end();) {
+    for (auto it = memGraphicVec_.begin(); it != memGraphicVec_.end(); it++) {
         if (pid == it->GetPid()) {
             graphicsMemory.gl = it-> GetGpuMemorySize() / BYTE_PER_KB;
             graphicsMemory.graph = it-> GetCpuMemorySize() / BYTE_PER_KB;
-            it = memGraphicVec_.erase(it);
             return true;
-        } else {
-            ++it;
         }
+        DUMPER_HILOGE(MODULE_SERVICE, "Get GL from RS fail.");
     }
 #endif
     return false;
@@ -711,6 +709,7 @@ void MemoryInfo::AddMemByProcessTitle(StringMatrix result, string sortType)
 #ifdef HIDUMPER_GRAPHIC_ENABLE
 void MemoryInfo::GetMemGraphics()
 {
+    memGraphicVec_.clear();
     auto& rsClient = Rosen::RSInterfaces::GetInstance();
     memGraphicVec_ = rsClient.GetMemoryGraphics();
     auto sumPidsMemGL = 0;
@@ -733,7 +732,6 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
             return DUMP_FAIL;
         }
 #ifdef HIDUMPER_GRAPHIC_ENABLE
-        memGraphicVec_.clear();
         GetMemGraphics();
 #endif
         isReady_ = true;
