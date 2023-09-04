@@ -206,5 +206,34 @@ void MemoryUtil::SetMemTotalValue(const string &value, vector<string> &lines, ve
     }
     values.push_back(tempValue);
 }
+
+string MemoryUtil::PermToString(const uint64_t iPerm)
+{
+    string perm = "";
+    const string permValue = "rwxp";
+    for (int i = 0; i < permValue.size(); i++)
+    {
+        if ((iPerm & (1 << i)) == (1 << i)) {
+            perm += permValue[i];
+        } else if (i == permValue.size()-1){
+            perm += "s";
+        } else {
+            perm += "-";
+        }
+    }
+    return perm;
+}
+
+uint64_t MemoryUtil::PermToInt(const string& perm)
+{
+    uint64_t iPerm = 0;
+    for (int i = 0; i < perm.size(); i++)
+    {
+        if (perm[i] != '-' && perm[i] != 's') {
+            iPerm |= (1 << i);
+        }
+    }
+    return iPerm;
+}
 } // namespace HiviewDFX
 } // namespace OHOS

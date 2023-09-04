@@ -50,6 +50,7 @@ public:
         std::string name;
         std::string start;
         std::string end;
+        std::string perm;
         uint64_t size;
         uint64_t counts;
     };

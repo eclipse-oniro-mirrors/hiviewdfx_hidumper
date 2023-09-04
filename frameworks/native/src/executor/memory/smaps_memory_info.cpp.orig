@@ -148,13 +148,7 @@ void SmapsMemoryInfo::BuildSmapsResult(const GroupMap &infos, StringMatrix resul
             auto it = valueMap.find(tag);
             string value = "0";
             if (it != valueMap.end()) {
-                if (StringUtils::GetInstance().IsSameStr(tag, "Name")) {
-                    value = info.first;
-                } else if (StringUtils::GetInstance().IsSameStr(tag, "Perm")) {
-                    value = MemoryUtil::GetInstance().PermToString(it->second);
-                } else {
-                    value = to_string(it->second);
-                }
+                value = StringUtils::GetInstance().IsSameStr(tag, "Name") ? info.first : to_string(it->second);
             }
             if (StringUtils::GetInstance().IsSameStr(tag, "Name")) {
                 string space = " ";
@@ -218,7 +212,6 @@ void SmapsMemoryInfo::CalcSmapsGroup(const GroupMap &infos, StringMatrix result,
     MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.swapPss), lines, values, true);
     if (!isShowSmapsInfo) {
         MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.counts), lines, values, true);
-        MemoryUtil::GetInstance().SetMemTotalValue("", lines, values, true);
     } else {
         MemoryUtil::GetInstance().SetMemTotalValue("", lines, values, true);
         MemoryUtil::GetInstance().SetMemTotalValue("", lines, values, true);

@@ -128,6 +128,7 @@ void ParseSmapsInfo::SetMapByNameLine(const string &group, const string &content
     string endVal = startAndEnd.back();
     memMap_.insert(pair<string, string>("Start", startVal));
     memMap_.insert(pair<string, string>("End", endVal));
+    memMap_.insert(pair<string, string>("Perm", datas.at(1)));
 }
 
 bool ParseSmapsInfo::ShowSmapsData(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &result,
@@ -153,6 +154,10 @@ bool ParseSmapsInfo::ShowSmapsData(const MemoryFilter::MemoryType &memType, cons
             if (result.find(memGroup_) != result.end()) {
                 result[memGroup_]["Counts"]++;
             } else {
+                vector<string> datas;
+                StringUtils::GetInstance().StringSplit(line, " ", datas);
+                result[memGroup_].insert(pair<string, uint64_t>("Perm",
+                                                                MemoryUtil::GetInstance().PermToInt(datas.at(1))));
                 result[memGroup_].insert(pair<string, uint64_t>("Counts", 1));
                 result[memGroup_].insert(pair<string, uint64_t>("Name", 0));
             }
