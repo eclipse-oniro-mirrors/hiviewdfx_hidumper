@@ -214,7 +214,7 @@ string MemoryUtil::PermToString(const uint64_t iPerm)
     for (int i = 0; i < permValue.size(); i++) {
         if ((iPerm & (1 << i)) == (1 << i)) {
             perm += permValue[i];
-        } else if (i == permValue.size()-1) {
+        } else if (i == permValue.size() - 1) {
             perm += "s";
         } else {
             perm += "-";
