@@ -123,7 +123,7 @@ HWTEST_F(HidumperCpuServiceTest, DumpBatteryStatsSubscriber001, TestSize.Level3)
     subscriber->lastCapacity_ = -1;
     subscriber->OnReceiveEvent(data);
 
-    std::string path = "/data/local/tmp";
+    const std::string path = "/data/local/tmp";
     ASSERT_TRUE(DumpCommonUtils::IsDirectory(path));
 }
 #endif
