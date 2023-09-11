@@ -16,6 +16,7 @@
 #include <iservice_registry.h>
 #include "dump_manager_cpu_client.h"
 #include "dump_manager_cpu_service.h"
+#include "dump_common_utils.h"
 #ifdef HIDUMPER_ABILITY_BASE_ENABLE
 #include "dump_app_state_observer.h"
 #endif
@@ -121,6 +122,9 @@ HWTEST_F(HidumperCpuServiceTest, DumpBatteryStatsSubscriber001, TestSize.Level3)
 
     subscriber->lastCapacity_ = -1;
     subscriber->OnReceiveEvent(data);
+
+    const std::string path = "/data/local/tmp";
+    ASSERT_TRUE(DumpCommonUtils::IsDirectory(path));
 }
 #endif
 } // namespace HiviewDFX
