@@ -35,6 +35,7 @@ static const std::string MEMINFO_SWAP_PSS = "SwapPss";
 static const std::string MEMINFO_HEAP_SIZE = "Heap_Size";
 static const std::string MEMINFO_HEAP_ALLOC = "Heap_Alloc";
 static const std::string MEMINFO_HEAP_FREE = "Heap_Free";
+static const std::string MEMINFO_GPU = "Gpu";
 }
 class MemoryInfo {
 public:
@@ -46,7 +47,7 @@ public:
     using GroupMap = std::map<std::string, ValueMap>;
     using MemFun = std::function<void(MemInfoData::MemInfo&, uint64_t)>;
 
-    bool GetMemoryInfoByPid(const int &pid, StringMatrix result);
+    bool GetMemoryInfoByPid(const int32_t &pid, StringMatrix result);
     DumpStatus GetMemoryInfoNoPid(StringMatrix result);
     DumpStatus DealResult(StringMatrix result);
 
@@ -75,6 +76,8 @@ private:
     bool dumpSmapsOnStart_ = false;
     uint64_t totalGL_ = 0;
     uint64_t totalGraph_ = 0;
+    uint64_t totalPurgSum_ = 0;
+    uint64_t totalPurgPin_ = 0;
     std::future<GroupMap> fut_;
     std::vector<int> pids_;
     std::vector<MemInfoData::MemUsage> memUsages_;
@@ -87,8 +90,8 @@ private:
     void BuildResult(const GroupMap &infos, StringMatrix result);
 
     std::string AddKbUnit(const uint64_t &value) const;
-    static bool GetMemByProcessPid(const int &pid, MemInfoData::MemUsage &usage);
-    static bool GetSmapsInfoNoPid(const int &pid, GroupMap &result);
+    static bool GetMemByProcessPid(const int32_t &pid, MemInfoData::MemUsage &usage);
+    static bool GetSmapsInfoNoPid(const int32_t &pid, GroupMap &result);
     bool GetMeminfo(ValueMap &result);
     bool GetHardWareUsage(StringMatrix result);
     bool GetCMAUsage(StringMatrix result);
@@ -103,10 +106,11 @@ private:
     void PairToStringMatrix(const std::string &titleStr, std::vector<std::pair<std::string, uint64_t>> &vec,
                             StringMatrix result);
     void AddMemByProcessTitle(StringMatrix result, std::string sortType);
-    static uint64_t GetVss(const int &pid);
-    static std::string GetProcName(const int &pid);
+    static uint64_t GetVss(const int32_t &pid);
+    static std::string GetProcName(const int32_t &pid);
+    static uint64_t GetProcValue(const int32_t &pid, const std::string& key);
 #ifdef HIDUMPER_MEMMGR_ENABLE
-    static std::string GetProcessAdjLabel(const int pid);
+    static std::string GetProcessAdjLabel(const int32_t pid);
 #endif
     static void InitMemInfo(MemInfoData::MemInfo &memInfo);
     static void InitMemUsage(MemInfoData::MemUsage &usage);

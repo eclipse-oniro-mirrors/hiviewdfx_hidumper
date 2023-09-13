@@ -78,7 +78,7 @@ HWTEST_F(MemoryDumperTest, MemoryDumperTest002, TestSize.Level3)
         return;
     }
     std::string cmd = "hidumper --mem";
-    std::string str = "DMA";
+    std::string str = "GPU";
     ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
 }
 

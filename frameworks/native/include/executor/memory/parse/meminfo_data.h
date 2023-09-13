@@ -63,9 +63,22 @@ public:
         uint64_t swapPss;
         uint64_t gl;
         uint64_t graph;
+        uint64_t gpu;
+        uint64_t purgSum;
+        uint64_t purgPin;
         int pid;
         std::string name;
         std::string adjLabel;
+    };
+
+    struct GpuInfo {
+        std::string name;
+        uint64_t pid;
+        uint64_t fd;
+        uint64_t size;
+        uint64_t ino;
+        uint64_t expPid;
+        uint64_t status;
     };
 
     struct GraphicsMemory {
