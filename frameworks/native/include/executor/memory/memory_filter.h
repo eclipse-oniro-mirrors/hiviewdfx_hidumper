@@ -46,7 +46,7 @@ public:
     const std::string PURGEABLE_TAG = "PURGEABLE";
     const std::string GL_OUT_LABEL = "GL";
     const std::string GRAPH_OUT_LABEL = "Graph";
-    const std::string GPU_OUT_LABEL = "Gpu";
+    const std::string DMA_OUT_LABEL = "Dma";
     const std::string PURGSUM_OUT_LABEL = "PurgSum";
     const std::string PURGPIN_OUT_LABEL = "PurgPin";
     const std::vector<std::pair<MemoryTrackerType, std::string>> MEMORY_TRACKER_TYPES = {

@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef GET_GPU_INFO_H
-#define GET_GPU_INFO_H
+#ifndef GET_DMA_INFO_H
+#define GET_DMA_INFO_H
 #include <map>
 #include <string>
 #include <vector>
@@ -23,17 +23,17 @@
 
 namespace OHOS {
 namespace HiviewDFX {
-class GetGpuInfo {
+class GetDmaInfo {
 public:
-    GetGpuInfo();
-    ~GetGpuInfo();
+    GetDmaInfo();
+    ~GetDmaInfo();
 
     using ValueMap = std::map<std::string, uint64_t>;
     using GroupMap = std::map<std::string, ValueMap>;
-    bool GetGpu();
-    uint64_t GetGpu(const int32_t &pid);
+    bool GetDma();
+    uint64_t GetDma(const int32_t &pid);
     bool GetInfo(const int32_t &pid, GroupMap &infos);
-    uint64_t GetTotalGpu();
+    uint64_t GetTotalDma();
 
 private:
     enum Status
@@ -44,13 +44,13 @@ private:
 	};
 
     void SetData(const std::string &line);
-    std::vector<MemInfoData::GpuInfo> GetGpuInfos();
+    std::vector<MemInfoData::DmaInfo> GetDmaInfos();
 
-    std::vector<MemInfoData::GpuInfo> gpuInfos;
-    uint64_t totalGpu;
+    std::vector<MemInfoData::DmaInfo> dmaInfos;
+    uint64_t totalDma;
     const static int BYTE_PER_KB = 1024;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
 
-#endif // GET_GPU_INFO_H
+#endif // GET_DMA_INFO_H

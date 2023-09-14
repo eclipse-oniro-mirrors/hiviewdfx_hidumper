@@ -63,7 +63,7 @@ public:
         uint64_t swapPss;
         uint64_t gl;
         uint64_t graph;
-        uint64_t gpu;
+        uint64_t dma;
         uint64_t purgSum;
         uint64_t purgPin;
         int pid;
@@ -71,7 +71,7 @@ public:
         std::string adjLabel;
     };
 
-    struct GpuInfo {
+    struct DmaInfo {
         std::string name;
         uint64_t pid;
         uint64_t fd;

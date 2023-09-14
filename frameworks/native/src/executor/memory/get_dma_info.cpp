@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "executor/memory/get_gpu_info.h"
+#include "executor/memory/get_dma_info.h"
 #include "executor/memory/memory_filter.h"
 #include "executor/memory/memory_util.h"
 #include "util/string_utils.h"
@@ -20,10 +20,10 @@
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
-GetGpuInfo::GetGpuInfo()
+GetDmaInfo::GetDmaInfo()
 {
 }
-GetGpuInfo::~GetGpuInfo()
+GetDmaInfo::~GetDmaInfo()
 {
 }
 
@@ -32,37 +32,37 @@ GetGpuInfo::~GetGpuInfo()
  * @param {string} &str-String to be inserted into result
  * @return void
  */
-void GetGpuInfo::SetData(const string &str)
+void GetDmaInfo::SetData(const string &str)
 {
     vector<string> datas;
     StringUtils::GetInstance().StringSplit(str, " ", datas);
     if (datas.size() < 9 || str.find("size_bytes") != string::npos) { // 9:row count
         return;
     }
-    MemInfoData::GpuInfo gpuInfo;
-    gpuInfo.name = datas[0];
-    gpuInfo.pid = stoi(datas[1]);
-    gpuInfo.fd = stoi(datas[2]);    // 2:index
-    gpuInfo.size = stoi(datas[3]) / BYTE_PER_KB;    // 3:index
-    gpuInfo.ino = stoi(datas[4]);   // 4:index
-    gpuInfo.expPid = stoi(datas[5]);// 5:index
-    gpuInfo.status = 0;
-    for (auto it : gpuInfos) {
-        if (it.name == gpuInfo.name && it.ino == gpuInfo.ino) {
-            gpuInfo.status = REPETITIVE1;
+    MemInfoData::DmaInfo dmaInfo;
+    dmaInfo.name = datas[0];
+    dmaInfo.pid = stoi(datas[1]);
+    dmaInfo.fd = stoi(datas[2]);
+    dmaInfo.size = stoi(datas[3]) / BYTE_PER_KB;
+    dmaInfo.ino = stoi(datas[4]);
+    dmaInfo.expPid = stoi(datas[5]);
+    dmaInfo.status = 0;
+    for (auto it : dmaInfos) {
+        if (it.name == dmaInfo.name && it.ino == dmaInfo.ino) {
+            dmaInfo.status = REPETITIVE1;
             break; 
         }
     }
-    for (auto it : gpuInfos) {
-        if (it.name != gpuInfo.name && it.ino == gpuInfo.ino && it.status == NORMAL) {
+    for (auto it : dmaInfos) {
+        if (it.name != dmaInfo.name && it.ino == dmaInfo.ino && it.status == NORMAL) {
             it.status = REPETITIVE2;
             break; 
         }
     }
-    if (gpuInfo.status == NORMAL) {
-        totalGpu += gpuInfo.size;
+    if (dmaInfo.status == NORMAL) {
+        totalDma += dmaInfo.size;
     }
-    gpuInfos.push_back(gpuInfo);
+    dmaInfos.push_back(dmaInfo);
 }
 
 /**
@@ -70,7 +70,7 @@ void GetGpuInfo::SetData(const string &str)
  * @param {GroupMap} &infos-gpu information
  * @return {bool}-the result of
  */
-bool GetGpuInfo::GetGpu()
+bool GetDmaInfo::GetDma()
 {
     string path = "/proc/process_dmabuf_info";
     bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, true, [&](const string &line) -> void {
@@ -79,20 +79,20 @@ bool GetGpuInfo::GetGpu()
     return ret;
 }
 
-uint64_t GetGpuInfo::GetTotalGpu()
+uint64_t GetDmaInfo::GetTotalDma()
 {
-    return totalGpu;
+    return totalDma;
 }
 
-std::vector<MemInfoData::GpuInfo> GetGpuInfo::GetGpuInfos()
+std::vector<MemInfoData::DmaInfo> GetDmaInfo::GetDmaInfos()
 {
-    return gpuInfos;
+    return dmaInfos;
 }
 
-bool GetGpuInfo::GetInfo(const int32_t &pid, GroupMap &infos)
+bool GetDmaInfo::GetInfo(const int32_t &pid, GroupMap &infos)
 {
     uint64_t gpu = 0;
-    for (auto it : gpuInfos) {
+    for (auto it : dmaInfos) {
         if (it.pid == pid && it.status == 0) {
             gpu += it.size;
         }
@@ -100,14 +100,14 @@ bool GetGpuInfo::GetInfo(const int32_t &pid, GroupMap &infos)
     map<string, uint64_t> valueMap;
     valueMap.insert(pair<string, uint64_t>("Pss", gpu));
     valueMap.insert(pair<string, uint64_t>("Private_Dirty", gpu));
-    infos.insert(pair<string, map<string, uint64_t>>("AnonPage # Gpu", valueMap));
+    infos.insert(pair<string, map<string, uint64_t>>("AnonPage # Dma", valueMap));
     return true;
 }
 
-uint64_t GetGpuInfo::GetGpu(const int32_t &pid)
+uint64_t GetDmaInfo::GetDma(const int32_t &pid)
 {
     uint64_t gpu = 0;
-    for (auto it : gpuInfos) {
+    for (auto it : dmaInfos) {
         if (it.pid == pid && it.status == NORMAL) {
             gpu += it.size;
         }

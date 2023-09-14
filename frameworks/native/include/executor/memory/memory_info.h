@@ -35,7 +35,7 @@ static const std::string MEMINFO_SWAP_PSS = "SwapPss";
 static const std::string MEMINFO_HEAP_SIZE = "Heap_Size";
 static const std::string MEMINFO_HEAP_ALLOC = "Heap_Alloc";
 static const std::string MEMINFO_HEAP_FREE = "Heap_Free";
-static const std::string MEMINFO_GPU = "Gpu";
+static const std::string MEMINFO_DMA = "Dma";
 }
 class MemoryInfo {
 public:
@@ -76,8 +76,6 @@ private:
     bool dumpSmapsOnStart_ = false;
     uint64_t totalGL_ = 0;
     uint64_t totalGraph_ = 0;
-    uint64_t totalPurgSum_ = 0;
-    uint64_t totalPurgPin_ = 0;
     std::future<GroupMap> fut_;
     std::vector<int> pids_;
     std::vector<MemInfoData::MemUsage> memUsages_;
@@ -100,6 +98,7 @@ private:
     bool GetPids();
     void GetPssTotal(const GroupMap &infos, StringMatrix result);
     void GetRamUsage(const GroupMap &smapsinfos, const ValueMap &meminfo, StringMatrix result);
+    void GetPurgTotal(const ValueMap &meminfo, StringMatrix result);
     void GetRamCategory(const GroupMap &smapsinfos, const ValueMap &meminfos, StringMatrix result);
     void AddBlankLine(StringMatrix result);
     void MemUsageToMatrix(const MemInfoData::MemUsage &memUsage, StringMatrix result);
