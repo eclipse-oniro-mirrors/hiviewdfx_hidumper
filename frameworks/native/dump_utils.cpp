@@ -170,13 +170,13 @@ void DumpUtils::RemoveDuplicateString(std::vector<std::string> &strList)
 
 int DumpUtils::StrToId(const std::string &name)
 {
-    int id = 0;
+    int id = -1;
     auto iter = std::find_if(saNameMap_.begin(), saNameMap_.end(), [&](const std::pair<int, std::string> &item) {
         return name.compare(item.second) == 0;
     });
     if (iter == saNameMap_.end()) {
         if (!StrToInt(name, id)) { // Decimal string
-            return 0; // invalid ability ID
+            return -1; // invalid ability ID
         }
     } else {
         id = iter->first;

@@ -151,7 +151,7 @@ DumpStatus SADumper::PreExecute(const std::shared_ptr<DumperParameter> &paramete
 DumpStatus SADumper::GetData(const std::string &name, const sptr<ISystemAbilityManager> &sam)
 {
     int id = DumpUtils::StrToId(name);
-    if (id == 0) {
+    if (id == -1) {
         DUMPER_HILOGD(MODULE_SERVICE, "no such ability id '%{public}s'\n", name.c_str());
         return DumpStatus::DUMP_FAIL;
     }

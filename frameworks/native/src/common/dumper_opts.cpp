@@ -172,7 +172,7 @@ bool DumperOpts::CheckOptions(std::string& errStr) const
         return false;
     }
     for (size_t i = 0; i < abilitieNames_.size(); i++) {
-        if (!DumpUtils::StrToId(abilitieNames_[i])) {
+        if (DumpUtils::StrToId(abilitieNames_[i]) == -1) {
             errStr = abilitieNames_[i];
             return false;
         }

@@ -43,7 +43,7 @@ public:
     static bool CheckProcessAlive(uint32_t pid);
 
     // ability string to ID
-    static int StrToId(const std::string &name); // 0:invalid
+    static int StrToId(const std::string &name); // -1:invalid
     static std::string ConvertSaIdToSaName(const std::string &saIdStr);
 
     static bool DirectoryExists(const std::string &path);
