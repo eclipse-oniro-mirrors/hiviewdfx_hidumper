@@ -39,7 +39,7 @@ bool DumpUsage::GetMemInfo(const int &pid, MemInfoData::MemInfo &info)
 uint64_t DumpUsage::GetPss(const int &pid)
 {
     MemInfoData::MemInfo info;
-    return GetMemInfo(pid, info) ? info.pss : 0;
+    return GetMemInfo(pid, info) ? info.pss + info.swapPss : 0;
 }
 
 uint64_t DumpUsage::GetPrivateDirty(const int &pid)
