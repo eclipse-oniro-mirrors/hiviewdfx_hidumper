@@ -244,11 +244,6 @@ bool MemoryInfo::IsRenderService(int32_t pid)
 
 bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
 {
-    GetDmaInfo getDmaInfo;
-    if (!getDmaInfo.GetDma()) {
-        DUMPER_HILOGE(MODULE_SERVICE, "Get dma info error\n");
-        return false;
-    }
     GroupMap groupMap;
     unique_ptr<ParseSmapsInfo> parseSmapsInfo = make_unique<ParseSmapsInfo>();
     if (!parseSmapsInfo->GetInfo(MemoryFilter::APPOINT_PID, pid, groupMap)) {
@@ -262,10 +257,6 @@ bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
         return false;
     }
 
-    if (!getDmaInfo.GetInfo(pid, groupMap)) {
-        DUMPER_HILOGE(MODULE_SERVICE, "get dma info fail");
-        return false;
-    }
     MemInfoData::GraphicsMemory graphicsMemory;
     MemoryUtil::GetInstance().InitGraphicsMemory(graphicsMemory);
     if ((IsRenderService(pid))) {
@@ -292,18 +283,13 @@ bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
         valueMap.insert(pair<string, uint64_t>("Private_Dirty", graphicsMemory.graph));
         groupMap.insert(pair<string, map<string, uint64_t>>("AnonPage # Graph", valueMap));
         valueMap.clear();
-        uint64_t purgSum = GetProcValue(pid, "PurgSum");
-        valueMap.insert(pair<string, uint64_t>("Pss", purgSum));
-        valueMap.insert(pair<string, uint64_t>("Private_Dirty", purgSum));
-        groupMap.insert(pair<string, map<string, uint64_t>>("AnonPage # PurgSum", valueMap));
-        valueMap.clear();
-        uint64_t purgPin = GetProcValue(pid, "PurgPin");
-        valueMap.insert(pair<string, uint64_t>("Pss", purgPin));
-        valueMap.insert(pair<string, uint64_t>("Private_Dirty", purgPin));
-        groupMap.insert(pair<string, map<string, uint64_t>>("AnonPage # PurgPin", valueMap));
 
     BuildResult(groupMap, result);
     CalcGroup(groupMap, result);
+
+    GetPurgByPid(pid, result);
+
+    GetDmaByPid(pid, result);
     return true;
 }
 
@@ -513,6 +499,47 @@ void MemoryInfo::GetPurgTotal(const ValueMap &meminfo, StringMatrix result)
     result->push_back(purgPin);
 }
 
+void MemoryInfo::GetPurgByPid(const int32_t &pid, StringMatrix result)
+{
+    AddBlankLine(result);
+    vector<string> title;
+    title.push_back("Purgerable:");
+    result->push_back(title);
+
+    vector<string> purgSum;
+    string purgSumTitle = "PurgSum:";
+    StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, purgSumTitle);
+    purgSum.push_back(purgSumTitle);
+    purgSum.push_back(AddKbUnit(GetProcValue(pid, "PurgSum")));
+    result->push_back(purgSum);
+
+    vector<string> purgPin;
+    string purgPinTitle = "PurgPin:";
+    StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, purgPinTitle);
+    purgPin.push_back(purgPinTitle);
+    purgPin.push_back(AddKbUnit(GetProcValue(pid, "PurgPin")));
+    result->push_back(purgPin);
+}
+
+void MemoryInfo::GetDmaByPid(const int32_t &pid, StringMatrix result)
+{
+	GetDmaInfo getDmaInfo;
+    if (!getDmaInfo.GetDma()) {
+        DUMPER_HILOGE(MODULE_SERVICE, "Get dma info error\n");
+    }
+    AddBlankLine(result);
+    vector<string> title;
+    title.push_back("DMA:");
+    result->push_back(title);
+
+    vector<string> dma;
+    string dmaTitle = "Dma:";
+    StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, dmaTitle);
+    dma.push_back(dmaTitle);
+    dma.push_back(AddKbUnit(getDmaInfo.GetDmaByPid(pid)));
+    result->push_back(dma);
+}
+
 void MemoryInfo::GetRamCategory(const GroupMap &smapsInfos, const ValueMap &meminfos, StringMatrix result)
 {
     vector<string> title;
@@ -658,11 +685,6 @@ bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &gra
 
 bool MemoryInfo::GetMemByProcessPid(const int32_t &pid, MemInfoData::MemUsage &usage)
 {
-    GetDmaInfo getDmaInfo;
-    if (!getDmaInfo.GetDma()) {
-        DUMPER_HILOGE(MODULE_SERVICE, "Get dma info error\n");
-        return false;
-    }
     bool success = false;
     MemInfoData::MemInfo memInfo;
     unique_ptr<ParseSmapsRollupInfo> getSmapsRollup = make_unique<ParseSmapsRollupInfo>();
@@ -674,9 +696,6 @@ bool MemoryInfo::GetMemByProcessPid(const int32_t &pid, MemInfoData::MemUsage &u
         usage.swapPss = memInfo.swapPss;
         usage.name = GetProcName(pid);
         usage.pid = pid;
-        usage.dma = getDmaInfo.GetDma(pid);
-        usage.purgSum = GetProcValue(pid, "PurgSum");
-        usage.purgPin = GetProcValue(pid, "PurgPin");
 #ifdef HIDUMPER_MEMMGR_ENABLE
         usage.adjLabel = GetProcessAdjLabel(pid);
 #endif

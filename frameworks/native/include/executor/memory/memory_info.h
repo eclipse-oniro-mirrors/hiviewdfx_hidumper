@@ -99,6 +99,8 @@ private:
     void GetPssTotal(const GroupMap &infos, StringMatrix result);
     void GetRamUsage(const GroupMap &smapsinfos, const ValueMap &meminfo, StringMatrix result);
     void GetPurgTotal(const ValueMap &meminfo, StringMatrix result);
+    void GetPurgByPid(const int32_t &pid, StringMatrix result);
+    void GetDmaByPid(const int32_t &pid, StringMatrix result);
     void GetRamCategory(const GroupMap &smapsinfos, const ValueMap &meminfos, StringMatrix result);
     void AddBlankLine(StringMatrix result);
     void MemUsageToMatrix(const MemInfoData::MemUsage &memUsage, StringMatrix result);

@@ -89,22 +89,7 @@ std::vector<MemInfoData::DmaInfo> GetDmaInfo::GetDmaInfos()
     return dmaInfos;
 }
 
-bool GetDmaInfo::GetInfo(const int32_t &pid, GroupMap &infos)
-{
-    uint64_t gpu = 0;
-    for (auto it : dmaInfos) {
-        if (it.pid == pid && it.status == 0) {
-            gpu += it.size;
-        }
-    }
-    map<string, uint64_t> valueMap;
-    valueMap.insert(pair<string, uint64_t>("Pss", gpu));
-    valueMap.insert(pair<string, uint64_t>("Private_Dirty", gpu));
-    infos.insert(pair<string, map<string, uint64_t>>("AnonPage # Dma", valueMap));
-    return true;
-}
-
-uint64_t GetDmaInfo::GetDma(const int32_t &pid)
+uint64_t GetDmaInfo::GetDmaByPid(const int32_t &pid)
 {
     uint64_t gpu = 0;
     for (auto it : dmaInfos) {

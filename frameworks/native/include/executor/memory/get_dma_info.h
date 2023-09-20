@@ -31,8 +31,7 @@ public:
     using ValueMap = std::map<std::string, uint64_t>;
     using GroupMap = std::map<std::string, ValueMap>;
     bool GetDma();
-    uint64_t GetDma(const int32_t &pid);
-    bool GetInfo(const int32_t &pid, GroupMap &infos);
+    uint64_t GetDmaByPid(const int32_t &pid);
     uint64_t GetTotalDma();
 
 private:
