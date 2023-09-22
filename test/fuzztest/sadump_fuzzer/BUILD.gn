@@ -15,10 +15,8 @@ import("//build/config/features.gni")
 import("//build/test.gni")
 import("../../../hidumper.gni")
 
-module_output_path = "hiviewdfx/hidumper"
-
 ohos_fuzztest("SADumpFuzzTest") {
-  module_out_path = module_output_path
+  module_out_path = hidumper_fuzz_output_path
   fuzz_config_file = "../../../test/fuzztest/sadump_fuzzer"
   include_dirs = [ "./" ]
   cflags = [
