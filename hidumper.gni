@@ -33,6 +33,8 @@ hidumper_utils_path = "${hidumper_root_path}/utils"
 
 hidumper_interface = "${hidumper_root_path}/interfaces/native"
 
+hidumper_fuzz_output_path = "hidumper/hidumper"
+
 system_type = "default"
 
 declare_args() {
