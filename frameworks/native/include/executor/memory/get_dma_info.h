@@ -50,7 +50,6 @@ private:
     std::vector<MemInfoData::DmaInfo> GetDmaInfos();
 
     std::vector<MemInfoData::DmaInfo> dmaInfos;
-    uint64_t totalDma;
     bool isFirst = false;
     const static int BYTE_PER_KB = 1024;
 };

@@ -59,9 +59,6 @@ void GetDmaInfo::SetData(const string &str)
             break; 
         }
     }
-    if (dmaInfo.status == NORMAL) {
-        totalDma += dmaInfo.size;
-    }
     dmaInfos.push_back(dmaInfo);
 }
 
@@ -85,6 +82,12 @@ bool GetDmaInfo::GetDma()
 
 uint64_t GetDmaInfo::GetTotalDma()
 {
+    uint64_t totalDma = 0;
+    for (auto it : totalDma) {
+        if (it.status == NORMAL) {
+            totalDma += it.size;
+        }
+    }
     return totalDma;
 }
 
@@ -95,13 +98,13 @@ std::vector<MemInfoData::DmaInfo> GetDmaInfo::GetDmaInfos()
 
 uint64_t GetDmaInfo::GetDmaByPid(const int32_t &pid)
 {
-    uint64_t gpu = 0;
+    uint64_t dma = 0;
     for (auto it : dmaInfos) {
         if (it.pid == pid && it.status == NORMAL) {
-            gpu += it.size;
+            dma += it.size;
         }
     }
-    return gpu;
+    return dma;
 }
 } // namespace HiviewDFX
 } // namespace OHOS
