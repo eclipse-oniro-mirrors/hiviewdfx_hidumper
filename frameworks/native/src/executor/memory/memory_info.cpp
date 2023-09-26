@@ -286,7 +286,6 @@ bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
         valueMap.insert(pair<string, uint64_t>("Pss", graphicsMemory.graph));
         valueMap.insert(pair<string, uint64_t>("Private_Dirty", graphicsMemory.graph));
         groupMap.insert(pair<string, map<string, uint64_t>>("AnonPage # Graph", valueMap));
-        valueMap.clear();
 
     BuildResult(groupMap, result);
     CalcGroup(groupMap, result);
