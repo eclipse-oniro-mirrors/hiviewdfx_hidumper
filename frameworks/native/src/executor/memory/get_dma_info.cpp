@@ -72,6 +72,10 @@ void GetDmaInfo::SetData(const string &str)
  */
 bool GetDmaInfo::GetDma()
 {
+    if (isFirst) {
+        return true;
+    }
+    isFirst = true;
     string path = "/proc/process_dmabuf_info";
     bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, true, [&](const string &line) -> void {
         SetData(line);

@@ -254,7 +254,8 @@ HWTEST_F(HiDumperInnerkitsTest, ParseSmapsInfoGetInfoTest001, TestSize.Level1)
 {
     std::unique_ptr<ParseSmapsInfo> parseSmapsInfo = std::make_unique<ParseSmapsInfo>();
     GroupMap groupMap;
-    EXPECT_TRUE(parseSmapsInfo->GetInfo(MemoryFilter::APPOINT_PID, 1, groupMap));
+    GroupMap nativeGroupMap;
+    EXPECT_TRUE(parseSmapsInfo->GetInfo(MemoryFilter::APPOINT_PID, 1, nativeGroupMap, groupMap));
 }
 } // namespace HiviewDFX
 } // namespace OHOS

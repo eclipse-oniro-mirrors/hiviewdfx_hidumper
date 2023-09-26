@@ -29,6 +29,9 @@ public:
     GetDmaInfo();
     ~GetDmaInfo();
 
+    GetDmaInfo(GetDmaInfo const &) = delete;
+    void operator=(GetDmaInfo const &) = delete;
+
     using ValueMap = std::map<std::string, uint64_t>;
     using GroupMap = std::map<std::string, ValueMap>;
     bool GetDma();
@@ -48,6 +51,7 @@ private:
 
     std::vector<MemInfoData::DmaInfo> dmaInfos;
     uint64_t totalDma;
+    bool isFirst = false;
     const static int BYTE_PER_KB = 1024;
 };
 } // namespace HiviewDFX
