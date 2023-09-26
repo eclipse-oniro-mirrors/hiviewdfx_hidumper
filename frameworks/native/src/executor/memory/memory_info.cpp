@@ -725,6 +725,7 @@ bool MemoryInfo::GetMemByProcessPid(const int32_t &pid, MemInfoData::MemUsage &u
         usage.rss = memInfo.rss;
         usage.pss = memInfo.pss;
         usage.swapPss = memInfo.swapPss;
+        usage.dma = GetDmaInfo::GetInstance().GetDmaByPid(pid);
         usage.name = GetProcName(pid);
         usage.pid = pid;
 #ifdef HIDUMPER_MEMMGR_ENABLE

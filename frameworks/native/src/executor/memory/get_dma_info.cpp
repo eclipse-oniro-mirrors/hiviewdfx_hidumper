@@ -36,7 +36,7 @@ void GetDmaInfo::SetData(const string &str)
 {
     vector<string> datas;
     StringUtils::GetInstance().StringSplit(str, " ", datas);
-    if (!StringUtils::GetInstance().IsEnd(str, "NULL")) {
+    if (str.find("NULL") == string::npos) {
         return;
     }
     MemInfoData::DmaInfo dmaInfo;
