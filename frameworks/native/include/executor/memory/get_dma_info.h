@@ -19,11 +19,12 @@
 #include <vector>
 #include <memory>
 
+#include "singleton.h"
 #include "executor/memory/parse/meminfo_data.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-class GetDmaInfo {
+class GetDmaInfo : public Singleton<GetDmaInfo> {
 public:
     GetDmaInfo();
     ~GetDmaInfo();

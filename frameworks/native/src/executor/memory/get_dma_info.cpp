@@ -36,7 +36,7 @@ void GetDmaInfo::SetData(const string &str)
 {
     vector<string> datas;
     StringUtils::GetInstance().StringSplit(str, " ", datas);
-    if (datas.size() < 9 || str.find("size_bytes") != string::npos) { // 9:row count
+    if (!StringUtils::GetInstance().IsEnd(str, "NULL")) {
         return;
     }
     MemInfoData::DmaInfo dmaInfo;
@@ -47,13 +47,13 @@ void GetDmaInfo::SetData(const string &str)
     dmaInfo.ino = stoi(datas[4]);
     dmaInfo.expPid = stoi(datas[5]);
     dmaInfo.status = 0;
-    for (auto it : dmaInfos) {
+    for (const auto &it : dmaInfos) {
         if (it.name == dmaInfo.name && it.ino == dmaInfo.ino) {
             dmaInfo.status = REPETITIVE1;
             break; 
         }
     }
-    for (auto it : dmaInfos) {
+    for (auto &it : dmaInfos) {
         if (it.name != dmaInfo.name && it.ino == dmaInfo.ino && it.status == NORMAL) {
             it.status = REPETITIVE2;
             break; 

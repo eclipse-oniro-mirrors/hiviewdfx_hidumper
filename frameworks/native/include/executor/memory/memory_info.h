@@ -77,13 +77,15 @@ private:
     uint64_t totalGL_ = 0;
     uint64_t totalGraph_ = 0;
     std::future<GroupMap> fut_;
-    std::vector<int> pids_;
+    std::vector<int32_t> pids_;
     std::vector<MemInfoData::MemUsage> memUsages_;
     std::vector<std::pair<std::string, MemFun>> methodVec_;
     std::map<std::string, std::vector<MemInfoData::MemUsage>> adjMemResult_ = {
         {"System", {}}, {"Foreground", {}}, {"Suspend-delay", {}},
         {"Perceived", {}}, {"Background", {}}, {"Undefined", {}},
     };
+    const std::string NATIVE_HEAP_LABEL = "native heap";
+    std::vector<std::string> NATIVE_HEAP_TAG_ = {"heap", "brk heap", "mmap heap", "jemalloc heap", "libc heap"};
     void insertMemoryTitle(StringMatrix result);
     void BuildResult(const GroupMap &infos, StringMatrix result);
 
@@ -101,6 +103,8 @@ private:
     void GetPurgTotal(const ValueMap &meminfo, StringMatrix result);
     void GetPurgByPid(const int32_t &pid, StringMatrix result);
     void GetDmaByPid(const int32_t &pid, StringMatrix result);
+    void GetNativeHeap(const GroupMap& nativeGroupMap, StringMatrix result);
+    void GetNativeValue(const std::string& tag, const GroupMap& nativeGroupMap, StringMatrix result);
     void GetRamCategory(const GroupMap &smapsinfos, const ValueMap &meminfos, StringMatrix result);
     void AddBlankLine(StringMatrix result);
     void MemUsageToMatrix(const MemInfoData::MemUsage &memUsage, StringMatrix result);

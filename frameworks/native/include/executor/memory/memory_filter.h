@@ -43,12 +43,14 @@ public:
     const std::string FILE_PAGE_TAG = "File-backed Page";
     const std::string ANON_PAGE_TAG = "Anonymous Page";
     const std::string GPU_TAG = "GPU";
+    const std::string DMA_TAG = "DMA";
     const std::string PURGEABLE_TAG = "PURGEABLE";
     const std::string GL_OUT_LABEL = "GL";
     const std::string GRAPH_OUT_LABEL = "Graph";
     const std::string DMA_OUT_LABEL = "Dma";
     const std::string PURGSUM_OUT_LABEL = "PurgSum";
     const std::string PURGPIN_OUT_LABEL = "PurgPin";
+
     const std::vector<std::pair<MemoryTrackerType, std::string>> MEMORY_TRACKER_TYPES = {
         {MEMORY_TRACKER_TYPE_GL, "GL"}, {MEMORY_TRACKER_TYPE_GRAPH, "Graph"},
         {MEMORY_TRACKER_TYPE_OTHER, "Other"}
@@ -97,6 +99,7 @@ public:
     std::vector<std::string> PURG_SUM_ = {"Active(purg)", "Inactive(purg)"};
     std::vector<std::string> PURG_PIN_ = {"Pined(purg)"};
     void ParseMemoryGroup(const std::string &name, std::string &group, uint64_t iNode);
+    void ParseNativeHeapMemoryGroup(const std::string &name, std::string &group, uint64_t iNode);
 
 private:
     const std::map<std::string, std::string> beginMap_ = {
@@ -104,6 +107,10 @@ private:
         {"[anon:native_heap:", "native heap"}, {"[anon:ArkTS Heap]", "ark ts heap"},
         {"[anon:guard", "guard"}, {"/dev", "dev"}, {"[anon:signal_stack", "stack"},
         {"/dmabuf", "dmabuf"}, {"/data/storage", ".hap"}, {"[anon:libc_malloc", "native heap"},
+    };
+    const std::map<std::string, std::string> heapBeginMap_ = {
+        {"[heap]", "heap"}, {"[anon:native_heap:jemalloc", "jemalloc heap"},
+        {"[anon:native_heap:brk", "brk heap"}, {"[anon:native_heap:mmap", "mmap heap"},
     };
     const std::map<std::string, std::string> endMap_ = {
         {".so", ".so"}, {".so.1", ".so"}, {".ttf", ".ttf"},

@@ -244,9 +244,13 @@ bool MemoryInfo::IsRenderService(int32_t pid)
 
 bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
 {
+    if (!GetDmaInfo::GetInstance().GetDma()) {
+        DUMPER_HILOGE(MODULE_SERVICE, "Get dma info error\n");
+    }
     GroupMap groupMap;
+    GroupMap nativeGroupMap;
     unique_ptr<ParseSmapsInfo> parseSmapsInfo = make_unique<ParseSmapsInfo>();
-    if (!parseSmapsInfo->GetInfo(MemoryFilter::APPOINT_PID, pid, groupMap)) {
+    if (!parseSmapsInfo->GetInfo(MemoryFilter::APPOINT_PID, pid, nativeGroupMap, groupMap)) {
         DUMPER_HILOGE(MODULE_SERVICE, "parse smaps info fail");
         return false;
     }
@@ -286,9 +290,8 @@ bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
 
     BuildResult(groupMap, result);
     CalcGroup(groupMap, result);
-
+    GetNativeHeap(nativeGroupMap, result);
     GetPurgByPid(pid, result);
-
     GetDmaByPid(pid, result);
     return true;
 }
@@ -300,8 +303,9 @@ string MemoryInfo::AddKbUnit(const uint64_t &value) const
 
 bool MemoryInfo::GetSmapsInfoNoPid(const int32_t &pid, GroupMap &result)
 {
+    GroupMap NativeMap;
     unique_ptr<ParseSmapsInfo> parseSmapsInfo = make_unique<ParseSmapsInfo>();
-    return parseSmapsInfo->GetInfo(MemoryFilter::NOT_SPECIFIED_PID, pid, result);
+    return parseSmapsInfo->GetInfo(MemoryFilter::NOT_SPECIFIED_PID, pid, NativeMap, result);
 }
 
 bool MemoryInfo::GetMeminfo(ValueMap &result)
@@ -403,17 +407,14 @@ void MemoryInfo::GetPssTotal(const GroupMap &infos, StringMatrix result)
     PairToStringMatrix(MemoryFilter::GetInstance().FILE_PAGE_TAG, filePage, result);
     PairToStringMatrix(MemoryFilter::GetInstance().ANON_PAGE_TAG, anonPage, result);
 
-    GetDmaInfo getDmaInfo;
-    if (!getDmaInfo.GetDma()) {
-        DUMPER_HILOGE(MODULE_SERVICE, "Get dma info error\n");
-    }
-
     vector<pair<string, uint64_t>> gpuValue;
     gpuValue.push_back(make_pair(MemoryFilter::GetInstance().GL_OUT_LABEL, totalGL_));
     gpuValue.push_back(make_pair(MemoryFilter::GetInstance().GRAPH_OUT_LABEL, totalGraph_));
-    gpuValue.push_back(make_pair(MemoryFilter::GetInstance().DMA_OUT_LABEL, getDmaInfo.GetTotalDma()));
-
     PairToStringMatrix(MemoryFilter::GetInstance().GPU_TAG, gpuValue, result);
+
+    vector<pair<string, uint64_t>> dmaValue;
+    dmaValue.push_back(make_pair(MemoryFilter::GetInstance().DMA_OUT_LABEL, GetDmaInfo::GetInstance().GetTotalDma()));
+    PairToStringMatrix(MemoryFilter::GetInstance().DMA_TAG, dmaValue, result);
 }
 
 void MemoryInfo::PairToStringMatrix(const string &titleStr, vector<pair<string, uint64_t>> &vec, StringMatrix result)
@@ -477,7 +478,7 @@ void MemoryInfo::GetRamUsage(const GroupMap &smapsinfos, const ValueMap &meminfo
 void MemoryInfo::GetPurgTotal(const ValueMap &meminfo, StringMatrix result)
 {
     vector<string> title;
-    title.push_back("Total Purg:");
+    title.push_back("Total Purgeable:");
     result->push_back(title);
 
     uint64_t purgSumTotal = meminfo.find(MemoryFilter::GetInstance().PURG_SUM_[0])->second +
@@ -521,12 +522,42 @@ void MemoryInfo::GetPurgByPid(const int32_t &pid, StringMatrix result)
     result->push_back(purgPin);
 }
 
+void MemoryInfo::GetNativeValue(const string& tag, const GroupMap& nativeGroupMap, StringMatrix result)
+{
+    vector<string> heap;
+    string heapTitle = tag + ":";
+    StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, heapTitle);
+    heap.push_back(heapTitle);
+    auto it = nativeGroupMap.find(tag);
+    string nativeValue;
+    bool isShow = false;
+    if (it != nativeGroupMap.end()) {
+        for (auto mativeMap : it->second) {
+            if (mativeMap.second != 0) {
+                isShow = true;
+                nativeValue += "  " + mativeMap.first + ":" + to_string(mativeMap.second);
+            }
+        }
+    }
+    if (isShow) {
+        heap.push_back(nativeValue);
+        result->push_back(heap);
+    }
+}
+
+void MemoryInfo::GetNativeHeap(const GroupMap& nativeGroupMap, StringMatrix result)
+{
+    AddBlankLine(result);
+    vector<string> title;
+    title.push_back("NativeHeap:");
+    result->push_back(title);
+    for (const auto &it: NATIVE_HEAP_TAG_) {
+        GetNativeValue(it, nativeGroupMap, result);
+    }
+}
+
 void MemoryInfo::GetDmaByPid(const int32_t &pid, StringMatrix result)
 {
-	GetDmaInfo getDmaInfo;
-    if (!getDmaInfo.GetDma()) {
-        DUMPER_HILOGE(MODULE_SERVICE, "Get dma info error\n");
-    }
     AddBlankLine(result);
     vector<string> title;
     title.push_back("DMA:");
@@ -536,7 +567,7 @@ void MemoryInfo::GetDmaByPid(const int32_t &pid, StringMatrix result)
     string dmaTitle = "Dma:";
     StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, dmaTitle);
     dma.push_back(dmaTitle);
-    dma.push_back(AddKbUnit(getDmaInfo.GetDmaByPid(pid)));
+    dma.push_back(AddKbUnit(GetDmaInfo::GetInstance().GetDmaByPid(pid)));
     result->push_back(dma);
 }
 
@@ -607,13 +638,13 @@ uint64_t MemoryInfo::GetProcValue(const int32_t &pid, const string& key)
 }
 
 #ifdef HIDUMPER_MEMMGR_ENABLE
-string MemoryInfo::GetProcessAdjLabel(const int pid)
+string MemoryInfo::GetProcessAdjLabel(const int32_t pid)
 {
     string cmd = "cat /proc/" + to_string(pid) + "/oom_score_adj";
     vector<string> cmdResult;
     string adjLabel = Memory::RECLAIM_PRIORITY_UNKNOWN_DESC;
     if (!MemoryUtil::GetInstance().RunCMD(cmd, cmdResult) || cmdResult.size() == 0) {
-        DUMPER_HILOGE(MODULE_SERVICE, "GetProcessAdjLabel fail! pid = %{pubilic}d", pid);
+        DUMPER_HILOGE(MODULE_SERVICE, "GetProcessAdjLabel fail! pid = %{public}d", static_cast<int>(pid));
         return adjLabel;
     }
     string oom_score = cmdResult.front();
@@ -707,9 +738,9 @@ bool MemoryInfo::GetMemByProcessPid(const int32_t &pid, MemInfoData::MemUsage &u
     if (GetGraphicsMemory(pid, graphicsMemory)) {
         usage.gl = graphicsMemory.gl;
         usage.graph = graphicsMemory.graph;
-        usage.uss = usage.uss + graphicsMemory.gl + graphicsMemory.graph + usage.dma;
-        usage.pss = usage.pss + graphicsMemory.gl + graphicsMemory.graph + usage.dma;
-        usage.rss = usage.rss + graphicsMemory.gl + graphicsMemory.graph + usage.dma;
+        usage.uss = usage.uss + graphicsMemory.gl + graphicsMemory.graph;
+        usage.pss = usage.pss + graphicsMemory.gl + graphicsMemory.graph;
+        usage.rss = usage.rss + graphicsMemory.gl + graphicsMemory.graph;
     }
     return success;
 }
@@ -846,6 +877,9 @@ void MemoryInfo::GetMemGraphics()
 
 DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
 {
+    if (!GetDmaInfo::GetInstance().GetDma()) {
+        DUMPER_HILOGE(MODULE_SERVICE, "Get dma info error\n");
+    }
     if (!isReady_) {
         memUsages_.clear();
         pids_.clear();
@@ -866,7 +900,7 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
         dumpSmapsOnStart_ = true;
         fut_ = std::async(std::launch::async, [&]() {
             GroupMap groupMap;
-            std::vector<int> pids(pids_);
+            std::vector<int32_t> pids(pids_);
             for (auto pid : pids) {
                 GetSmapsInfoNoPid(pid, groupMap);
             }
@@ -883,7 +917,8 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
             totalGraph_ += usage.graph;
             MemUsageToMatrix(usage, result);
         } else {
-            DUMPER_HILOGE(MODULE_SERVICE, "Get smaps_rollup error! pid = %{public}d\n", pids_.front());
+            DUMPER_HILOGE(MODULE_SERVICE, "Get smaps_rollup error! pid = %{public}d\n",
+                          static_cast<int>(pids_.front()));
         }
         pids_.erase(pids_.begin());
         return DUMP_MORE_DATA;
