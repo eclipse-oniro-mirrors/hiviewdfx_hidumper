@@ -50,6 +50,7 @@ public:
     const std::string DMA_OUT_LABEL = "Dma";
     const std::string PURGSUM_OUT_LABEL = "PurgSum";
     const std::string PURGPIN_OUT_LABEL = "PurgPin";
+    const std::string NATIVE_HEAP_LABEL = "native heap";
 
     const std::vector<std::pair<MemoryTrackerType, std::string>> MEMORY_TRACKER_TYPES = {
         {MEMORY_TRACKER_TYPE_GL, "GL"}, {MEMORY_TRACKER_TYPE_GRAPH, "Graph"},
@@ -110,7 +111,7 @@ private:
     };
     const std::map<std::string, std::string> heapBeginMap_ = {
         {"[heap]", "heap"}, {"[anon:native_heap:jemalloc", "jemalloc heap"},
-        {"[anon:native_heap:brk", "brk heap"},
+        {"[anon:native_heap:brk", "brk heap"}, {"[anon:native_heap:mmap", "mmap heap"},
     };
     const std::map<std::string, std::string> endMap_ = {
         {".so", ".so"}, {".so.1", ".so"}, {".ttf", ".ttf"},

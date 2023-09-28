@@ -84,8 +84,7 @@ private:
         {"System", {}}, {"Foreground", {}}, {"Suspend-delay", {}},
         {"Perceived", {}}, {"Background", {}}, {"Undefined", {}},
     };
-    const std::string NATIVE_HEAP_LABEL = "native heap";
-    std::vector<std::string> NATIVE_HEAP_TAG_ = {"heap", "brk heap", "mmap heap", "jemalloc heap", "libc heap"};
+    std::vector<std::string> NATIVE_HEAP_TAG_ = {"heap", "brk heap", "mmap heap", "jemalloc heap"};
     void insertMemoryTitle(StringMatrix result);
     void BuildResult(const GroupMap &infos, StringMatrix result);
 

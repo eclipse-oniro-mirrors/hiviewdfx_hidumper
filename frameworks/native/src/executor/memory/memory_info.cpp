@@ -507,17 +507,17 @@ void MemoryInfo::GetPurgByPid(const int32_t &pid, StringMatrix result)
     result->push_back(title);
 
     vector<string> purgSum;
-    string purgSumTitle = "PurgSum:";
+    string purgSumTitle = MemoryFilter::GetInstance().PURGSUM_OUT_LABEL + ":";
     StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, purgSumTitle);
     purgSum.push_back(purgSumTitle);
-    purgSum.push_back(AddKbUnit(GetProcValue(pid, "PurgSum")));
+    purgSum.push_back(AddKbUnit(GetProcValue(pid, MemoryFilter::GetInstance().PURGSUM_OUT_LABEL)));
     result->push_back(purgSum);
 
     vector<string> purgPin;
-    string purgPinTitle = "PurgPin:";
+    string purgPinTitle = MemoryFilter::GetInstance().PURGPIN_OUT_LABEL + ":";
     StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, purgPinTitle);
     purgPin.push_back(purgPinTitle);
-    purgPin.push_back(AddKbUnit(GetProcValue(pid, "PurgPin")));
+    purgPin.push_back(AddKbUnit(GetProcValue(pid, MemoryFilter::GetInstance().PURGPIN_OUT_LABEL)));
     result->push_back(purgPin);
 }
 
@@ -527,28 +527,29 @@ void MemoryInfo::GetNativeValue(const string& tag, const GroupMap& nativeGroupMa
     string heapTitle = tag + ":";
     StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, heapTitle);
     heap.push_back(heapTitle);
-    auto it = nativeGroupMap.find(tag);
+
+    auto info = nativeGroupMap.find(tag);
     string nativeValue;
-    bool isShow = false;
-    if (it != nativeGroupMap.end()) {
-        for (auto mativeMap : it->second) {
-            if (mativeMap.second != 0) {
-                isShow = true;
-                nativeValue += "  " + mativeMap.first + ":" + to_string(mativeMap.second);
-            }
+    auto &valueMap = info->second;
+    for (const auto &key : MemoryFilter::GetInstance().VALUE_WITH_PID) {
+        auto it = valueMap.find(key);
+        string value = "0";
+        if (it != valueMap.end()) {
+            value = to_string(it->second);
         }
+        StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, value);
+        nativeValue += value;
     }
-    if (isShow) {
-        heap.push_back(nativeValue);
-        result->push_back(heap);
-    }
+
+    heap.push_back(nativeValue);
+    result->push_back(heap);
 }
 
 void MemoryInfo::GetNativeHeap(const GroupMap& nativeGroupMap, StringMatrix result)
 {
     AddBlankLine(result);
     vector<string> title;
-    title.push_back("NativeHeap:");
+    title.push_back(MemoryFilter::GetInstance().NATIVE_HEAP_LABEL + ":");
     result->push_back(title);
     for (const auto &it: NATIVE_HEAP_TAG_) {
         GetNativeValue(it, nativeGroupMap, result);
@@ -559,11 +560,11 @@ void MemoryInfo::GetDmaByPid(const int32_t &pid, StringMatrix result)
 {
     AddBlankLine(result);
     vector<string> title;
-    title.push_back("DMA:");
+    title.push_back(MemoryFilter::GetInstance().DMA_TAG + ":");
     result->push_back(title);
 
     vector<string> dma;
-    string dmaTitle = "Dma:";
+    string dmaTitle = MemoryFilter::GetInstance().DMA_OUT_LABEL + ":";
     StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, dmaTitle);
     dma.push_back(dmaTitle);
     dma.push_back(AddKbUnit(GetDmaInfo::GetInstance().GetDmaByPid(pid)));

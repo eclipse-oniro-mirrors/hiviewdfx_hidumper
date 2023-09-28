@@ -83,7 +83,7 @@ bool GetDmaInfo::GetDma()
 uint64_t GetDmaInfo::GetTotalDma()
 {
     uint64_t totalDma = 0;
-    for (auto it : totalDma) {
+    for (auto it : dmaInfos) {
         if (it.status == NORMAL) {
             totalDma += it.size;
         }

@@ -109,9 +109,7 @@ bool ParseSmapsInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int 
             uint64_t value = 0;
             if (GetValue(memType, line, type, value)) {
                 MemoryUtil::GetInstance().CalcGroup(memGroup_, type, value, result);
-                if (!nativeMemGroup_.empty()) {
-                    MemoryUtil::GetInstance().CalcGroup(nativeMemGroup_, type, value, nativeMap);
-                }
+                MemoryUtil::GetInstance().CalcGroup(nativeMemGroup_, type, value, nativeMap);
             }
         } else if (MemoryUtil::GetInstance().IsNameLine(line, name, iNode)) {
             MemoryFilter::GetInstance().ParseMemoryGroup(name, memGroup_, iNode);
