@@ -529,6 +529,10 @@ void MemoryInfo::GetNativeValue(const string& tag, const GroupMap& nativeGroupMa
     heap.push_back(heapTitle);
 
     auto info = nativeGroupMap.find(tag);
+    if (info == valueMap.end()) {
+        DUMPER_HILOGD(MODULE_SERVICE, "GetNativeValue fail! tag = %{public}s", tag.c_str());
+        return;
+    }
     string nativeValue;
     auto &valueMap = info->second;
     for (const auto &key : MemoryFilter::GetInstance().VALUE_WITH_PID) {
