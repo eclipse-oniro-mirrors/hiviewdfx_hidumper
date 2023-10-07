@@ -24,13 +24,10 @@
 
 namespace OHOS {
 namespace HiviewDFX {
-class GetDmaInfo : public Singleton<GetDmaInfo> {
+class DmaInfo {
 public:
-    GetDmaInfo();
-    ~GetDmaInfo();
-
-    GetDmaInfo(GetDmaInfo const &) = delete;
-    void operator=(GetDmaInfo const &) = delete;
+    DmaInfo();
+    ~DmaInfo();
 
     using ValueMap = std::map<std::string, uint64_t>;
     using GroupMap = std::map<std::string, ValueMap>;

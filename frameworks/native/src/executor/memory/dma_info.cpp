@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "executor/memory/get_dma_info.h"
+#include "executor/memory/dma_info.h"
 #include "executor/memory/memory_filter.h"
 #include "executor/memory/memory_util.h"
 #include "util/string_utils.h"
@@ -20,10 +20,10 @@
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
-GetDmaInfo::GetDmaInfo()
+DmaInfo::DmaInfo()
 {
 }
-GetDmaInfo::~GetDmaInfo()
+DmaInfo::~DmaInfo()
 {
 }
 
@@ -32,7 +32,7 @@ GetDmaInfo::~GetDmaInfo()
  * @param {string} &str-String to be inserted into result
  * @return void
  */
-void GetDmaInfo::SetData(const string &str)
+void DmaInfo::SetData(const string &str)
 {
     vector<string> datas;
     StringUtils::GetInstance().StringSplit(str, " ", datas);
@@ -67,7 +67,7 @@ void GetDmaInfo::SetData(const string &str)
  * @param {GroupMap} &infos-gpu information
  * @return {bool}-the result of
  */
-bool GetDmaInfo::GetDma()
+bool DmaInfo::GetDma()
 {
     if (isFirst) {
         return true;
@@ -80,7 +80,7 @@ bool GetDmaInfo::GetDma()
     return ret;
 }
 
-uint64_t GetDmaInfo::GetTotalDma()
+uint64_t DmaInfo::GetTotalDma()
 {
     uint64_t totalDma = 0;
     for (auto it : dmaInfos) {
@@ -91,12 +91,12 @@ uint64_t GetDmaInfo::GetTotalDma()
     return totalDma;
 }
 
-std::vector<MemInfoData::DmaInfo> GetDmaInfo::GetDmaInfos()
+std::vector<MemInfoData::DmaInfo> DmaInfo::GetDmaInfos()
 {
     return dmaInfos;
 }
 
-uint64_t GetDmaInfo::GetDmaByPid(const int32_t &pid)
+uint64_t DmaInfo::GetDmaByPid(const int32_t &pid)
 {
     uint64_t dma = 0;
     for (auto it : dmaInfos) {

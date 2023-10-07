@@ -22,12 +22,11 @@
 
 #include "dump_common_utils.h"
 #include "executor/memory/get_cma_info.h"
+#include "executor/memory/get_heap_info.h"
 #include "executor/memory/get_hardware_info.h"
 #include "executor/memory/get_kernel_info.h"
 #include "executor/memory/get_process_info.h"
 #include "executor/memory/get_ram_info.h"
-#include "executor/memory/get_dma_info.h"
-#include "executor/memory/get_heap_info.h"
 #include "executor/memory/memory_util.h"
 #include "executor/memory/parse/meminfo_data.h"
 #include "executor/memory/parse/parse_meminfo.h"
@@ -244,7 +243,7 @@ bool MemoryInfo::IsRenderService(int32_t pid)
 
 bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
 {
-    if (!GetDmaInfo::GetInstance().GetDma()) {
+    if (!dmaInfo_.GetDma()) {
         DUMPER_HILOGE(MODULE_SERVICE, "Get dma info error\n");
     }
     GroupMap groupMap;
@@ -412,7 +411,7 @@ void MemoryInfo::GetPssTotal(const GroupMap &infos, StringMatrix result)
     PairToStringMatrix(MemoryFilter::GetInstance().GPU_TAG, gpuValue, result);
 
     vector<pair<string, uint64_t>> dmaValue;
-    dmaValue.push_back(make_pair(MemoryFilter::GetInstance().DMA_OUT_LABEL, GetDmaInfo::GetInstance().GetTotalDma()));
+    dmaValue.push_back(make_pair(MemoryFilter::GetInstance().DMA_OUT_LABEL, dmaInfo_.GetTotalDma()));
     PairToStringMatrix(MemoryFilter::GetInstance().DMA_TAG, dmaValue, result);
 }
 
@@ -567,7 +566,7 @@ void MemoryInfo::GetDmaByPid(const int32_t &pid, StringMatrix result)
     string dmaTitle = MemoryFilter::GetInstance().DMA_OUT_LABEL + ":";
     StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, dmaTitle);
     dma.push_back(dmaTitle);
-    dma.push_back(AddKbUnit(GetDmaInfo::GetInstance().GetDmaByPid(pid)));
+    dma.push_back(AddKbUnit(dmaInfo_.GetDmaByPid(pid)));
     result->push_back(dma);
 }
 
@@ -714,7 +713,7 @@ bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &gra
     return false;
 }
 
-bool MemoryInfo::GetMemByProcessPid(const int32_t &pid, MemInfoData::MemUsage &usage)
+bool MemoryInfo::GetMemByProcessPid(const int32_t &pid, DmaInfo &dmaInfo, MemInfoData::MemUsage &usage)
 {
     bool success = false;
     MemInfoData::MemInfo memInfo;
@@ -725,7 +724,7 @@ bool MemoryInfo::GetMemByProcessPid(const int32_t &pid, MemInfoData::MemUsage &u
         usage.rss = memInfo.rss;
         usage.pss = memInfo.pss;
         usage.swapPss = memInfo.swapPss;
-        usage.dma = GetDmaInfo::GetInstance().GetDmaByPid(pid);
+        usage.dma = dmaInfo.GetDmaByPid(pid);
         usage.name = GetProcName(pid);
         usage.pid = pid;
 #ifdef HIDUMPER_MEMMGR_ENABLE
@@ -878,7 +877,7 @@ void MemoryInfo::GetMemGraphics()
 
 DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
 {
-    if (!GetDmaInfo::GetInstance().GetDma()) {
+    if (!dmaInfo_.GetDma()) {
         DUMPER_HILOGE(MODULE_SERVICE, "Get dma info error\n");
     }
     if (!isReady_) {
@@ -911,7 +910,7 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
     MemInfoData::MemUsage usage;
     MemoryUtil::GetInstance().InitMemUsage(usage);
     if (pids_.size() > 0) {
-        if (GetMemByProcessPid(pids_.front(), usage)) {
+        if (GetMemByProcessPid(pids_.front(), dmaInfo_, usage)) {
             memUsages_.push_back(usage);
             adjMemResult_[usage.adjLabel].push_back(usage);
             totalGL_ += usage.gl;

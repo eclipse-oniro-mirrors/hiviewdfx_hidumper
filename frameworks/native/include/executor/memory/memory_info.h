@@ -19,6 +19,7 @@
 #include <future>
 #include <string>
 #include <vector>
+#include "executor/memory/dma_info.h"
 #include "executor/memory/parse/meminfo_data.h"
 #include "common.h"
 #include "time.h"
@@ -85,11 +86,12 @@ private:
         {"Perceived", {}}, {"Background", {}}, {"Undefined", {}},
     };
     std::vector<std::string> NATIVE_HEAP_TAG_ = {"heap", "brk heap", "mmap heap", "jemalloc heap"};
+    DmaInfo dmaInfo_;
     void insertMemoryTitle(StringMatrix result);
     void BuildResult(const GroupMap &infos, StringMatrix result);
 
     std::string AddKbUnit(const uint64_t &value) const;
-    static bool GetMemByProcessPid(const int32_t &pid, MemInfoData::MemUsage &usage);
+    static bool GetMemByProcessPid(const int32_t &pid, DmaInfo &dmaInfo, MemInfoData::MemUsage &usage);
     static bool GetSmapsInfoNoPid(const int32_t &pid, GroupMap &result);
     bool GetMeminfo(ValueMap &result);
     bool GetHardWareUsage(StringMatrix result);
