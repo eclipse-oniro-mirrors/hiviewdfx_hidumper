@@ -23,6 +23,7 @@ namespace HiviewDFX {
 DmaInfo::DmaInfo()
 {
 }
+
 DmaInfo::~DmaInfo()
 {
 }
@@ -47,19 +48,19 @@ void DmaInfo::SetData(const string &str)
     dmaInfo.ino = stoi(datas[4]);
     dmaInfo.expPid = stoi(datas[5]);
     dmaInfo.status = 0;
-    for (const auto &it : dmaInfos) {
+    for (const auto &it : dmaInfos_) {
         if (it.name == dmaInfo.name && it.ino == dmaInfo.ino) {
             dmaInfo.status = REPETITIVE1;
             break; 
         }
     }
-    for (auto &it : dmaInfos) {
+    for (auto &it : dmaInfos_) {
         if (it.name != dmaInfo.name && it.ino == dmaInfo.ino && it.status == NORMAL) {
             it.status = REPETITIVE2;
             break; 
         }
     }
-    dmaInfos.push_back(dmaInfo);
+    dmaInfos_.push_back(dmaInfo);
 }
 
 /**
@@ -69,10 +70,10 @@ void DmaInfo::SetData(const string &str)
  */
 bool DmaInfo::GetDma()
 {
-    if (isFirst) {
+    if (isFirst_) {
         return true;
     }
-    isFirst = true;
+    isFirst_ = true;
     string path = "/proc/process_dmabuf_info";
     bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, true, [&](const string &line) -> void {
         SetData(line);
@@ -83,7 +84,7 @@ bool DmaInfo::GetDma()
 uint64_t DmaInfo::GetTotalDma()
 {
     uint64_t totalDma = 0;
-    for (auto it : dmaInfos) {
+    for (const auto &it : dmaInfos_) {
         if (it.status == NORMAL) {
             totalDma += it.size;
         }
@@ -93,13 +94,13 @@ uint64_t DmaInfo::GetTotalDma()
 
 std::vector<MemInfoData::DmaInfo> DmaInfo::GetDmaInfos()
 {
-    return dmaInfos;
+    return dmaInfos_;
 }
 
 uint64_t DmaInfo::GetDmaByPid(const int32_t &pid)
 {
     uint64_t dma = 0;
-    for (auto it : dmaInfos) {
+    for (const auto &it : dmaInfos_) {
         if (it.pid == pid && it.status == NORMAL) {
             dma += it.size;
         }

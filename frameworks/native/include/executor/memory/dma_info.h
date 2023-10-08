@@ -36,8 +36,7 @@ public:
     uint64_t GetTotalDma();
 
 private:
-    enum Status
-	{
+    enum Status {
 		NORMAL,
 		REPETITIVE1,
 		REPETITIVE2
@@ -46,8 +45,8 @@ private:
     void SetData(const std::string &line);
     std::vector<MemInfoData::DmaInfo> GetDmaInfos();
 
-    std::vector<MemInfoData::DmaInfo> dmaInfos;
-    bool isFirst = false;
+    std::vector<MemInfoData::DmaInfo> dmaInfos_;
+    bool isFirst_ = false;
     const static int BYTE_PER_KB = 1024;
 };
 } // namespace HiviewDFX
