@@ -60,7 +60,6 @@ int32_t DumpBrokerStub::RequestFileFdStub(MessageParcel& data, MessageParcel& re
     }
     int outfd = data.ReadFileDescriptor();
     if (outfd < 0) {
-    {
         return ERROR_READ_PARCEL;
     }
     int32_t res = Request(args, outfd);
