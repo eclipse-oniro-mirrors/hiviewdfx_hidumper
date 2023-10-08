@@ -37,10 +37,10 @@ public:
 
 private:
     enum Status {
-		NORMAL,
-		REPETITIVE1,
-		REPETITIVE2
-	};
+        NORMAL,
+        REPETITIVE1,
+        REPETITIVE2
+    };
 
     void SetData(const std::string &line);
     std::vector<MemInfoData::DmaInfo> GetDmaInfos();
