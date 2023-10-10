@@ -46,7 +46,6 @@ private:
 
     std::vector<MemInfoData::DmaInfo> dmaInfos_;
     bool isFirst_ = false;
-    const static int BYTE_PER_KB = 1024;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

@@ -20,6 +20,7 @@
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
+static constexpr int BYTE_PER_KB = 1024;
 DmaInfo::DmaInfo()
 {
 }
