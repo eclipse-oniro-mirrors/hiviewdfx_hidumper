@@ -30,24 +30,34 @@ DmaInfo::~DmaInfo()
 }
 
 /**
- * @description: SetData
- * @param {string} &str-String to be inserted into result
+ * @description: create dma info
+ * @param {string} &str-string to be inserted into result
  * @return void
  */
-void DmaInfo::SetData(const string &str)
+void DmaInfo::CreateDmaInfo(const string &str)
 {
+    /*
+        Dma-buf objects usage of processes:
+        Process          pid              fd               size_bytes       ino              exp_pid          exp_task_comm    buf_name          exp_name
+        composer_host    552              11               3686400          7135             552              composer_host    NULL      rockchipdrm
+        composer_host    552              18               3686400          30235            543              allocator_host   NULL      rockchipdrm
+        Total dmabuf size of composer_host: 29491200 bytes
+        render_service   575              28               3686400          28052            543              allocator_host   NULL      rockchipdrm
+        render_service   575              31               3686400          31024            543              allocator_host   NULL      rockchipdrm
+        Total dmabuf size of render_service: 35520512 bytes
+    */
     vector<string> datas;
     StringUtils::GetInstance().StringSplit(str, " ", datas);
-    if (str.find("NULL") == string::npos) {
+    if (str.size() < 120 && str.find("size_bytes") != string::npos) {
         return;
     }
     MemInfoData::DmaInfo dmaInfo;
     dmaInfo.name = datas[0];
     dmaInfo.pid = stoi(datas[1]);
-    dmaInfo.fd = stoi(datas[2]);
-    dmaInfo.size = stoi(datas[3]) / BYTE_PER_KB;
-    dmaInfo.ino = stoi(datas[4]);
-    dmaInfo.expPid = stoi(datas[5]);
+    dmaInfo.fd = stoi(datas[2]);                // 2: index of row
+    dmaInfo.size = stoi(datas[3]) / BYTE_PER_KB;// 3: index of row
+    dmaInfo.ino = stoi(datas[4]);               // 4: index of row
+    dmaInfo.expPid = stoi(datas[5]);            // 5: index of row
     dmaInfo.status = 0;
     for (const auto &it : dmaInfos_) {
         if (it.name == dmaInfo.name && it.ino == dmaInfo.ino) {
@@ -65,11 +75,11 @@ void DmaInfo::SetData(const string &str)
 }
 
 /**
- * @description: get the value of gpu usage
- * @param {GroupMap} &infos-gpu information
+ * @description: parse dma info
+ * @param void
  * @return {bool}-the result of
  */
-bool DmaInfo::GetDma()
+bool DmaInfo::ParseDmaInfo()
 {
     if (isFirst_) {
         return true;
@@ -82,6 +92,11 @@ bool DmaInfo::GetDma()
     return ret;
 }
 
+/**
+ * @description: get dma total
+ * @param void
+ * @return {uint64_t} dma total
+ */
 uint64_t DmaInfo::GetTotalDma()
 {
     uint64_t totalDma = 0;
@@ -93,11 +108,11 @@ uint64_t DmaInfo::GetTotalDma()
     return totalDma;
 }
 
-std::vector<MemInfoData::DmaInfo> DmaInfo::GetDmaInfos()
-{
-    return dmaInfos_;
-}
-
+/**
+ * @description: parse dma by pid
+ * @param {int32_t} &pid-process id
+ * @return dma value of process
+ */
 uint64_t DmaInfo::GetDmaByPid(const int32_t &pid)
 {
     uint64_t dma = 0;

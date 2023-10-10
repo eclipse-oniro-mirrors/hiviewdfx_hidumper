@@ -243,7 +243,7 @@ bool MemoryInfo::IsRenderService(int32_t pid)
 
 bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
 {
-    if (!dmaInfo_.GetDma()) {
+    if (!dmaInfo_.ParseDmaInfo()) {
         DUMPER_HILOGE(MODULE_SERVICE, "Get dma info error\n");
     }
     GroupMap groupMap;
@@ -881,7 +881,7 @@ void MemoryInfo::GetMemGraphics()
 
 DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
 {
-    if (!dmaInfo_.GetDma()) {
+    if (!dmaInfo_.ParseDmaInfo()) {
         DUMPER_HILOGE(MODULE_SERVICE, "Get dma info error\n");
     }
     if (!isReady_) {

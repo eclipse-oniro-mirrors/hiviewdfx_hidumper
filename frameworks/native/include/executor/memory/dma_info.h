@@ -30,7 +30,7 @@ public:
 
     using ValueMap = std::map<std::string, uint64_t>;
     using GroupMap = std::map<std::string, ValueMap>;
-    bool GetDma();
+    bool ParseDmaInfo();
     uint64_t GetDmaByPid(const int32_t &pid);
     uint64_t GetTotalDma();
 
@@ -41,8 +41,7 @@ private:
         REPETITIVE2
     };
 
-    void SetData(const std::string &line);
-    std::vector<MemInfoData::DmaInfo> GetDmaInfos();
+    void CreateDmaInfo(const std::string &line);
 
     std::vector<MemInfoData::DmaInfo> dmaInfos_;
     bool isFirst_ = false;
