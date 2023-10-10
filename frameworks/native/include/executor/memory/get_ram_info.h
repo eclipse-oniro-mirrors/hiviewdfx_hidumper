@@ -15,9 +15,9 @@
 #ifndef GET_RAM_INFO_H
 #define GET_RAM_INFO_H
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 namespace OHOS {
 namespace HiviewDFX {
 class GetRamInfo {

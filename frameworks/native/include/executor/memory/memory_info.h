@@ -14,9 +14,9 @@
  */
 #ifndef MEMORY_INFO_H
 #define MEMORY_INFO_H
+#include <future>
 #include <map>
 #include <memory>
-#include <future>
 #include <string>
 #include <vector>
 #include "executor/memory/dma_info.h"

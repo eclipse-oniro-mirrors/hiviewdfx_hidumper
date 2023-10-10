@@ -15,11 +15,10 @@
 #ifndef GET_DMA_INFO_H
 #define GET_DMA_INFO_H
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
-#include "singleton.h"
 #include "executor/memory/parse/meminfo_data.h"
 
 namespace OHOS {
