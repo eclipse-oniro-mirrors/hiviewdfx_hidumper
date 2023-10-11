@@ -82,7 +82,7 @@ private:
     bool HasDumpPermission() const;
     uint32_t GetFileDescriptorNums(int32_t pid, std::string requestType) const;
     void RecordDetailFdInfo(std::string &detailFdInfo, std::string &topLeakedType);
-    void RecordDirInfo(std::string &detailFdInfo, std::string &topLeakedType);
+    void RecordDirFdInfo(std::string &detailFdInfo, std::string &topLeakedType);
     std::string GetFdLinkNum(const std::string &linkPath) const;
 private:
     std::mutex mutex_;

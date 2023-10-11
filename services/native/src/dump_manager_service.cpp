@@ -225,7 +225,7 @@ void DumpManagerService::RecordDetailFdInfo(std::string &detailFdInfo, std::stri
     }
 }
 
-void DumpManagerService::RecordDirInfo(std::string &detailFdInfo, std::string &topLeakedType)
+void DumpManagerService::RecordDirFdInfo(std::string &detailFdInfo, std::string &topLeakedType)
 {
     std::unordered_map<std::string, int> fileTypeMap;
     std::vector<pair<std::string, int>> fileTypeList;
@@ -287,7 +287,7 @@ int32_t DumpManagerService::CountFdNums(int32_t pid, uint32_t &fdNums,
     std::sort(linkCnt_.begin(), linkCnt_.end(),
         [](const std::pair<std::string, int> &a, const std::pair<std::string, int> &b) { return a.second > b.second; });
     RecordDetailFdInfo(detailFdInfo, topLeakedType);
-    RecordDirInfo(detailFdInfo, topLeakedType);
+    RecordDirFdInfo(detailFdInfo, topLeakedType);
     return ret;
 }
 
