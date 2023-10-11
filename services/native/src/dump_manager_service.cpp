@@ -225,23 +225,13 @@ void DumpManagerService::RecordDetailFdInfo(std::string &detailFdInfo, std::stri
     }
 }
 
-int FindDigitIndex(std::string fullFileName)
-{
-    for (int i = 0; i < fullFileName.size(); i++) {
-        if (std::isdigit(fullFileName[i])) {
-            return i;
-        }
-    }
-    return static_cast<int>(fullFileName.size());
-}
-
 void DumpManagerService::RecordDirInfo(std::string &detailFdInfo, std::string &topLeakedType)
 {
     std::unordered_map<std::string, int> fileTypeMap;
     std::vector<pair<std::string, int>> fileTypeList;
     for(const auto &each : linkCnt_) {
         if (g_fdLeakWp.find(each.first) == g_fdLeakWp.end()) {
-            std::string fileName(each.first, 0, FindDigitIndex(each.first));
+            std::string fileName(each.first, 0, DumpCommonUtils::FindDigitIndex(each.first));
             if (fileTypeMap.find(fileName) == fileTypeMap.end()) {
                 fileTypeMap[fileName] = each.second;
             } else {
