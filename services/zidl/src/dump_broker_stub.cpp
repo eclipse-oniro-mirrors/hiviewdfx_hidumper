@@ -14,6 +14,7 @@
  */
 #include "dump_broker_stub.h"
 #include <message_parcel.h>
+#include <unistd.h>
 #include "dump_errors.h"
 #include "hidumper_service_ipc_interface_code.h"
 #include "hilog_wrapper.h"
@@ -59,7 +60,11 @@ int32_t DumpBrokerStub::RequestFileFdStub(MessageParcel& data, MessageParcel& re
         return ERROR_READ_PARCEL;
     }
     int outfd = data.ReadFileDescriptor();
+    if (outfd < 0) {
+        return ERROR_READ_PARCEL;
+    }
     int32_t res = Request(args, outfd);
+    close(outfd);
     if (!reply.WriteInt32(res)) {
         return ERROR_WRITE_PARCEL;
     }
