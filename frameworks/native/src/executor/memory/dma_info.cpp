@@ -48,7 +48,7 @@ void DmaInfo::CreateDmaInfo(const string &str)
     */
     vector<string> datas;
     StringUtils::GetInstance().StringSplit(str, " ", datas);
-    if (str.size() < 120 && str.find("size_bytes") != string::npos) {
+    if (str.size() < 120 || str.find("size_bytes") != string::npos) {
         return;
     }
     MemInfoData::DmaInfo dmaInfo;
@@ -87,8 +87,18 @@ bool DmaInfo::ParseDmaInfo()
     isFirst_ = true;
     string path = "/proc/process_dmabuf_info";
     bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, true, [&](const string &line) -> void {
-        SetData(line);
+        CreateDmaInfo(line);
     });
+    for (const auto &it : dmaInfos_) {
+        if (it.status == NORMAL) {
+            auto dma = dmaMap_.find(it.pid);
+            if (dma != dmaMap_.end()) {
+                dma->second += it.size;
+            } else {
+                dmaMap_.insert(pair<uint32_t, uint64_t>(it.pid, it.size));
+            }
+        }
+    }
     return ret;
 }
 
@@ -100,10 +110,8 @@ bool DmaInfo::ParseDmaInfo()
 uint64_t DmaInfo::GetTotalDma()
 {
     uint64_t totalDma = 0;
-    for (const auto &it : dmaInfos_) {
-        if (it.status == NORMAL) {
-            totalDma += it.size;
-        }
+    for (const auto &it : dmaMap_) {
+        totalDma += it.second;
     }
     return totalDma;
 }
@@ -115,13 +123,11 @@ uint64_t DmaInfo::GetTotalDma()
  */
 uint64_t DmaInfo::GetDmaByPid(const int32_t &pid)
 {
-    uint64_t dma = 0;
-    for (const auto &it : dmaInfos_) {
-        if (it.pid == pid && it.status == NORMAL) {
-            dma += it.size;
-        }
+    auto it = dmaMap_.find(pid);
+    if (it != dmaMap_.end()) {
+        return it->second;
     }
-    return dma;
+    return 0;
 }
 } // namespace HiviewDFX
 } // namespace OHOS

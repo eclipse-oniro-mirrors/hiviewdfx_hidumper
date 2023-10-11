@@ -28,8 +28,8 @@ public:
     DmaInfo();
     ~DmaInfo();
 
-    using ValueMap = std::map<std::string, uint64_t>;
-    using GroupMap = std::map<std::string, ValueMap>;
+    using ValueMap = std::map<uint32_t, uint64_t>;
+
     bool ParseDmaInfo();
     uint64_t GetDmaByPid(const int32_t &pid);
     uint64_t GetTotalDma();
@@ -45,6 +45,7 @@ private:
 
     std::vector<MemInfoData::DmaInfo> dmaInfos_;
     bool isFirst_ = false;
+    ValueMap dmaMap_;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
