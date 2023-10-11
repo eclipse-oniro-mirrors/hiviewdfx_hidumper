@@ -14,6 +14,7 @@
  */
 #include "dump_broker_stub.h"
 #include <message_parcel.h>
+#include <unistd.h>
 #include "dump_errors.h"
 #include "hidumper_service_ipc_interface_code.h"
 #include "hilog_wrapper.h"
