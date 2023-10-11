@@ -239,7 +239,6 @@ void DumpManagerService::RecordDirInfo(std::string &detailFdInfo, std::string &t
             }
         }
     }
-    
     for (std::pair<std::string, int> fileNamePair : fileTypeMap) {
         fileTypeList.push_back(pair<std::string, int>(fileNamePair.first, fileNamePair.second));
     }
