@@ -229,7 +229,7 @@ void DumpManagerService::RecordDirFdInfo(std::string &detailFdInfo, std::string 
 {
     std::unordered_map<std::string, int> fileTypeMap;
     std::vector<pair<std::string, int>> fileTypeList;
-    for(const auto &each : linkCnt_) {
+    for (const auto &each : linkCnt_) {
         if (g_fdLeakWp.find(each.first) == g_fdLeakWp.end()) {
             std::string fileName(each.first, 0, DumpCommonUtils::FindDigitIndex(each.first));
             if (fileTypeMap.find(fileName) == fileTypeMap.end()) {
@@ -242,7 +242,7 @@ void DumpManagerService::RecordDirFdInfo(std::string &detailFdInfo, std::string 
     for (std::pair<std::string, int> fileNamePair : fileTypeMap) {
         fileTypeList.push_back(pair<std::string, int>(fileNamePair.first, fileNamePair.second));
     }
-    sort(fileTypeList.begin(), fileTypeList.end(), 
+    sort(fileTypeList.begin(), fileTypeList.end(),
         [](const std::pair<std::string, int> &p1, const std::pair<std::string, int> &p2) {
             return p1.second > p2.second;
     });
