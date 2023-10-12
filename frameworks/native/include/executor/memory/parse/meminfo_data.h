@@ -73,12 +73,9 @@ public:
 
     struct DmaInfo {
         std::string name;
-        uint64_t pid;
-        uint64_t fd;
+        uint32_t pid;
         uint64_t size;
         uint64_t ino;
-        uint64_t expPid;
-        uint64_t status;
     };
 
     struct GraphicsMemory {

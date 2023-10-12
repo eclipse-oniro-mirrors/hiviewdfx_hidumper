@@ -15,9 +15,12 @@
 #include "executor/memory/dma_info.h"
 #include "executor/memory/memory_filter.h"
 #include "executor/memory/memory_util.h"
-#include "util/string_utils.h"
 #include "util/file_utils.h"
+#include "util/string_utils.h"
+#include "securec.h"
+
 using namespace std;
+
 namespace OHOS {
 namespace HiviewDFX {
 static constexpr int BYTE_PER_KB = 1024;
@@ -46,32 +49,19 @@ void DmaInfo::CreateDmaInfo(const string &str)
         render_service   575              31               3686400          31024            543              allocator_host   NULL      rockchipdrm
         Total dmabuf size of render_service: 35520512 bytes
     */
-    vector<string> datas;
-    StringUtils::GetInstance().StringSplit(str, " ", datas);
-    if (str.size() < 120 || str.find("size_bytes") != string::npos) {
+    MemInfoData::DmaInfo dmaInfo;
+    if (sscanf_s(str.c_str(), "%*s %llu %*llu %llu %llu %*n %*s %*s %*s",
+                 &dmaInfo.pid, &dmaInfo.size, &dmaInfo.ino) == 0) {
         return;
     }
-    MemInfoData::DmaInfo dmaInfo;
-    dmaInfo.name = datas[0];
-    dmaInfo.pid = stoi(datas[1]);
-    dmaInfo.fd = stoi(datas[2]);                // 2: index of row
-    dmaInfo.size = stoi(datas[3]) / BYTE_PER_KB;// 3: index of row
-    dmaInfo.ino = stoi(datas[4]);               // 4: index of row
-    dmaInfo.expPid = stoi(datas[5]);            // 5: index of row
-    dmaInfo.status = 0;
-    for (const auto &it : dmaInfos_) {
-        if (it.name == dmaInfo.name && it.ino == dmaInfo.ino) {
-            dmaInfo.status = REPETITIVE1;
-            break; 
-        }
+    dmaInfo.size /= BYTE_PER_KB;
+
+    auto it = dmaInfos_.find(dmaInfo.ino);
+    if (it != dmaInfos_.end()) {
+        it->second.pid = dmaInfo.pid;
+    } else {
+        dmaInfos_.insert(pair<uint64_t, MemInfoData::DmaInfo>(dmaInfo.ino, dmaInfo));
     }
-    for (auto &it : dmaInfos_) {
-        if (it.name != dmaInfo.name && it.ino == dmaInfo.ino && it.status == NORMAL) {
-            it.status = REPETITIVE2;
-            break; 
-        }
-    }
-    dmaInfos_.push_back(dmaInfo);
 }
 
 /**
@@ -90,13 +80,11 @@ bool DmaInfo::ParseDmaInfo()
         CreateDmaInfo(line);
     });
     for (const auto &it : dmaInfos_) {
-        if (it.status == NORMAL) {
-            auto dma = dmaMap_.find(it.pid);
-            if (dma != dmaMap_.end()) {
-                dma->second += it.size;
-            } else {
-                dmaMap_.insert(pair<uint32_t, uint64_t>(it.pid, it.size));
-            }
+        auto dma = dmaMap_.find(it.second.pid);
+        if (dma != dmaMap_.end()) {
+            dma->second += it.second.size;
+        } else {
+            dmaMap_.insert(pair<uint32_t, uint64_t>(it.second.pid, it.second.size));
         }
     }
     return ret;

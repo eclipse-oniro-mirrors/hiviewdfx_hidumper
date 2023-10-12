@@ -27,9 +27,8 @@ class DmaInfo {
 public:
     DmaInfo();
     ~DmaInfo();
-
     using ValueMap = std::map<uint32_t, uint64_t>;
-
+    using DmaInfoMap = std::map<uint64_t, MemInfoData::DmaInfo>;
     bool ParseDmaInfo();
     uint64_t GetDmaByPid(const int32_t &pid);
     uint64_t GetTotalDma();
@@ -43,8 +42,8 @@ private:
 
     void CreateDmaInfo(const std::string &line);
 
-    std::vector<MemInfoData::DmaInfo> dmaInfos_;
     bool isFirst_ = false;
+    DmaInfoMap dmaInfos_;
     ValueMap dmaMap_;
 };
 } // namespace HiviewDFX
