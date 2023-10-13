@@ -244,7 +244,7 @@ bool MemoryInfo::IsRenderService(int32_t pid)
 bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
 {
     if (!dmaInfo_.ParseDmaInfo()) {
-        DUMPER_HILOGE(MODULE_SERVICE, "Get dma info error\n");
+        DUMPER_HILOGE(MODULE_SERVICE, "Parse dma info error\n");
     }
     GroupMap groupMap;
     GroupMap nativeGroupMap;
@@ -479,9 +479,9 @@ void MemoryInfo::GetPurgTotal(const ValueMap &meminfo, StringMatrix result)
     title.push_back("Total Purgeable:");
     result->push_back(title);
 
-    uint64_t purgSumTotal = meminfo.find(MemoryFilter::GetInstance().PURG_SUM_[0])->second +
-                            meminfo.find(MemoryFilter::GetInstance().PURG_SUM_[1])->second;
-    uint64_t purgPinTotal = meminfo.find(MemoryFilter::GetInstance().PURG_PIN_[0])->second;
+    uint64_t purgSumTotal = meminfo.find(MemoryFilter::GetInstance().PURG_SUM[0])->second +
+                            meminfo.find(MemoryFilter::GetInstance().PURG_SUM[1])->second;
+    uint64_t purgPinTotal = meminfo.find(MemoryFilter::GetInstance().PURG_PIN[0])->second;
 
     vector<string> purgSum;
     string totalPurgSumTitle = "Total PurgSum:";
@@ -717,7 +717,7 @@ bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &gra
     return false;
 }
 
-bool MemoryInfo::GetMemByProcessPid(const int32_t &pid, DmaInfo &dmaInfo, MemInfoData::MemUsage &usage)
+bool MemoryInfo::GetMemByProcessPid(const int32_t &pid, const DmaInfo &dmaInfo, MemInfoData::MemUsage &usage)
 {
     bool success = false;
     MemInfoData::MemInfo memInfo;
@@ -882,7 +882,7 @@ void MemoryInfo::GetMemGraphics()
 DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
 {
     if (!dmaInfo_.ParseDmaInfo()) {
-        DUMPER_HILOGE(MODULE_SERVICE, "Get dma info error\n");
+        DUMPER_HILOGE(MODULE_SERVICE, "Parse dma info error\n");
     }
     if (!isReady_) {
         memUsages_.clear();

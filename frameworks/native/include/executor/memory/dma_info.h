@@ -27,24 +27,20 @@ class DmaInfo {
 public:
     DmaInfo();
     ~DmaInfo();
+
     using ValueMap = std::map<uint32_t, uint64_t>;
     using DmaInfoMap = std::map<uint64_t, MemInfoData::DmaInfo>;
+
     bool ParseDmaInfo();
-    uint64_t GetDmaByPid(const int32_t &pid);
+    uint64_t GetDmaByPid(const int32_t &pid) const;
     uint64_t GetTotalDma();
 
 private:
-    enum Status {
-        NORMAL,
-        REPETITIVE1,
-        REPETITIVE2
-    };
-
     void CreateDmaInfo(const std::string &line);
 
-    bool isFirst_ = false;
     DmaInfoMap dmaInfos_;
     ValueMap dmaMap_;
+    bool initialized = false;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

@@ -91,7 +91,7 @@ private:
     void BuildResult(const GroupMap &infos, StringMatrix result);
 
     std::string AddKbUnit(const uint64_t &value) const;
-    static bool GetMemByProcessPid(const int32_t &pid, DmaInfo &dmaInfo, MemInfoData::MemUsage &usage);
+    static bool GetMemByProcessPid(const int32_t &pid, const DmaInfo &dmaInfo, MemInfoData::MemUsage &usage);
     static bool GetSmapsInfoNoPid(const int32_t &pid, GroupMap &result);
     bool GetMeminfo(ValueMap &result);
     bool GetHardWareUsage(StringMatrix result);

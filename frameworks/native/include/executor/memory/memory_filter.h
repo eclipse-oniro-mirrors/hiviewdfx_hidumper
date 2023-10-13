@@ -61,6 +61,9 @@ public:
                                                      "Private_Dirty", "Swap", "SwapPss", "Heap_Size", "Heap_Alloc",
                                                      "Heap_Free"};
 
+    const std::vector<std::string> PURG_SUM = {"Active(purg)", "Inactive(purg)"};
+    const std::vector<std::string> PURG_PIN = {"Pined(purg)"};
+
     const std::vector<std::string> VALUE_SMAPS_V_WITH_PID_ = {"Size", "Rss", "Pss", "Shared_Clean", "Shared_Dirty",
         "Private_Clean", "Private_Dirty", "Swap",  "SwapPss", "Start", "End", "Name"};
 
@@ -76,29 +79,28 @@ public:
 
     const std::vector<std::string> TITLE_NO_PID_ = {"Pss", "SwapPss"};
 
-    std::vector<std::string> MEMINFO_TAG_ = {
+    const std::vector<std::string> MEMINFO_TAG_ = {
         "MemTotal", "MemFree",       "Cached",       "SwapTotal", "KernelStack", "SUnreclaim", "PageTables",
         "Shmem",    "IonTotalCache", "IonTotalUsed", "Buffers",   "Mapped",      "Slab",       "VmallocUsed",
         "Active(purg)", "Inactive(purg)",   "Pined(purg)",
     };
 
     // The fields used to calculate kernel data
-    std::vector<std::string> CALC_KERNEL_TOTAL_ = {"KernelStack", "SUnreclaim", "PageTables", "Shmem"};
+    const std::vector<std::string> CALC_KERNEL_TOTAL_ = {"KernelStack", "SUnreclaim", "PageTables", "Shmem"};
 
-    std::vector<std::string> CALC_PSS_TOTAL_ = {"Pss", "SwapPss"};
-    std::vector<std::string> CALC_PROCESS_TOTAL_ = {"Pss", "SwapPss"};
-    std::vector<std::string> CALC_TOTAL_PSS_ = {"Pss"};
-    std::vector<std::string> CALC_TOTAL_SWAP_PSS_ = {"SwapPss"};
-    std::vector<std::string> CALC_KERNEL_USED_ = {"Shmem", "Slab", "VmallocUsed", "PageTables", "KernelStack"};
-    std::vector<std::string> CALC_FREE_ = {"MemFree"};
-    std::vector<std::string> CALC_CACHED_ = {"Buffers", "Cached", "Mapped"};
-    std::vector<std::string> CALC_TOTAL_ = {"MemTotal"};
-    std::vector<std::string> CALC_ZARM_TOTAL_;
-    std::vector<std::string> HAS_PID_ORDER_ = {"Pss",           "Shared_Clean", "Shared_Dirty", "Private_Clean",
+    const std::vector<std::string> CALC_PSS_TOTAL_ = {"Pss", "SwapPss"};
+    const std::vector<std::string> CALC_PROCESS_TOTAL_ = {"Pss", "SwapPss"};
+    const std::vector<std::string> CALC_TOTAL_PSS_ = {"Pss"};
+    const std::vector<std::string> CALC_TOTAL_SWAP_PSS_ = {"SwapPss"};
+    const std::vector<std::string> CALC_KERNEL_USED_ = {"Shmem", "Slab", "VmallocUsed", "PageTables", "KernelStack"};
+    const std::vector<std::string> CALC_FREE_ = {"MemFree"};
+    const std::vector<std::string> CALC_CACHED_ = {"Buffers", "Cached", "Mapped"};
+    const std::vector<std::string> CALC_TOTAL_ = {"MemTotal"};
+    const std::vector<std::string> CALC_ZARM_TOTAL_;
+    const std::vector<std::string> HAS_PID_ORDER_ = {"Pss",           "Shared_Clean", "Shared_Dirty", "Private_Clean",
                                                "Private_Dirty", "Swap",         "SwapPss"};
-    std::vector<std::string> NO_PID_ORDER_ = {"Pss"};
-    std::vector<std::string> PURG_SUM_ = {"Active(purg)", "Inactive(purg)"};
-    std::vector<std::string> PURG_PIN_ = {"Pined(purg)"};
+    const std::vector<std::string> NO_PID_ORDER_ = {"Pss"};
+
     void ParseMemoryGroup(const std::string &name, std::string &group, uint64_t iNode);
     void ParseNativeHeapMemoryGroup(const std::string &name, std::string &group, uint64_t iNode);
 

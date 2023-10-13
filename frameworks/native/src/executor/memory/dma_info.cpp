@@ -55,7 +55,6 @@ void DmaInfo::CreateDmaInfo(const string &str)
         return;
     }
     dmaInfo.size /= BYTE_PER_KB;
-
     auto it = dmaInfos_.find(dmaInfo.ino);
     if (it != dmaInfos_.end()) {
         it->second.pid = dmaInfo.pid;
@@ -71,10 +70,10 @@ void DmaInfo::CreateDmaInfo(const string &str)
  */
 bool DmaInfo::ParseDmaInfo()
 {
-    if (isFirst_) {
+    if (initialized) {
         return true;
     }
-    isFirst_ = true;
+    initialized = true;
     string path = "/proc/process_dmabuf_info";
     bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, true, [&](const string &line) -> void {
         CreateDmaInfo(line);
@@ -105,11 +104,11 @@ uint64_t DmaInfo::GetTotalDma()
 }
 
 /**
- * @description: parse dma by pid
+ * @description: get dma by pid
  * @param {int32_t} &pid-process id
  * @return dma value of process
  */
-uint64_t DmaInfo::GetDmaByPid(const int32_t &pid)
+uint64_t DmaInfo::GetDmaByPid(const int32_t &pid) const
 {
     auto it = dmaMap_.find(pid);
     if (it != dmaMap_.end()) {
