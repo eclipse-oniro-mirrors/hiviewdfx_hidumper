@@ -40,7 +40,7 @@ private:
 
     DmaInfoMap dmaInfos_;
     ValueMap dmaMap_;
-    bool initialized = false;
+    bool initialized_ = false;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

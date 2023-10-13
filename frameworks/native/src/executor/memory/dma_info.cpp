@@ -70,10 +70,10 @@ void DmaInfo::CreateDmaInfo(const string &str)
  */
 bool DmaInfo::ParseDmaInfo()
 {
-    if (initialized) {
+    if (initialized_) {
         return true;
     }
-    initialized = true;
+    initialized_ = true;
     string path = "/proc/process_dmabuf_info";
     bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, true, [&](const string &line) -> void {
         CreateDmaInfo(line);
