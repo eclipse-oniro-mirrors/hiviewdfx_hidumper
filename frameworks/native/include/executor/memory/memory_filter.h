@@ -97,8 +97,8 @@ public:
     const std::vector<std::string> CALC_CACHED_ = {"Buffers", "Cached", "Mapped"};
     const std::vector<std::string> CALC_TOTAL_ = {"MemTotal"};
     const std::vector<std::string> CALC_ZARM_TOTAL_;
-    const std::vector<std::string> HAS_PID_ORDER_ = {"Pss",           "Shared_Clean", "Shared_Dirty", "Private_Clean",
-                                               "Private_Dirty", "Swap",         "SwapPss"};
+    const std::vector<std::string> HAS_PID_ORDER_ = {"Pss", "Shared_Clean", "Shared_Dirty", "Private_Clean",
+                                                     "Private_Dirty", "Swap", "SwapPss"};
     const std::vector<std::string> NO_PID_ORDER_ = {"Pss"};
 
     void ParseMemoryGroup(const std::string &name, std::string &group, uint64_t iNode);
