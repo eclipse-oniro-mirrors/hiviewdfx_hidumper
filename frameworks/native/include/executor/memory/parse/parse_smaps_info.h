@@ -29,12 +29,13 @@ public:
     using ValueMap = std::map<std::string, uint64_t>;
     using GroupMap = std::map<std::string, ValueMap>;
 
-    bool GetInfo(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &result);
+    bool GetInfo(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &nativeMap, GroupMap &result);
     bool ShowSmapsData(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &result,
         bool isShowSmapsInfo, std::vector<std::map<std::string, std::string>> &vectMap);
 
 private:
     std::string memGroup_ = "";
+    std::string nativeMemGroup_ = "";
     std::map<std::string, std::string> memMap_;
     bool GetValue(const MemoryFilter::MemoryType &memType, const std::string &str, std::string &type, uint64_t &value);
     bool GetSmapsValue(const MemoryFilter::MemoryType &memType, const std::string &str, std::string &type,

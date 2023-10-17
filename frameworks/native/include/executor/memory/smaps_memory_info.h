@@ -14,9 +14,9 @@
  */
 #ifndef SMAPS_MEMORY_INFO_H
 #define SMAPS_MEMORY_INFO_H
+#include <future>
 #include <map>
 #include <memory>
-#include <future>
 #include <string>
 #include <vector>
 #include "common.h"

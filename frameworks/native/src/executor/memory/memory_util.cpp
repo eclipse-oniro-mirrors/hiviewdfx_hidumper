@@ -151,6 +151,7 @@ void MemoryUtil::InitMemSmapsInfo(MemInfoData::MemSmapsInfo &memInfo)
     memInfo.counts = 0;
     memInfo.start = "";
     memInfo.end = "";
+    memInfo.perm = "";
 }
 
 
@@ -162,6 +163,8 @@ void MemoryUtil::InitMemUsage(MemInfoData::MemUsage &usage)
     usage.pss = 0;
     usage.gl = 0;
     usage.graph = 0;
+    usage.purgSum = 0;
+    usage.purgPin = 0;
     usage.pid = 0;
 }
 

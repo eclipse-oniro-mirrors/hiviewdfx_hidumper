@@ -93,6 +93,51 @@ HWTEST_F(MemoryDumperTest, MemoryDumperTest003, TestSize.Level3)
     std::string cmd = "hidumper --mem 1";
     std::string str = "Total";
     ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+    str = "native heap:";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+    str = "Purgerable:";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+    str = "DMA:";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+}
+
+/**
+ * @tc.name: MemoryDumperTest004
+ * @tc.desc: Test MemoryDumper has GPU group.
+ * @tc.type: FUNC
+ * @tc.require: issueI5NWZQ
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest004, TestSize.Level3)
+{
+    std::string cmd = "hidumper --mem";
+    std::string str = "GPU";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+}
+
+/**
+ * @tc.name: MemoryDumperTest005
+ * @tc.desc: Test MemoryDumper has Purgeable group.
+ * @tc.type: FUNC
+ * @tc.require: issueI5NWZQ
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest005, TestSize.Level3)
+{
+    std::string cmd = "hidumper --mem";
+    std::string str = "Total Purgeable";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+}
+
+/**
+ * @tc.name: MemoryDumperTest006
+ * @tc.desc: Test MemoryDumper has Dma/PurgSum/PurgPin group.
+ * @tc.type: FUNC
+ * @tc.require: issueI5NWZQ
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest006, TestSize.Level3)
+{
+    std::string cmd = "hidumper --mem";
+    std::string str = "Dma     PurgSum     PurgPin";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
 }
 
 /**

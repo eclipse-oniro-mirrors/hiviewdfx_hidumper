@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,26 +12,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef GET_PROCESS_INFO_H
-#define GET_PROCESS_INFO_H
+#ifndef GET_DMA_INFO_H
+#define GET_DMA_INFO_H
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
+
+#include "executor/memory/parse/meminfo_data.h"
+
 namespace OHOS {
 namespace HiviewDFX {
-class GetProcessInfo {
+class DmaInfo {
 public:
-    GetProcessInfo();
-    ~GetProcessInfo();
+    DmaInfo();
+    ~DmaInfo();
 
-    using ValueMap = std::map<std::string, uint64_t>;
-    using GroupMap = std::map<std::string, ValueMap>;
-    uint64_t GetProcess(const GroupMap &infos) const;
+    using ValueMap = std::map<uint32_t, uint64_t>;
+    using DmaInfoMap = std::map<uint64_t, MemInfoData::DmaInfo>;
+
+    bool ParseDmaInfo();
+    uint64_t GetDmaByPid(const int32_t &pid) const;
+    uint64_t GetTotalDma();
 
 private:
+    void CreateDmaInfo(const std::string &line);
+
+    DmaInfoMap dmaInfos_;
+    ValueMap dmaMap_;
+    bool initialized_ = false;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
 
-#endif
+#endif // GET_DMA_INFO_H

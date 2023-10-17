@@ -15,9 +15,9 @@
 #ifndef MEMORY_UTIL_H
 #define MEMORY_UTIL_H
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 #include "singleton.h"
 #include "executor/memory/parse/meminfo_data.h"
 namespace OHOS {

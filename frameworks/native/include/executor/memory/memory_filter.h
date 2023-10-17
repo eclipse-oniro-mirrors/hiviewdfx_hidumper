@@ -42,9 +42,16 @@ public:
     size_t HARDWARE_USAGE_THREAD_NUM_ = 5;
     const std::string FILE_PAGE_TAG = "File-backed Page";
     const std::string ANON_PAGE_TAG = "Anonymous Page";
+    const std::string GPU_TAG = "GPU";
     const std::string DMA_TAG = "DMA";
+    const std::string PURGEABLE_TAG = "PURGEABLE";
     const std::string GL_OUT_LABEL = "GL";
     const std::string GRAPH_OUT_LABEL = "Graph";
+    const std::string DMA_OUT_LABEL = "Dma";
+    const std::string PURGSUM_OUT_LABEL = "PurgSum";
+    const std::string PURGPIN_OUT_LABEL = "PurgPin";
+    const std::string NATIVE_HEAP_LABEL = "native heap";
+
     const std::vector<std::pair<MemoryTrackerType, std::string>> MEMORY_TRACKER_TYPES = {
         {MEMORY_TRACKER_TYPE_GL, "GL"}, {MEMORY_TRACKER_TYPE_GRAPH, "Graph"},
         {MEMORY_TRACKER_TYPE_OTHER, "Other"}
@@ -53,6 +60,9 @@ public:
     const std::vector<std::string> VALUE_WITH_PID = {"Pss", "Shared_Clean", "Shared_Dirty", "Private_Clean",
                                                      "Private_Dirty", "Swap", "SwapPss", "Heap_Size", "Heap_Alloc",
                                                      "Heap_Free"};
+
+    const std::vector<std::string> PURG_SUM = {"Active(purg)", "Inactive(purg)"};
+    const std::vector<std::string> PURG_PIN = {"Pined(purg)"};
 
     const std::vector<std::string> VALUE_SMAPS_V_WITH_PID_ = {"Size", "Rss", "Pss", "Shared_Clean", "Shared_Dirty",
         "Private_Clean", "Private_Dirty", "Swap",  "SwapPss", "Start", "End", "Name"};
@@ -69,27 +79,30 @@ public:
 
     const std::vector<std::string> TITLE_NO_PID_ = {"Pss", "SwapPss"};
 
-    std::vector<std::string> MEMINFO_TAG_ = {
+    const std::vector<std::string> MEMINFO_TAG_ = {
         "MemTotal", "MemFree",       "Cached",       "SwapTotal", "KernelStack", "SUnreclaim", "PageTables",
         "Shmem",    "IonTotalCache", "IonTotalUsed", "Buffers",   "Mapped",      "Slab",       "VmallocUsed",
+        "Active(purg)", "Inactive(purg)",   "Pined(purg)",
     };
 
     // The fields used to calculate kernel data
-    std::vector<std::string> CALC_KERNEL_TOTAL_ = {"KernelStack", "SUnreclaim", "PageTables", "Shmem"};
+    const std::vector<std::string> CALC_KERNEL_TOTAL_ = {"KernelStack", "SUnreclaim", "PageTables", "Shmem"};
 
-    std::vector<std::string> CALC_PSS_TOTAL_ = {"Pss", "SwapPss"};
-    std::vector<std::string> CALC_PROCESS_TOTAL_ = {"Pss", "SwapPss"};
-    std::vector<std::string> CALC_TOTAL_PSS_ = {"Pss"};
-    std::vector<std::string> CALC_TOTAL_SWAP_PSS_ = {"SwapPss"};
-    std::vector<std::string> CALC_KERNEL_USED_ = {"Shmem", "Slab", "VmallocUsed", "PageTables", "KernelStack"};
-    std::vector<std::string> CALC_FREE_ = {"MemFree"};
-    std::vector<std::string> CALC_CACHED_ = {"Buffers", "Cached", "Mapped"};
-    std::vector<std::string> CALC_TOTAL_ = {"MemTotal"};
-    std::vector<std::string> CALC_ZARM_TOTAL_;
-    std::vector<std::string> HAS_PID_ORDER_ = {"Pss",           "Shared_Clean", "Shared_Dirty", "Private_Clean",
+    const std::vector<std::string> CALC_PSS_TOTAL_ = {"Pss", "SwapPss"};
+    const std::vector<std::string> CALC_PROCESS_TOTAL_ = {"Pss", "SwapPss"};
+    const std::vector<std::string> CALC_TOTAL_PSS_ = {"Pss"};
+    const std::vector<std::string> CALC_TOTAL_SWAP_PSS_ = {"SwapPss"};
+    const std::vector<std::string> CALC_KERNEL_USED_ = {"Shmem", "Slab", "VmallocUsed", "PageTables", "KernelStack"};
+    const std::vector<std::string> CALC_FREE_ = {"MemFree"};
+    const std::vector<std::string> CALC_CACHED_ = {"Buffers", "Cached", "Mapped"};
+    const std::vector<std::string> CALC_TOTAL_ = {"MemTotal"};
+    const std::vector<std::string> CALC_ZARM_TOTAL_;
+    const std::vector<std::string> HAS_PID_ORDER_ = {"Pss",           "Shared_Clean", "Shared_Dirty", "Private_Clean",
                                                "Private_Dirty", "Swap",         "SwapPss"};
-    std::vector<std::string> NO_PID_ORDER_ = {"Pss"};
+    const std::vector<std::string> NO_PID_ORDER_ = {"Pss"};
+
     void ParseMemoryGroup(const std::string &name, std::string &group, uint64_t iNode);
+    void ParseNativeHeapMemoryGroup(const std::string &name, std::string &group, uint64_t iNode);
 
 private:
     const std::map<std::string, std::string> beginMap_ = {
@@ -97,6 +110,10 @@ private:
         {"[anon:native_heap:", "native heap"}, {"[anon:ArkTS Heap]", "ark ts heap"},
         {"[anon:guard", "guard"}, {"/dev", "dev"}, {"[anon:signal_stack", "stack"},
         {"/dmabuf", "dmabuf"}, {"/data/storage", ".hap"}, {"[anon:libc_malloc", "native heap"},
+    };
+    const std::map<std::string, std::string> heapBeginMap_ = {
+        {"[heap]", "heap"}, {"[anon:native_heap:jemalloc", "jemalloc heap"},
+        {"[anon:native_heap:brk", "brk heap"}, {"[anon:native_heap:mmap", "mmap heap"},
     };
     const std::map<std::string, std::string> endMap_ = {
         {".so", ".so"}, {".so.1", ".so"}, {".ttf", ".ttf"},

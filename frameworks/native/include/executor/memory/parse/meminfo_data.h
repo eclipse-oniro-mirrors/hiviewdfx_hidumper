@@ -63,9 +63,19 @@ public:
         uint64_t swapPss;
         uint64_t gl;
         uint64_t graph;
+        uint64_t dma;
+        uint64_t purgSum;
+        uint64_t purgPin;
         int pid;
         std::string name;
         std::string adjLabel;
+    };
+
+    struct DmaInfo {
+        std::string name;
+        uint32_t pid;
+        uint64_t size;
+        uint64_t ino;
     };
 
     struct GraphicsMemory {
