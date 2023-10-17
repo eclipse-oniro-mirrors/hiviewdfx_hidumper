@@ -320,5 +320,15 @@ bool DumpCommonUtils::GetProcessInfo(int pid, PidInfo &info)
     }
     return false;
 }
+
+int DumpCommonUtils::FindDigitIndex(std::string fullFileName)
+{
+    for (int i = 0; i < fullFileName.size(); i++) {
+        if (std::isdigit(fullFileName[i])) {
+            return i;
+        }
+    }
+    return static_cast<int>(fullFileName.size());
+}
 } // namespace HiviewDFX
 } // namespace OHOS

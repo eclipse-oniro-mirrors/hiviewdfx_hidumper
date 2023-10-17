@@ -225,6 +225,33 @@ void DumpManagerService::RecordDetailFdInfo(std::string &detailFdInfo, std::stri
     }
 }
 
+void DumpManagerService::RecordDirFdInfo(std::string &detailFdInfo, std::string &topLeakedType)
+{
+    std::unordered_map<std::string, int> fileTypeMap;
+    std::vector<pair<std::string, int>> fileTypeList;
+    for(const auto &each : linkCnt_) {
+        if (g_fdLeakWp.find(each.first) == g_fdLeakWp.end()) {
+            std::string fileName(each.first, 0, DumpCommonUtils::FindDigitIndex(each.first));
+            if (fileTypeMap.find(fileName) == fileTypeMap.end()) {
+                fileTypeMap[fileName] = each.second;
+            } else {
+                fileTypeMap[fileName] += each.second;
+            }
+        }
+    }
+    for (std::pair<std::string, int> fileNamePair : fileTypeMap) {
+        fileTypeList.push_back(pair<std::string, int>(fileNamePair.first, fileNamePair.second));
+    }
+    sort(fileTypeList.begin(), fileTypeList.end(), 
+        [](const std::pair<std::string, int> &p1, const std::pair<std::string, int> &p2) {
+            return p1.second > p2.second;
+    });
+    detailFdInfo += "\nTop Dir Type 10:\n";
+    for (size_t i = 0; i < linkCnt_.size() && i < FD_LOG_NUM; i++) {
+        detailFdInfo += std::to_string(fileTypeList[i].second) + "\t" + fileTypeList[i].first + "\n";
+    }
+}
+
 int32_t DumpManagerService::CountFdNums(int32_t pid, uint32_t &fdNums,
     std::string &detailFdInfo, std::string &topLeakedType)
 {
@@ -260,6 +287,7 @@ int32_t DumpManagerService::CountFdNums(int32_t pid, uint32_t &fdNums,
     std::sort(linkCnt_.begin(), linkCnt_.end(),
         [](const std::pair<std::string, int> &a, const std::pair<std::string, int> &b) { return a.second > b.second; });
     RecordDetailFdInfo(detailFdInfo, topLeakedType);
+    RecordDirFdInfo(detailFdInfo, topLeakedType);
     return ret;
 }
 
