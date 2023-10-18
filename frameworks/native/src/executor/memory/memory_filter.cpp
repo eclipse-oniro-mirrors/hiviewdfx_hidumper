@@ -30,10 +30,10 @@ void MemoryFilter::ParseMemoryGroup(const string &name, string &group, uint64_t 
 {
     group = iNode > 0 ? FILE_PAGE_TAG : ANON_PAGE_TAG;
     group += "#";
-    if (GetGroupFromMap(name, group, endMap_, bind(
-                        &StringUtils::IsEnd, &StringUtils::GetInstance(), placeholders::_1, placeholders::_2)) ||
-        GetGroupFromMap(name, group, beginMap_, bind(
-                        &StringUtils::IsBegin, &StringUtils::GetInstance(), placeholders::_1, placeholders::_2))) {
+    if (GetGroupFromMap(name, group, endMap_,
+                        bind(&StringUtils::IsEnd, &StringUtils::GetInstance(), placeholders::_1, placeholders::_2)) ||
+        GetGroupFromMap(name, group, beginMap_,
+                        bind(&StringUtils::IsBegin, &StringUtils::GetInstance(), placeholders::_1, placeholders::_2))) {
         return;
     }
     group += "other";
@@ -42,8 +42,8 @@ void MemoryFilter::ParseMemoryGroup(const string &name, string &group, uint64_t 
 void MemoryFilter::ParseNativeHeapMemoryGroup(const string &name, string &group, uint64_t iNode)
 {
     group = "";
-    if (GetGroupFromMap(name, group, heapBeginMap_, bind(
-                        &StringUtils::IsBegin, &StringUtils::GetInstance(), placeholders::_1, placeholders::_2))) {
+    if (GetGroupFromMap(name, group, heapBeginMap_,
+                        bind(&StringUtils::IsBegin, &StringUtils::GetInstance(), placeholders::_1, placeholders::_2))) {
         return;
     }
 }

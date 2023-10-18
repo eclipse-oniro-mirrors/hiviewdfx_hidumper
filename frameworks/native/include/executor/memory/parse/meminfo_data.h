@@ -72,10 +72,9 @@ public:
     };
 
     struct DmaInfo {
-        std::string name;
-        uint32_t pid;
         uint64_t size;
         uint64_t ino;
+        uint32_t pid;
     };
 
     struct GraphicsMemory {
