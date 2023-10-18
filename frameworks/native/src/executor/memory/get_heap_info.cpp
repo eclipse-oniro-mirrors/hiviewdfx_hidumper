@@ -53,12 +53,12 @@ bool GetHeapInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int &pi
     if (ret != ERR_OK) {
         DUMPER_HILOGE(MODULE_SERVICE, "DumpHeapMemory return failed, ret is:%{public}d", ret);
     } else {
-        heapInfo.size = mallocInfo.usmblks / numberSys;
+        heapInfo.size = mallocInfo.hblkhd / numberSys;
         heapInfo.alloc = mallocInfo.uordblks / numberSys;
         heapInfo.free = mallocInfo.fordblks / numberSys;
     }
-    DUMPER_HILOGD(MODULE_SERVICE, "Dumper GetInfo DumpHeapMemory result: %{public}i, usmblks: %{public}i, uordblks: \
-        %{public}i, fordblks: %{public}i", ret, mallocInfo.usmblks, mallocInfo.uordblks, mallocInfo.fordblks);
+    DUMPER_HILOGD(MODULE_SERVICE, "Dumper GetInfo DumpHeapMemory result: %{public}i, hblkhd: %{public}i, uordblks: \
+        %{public}i, fordblks: %{public}i", ret, mallocInfo.hblkhd, mallocInfo.uordblks, mallocInfo.fordblks);
 #endif
     for (const auto &info : infos) {
         vector<string> pageTag;
