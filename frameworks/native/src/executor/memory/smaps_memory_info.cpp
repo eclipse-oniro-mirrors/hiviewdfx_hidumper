@@ -209,7 +209,7 @@ void SmapsMemoryInfo::CalcSmapsGroup(const GroupMap &infos, StringMatrix result,
     vector<string> values;
     MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.size), lines, values, true);
     MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.rss), lines, values, true);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.pss), lines, values, true);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.pss + memSmapsInfo.swapPss), lines, values, true);
     MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.sharedClean), lines, values, true);
     MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.sharedDirty), lines, values, true);
     MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.privateClean), lines, values, true);
