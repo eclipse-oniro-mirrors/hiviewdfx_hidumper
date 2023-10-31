@@ -16,6 +16,7 @@
 #include <cmath>
 #include <sstream>
 #include <iomanip>
+#include <regex>
 #include "string_ex.h"
 using namespace std;
 namespace OHOS {
@@ -31,6 +32,14 @@ StringUtils::~StringUtils()
 void StringUtils::StringSplit(const string &content, const string &split, vector<string> &result)
 {
     SplitStr(content, split, result, false, false);
+}
+
+void StringUtils::StringRegex(const string &str, const string &pattern, const int& idx, string &result)
+{
+    smatch match;
+    if (regex_search(str, match, regex(pattern)) && match.size() > idx) {
+        result = match[idx].str();
+    }
 }
 
 bool StringUtils::IsBegin(const string &content, const string &begin)
