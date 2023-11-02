@@ -321,7 +321,7 @@ bool DumpCommonUtils::GetProcessInfo(int pid, PidInfo &info)
     return false;
 }
 
-int DumpCommonUtils::FindDigitIndex(const std::string & fullFileName)
+int DumpCommonUtils::FindDigitIndex(const std::string& fullFileName)
 {
     for (size_t i = 0; i < fullFileName.size(); i++) {
         if (std::isdigit(fullFileName[i])) {
