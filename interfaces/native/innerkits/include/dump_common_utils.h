@@ -55,7 +55,7 @@ public:
     static bool StartWith(const std::string& str, const std::string& head);
     static bool GetUserPids(std::vector<int> &pids);
     static bool IsUserPid(const std::string &pid);
-    static int FindDigitIndex(std::string fullFileName);
+    static int FindDigitIndex(const std::string & fullFileName);
 private:
     static bool GetLinesInFile(const std::string& file, std::vector<std::string>& lines);
     static bool GetNamesInFolder(const std::string& folder, std::vector<std::string>& names);
