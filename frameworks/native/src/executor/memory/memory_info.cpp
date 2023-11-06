@@ -51,6 +51,9 @@ using namespace OHOS::HDI::Memorytracker::V1_0;
 
 namespace OHOS {
 namespace HiviewDFX {
+
+static string g_initProcessNSPid; //init process namespace pid
+
 MemoryInfo::MemoryInfo()
 {
     methodVec_.clear();
@@ -74,6 +77,10 @@ MemoryInfo::MemoryInfo()
         bind(&MemoryInfo::SetHeapAlloc, this, placeholders::_1, placeholders::_2)));
     methodVec_.push_back(make_pair(MEMINFO_HEAP_FREE,
         bind(&MemoryInfo::SetHeapFree, this, placeholders::_1, placeholders::_2)));
+
+    if (g_initProcessNSPid.empty()) {
+        GetNSPidByPid(1, g_initProcessNSPid);
+    }
 }
 
 MemoryInfo::~MemoryInfo()
@@ -241,6 +248,17 @@ bool MemoryInfo::IsRenderService(int32_t pid)
     return false;
 }
 
+bool MemoryInfo::IsOHService(const int32_t &pid)
+{
+    string namespacePid;
+    GetNSPidByPid(pid, namespacePid);
+    if (namespacePid.empty()) {
+        DUMPER_HILOGE(MODULE_SERVICE, "get namespace pid error\n");
+        return false;
+    }
+    return namespacePid == g_initProcessNSPid;
+}
+
 bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
 {
     if (!dmaInfo_.ParseDmaInfo()) {
@@ -268,6 +286,8 @@ bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
 #endif
         GetRenderServiceGraphics(pid, graphicsMemory);
         graphicsMemory.gl -= g_sumPidsMemGL;
+    } else if (!IsOHService(pid)) {
+        GetRenderServiceGraphics(pid, graphicsMemory);
     } else {
 #ifdef HIDUMPER_GRAPHIC_ENABLE
         auto& rsClient = Rosen::RSInterfaces::GetInstance();
@@ -277,14 +297,14 @@ bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
 #endif
     }
 
-        map<string, uint64_t> valueMap;
-        valueMap.insert(pair<string, uint64_t>("Pss", graphicsMemory.gl));
-        valueMap.insert(pair<string, uint64_t>("Private_Dirty", graphicsMemory.gl));
-        groupMap.insert(pair<string, map<string, uint64_t>>("AnonPage # GL", valueMap));
-        valueMap.clear();
-        valueMap.insert(pair<string, uint64_t>("Pss", graphicsMemory.graph));
-        valueMap.insert(pair<string, uint64_t>("Private_Dirty", graphicsMemory.graph));
-        groupMap.insert(pair<string, map<string, uint64_t>>("AnonPage # Graph", valueMap));
+    map<string, uint64_t> valueMap;
+    valueMap.insert(pair<string, uint64_t>("Pss", graphicsMemory.gl));
+    valueMap.insert(pair<string, uint64_t>("Private_Dirty", graphicsMemory.gl));
+    groupMap.insert(pair<string, map<string, uint64_t>>("AnonPage # GL", valueMap));
+    valueMap.clear();
+    valueMap.insert(pair<string, uint64_t>("Pss", graphicsMemory.graph));
+    valueMap.insert(pair<string, uint64_t>("Private_Dirty", graphicsMemory.graph));
+    groupMap.insert(pair<string, map<string, uint64_t>>("AnonPage # Graph", valueMap));
 
     BuildResult(groupMap, result);
     CalcGroup(groupMap, result);
@@ -596,6 +616,22 @@ void MemoryInfo::GetRamCategory(const GroupMap &smapsInfos, const ValueMap &memi
     }
 
     GetProcesses(smapsInfos, result);
+}
+
+void MemoryInfo::GetNSPidByPid(const int32_t &pid, std::string &nsPid)
+{
+    /*
+        ls -al /proc/1/ns/pid
+        lrwxrwxrwx 1 root root 0 2023-11-01 16:03 /proc/1/ns/pid -> pid:[4026531836]
+    */
+    string cmd = "ls -al /proc/" + to_string(pid) + "/ns/pid";
+    vector<string> cmdResult;
+    if (!MemoryUtil::GetInstance().RunCMD(cmd, cmdResult) || cmdResult.size() == 0) {
+        DUMPER_HILOGE(MODULE_SERVICE, "GetNSPidByPid fail! pid = %d", pid);
+        return;
+    }
+    string pidStr = cmdResult.front();
+    StringUtils::GetInstance().StringRegex(pidStr, "\\[([0-9]+)\\]", 1, nsPid);
 }
 
 void MemoryInfo::AddBlankLine(StringMatrix result)

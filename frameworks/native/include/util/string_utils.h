@@ -27,6 +27,7 @@ public:
     void operator=(StringUtils const &) = delete;
 
     void StringSplit(const std::string &str, const std::string &split, std::vector<std::string> &result);
+    void StringRegex(const std::string &str, const std::string &pattern, const int& idx, std::string &result);
     bool IsBegin(const std::string &content, const std::string &begin);
     bool IsEnd(const std::string &content, const std::string &end);
     bool IsContain(const std::string &content, const std::string &contain);

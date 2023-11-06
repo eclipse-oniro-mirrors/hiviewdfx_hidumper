@@ -93,6 +93,7 @@ private:
     std::string AddKbUnit(const uint64_t &value) const;
     static bool GetMemByProcessPid(const int32_t &pid, const DmaInfo &dmaInfo, MemInfoData::MemUsage &usage);
     static bool GetSmapsInfoNoPid(const int32_t &pid, GroupMap &result);
+    bool IsOHService(const int32_t &pid);
     bool GetMeminfo(ValueMap &result);
     bool GetHardWareUsage(StringMatrix result);
     bool GetCMAUsage(StringMatrix result);
@@ -107,6 +108,7 @@ private:
     void GetNativeHeap(const GroupMap& nativeGroupMap, StringMatrix result);
     void GetNativeValue(const std::string& tag, const GroupMap& nativeGroupMap, StringMatrix result);
     void GetRamCategory(const GroupMap &smapsinfos, const ValueMap &meminfos, StringMatrix result);
+    void GetNSPidByPid(const int32_t &pid, std::string &nsPid);
     void AddBlankLine(StringMatrix result);
     void MemUsageToMatrix(const MemInfoData::MemUsage &memUsage, StringMatrix result);
     void PairToStringMatrix(const std::string &titleStr, std::vector<std::pair<std::string, uint64_t>> &vec,
