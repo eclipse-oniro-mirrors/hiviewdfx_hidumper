@@ -93,6 +93,7 @@ int32_t DumpManagerCpuService::Request(DumpCpuData &dumpCpuData)
 
 std::shared_ptr<DumpEventHandler> DumpManagerCpuService::GetHandler()
 {
+    unique_lock<mutex> lock(mutex_);
     if (handler_ == nullptr) {
         DUMPER_HILOGI(MODULE_CPU_SERVICE, "init handler at get handler");
         auto dumpManagerCpuService = DumpDelayedSpSingleton<DumpManagerCpuService>::GetInstance();
@@ -149,6 +150,7 @@ void DumpManagerCpuService::EventHandlerInit()
     }
     eventRunner_->Run();
 
+    unique_lock<mutex> lock(mutex_);
     if (handler_ == nullptr) {
         DUMPER_HILOGI(MODULE_CPU_SERVICE, "init handler at init");
         auto dumpManagerCpuService = DumpDelayedSpSingleton<DumpManagerCpuService>::GetInstance();
@@ -173,6 +175,7 @@ bool DumpManagerCpuService::SendImmediateEvent()
         }
     }
 
+    unique_lock<mutex> lock(mutex_);
     if (handler_ == nullptr) {
         auto dumpManagerCpuService = DumpDelayedSpSingleton<DumpManagerCpuService>::GetInstance();
         handler_ = std::make_shared<DumpEventHandler>(eventRunner_, dumpManagerCpuService);
