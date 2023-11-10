@@ -72,10 +72,10 @@ public:
                                                      "Heap_Alloc", "Heap_Free"};
 
     const std::vector<std::string> TITLE_SMAPS_HAS_PID_ = {"Size", "Rss", "Pss", "Shared_Clean", "Shared_Dirty",
-        "Private_Clean", "Private_Dirty", "Swap", "Swap_Pss", "Counts", "Perm", "Name"};
+        "Private_Clean", "Private_Dirty", "Swap", "SwapPss", "Counts", "Perm", "Name"};
 
     const std::vector<std::string> TITLE_V_SMAPS_HAS_PID_ = {"Size", "Rss", "Pss", "Shared_Clean", "Shared_Dirty",
-        "Private_Clean", "Private_Dirty", "Swap",  "Swap_Pss", "Start", "End", "Name"};
+        "Private_Clean", "Private_Dirty", "Swap",  "SwapPss", "Start", "End", "Name"};
 
     const std::vector<std::string> TITLE_NO_PID_ = {"Pss", "SwapPss"};
 
