@@ -201,6 +201,7 @@ inline const std::map<int, std::string> saNameMap_ = {
     { PLAYER_DISTRIBUTED_SERVICE_ID, "PlayerDistributedService"},
     { AV_CODEC_SERVICE_ID, "AVCodecService"},
     { CAMERA_SERVICE_ID, "CameraService"},
+    { MEDIA_KEY_SYSTEM_SERVICE_ID, "MediaKeySystemService"},
     { AUDIO_POLICY_SERVICE_ID, "AudioPolicyService"},
     { DLP_CREDENTIAL_SERVICE_ID, "DlpCreService"},
     { QUICKFIX_ENGINE_SERVICE_ID, "QuickfixEngineService"},
