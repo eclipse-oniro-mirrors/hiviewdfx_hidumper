@@ -643,19 +643,8 @@ void MemoryInfo::AddBlankLine(StringMatrix result)
 
 string MemoryInfo::GetProcName(const int32_t &pid)
 {
-    string str = "grep \"Name\" /proc/" + to_string(pid) + "/status";
     string procName = "unknown";
-    vector<string> cmdResult;
-    if (!MemoryUtil::GetInstance().RunCMD(str, cmdResult) || cmdResult.size() == 0) {
-        DUMPER_HILOGE(MODULE_SERVICE, "GetProcName fail! pid = %d", pid);
-        return procName;
-    }
-    vector<string> names;
-    StringUtils::GetInstance().StringSplit(cmdResult.at(0), ":", names);
-    if (names.empty()) {
-        return procName;
-    }
-    procName = cmdResult.at(0).substr(names[0].length() + 1);
+    DumpCommonUtils::GetProcessNameByPid(pid, procName);
     return procName;
 }
 
@@ -793,9 +782,9 @@ void MemoryInfo::MemUsageToMatrix(const MemInfoData::MemUsage &memUsage, StringM
     strs.push_back(pid);
 
     string name = memUsage.name;
-    StringUtils::GetInstance().ReplaceAll(name, " ", "");
+    string preBlank = "   ";
     StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, name);
-    strs.push_back(name);
+    strs.push_back(preBlank.append(name));
 
     uint64_t pss = memUsage.pss + memUsage.swapPss;
     string totalPss = to_string(pss) + "(" + to_string(memUsage.swapPss) + " in SwapPss) kB";

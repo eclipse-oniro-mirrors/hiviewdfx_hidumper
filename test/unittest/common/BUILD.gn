@@ -132,6 +132,7 @@ ohos_unittest("HidumperConfigUtilsTest") {
     "${source_path}/src/util/config_data.cpp",
     "${source_path}/src/util/config_utils.cpp",
     "${source_path}/src/util/file_utils.cpp",
+    "${source_path}/src/util/string_utils.cpp",
     "${source_path}/src/util/zip/zip_writer.cpp",
     "hidumper_configutils_test.cpp",
   ]
