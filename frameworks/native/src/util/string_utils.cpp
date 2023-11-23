@@ -37,7 +37,7 @@ void StringUtils::StringSplit(const string &content, const string &split, vector
 void StringUtils::StringRegex(const string &str, const string &pattern, const int& idx, string &result)
 {
     smatch match;
-    if (regex_search(str, match, regex(pattern)) && match.size() > idx) {
+    if (regex_search(str, match, regex(pattern)) && match.size() > static_cast<size_t>(idx)) {
         result = match[idx].str();
     }
 }
