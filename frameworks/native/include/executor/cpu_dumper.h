@@ -14,7 +14,6 @@
  */
 #ifndef CPU_DUMPER_H
 #define CPU_DUMPER_H
-#include "util/dump_cpu_info_util.h"
 #include "hidumper_executor.h"
 #include "dump_cpu_data.h"
 
@@ -35,12 +34,6 @@ private:
     StringMatrix dumpCPUDatas_;
     bool isDumpCpuUsage_ = false;
     int cpuUsagePid_ = -1;
-    std::shared_ptr<CPUInfo> curCPUInfo_;
-    std::shared_ptr<CPUInfo> oldCPUInfo_;
-    std::vector<std::shared_ptr<ProcInfo>> curProcs_;
-    std::vector<std::shared_ptr<ProcInfo>> oldProcs_;
-    std::shared_ptr<ProcInfo> curSpecProc_;
-    std::shared_ptr<ProcInfo> oldSpecProc_;
     std::string startTime_;
     std::string endTime_;
 };

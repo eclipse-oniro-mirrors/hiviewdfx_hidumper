@@ -47,6 +47,16 @@ int32_t DumpManagerCpuClient::Request(DumpCpuData &dumpCpuData)
     return ret;
 }
 
+int32_t DumpManagerCpuClient::GetCpuUsageByPid(int32_t pid, int &cpuUsage)
+{
+    if (Connect() != ERR_OK) {
+        DUMPER_HILOGE(MODULE_CPU_CLIENT, "debug|cpu connect error");
+        return DumpStatus::DUMP_FAIL;
+    }
+    int32_t ret = proxy_->GetCpuUsageByPid(pid, cpuUsage);
+    return ret;
+}
+
 ErrCode DumpManagerCpuClient::Connect()
 {
     std::lock_guard<std::mutex> lock(mutex_);

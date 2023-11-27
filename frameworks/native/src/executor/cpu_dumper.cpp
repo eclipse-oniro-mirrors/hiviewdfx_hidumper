@@ -36,12 +36,6 @@ DumpStatus CPUDumper::PreExecute(const std::shared_ptr<DumperParameter> &paramet
     dumpCPUDatas_ = dumpDatas;
     isDumpCpuUsage_ = (parameter->GetOpts()).isDumpCpuUsage_;
     cpuUsagePid_ = (parameter->GetOpts()).cpuUsagePid_;
-    if (cpuUsagePid_ != -1) {
-        curSpecProc_ = std::make_shared<ProcInfo>();
-        oldSpecProc_ = std::make_shared<ProcInfo>();
-    }
-    curCPUInfo_ = std::make_shared<CPUInfo>();
-    oldCPUInfo_ = std::make_shared<CPUInfo>();
     return DumpStatus::DUMP_OK;
 }
 
@@ -67,14 +61,6 @@ DumpStatus CPUDumper::Execute()
 
 DumpStatus CPUDumper::AfterExecute()
 {
-    curCPUInfo_.reset();
-    oldCPUInfo_.reset();
-    curProcs_.clear();
-    oldProcs_.clear();
-    if (cpuUsagePid_ != -1) {
-        curSpecProc_.reset();
-        oldSpecProc_.reset();
-    }
     return DumpStatus::DUMP_OK;
 }
 

@@ -24,34 +24,30 @@
 #include "securec.h"
 
 #include "common/dumper_constant.h"
+#include "cpu_collector.h"
 #include "dump_log_manager.h"
+#include "datetime_ex.h"
 #include "hilog_wrapper.h"
 #include "inner/dump_service_id.h"
 #include "manager/dump_implement.h"
 #include "dump_utils.h"
 #include "util/string_utils.h"
 #include "util/file_utils.h"
-#ifdef HIDUMPER_ABILITY_BASE_ENABLE
-#include "dump_app_state_observer.h"
-#endif
-#ifdef HIDUMPER_BATTERY_ENABLE
-#include "common_event_data.h"
-#include "common_event_manager.h"
-#include "common_event_support.h"
-#include "dump_battery_stats_subscriber.h"
-#endif
 
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
 const std::string DUMPMGR_CPU_SERVICE_NAME = "HiDumperCpuService";
-static const std::string LOAD_AVG_FILE_PATH = "/proc/loadavg";
 static constexpr size_t LOAD_AVG_INFO_COUNT = 3;
 static constexpr int PROC_CPU_LENGTH = 256;
-static constexpr long unsigned HUNDRED_PERCENT_VALUE = 100;
-static constexpr long unsigned DELAY_VALUE = 100000;
+static constexpr int HUNDRED_PERCENT_VALUE = 100;
+static constexpr long unsigned THOUSAND_PERCENT_VALUE = 1000;
 static constexpr int INVALID_PID = -1;
+static const int TM_START_YEAR = 1900;
+static const int DEC_SYSTEM_VALUE = 10;
+static const int AVG_INFO_SUBSTR_LENGTH = 4;
+static std::shared_ptr<OHOS::HiviewDFX::UCollectUtil::CpuCollector> g_collector;
 }
 DumpManagerCpuService::DumpManagerCpuService() : SystemAbility(DFX_SYS_HIDUMPER_CPU_ABILITY_ID, true)
 {
@@ -69,13 +65,7 @@ void DumpManagerCpuService::OnStart()
         DUMPER_HILOGE(MODULE_CPU_SERVICE, "it's ready, nothing to do.");
         return;
     }
-
-    DUMPER_HILOGI(MODULE_CPU_SERVICE, "cpu service OnStart");
-    if (!Init()) {
-        DUMPER_HILOGE(MODULE_CPU_SERVICE, "init fail, nothing to do.");
-        return;
-    }
-
+    g_collector = OHOS::HiviewDFX::UCollectUtil::CpuCollector::Create();
     started_ = true;
 }
 
@@ -91,215 +81,52 @@ int32_t DumpManagerCpuService::Request(DumpCpuData &dumpCpuData)
     return ret;
 }
 
-std::shared_ptr<DumpEventHandler> DumpManagerCpuService::GetHandler()
-{
-    unique_lock<mutex> lock(mutex_);
-    if (handler_ == nullptr) {
-        DUMPER_HILOGI(MODULE_CPU_SERVICE, "init handler at get handler");
-        auto dumpManagerCpuService = DumpDelayedSpSingleton<DumpManagerCpuService>::GetInstance();
-        handler_ = std::make_shared<DumpEventHandler>(eventRunner_, dumpManagerCpuService);
-    }
-    return handler_;
-}
-
-bool DumpManagerCpuService::Init()
-{
-    DUMPER_HILOGI(MODULE_CPU_SERVICE, "init");
-    if (sysAbilityListener_ != nullptr) {
-        return false;
-    }
-
-    sysAbilityListener_ = new (std::nothrow) SystemAbilityStatusChangeListener();
-    if (sysAbilityListener_ == nullptr) {
-        DUMPER_HILOGE(MODULE_CPU_SERVICE, "Failed to create statusChangeListener due to no memory");
-        return false;
-    }
-
-    sptr<ISystemAbilityManager> systemAbilityManager
-        = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (systemAbilityManager == nullptr) {
-        DUMPER_HILOGE(MODULE_CPU_SERVICE, "systemAbilityManager is null");
-        return false;
-    }
-#ifdef HIDUMPER_ABILITY_BASE_ENABLE
-    if (systemAbilityManager->SubscribeSystemAbility(APP_MGR_SERVICE_ID, sysAbilityListener_) != ERR_OK) {
-        DUMPER_HILOGE(MODULE_CPU_SERVICE, "subscribe system ability id: %{public}d failed", APP_MGR_SERVICE_ID);
-    }
-#endif
-#ifdef HIDUMPER_BATTERY_ENABLE
-    if (systemAbilityManager->SubscribeSystemAbility(COMMON_EVENT_SERVICE_ID, sysAbilityListener_) != ERR_OK) {
-        DUMPER_HILOGE(MODULE_CPU_SERVICE, "subscribe system ability id: %{public}d failed",
-            COMMON_EVENT_SERVICE_ID);
-    }
-#endif
-
-    return true;
-}
-
-void DumpManagerCpuService::EventHandlerInit()
-{
-    if (registered_) {
-        return;
-    }
-    if (eventRunner_ == nullptr) {
-        eventRunner_ = AppExecFwk::EventRunner::Create(DUMPMGR_CPU_SERVICE_NAME);
-        if (eventRunner_ == nullptr) {
-            DUMPER_HILOGE(MODULE_CPU_SERVICE, "create EventRunner");
-            return;
-        }
-    }
-    eventRunner_->Run();
-
-    unique_lock<mutex> lock(mutex_);
-    if (handler_ == nullptr) {
-        DUMPER_HILOGI(MODULE_CPU_SERVICE, "init handler at init");
-        auto dumpManagerCpuService = DumpDelayedSpSingleton<DumpManagerCpuService>::GetInstance();
-        handler_ = std::make_shared<DumpEventHandler>(eventRunner_, dumpManagerCpuService);
-    }
-    handler_->SendEvent(DumpEventHandler::MSG_GET_CPU_INFO_ID, DumpEventHandler::GET_CPU_INFO_DELAY_TIME_INIT);
-
-    registered_ = true;
-}
-
-bool DumpManagerCpuService::SendImmediateEvent()
-{
-    DUMPER_HILOGI(MODULE_CPU_SERVICE, "send immediate event");
-    if (DumpCpuInfoUtil::GetInstance().IsNeedRefreshCpu()) {
-        return false;
-    }
-    if (eventRunner_ == nullptr) {
-        eventRunner_ = AppExecFwk::EventRunner::Create(DUMPMGR_CPU_SERVICE_NAME);
-        if (eventRunner_ == nullptr) {
-            DUMPER_HILOGE(MODULE_CPU_SERVICE, "create EventRunner");
-            return false;
-        }
-    }
-
-    unique_lock<mutex> lock(mutex_);
-    if (handler_ == nullptr) {
-        auto dumpManagerCpuService = DumpDelayedSpSingleton<DumpManagerCpuService>::GetInstance();
-        handler_ = std::make_shared<DumpEventHandler>(eventRunner_, dumpManagerCpuService);
-    }
-
-    handler_->SendImmediateEvent(DumpEventHandler::MSG_GET_CPU_INFO_ID);
-    return true;
-}
-
-void DumpManagerCpuService::SystemAbilityStatusChangeListener::OnAddSystemAbility(
-    int32_t systemAbilityId, const std::string& deviceId)
-{
-    DUMPER_HILOGI(MODULE_CPU_SERVICE, "systemAbilityId=%{public}d, deviceId=%{private}s", systemAbilityId,
-        deviceId.c_str());
-    auto dumpManagerCpuService = DumpDelayedSpSingleton<DumpManagerCpuService>::GetInstance();
-
-#ifdef HIDUMPER_ABILITY_BASE_ENABLE
-    if (systemAbilityId == APP_MGR_SERVICE_ID) {
-        dumpManagerCpuService->SubscribeAppStateEvent();
-    }
-#endif
-#ifdef HIDUMPER_BATTERY_ENABLE
-    if (systemAbilityId == COMMON_EVENT_SERVICE_ID) {
-        dumpManagerCpuService->SubscribeCommonEvent();
-    }
-#endif
-
-    dumpManagerCpuService->EventHandlerInit();
-}
-
-void DumpManagerCpuService::SystemAbilityStatusChangeListener::OnRemoveSystemAbility(
-    int32_t systemAbilityId, const std::string& deviceId)
-{
-    DUMPER_HILOGI(MODULE_CPU_SERVICE, "Remove system ability, system ability id");
-}
-
-#ifdef HIDUMPER_ABILITY_BASE_ENABLE
-bool DumpManagerCpuService::SubscribeAppStateEvent()
-{
-    return DumpAppStateObserver::GetInstance().SubscribeAppState();
-}
-#endif
-
-#ifdef HIDUMPER_BATTERY_ENABLE
-bool DumpManagerCpuService::SubscribeCommonEvent()
-{
-    DUMPER_HILOGI(MODULE_CPU_SERVICE, "Subscribe CommonEvent enter");
-    bool result = false;
-    OHOS::EventFwk::MatchingSkills matchingSkills;
-    matchingSkills.AddEvent(OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_BATTERY_CHANGED);
-    OHOS::EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
-    std::shared_ptr<EventFwk::CommonEventSubscriber> subscriberPtr =
-        std::make_shared<DumpBatteryStatsSubscriber>(subscribeInfo);
-    result = OHOS::EventFwk::CommonEventManager::SubscribeCommonEvent(subscriberPtr);
-    if (!result) {
-        DUMPER_HILOGE(MODULE_CPU_SERVICE, "Subscribe CommonEvent failed");
-    } else {
-        DUMPER_HILOGI(MODULE_CPU_SERVICE, "Subscribe CommonEvent success");
-    }
-    return result;
-}
-#endif
-
 void DumpManagerCpuService::InitParam(DumpCpuData &dumpCpuData)
 {
     cpuUsagePid_ = dumpCpuData.cpuUsagePid_;
     if (cpuUsagePid_ != INVALID_PID) {
         curSpecProc_ = std::make_shared<ProcInfo>();
-        oldSpecProc_ = std::make_shared<ProcInfo>();
     }
     curCPUInfo_ = std::make_shared<CPUInfo>();
-    oldCPUInfo_ = std::make_shared<CPUInfo>();
     dumpCPUDatas_ = std::make_shared<std::vector<std::vector<std::string>>>(dumpCpuData.dumpCPUDatas_);
 }
 
 void DumpManagerCpuService::ResetParam()
 {
     curCPUInfo_.reset();
-    oldCPUInfo_.reset();
     curProcs_.clear();
-    oldProcs_.clear();
     if (cpuUsagePid_ != INVALID_PID) {
         curSpecProc_.reset();
-        oldSpecProc_.reset();
     }
 }
 
 int DumpManagerCpuService::DumpCpuUsageData()
 {
-    if (!DumpCpuInfoUtil::GetInstance().GetCurCPUInfo(curCPUInfo_)) {
-        DUMPER_HILOGE(MODULE_CPU_SERVICE, "Get current cpu info failed!.");
-        return DumpStatus::DUMP_FAIL;
-    }
-    if (!DumpCpuInfoUtil::GetInstance().GetOldCPUInfo(oldCPUInfo_)) {
-        DUMPER_HILOGE(MODULE_CPU_SERVICE, "Get old cpu info failed!.");
+    if (!GetSysCPUInfo(curCPUInfo_)) {
         return DumpStatus::DUMP_FAIL;
     }
 
     if (cpuUsagePid_ != INVALID_PID) {
-        if (!GetProcCPUInfo()) {
+        if (!GetSingleProcInfo(cpuUsagePid_, curSpecProc_)) {
             return DumpStatus::DUMP_FAIL;
         }
     } else {
-        if (!DumpCpuInfoUtil::GetInstance().GetCurProcInfo(curProcs_)) {
-            DUMPER_HILOGE(MODULE_CPU_SERVICE, "Get current process info failed!.");
-            return DumpStatus::DUMP_FAIL;
-        }
-        if (!DumpCpuInfoUtil::GetInstance().GetOldProcInfo(oldProcs_)) {
-            DUMPER_HILOGE(MODULE_CPU_SERVICE, "Get old process info failed!.");
+        if (!GetAllProcInfo(curProcs_)) {
             return DumpStatus::DUMP_FAIL;
         }
     }
     std::string avgInfo;
-    DumpStatus ret = ReadLoadAvgInfo(LOAD_AVG_FILE_PATH, avgInfo);
-    if (ret != DumpStatus::DUMP_OK) {
-        DUMPER_HILOGD(MODULE_CPU_SERVICE, "Get LoadAvgInfo failed!");
+    if (ReadLoadAvgInfo(avgInfo) != DumpStatus::DUMP_OK) {
         return DumpStatus::DUMP_FAIL;
     }
     AddStrLineToDumpInfo(avgInfo);
-
-    DumpCpuInfoUtil::GetInstance().GetUpdateCpuStartTime(startTime_);
-    DumpCpuInfoUtil::GetInstance().GetDateAndTime(endTime_);
+    
+    std::string startTime;
+    std::string endTime;
+    GetDateAndTime(startTime_ / THOUSAND_PERCENT_VALUE, startTime);
+    GetDateAndTime(endTime_ / THOUSAND_PERCENT_VALUE, endTime);
     std::string dumpTimeStr;
-    CreateDumpTimeString(startTime_, endTime_, dumpTimeStr);
+    CreateDumpTimeString(startTime, endTime, dumpTimeStr);
     AddStrLineToDumpInfo(dumpTimeStr);
 
     std::string cpuStatStr;
@@ -307,56 +134,44 @@ int DumpManagerCpuService::DumpCpuUsageData()
     AddStrLineToDumpInfo(cpuStatStr);
 
     DumpProcInfo();
-    SendImmediateEvent();
     return DumpStatus::DUMP_OK;
 }
 
-bool DumpManagerCpuService::GetProcCPUInfo()
+int DumpManagerCpuService::GetCpuUsageByPid(int32_t pid, int &cpuUsage)
 {
-    bool ret = false;
-    if (!DumpCpuInfoUtil::GetInstance().GetOldSpecProcInfo(cpuUsagePid_, oldSpecProc_)) {
-        DumpCpuInfoUtil::GetInstance().UpdateCpuInfo();
-        if (!DumpCpuInfoUtil::GetInstance().GetOldSpecProcInfo(cpuUsagePid_, oldSpecProc_)) {
-            DUMPER_HILOGE(MODULE_CPU_SERVICE, "Get old process %{public}d info failed!.", cpuUsagePid_);
-            return ret;
-        }
-
-        DumpCpuInfoUtil::GetInstance().CopyCpuInfo(oldCPUInfo_, curCPUInfo_);
-        usleep(DELAY_VALUE);
-        if (!DumpCpuInfoUtil::GetInstance().GetCurCPUInfo(curCPUInfo_)) {
-            DUMPER_HILOGE(MODULE_CPU_SERVICE, "Get current cpu info failed!.");
-            return ret;
-        }
+    static std::mutex mutex_;
+    unique_lock<mutex> lock(mutex_);
+    cpuUsage = 0;
+    if (g_collector == nullptr) {
+        g_collector = OHOS::HiviewDFX::UCollectUtil::CpuCollector::Create();
     }
-
-    if (!DumpCpuInfoUtil::GetInstance().GetCurSpecProcInfo(cpuUsagePid_, curSpecProc_)) {
-        DUMPER_HILOGE(MODULE_CPU_SERVICE, "Get current process %{public}d info failed!.", cpuUsagePid_);
-        return ret;
+    if (pid != INVALID_PID) {
+        std::shared_ptr<ProcInfo> singleProcInfo = std::make_shared<ProcInfo>();
+        if (!GetSingleProcInfo(pid, singleProcInfo)) {
+            return DumpStatus::DUMP_FAIL;
+        }
+        cpuUsage = static_cast<int>(singleProcInfo->totalUsage);
     }
-    ret = true;
-    return ret;
+    DUMPER_HILOGD(MODULE_CPU_SERVICE, "GetCpuUsageByPid end, pid = %{public}d, cpuUsage = %{public}d", pid, cpuUsage);
+    return DumpStatus::DUMP_OK;
 }
 
-DumpStatus DumpManagerCpuService::ReadLoadAvgInfo(const std::string &filePath, std::string &info)
+DumpStatus DumpManagerCpuService::ReadLoadAvgInfo(std::string &info)
 {
-    if (!FileExists(filePath)) {
+    CollectResult<OHOS::HiviewDFX::SysCpuLoad> collectResult = g_collector->CollectSysCpuLoad();
+    if (collectResult.retCode != OHOS::HiviewDFX::UCollect::UcError::SUCCESS) {
+        DUMPER_HILOGE(MODULE_CPU_SERVICE, "collect system cpu load error, ret:%{public}d", collectResult.retCode);
         return DumpStatus::DUMP_FAIL;
     }
+    std::vector<std::string> avgLoadInfo;
+    avgLoadInfo.push_back(std::string(std::to_string(collectResult.data.avgLoad1)).substr(0, AVG_INFO_SUBSTR_LENGTH));
+    avgLoadInfo.push_back(std::string(std::to_string(collectResult.data.avgLoad5)).substr(0, AVG_INFO_SUBSTR_LENGTH));
+    avgLoadInfo.push_back(std::string(std::to_string(collectResult.data.avgLoad15)).substr(0, AVG_INFO_SUBSTR_LENGTH));
 
-    std::string rawData;
-    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(filePath, false, false, [&](const string& line) -> void {
-        rawData += line;
-    });
-    if (!ret) {
-        return DumpStatus::DUMP_FAIL;
-    }
-    DUMPER_HILOGD(MODULE_CPU_SERVICE, "rawData is %{public}s", rawData.c_str());
-    std::vector<std::string> vec;
-    SplitStr(rawData, DumpUtils::SPACE, vec);
     info = "Load average:";
     for (size_t i = 0; i < LOAD_AVG_INFO_COUNT; i++) {
         info.append(" ");
-        info.append(vec[i]);
+        info.append(avgLoadInfo[i]);
         if (i == LOAD_AVG_INFO_COUNT - 1) {
             info.append(";");
         } else {
@@ -367,6 +182,119 @@ DumpStatus DumpManagerCpuService::ReadLoadAvgInfo(const std::string &filePath, s
     DUMPER_HILOGD(MODULE_CPU_SERVICE, "info is %{public}s", info.c_str());
     return DumpStatus::DUMP_OK;
 }
+
+bool DumpManagerCpuService::GetSysCPUInfo(std::shared_ptr<CPUInfo> &cpuInfo)
+{
+    if (cpuInfo == nullptr) {
+        return false;
+    }
+    auto collectResult = g_collector->CollectProcessCpuStatInfos(true);
+    if (collectResult.retCode != OHOS::HiviewDFX::UCollect::UcError::SUCCESS || collectResult.data.empty()) {
+        DUMPER_HILOGE(MODULE_CPU_SERVICE, "collect process cpu stat info error");
+        return false;
+    }
+
+    CollectResult<OHOS::HiviewDFX::SysCpuUsage> result = g_collector->CollectSysCpuUsage(true);
+    if (result.retCode != OHOS::HiviewDFX::UCollect::UcError::SUCCESS) {
+        DUMPER_HILOGE(MODULE_CPU_SERVICE, "collect system cpu usage error,retCode is %{public}d", result.retCode);
+        return false;
+    }
+    const OHOS::HiviewDFX::SysCpuUsage& sysCpuUsage = result.data;
+    startTime_ = sysCpuUsage.startTime;
+    endTime_ = sysCpuUsage.endTime;
+
+    for (const auto& oneCpuInfo : sysCpuUsage.cpuInfos) {
+        cpuInfo->userUsage = oneCpuInfo.userUsage;
+        cpuInfo->niceUsage = oneCpuInfo.niceUsage;
+        cpuInfo->systemUsage = oneCpuInfo.systemUsage;
+        cpuInfo->idleUsage = oneCpuInfo.idleUsage;
+        cpuInfo->ioWaitUsage = oneCpuInfo.ioWaitUsage;
+        cpuInfo->irqUsage = oneCpuInfo.irqUsage;
+        cpuInfo->softIrqUsage = oneCpuInfo.softIrqUsage;
+        break;
+    }
+
+    return true;
+}
+
+bool DumpManagerCpuService::GetAllProcInfo(std::vector<std::shared_ptr<ProcInfo>> &procInfos)
+{
+    auto collectResult = g_collector->CollectProcessCpuStatInfos(true);
+    if (collectResult.retCode != OHOS::HiviewDFX::UCollect::UcError::SUCCESS || collectResult.data.empty()) {
+        DUMPER_HILOGE(MODULE_CPU_SERVICE, "collect process cpu stat info error");
+        return false;
+    }
+    for (const auto& cpuInfo : collectResult.data) {
+        std::shared_ptr<ProcInfo> ptrProcInfo = std::make_shared<ProcInfo>();;
+        ptrProcInfo->pid = std::to_string(cpuInfo.pid);
+        ptrProcInfo->comm = cpuInfo.procName;
+        ptrProcInfo->minflt = std::to_string(cpuInfo.minFlt);
+        ptrProcInfo->majflt = std::to_string(cpuInfo.majFlt);
+        ptrProcInfo->userSpaceUsage = static_cast<long unsigned>(cpuInfo.uCpuUsage * HUNDRED_PERCENT_VALUE);
+        ptrProcInfo->sysSpaceUsage = static_cast<long unsigned>(cpuInfo.sCpuUsage * HUNDRED_PERCENT_VALUE);
+        ptrProcInfo->totalUsage = static_cast<long unsigned>(cpuInfo.cpuUsage * HUNDRED_PERCENT_VALUE);
+        procInfos.push_back(ptrProcInfo);
+    }
+    return true;
+}
+
+bool DumpManagerCpuService::GetSingleProcInfo(int pid, std::shared_ptr<ProcInfo> &specProc)
+{
+    if (specProc == nullptr) {
+        return false;
+    }
+
+    CollectResult<OHOS::HiviewDFX::ProcessCpuStatInfo> collectResult = g_collector->CollectProcessCpuStatInfo(pid);
+    if (collectResult.retCode != OHOS::HiviewDFX::UCollect::UcError::SUCCESS) {
+        DUMPER_HILOGE(MODULE_CPU_SERVICE, "collect system cpu usage error,ret:%{public}d", collectResult.retCode);
+        return false;
+    }
+    specProc->comm = collectResult.data.procName;
+    specProc->pid = std::to_string(collectResult.data.pid);
+    specProc->minflt = std::to_string(collectResult.data.minFlt);
+    specProc->majflt = std::to_string(collectResult.data.majFlt);
+    specProc->userSpaceUsage = static_cast<long unsigned>(collectResult.data.uCpuUsage * HUNDRED_PERCENT_VALUE);
+    specProc->sysSpaceUsage = static_cast<long unsigned>(collectResult.data.sCpuUsage * HUNDRED_PERCENT_VALUE);
+    specProc->totalUsage = static_cast<long unsigned>(collectResult.data.cpuUsage * HUNDRED_PERCENT_VALUE);
+    return true;
+}
+
+bool DumpManagerCpuService::GetDateAndTime(uint64_t timeStamp, std::string &dateTime)
+{
+    time_t time = static_cast<time_t>(timeStamp);
+    struct tm timeData = {0};
+    localtime_r(&time, &timeData);
+
+    dateTime = " ";
+    dateTime.append(std::to_string(TM_START_YEAR + timeData.tm_year));
+    dateTime.append("-");
+    if (1 + timeData.tm_mon < DEC_SYSTEM_VALUE) {
+        dateTime.append(std::to_string(0));
+    }
+    dateTime.append(std::to_string(1 + timeData.tm_mon));
+    dateTime.append("-");
+    if (timeData.tm_mday < DEC_SYSTEM_VALUE) {
+        dateTime.append(std::to_string(0));
+    }
+    dateTime.append(std::to_string(timeData.tm_mday));
+    dateTime.append(" ");
+    if (timeData.tm_hour < DEC_SYSTEM_VALUE) {
+        dateTime.append(std::to_string(0));
+    }
+    dateTime.append(std::to_string(timeData.tm_hour));
+    dateTime.append(":");
+    if (timeData.tm_min < DEC_SYSTEM_VALUE) {
+        dateTime.append(std::to_string(0));
+    }
+    dateTime.append(std::to_string(timeData.tm_min));
+    dateTime.append(":");
+    if (timeData.tm_sec < DEC_SYSTEM_VALUE) {
+        dateTime.append(std::to_string(0));
+    }
+    dateTime.append(std::to_string(timeData.tm_sec));
+    return true;
+}
+
 
 void DumpManagerCpuService::CreateDumpTimeString(const std::string &startTime,
     const std::string &endTime, std::string &timeStr)
@@ -387,46 +315,12 @@ void DumpManagerCpuService::AddStrLineToDumpInfo(const std::string &strLine)
 
 void DumpManagerCpuService::CreateCPUStatString(std::string &str)
 {
-    long unsigned totalDeltaTime = (curCPUInfo_->uTime + curCPUInfo_->nTime + curCPUInfo_->sTime + curCPUInfo_->iTime
-                                    + curCPUInfo_->iowTime + curCPUInfo_->irqTime + curCPUInfo_->sirqTime)
-                                   - (oldCPUInfo_->uTime + oldCPUInfo_->nTime + oldCPUInfo_->sTime + oldCPUInfo_->iTime
-                                      + oldCPUInfo_->iowTime + oldCPUInfo_->irqTime + oldCPUInfo_->sirqTime);
-    if (cpuUsagePid_ != INVALID_PID) {
-        curSpecProc_->userSpaceUsage =
-            (curSpecProc_->uTime - oldSpecProc_->uTime) * HUNDRED_PERCENT_VALUE / totalDeltaTime;
-        curSpecProc_->sysSpaceUsage =
-            (curSpecProc_->sTime - oldSpecProc_->sTime) * HUNDRED_PERCENT_VALUE / totalDeltaTime;
-        curSpecProc_->totalUsage = curSpecProc_->userSpaceUsage + curSpecProc_->sysSpaceUsage;
-    } else {
-        for (size_t i = 0; i < curProcs_.size(); i++) {
-            if (curProcs_[i] == nullptr) {
-                continue;
-            }
-            std::shared_ptr<ProcInfo> oldProc = GetOldProc(curProcs_[i]->pid);
-            if (oldProc) {
-                curProcs_[i]->userSpaceUsage =
-                    (curProcs_[i]->uTime - oldProc->uTime) * HUNDRED_PERCENT_VALUE / totalDeltaTime;
-                curProcs_[i]->sysSpaceUsage =
-                    (curProcs_[i]->sTime - oldProc->sTime) * HUNDRED_PERCENT_VALUE / totalDeltaTime;
-                curProcs_[i]->totalUsage = curProcs_[i]->userSpaceUsage + curProcs_[i]->sysSpaceUsage;
-            } else {
-                curProcs_[i]->userSpaceUsage = 0;
-                curProcs_[i]->sysSpaceUsage = 0;
-                curProcs_[i]->totalUsage = 0;
-            }
-        }
-    }
-
-    long unsigned userSpaceUsage =
-        ((curCPUInfo_->uTime + curCPUInfo_->nTime) - (oldCPUInfo_->uTime + oldCPUInfo_->nTime)) * HUNDRED_PERCENT_VALUE
-        / totalDeltaTime;
-    long unsigned sysSpaceUsage = (curCPUInfo_->sTime - oldCPUInfo_->sTime) * HUNDRED_PERCENT_VALUE / totalDeltaTime;
-    long unsigned iowUsage = (curCPUInfo_->iowTime - oldCPUInfo_->iowTime) * HUNDRED_PERCENT_VALUE / totalDeltaTime;
-    long unsigned irqUsage =
-        ((curCPUInfo_->irqTime + curCPUInfo_->sirqTime) - (oldCPUInfo_->irqTime + oldCPUInfo_->sirqTime))
-        * HUNDRED_PERCENT_VALUE / totalDeltaTime;
-    long unsigned idleUsage = (curCPUInfo_->iTime - oldCPUInfo_->iTime) * HUNDRED_PERCENT_VALUE / totalDeltaTime;
-    long unsigned totalUsage = userSpaceUsage + sysSpaceUsage;
+    int userSpaceUsage = static_cast<int>((curCPUInfo_->userUsage + curCPUInfo_->niceUsage) * HUNDRED_PERCENT_VALUE);
+    int sysSpaceUsage = static_cast<int>(curCPUInfo_->systemUsage * HUNDRED_PERCENT_VALUE);
+    int iowUsage = static_cast<int>(curCPUInfo_->ioWaitUsage * HUNDRED_PERCENT_VALUE);
+    int irqUsage = static_cast<int>((curCPUInfo_->irqUsage + curCPUInfo_->softIrqUsage) * HUNDRED_PERCENT_VALUE);
+    int idleUsage = static_cast<int>(curCPUInfo_->idleUsage * HUNDRED_PERCENT_VALUE);
+    int totalUsage = userSpaceUsage + sysSpaceUsage;
 
     str = "Total: ";
     str.append(std::to_string(totalUsage)).append("%; ");
@@ -435,16 +329,6 @@ void DumpManagerCpuService::CreateCPUStatString(std::string &str)
     str.append("iowait: ").append(std::to_string(iowUsage)).append("%; ");
     str.append("irq: ").append(std::to_string(irqUsage)).append("%; ");
     str.append("idle: ").append(std::to_string(idleUsage)).append("%");
-}
-
-std::shared_ptr<ProcInfo> DumpManagerCpuService::GetOldProc(const std::string &pid)
-{
-    for (size_t i = 0; i < oldProcs_.size(); i++) {
-        if (StringUtils::GetInstance().IsSameStr(oldProcs_[i]->pid, pid)) {
-            return oldProcs_[i];
-        }
-    }
-    return nullptr;
 }
 
 void DumpManagerCpuService::DumpProcInfo()
@@ -506,7 +390,6 @@ bool DumpManagerCpuService::SortProcInfo(std::shared_ptr<ProcInfo> &left, std::s
 
 void DumpManagerCpuService::StartService()
 {
-    DUMPER_HILOGI(MODULE_CPU_SERVICE, "dumper StartService");
     sptr<ISystemAbilityManager> samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgr == nullptr) {
         DUMPER_HILOGE(MODULE_CPU_SERVICE, "failed to find SystemAbilityManager.");
