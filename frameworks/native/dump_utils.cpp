@@ -160,6 +160,7 @@ inline const std::map<int, std::string> saNameMap_ = {
     { RENDER_SERVICE, "RenderService" },
     { ACCESS_TOKEN_MANAGER_SERVICE_ID, "AccessTokenManagerService" },
     { TOKEN_SYNC_MANAGER_SERVICE_ID, "TokenSyncManagerService" },
+    { SANDBOX_MANAGER_SERVICE_ID, "SandboxManagerService" },
     { DLP_PERMISSION_SERVICE_ID, "DlpPermissionService" },
     { RISK_ANALYSIS_MANAGER_SA_ID, "RiskAnalysisManagerService" },
     { DATA_COLLECT_MANAGER_SA_ID, "DataCollectManagerService" },
