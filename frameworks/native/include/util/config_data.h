@@ -108,6 +108,7 @@ private:
     static const ItemCfg kernelModuleDumper_[];
     static const ItemCfg dumpFormatVersionDumper_[];
     static const ItemCfg slabinfoDumper_[];
+    static const ItemCfg ldkslabinfoDumper_[];
     static const ItemCfg zoneinfoDumper_[];
     static const ItemCfg vmStatDumper_[];
     static const ItemCfg vmAllocInfoDumper_[];

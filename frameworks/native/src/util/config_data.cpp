@@ -224,6 +224,17 @@ const ConfigData::ItemCfg ConfigData::slabinfoDumper_[] = {
     },
 };
 
+const ConfigData::ItemCfg ConfigData::ldkslabinfoDumper_[] = {
+    {
+        "dumper_ldkslabinfo", "ZONE INFO", "/proc/devhost/root/slabinfo", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "", "",
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+};
+
 const ConfigData::ItemCfg ConfigData::zoneinfoDumper_[] = {
     {
         "dumper_zoneinfo", "ZONE INFO", "/proc/zoneinfo", "",
@@ -768,6 +779,10 @@ const ConfigData::DumperCfg ConfigData::dumpers_[] = {
      .desc_ = slabinfoDumper_[0].desc_,
      .list_ = slabinfoDumper_,
      .size_ = ARRAY_SIZE(slabinfoDumper_)},
+    {.name_ = ldkslabinfoDumper_[0].name_,
+     .desc_ = ldkslabinfoDumper_[0].desc_,
+     .list_ = ldkslabinfoDumper_,
+     .size_ = ARRAY_SIZE(ldkslabinfoDumper_)},
     {.name_ = zoneinfoDumper_[0].name_,
      .desc_ = zoneinfoDumper_[0].desc_,
      .list_ = zoneinfoDumper_,
@@ -940,6 +955,7 @@ const std::string ConfigData::systemSystemGroup_[] = {
     "dumper_kernel_module",
     "dumper_dump_format_version",
     "dumper_slabinfo",
+    "dumper_ldkslabinfo",
     "dumper_zoneinfo",
     "dumper_vmstat",
     "dumper_vmallocinfo",
