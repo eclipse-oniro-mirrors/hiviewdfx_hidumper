@@ -522,7 +522,7 @@ void MemoryInfo::GetPurgByPid(const int32_t &pid, StringMatrix result)
 {
     AddBlankLine(result);
     vector<string> title;
-    title.push_back("Purgerable:");
+    title.push_back("Purgeable:");
     result->push_back(title);
 
     vector<string> purgSum;
@@ -732,25 +732,26 @@ uint64_t MemoryInfo::GetVss(const int32_t &pid)
 
 bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory)
 {
-    if (IsRenderService(pid)) {
+    if ((IsRenderService(pid))) {
+#ifdef HIDUMPER_GRAPHIC_ENABLE
+        GetMemGraphics();
+#endif
         GetRenderServiceGraphics(pid, graphicsMemory);
         graphicsMemory.gl -= g_sumPidsMemGL;
-        return true;
-    }
+    } else if (!IsOHService(pid)) {
+        GetRenderServiceGraphics(pid, graphicsMemory);
+    } else {
 #ifdef HIDUMPER_GRAPHIC_ENABLE
-    if (memGraphicVec_.empty()) {
-        return false;
-    }
-    for (auto it = memGraphicVec_.begin(); it != memGraphicVec_.end(); it++) {
-        if (pid == it->GetPid()) {
-            graphicsMemory.gl = it-> GetGpuMemorySize() / BYTE_PER_KB;
-            graphicsMemory.graph = it-> GetCpuMemorySize() / BYTE_PER_KB;
-            return true;
+        if (memGraphicVec_.empty()) {
+            return false;
         }
-        DUMPER_HILOGE(MODULE_SERVICE, "Get GL from RS fail.");
-    }
+        auto& rsClient = Rosen::RSInterfaces::GetInstance();
+        unique_ptr<MemoryGraphic> memGraphic = make_unique<MemoryGraphic>(rsClient.GetMemoryGraphic(pid));
+        graphicsMemory.gl = memGraphic-> GetGpuMemorySize() / BYTE_PER_KB;
+        graphicsMemory.graph = memGraphic-> GetCpuMemorySize() / BYTE_PER_KB;
 #endif
-    return false;
+    }
+    return true;
 }
 
 bool MemoryInfo::GetMemByProcessPid(const int32_t &pid, const DmaInfo &dmaInfo, MemInfoData::MemUsage &usage)

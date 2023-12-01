@@ -95,7 +95,7 @@ HWTEST_F(MemoryDumperTest, MemoryDumperTest003, TestSize.Level3)
     ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
     str = "native heap:";
     ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
-    str = "Purgerable:";
+    str = "Purgeable:";
     ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
     str = "DMA:";
     ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
