@@ -27,18 +27,17 @@ config("dump_usage_config") {
 ohos_shared_library("lib_dump_usage") {
   public_configs = [ ":dump_usage_config" ]
 
-  sources = [
-    "${hidumper_frameworks_path}/src/executor/memory/memory_util.cpp",
-    "${hidumper_frameworks_path}/src/executor/memory/parse/parse_smaps_rollup_info.cpp",
-    "${hidumper_frameworks_path}/src/util/dump_cpu_info_util.cpp",
-    "${hidumper_frameworks_path}/src/util/file_utils.cpp",
-    "${hidumper_frameworks_path}/src/util/string_utils.cpp",
-    "../../interfaces/innerkits/dump_usage.cpp",
-  ]
+  sources = [ "../../interfaces/innerkits/dump_usage.cpp" ]
+
+  deps = [ "${hidumper_service_path}:hidumperservice_cpu_source" ]
 
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",
+    "hiview:libucollection_utility",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
   ]
 
   subsystem_name = "hiviewdfx"

@@ -52,5 +52,36 @@ int32_t DumpBrokerCpuProxy::Request(DumpCpuData &dumpCpuData)
     dumpCpuData = *dumpCpuDataPtr;
     return ret;
 }
+
+int32_t DumpBrokerCpuProxy::GetCpuUsageByPid(int32_t pid, int &cpuUsage)
+{
+    int32_t ret = -1;
+    sptr<IRemoteObject> remoteObject = Remote();
+    if (remoteObject == nullptr) {
+        return ret;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(DumpBrokerCpuProxy::GetDescriptor())) {
+        return ret;
+    }
+    if (!data.WriteInt32(pid)) {
+        return ERROR_WRITE_PARCEL;
+    }
+    int res = remoteObject->SendRequest(static_cast<int>(HidumperCpuServiceInterfaceCode::DUMP_USAGE_ONLY),
+        data, reply, option);
+    if (res != ERR_OK) {
+        DUMPER_HILOGE(MODULE_CPU_SERVICE, "error|SendCpuRequest error code: %{public}d", res);
+        return ret;
+    }
+    if (!reply.ReadInt32(cpuUsage)) {
+        return ERROR_READ_PARCEL;
+    }
+    if (cpuUsage < 0) {
+        return ret;
+    }
+    return ERR_OK;
+}
 } // namespace HiviewDFX
 } // namespace OHOS

@@ -78,7 +78,6 @@ ohos_source_set("dump_main") {
     "src/util/config_data.cpp",
     "src/util/config_utils.cpp",
     "src/util/dump_compressor.cpp",
-    "src/util/dump_cpu_info_util.cpp",
     "src/util/file_utils.cpp",
     "src/util/string_utils.cpp",
     "src/util/zip/zip_writer.cpp",

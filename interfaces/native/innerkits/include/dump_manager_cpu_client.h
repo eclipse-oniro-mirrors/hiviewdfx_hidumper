@@ -18,7 +18,6 @@
 #include <singleton.h>
 #include <iservice_registry.h>
 #include "dump_common_utils.h"
-#include "util/dump_cpu_info_util.h"
 #include "idump_cpu_broker.h"
 #include "dump_cpu_data.h"
 #include "common.h"
@@ -30,6 +29,7 @@ public:
     DISALLOW_COPY_AND_MOVE(DumpManagerCpuClient);
 public:
     int32_t Request(DumpCpuData &dumpCpuData);
+    int32_t GetCpuUsageByPid(int32_t pid, int &cpuUsage);
     // Used for connect to hidump cpu SA.
     ErrCode Connect();
     // Used for reset connect.
