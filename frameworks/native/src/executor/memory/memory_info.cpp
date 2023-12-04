@@ -53,6 +53,7 @@ namespace OHOS {
 namespace HiviewDFX {
 
 static string g_initProcessNSPid; //init process namespace pid
+static const std::string UNKNOWN_PROCESS = "unknown";
 
 MemoryInfo::MemoryInfo()
 {
@@ -643,8 +644,18 @@ void MemoryInfo::AddBlankLine(StringMatrix result)
 
 string MemoryInfo::GetProcName(const int32_t &pid)
 {
+    string procName = UNKNOWN_PROCESS;
+    DumpCommonUtils::GetProcessNameByPid(pid, procName);
+    if (procName == UNKNOWN_PROCESS) {
+        procName = GetProcStatusName(pid);
+    }
+    return procName;
+}
+
+std::string MemoryInfo::GetProcStatusName(const int32_t &pid)
+{
     string str = "grep \"Name\" /proc/" + to_string(pid) + "/status";
-    string procName = "unknown";
+    string procName = UNKNOWN_PROCESS;
     vector<string> cmdResult;
     if (!MemoryUtil::GetInstance().RunCMD(str, cmdResult) || cmdResult.size() == 0) {
         DUMPER_HILOGE(MODULE_SERVICE, "GetProcName fail! pid = %d", pid);
@@ -792,11 +803,6 @@ void MemoryInfo::MemUsageToMatrix(const MemInfoData::MemUsage &memUsage, StringM
     StringUtils::GetInstance().SetWidth(PID_WIDTH_, BLANK_, true, pid);
     strs.push_back(pid);
 
-    string name = memUsage.name;
-    StringUtils::GetInstance().ReplaceAll(name, " ", "");
-    StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, name);
-    strs.push_back(name);
-
     uint64_t pss = memUsage.pss + memUsage.swapPss;
     string totalPss = to_string(pss) + "(" + to_string(memUsage.swapPss) + " in SwapPss) kB";
     StringUtils::GetInstance().SetWidth(PSS_WIDTH_, BLANK_, false, totalPss);
@@ -842,6 +848,11 @@ void MemoryInfo::MemUsageToMatrix(const MemInfoData::MemUsage &memUsage, StringM
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedPurgPin);
     strs.push_back(unMappedPurgPin);
 
+    string name = memUsage.name;
+    string preBlank = "   ";
+    StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, name);
+    strs.push_back(preBlank.append(name));
+
     result->emplace_back(strs);
 }
 
@@ -856,11 +867,6 @@ void MemoryInfo::AddMemByProcessTitle(StringMatrix result, string sortType)
     string pid = "PID";
     StringUtils::GetInstance().SetWidth(PID_WIDTH_, BLANK_, true, pid);
     title.push_back(pid);
-
-    string name = "Name";
-    string preBlank = "   ";
-    StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, name);
-    title.push_back(preBlank.append(name));
 
     string totalPss = "Total Pss(xxx in SwapPss)";
     StringUtils::GetInstance().SetWidth(PSS_WIDTH_, BLANK_, false, totalPss);
@@ -897,6 +903,11 @@ void MemoryInfo::AddMemByProcessTitle(StringMatrix result, string sortType)
     string unMappedPurgPin = MemoryFilter::GetInstance().PURGPIN_OUT_LABEL;
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedPurgPin);
     title.push_back(unMappedPurgPin);
+
+    string name = "Name";
+    string preBlank = "   ";
+    StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, name);
+    title.push_back(preBlank.append(name));
 
     result->push_back(title);
 }

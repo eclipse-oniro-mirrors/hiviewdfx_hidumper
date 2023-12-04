@@ -21,6 +21,7 @@
 #include <iostream>
 #include "hilog_wrapper.h"
 #include "sys/stat.h"
+#include "util/string_utils.h"
 #include "util/file_utils.h"
 
 using namespace std;
@@ -269,7 +270,11 @@ bool DumpCommonUtils::GetProcessNameByPid(int pid, std::string& name)
     if (!ret) {
         return false;
     }
-    name = content;
+    vector<string> names;
+    StringUtils::GetInstance().StringSplit(content, " ", names);
+    vector<string> longNames;
+    StringUtils::GetInstance().StringSplit(names[0], "/", longNames);
+    name = longNames[longNames.size()-1];
     return true;
 }
 
