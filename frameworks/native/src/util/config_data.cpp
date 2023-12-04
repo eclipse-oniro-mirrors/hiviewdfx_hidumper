@@ -226,7 +226,7 @@ const ConfigData::ItemCfg ConfigData::slabinfoDumper_[] = {
 
 const ConfigData::ItemCfg ConfigData::ldkslabinfoDumper_[] = {
     {
-        "dumper_ldkslabinfo", "ZONE INFO", "/proc/devhost/root/slabinfo", "",
+        "dumper_ldkslabinfo", "LDK SLAB INFO", "/proc/devhost/root/slabinfo", "",
         DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
     },
     {
