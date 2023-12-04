@@ -25,6 +25,10 @@ public:
     // Used for dump request
     // return: = 0 OK; < 0 Error;
     virtual int32_t Request(DumpCpuData &dumpCpuData) = 0;
+
+    // get cpu usage by pid
+    // return: = 0 OK; < 0 Error;
+    virtual int32_t GetCpuUsageByPid(int32_t pid, int &cpuUsage) = 0;
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.HiviewDFX.HiDumper.IDumpCpuBroker");
 };
 } // namespace HiviewDFX

@@ -18,19 +18,33 @@
 #include <vector>
 #include <system_ability.h>
 #include "system_ability_status_change_stub.h"
-#include "util/dump_cpu_info_util.h"
 #include "delayed_sp_singleton.h"
 #include "dump_common_utils.h"
 #include "dump_broker_cpu_stub.h"
-#include "dump_event_handler.h"
 #include "dump_cpu_data.h"
 #include "common.h"
-#ifdef HIDUMPER_BATTERY_ENABLE
-#include "common_event_subscriber.h"
-#endif
 
 namespace OHOS {
 namespace HiviewDFX {
+struct CPUInfo {
+    double userUsage; // user space usage
+    double niceUsage; // adjust process priority cpu usage
+    double systemUsage; // kernel space cpu usage
+    double idleUsage; // idle cpu usage
+    double ioWaitUsage; // io wait cpu usage
+    double irqUsage; // hard interrupt cpu usage
+    double softIrqUsage; // soft interrupt cpu usage
+};
+
+struct ProcInfo {
+    long unsigned userSpaceUsage;
+    long unsigned sysSpaceUsage;
+    long unsigned totalUsage;
+    std::string pid;
+    std::string comm;
+    std::string minflt;
+    std::string majflt;
+};
 class DumpCpuData;
 class DumpManagerCpuService final : public SystemAbility, public DumpBrokerCpuStub {
     DECLARE_SYSTEM_ABILITY(DumpManagerCpuService)
@@ -42,44 +56,37 @@ public:
 public:
     // Used for dump request
     int32_t Request(DumpCpuData &dumpCpuData) override;
+    int32_t GetCpuUsageByPid(int32_t pid, int &cpuUsage) override;
     int32_t DumpCpuUsageData();
     void InitParam(DumpCpuData &dumpCpuData);
     void ResetParam();
-    bool SendImmediateEvent();
+    bool GetSingleProcInfo(int pid, std::shared_ptr<ProcInfo> &specProc);
     void StartService();
-public:
-    std::shared_ptr<DumpEventHandler> GetHandler();
 private:
     friend DumpDelayedSpSingleton<DumpManagerCpuService>;
 private:
-    bool Init();
-    void EventHandlerInit();
-    DumpStatus ReadLoadAvgInfo(const std::string& filePath, std::string& info);
+    DumpStatus ReadLoadAvgInfo(std::string& info);
     void CreateDumpTimeString(const std::string& startTime, const std::string& endTime,
         std::string& timeStr);
     void AddStrLineToDumpInfo(const std::string& strLine);
     void CreateCPUStatString(std::string& str);
-    std::shared_ptr<ProcInfo> GetOldProc(const std::string& pid);
     void DumpProcInfo();
     static bool SortProcInfo(std::shared_ptr<ProcInfo> &left, std::shared_ptr<ProcInfo> &right);
     bool SubscribeAppStateEvent();
     bool SubscribeCommonEvent();
-    bool GetProcCPUInfo();
+
+    bool GetSysCPUInfo(std::shared_ptr<CPUInfo> &cpuInfo);
+    bool GetAllProcInfo(std::vector<std::shared_ptr<ProcInfo>> &procInfos);
+    bool GetDateAndTime(uint64_t timeStamp, std::string& dateTime);
 private:
     using StringMatrix = std::shared_ptr<std::vector<std::vector<std::string>>>;
-    std::mutex mutex_;
-    std::shared_ptr<AppExecFwk::EventRunner> eventRunner_{nullptr};
-    std::shared_ptr<DumpEventHandler> handler_{nullptr};
     bool started_{false};
     bool registered_{false};
-    std::string startTime_;
-    std::string endTime_;
+    uint64_t startTime_;
+    uint64_t endTime_;
     std::shared_ptr<CPUInfo> curCPUInfo_{nullptr};
-    std::shared_ptr<CPUInfo> oldCPUInfo_{nullptr};
     std::shared_ptr<ProcInfo> curSpecProc_{nullptr};
-    std::shared_ptr<ProcInfo> oldSpecProc_{nullptr};
     std::vector<std::shared_ptr<ProcInfo>> curProcs_;
-    std::vector<std::shared_ptr<ProcInfo>> oldProcs_;
     int cpuUsagePid_{-1};
     StringMatrix dumpCPUDatas_{nullptr};
 

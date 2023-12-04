@@ -33,7 +33,6 @@ constexpr int LINE_KEY = 0;
 constexpr int LINE_VALUE = 1;
 constexpr int LINE_VALUE_0 = 0;
 constexpr int UNSET = -1;
-constexpr int PROC_NAME_MAX_SIZE = 15;
 static const std::string CPU_STR = "cpu";
 }
 
@@ -276,9 +275,6 @@ bool DumpCommonUtils::GetProcessNameByPid(int pid, std::string& name)
     vector<string> longNames;
     StringUtils::GetInstance().StringSplit(names[0], "/", longNames);
     name = longNames[longNames.size()-1];
-    if(name.size() > PROC_NAME_MAX_SIZE) {
-        name = name.substr(name.size() - PROC_NAME_MAX_SIZE);
-    }
     return true;
 }
 

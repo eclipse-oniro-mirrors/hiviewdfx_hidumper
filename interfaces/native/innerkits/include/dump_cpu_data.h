@@ -17,7 +17,6 @@
 #include <string>
 #include <vector>
 #include "parcel.h"
-#include "util/dump_cpu_info_util.h"
 #include "delayed_sp_singleton.h"
 #include "dump_errors.h"
 namespace OHOS {

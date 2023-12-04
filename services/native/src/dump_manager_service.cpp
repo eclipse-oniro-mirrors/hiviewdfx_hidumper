@@ -141,6 +141,10 @@ int32_t DumpManagerService::Request(std::vector<std::u16string> &args, int outfd
     if (!started_) {
         return DumpStatus::DUMP_FAIL;
     }
+    if (!HasDumpPermission()) {
+        DUMPER_HILOGE(MODULE_SERVICE, "No dump permission, please check!");
+        return DumpStatus::DUMP_FAIL;
+    }
     int sum = GetRequestSum();
     DUMPER_HILOGD(MODULE_SERVICE, "debug|sum=%{public}d", sum);
     if (sum >= REQUEST_MAX) {

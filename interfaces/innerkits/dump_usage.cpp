@@ -13,10 +13,10 @@
 * limitations under the License.
 */
 #include "include/dump_usage.h"
-
+#include "dump_manager_cpu_client.h"
 #include "executor/memory/parse/parse_smaps_rollup_info.h"
-#include "util/dump_cpu_info_util.h"
 #include "executor/memory/memory_util.h"
+#include "hilog_wrapper.h"
 
 using namespace std;
 namespace OHOS {
@@ -56,8 +56,13 @@ uint64_t DumpUsage::GetSharedDirty(const int &pid)
 
 float DumpUsage::GetCpuUsage(const int &pid)
 {
-    float ret = DumpCpuInfoUtil::GetInstance().GetCpuUsage(pid);
-    return ret < 0 ? 0 : ret;
+    int cpuUsage = 0;
+    auto& dumpManagerCpuClient = DumpManagerCpuClient::GetInstance();
+    dumpManagerCpuClient.GetCpuUsageByPid(pid, cpuUsage);
+    DUMPER_HILOGD(MODULE_CPU_SERVICE, "GetCpuUsage end, pid = %{public}d, cpuUsage = %{public}d", pid, cpuUsage);
+    return static_cast<float>(cpuUsage);
 }
+
+
 } // namespace HiviewDFX
 } // namespace OHOS
