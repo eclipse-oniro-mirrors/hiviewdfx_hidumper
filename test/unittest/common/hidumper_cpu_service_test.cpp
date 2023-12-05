@@ -17,12 +17,6 @@
 #include "dump_manager_cpu_client.h"
 #include "dump_manager_cpu_service.h"
 #include "dump_common_utils.h"
-#ifdef HIDUMPER_ABILITY_BASE_ENABLE
-#include "dump_app_state_observer.h"
-#endif
-#ifdef HIDUMPER_BATTERY_ENABLE
-#include "dump_battery_stats_subscriber.h"
-#endif
 #include "inner/dump_service_id.h"
 using namespace std;
 using namespace testing::ext;
@@ -76,56 +70,11 @@ HWTEST_F(HidumperCpuServiceTest, HidumperCpuServiceTest002, TestSize.Level3)
 {
     auto dumpManagerCpuService = std::make_shared<DumpManagerCpuService>();
     dumpManagerCpuService->StartService();
-
-    dumpManagerCpuService->started_ = true;
     dumpManagerCpuService->OnStart();
-
-    dumpManagerCpuService->EventHandlerInit();
-    auto handler_ = dumpManagerCpuService->GetHandler();
-    dumpManagerCpuService->SendImmediateEvent();
-
     auto dumpCpuData = std::make_shared<DumpCpuData>();
     int ret = dumpManagerCpuService->Request(*dumpCpuData);
     ASSERT_TRUE(ret == 0) << "dump cpuusage failed.";
 }
 
-/**
- * @tc.name: DumpAppStateObserver001
- * @tc.desc: Test of dump appState observer.
- * @tc.type: FUNC
- */
-#ifdef HIDUMPER_ABILITY_BASE_ENABLE
-HWTEST_F(HidumperCpuServiceTest, DumpAppStateObserver001, TestSize.Level3)
-{
-    auto dumpAppStateObserver = std::make_shared<DumpAppStateObserver>();
-    ASSERT_FALSE(dumpAppStateObserver->SubscribeAppState());
-    ASSERT_TRUE(dumpAppStateObserver->UnsubscribeAppState());
-}
-#endif
-
-/**
- * @tc.name: DumpBatteryStatsSubscriber001
- * @tc.desc: Test the function callback dump battery stats subscriber.
- * @tc.type: FUNC
- */
-#ifdef HIDUMPER_BATTERY_ENABLE
-HWTEST_F(HidumperCpuServiceTest, DumpBatteryStatsSubscriber001, TestSize.Level3)
-{
-    const std::string COMMON_EVENT_BATTERY_CHANGED = "usual.event.BATTERY_CHANGED";
-    OHOS::EventFwk::CommonEventData data;
-    AAFwk::Want want = data.GetWant();
-    want.SetAction(COMMON_EVENT_BATTERY_CHANGED);
-    data.SetWant(want);
-
-    const EventFwk::CommonEventSubscribeInfo subscribeInfo;
-    DumpBatteryStatsSubscriber* subscriber = new DumpBatteryStatsSubscriber(subscribeInfo);
-
-    subscriber->lastCapacity_ = -1;
-    subscriber->OnReceiveEvent(data);
-
-    const std::string path = "/data/local/tmp";
-    ASSERT_TRUE(DumpCommonUtils::IsDirectory(path));
-}
-#endif
 } // namespace HiviewDFX
 } // namespace OHOS

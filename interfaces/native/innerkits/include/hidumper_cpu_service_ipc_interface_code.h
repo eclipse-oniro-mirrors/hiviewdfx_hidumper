@@ -19,7 +19,8 @@
 namespace OHOS {
 namespace HiviewDFX {
 enum class HidumperCpuServiceInterfaceCode {
-    DUMP_REQUEST_CPUINFO
+    DUMP_REQUEST_CPUINFO,
+    DUMP_USAGE_ONLY
 };
 } // namespace HiviewDFX
 } // namespace OHOS

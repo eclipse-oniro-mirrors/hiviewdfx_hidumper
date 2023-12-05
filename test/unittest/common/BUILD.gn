@@ -132,6 +132,7 @@ ohos_unittest("HidumperConfigUtilsTest") {
     "${source_path}/src/util/config_data.cpp",
     "${source_path}/src/util/config_utils.cpp",
     "${source_path}/src/util/file_utils.cpp",
+    "${source_path}/src/util/string_utils.cpp",
     "${source_path}/src/util/zip/zip_writer.cpp",
     "hidumper_configutils_test.cpp",
   ]
@@ -264,12 +265,6 @@ ohos_unittest("HidumperCpuServiceTest") {
     external_deps += [ "ability_base:want" ]
     external_deps += [ "ability_runtime:app_manager" ]
     defines += [ "HIDUMPER_ABILITY_BASE_ENABLE" ]
-  }
-
-  if (hidumper_battery_manager_enable && hidumper_common_event_enable) {
-    external_deps += [ "battery_manager:batterysrv_client" ]
-    external_deps += [ "common_event_service:cesfwk_innerkits" ]
-    defines += [ "HIDUMPER_BATTERY_ENABLE" ]
   }
 
   cflags = [

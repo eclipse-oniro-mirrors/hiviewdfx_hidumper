@@ -18,8 +18,10 @@
 #include "dump_errors.h"
 #include "hidumper_cpu_service_ipc_interface_code.h"
 #include "hilog_wrapper.h"
+#include <ipc_skeleton.h>
 namespace OHOS {
 namespace HiviewDFX {
+const int APP_UID = 10000;
 int DumpBrokerCpuStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     std::u16string descripter = DumpBrokerCpuStub::GetDescriptor();
@@ -41,6 +43,26 @@ int DumpBrokerCpuStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Messa
                 return ERROR_WRITE_PARCEL;
             }
             if (!reply.WriteInt32(res)) {
+                return ERROR_WRITE_PARCEL;
+            }
+            break;
+        }
+        case static_cast<int>(HidumperCpuServiceInterfaceCode::DUMP_USAGE_ONLY): {
+            int32_t pid = data.ReadInt32();
+            int32_t calllingUid = IPCSkeleton::GetCallingUid();
+            int32_t calllingPid = IPCSkeleton::GetCallingPid();
+            if (calllingUid >= APP_UID && pid != calllingPid) {
+                return ERROR_GET_DUMPER_SERVICE;
+            }
+            if (pid < 0) {
+                return ERROR_READ_PARCEL;
+            }
+            int32_t usage = 0;
+            int32_t res = GetCpuUsageByPid(pid, usage);
+            if (!reply.WriteInt32(usage)) {
+                return ERROR_WRITE_PARCEL;
+            }
+            if (res != 0) {
                 return ERROR_WRITE_PARCEL;
             }
             break;
