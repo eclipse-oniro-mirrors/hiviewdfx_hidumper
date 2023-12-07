@@ -188,13 +188,13 @@ bool DumpManagerCpuService::GetSysCPUInfo(std::shared_ptr<CPUInfo> &cpuInfo)
     if (cpuInfo == nullptr) {
         return false;
     }
-    auto collectResult = g_collector->CollectProcessCpuStatInfos(true);
+    auto collectResult = g_collector->CollectProcessCpuStatInfos(false);
     if (collectResult.retCode != OHOS::HiviewDFX::UCollect::UcError::SUCCESS || collectResult.data.empty()) {
         DUMPER_HILOGE(MODULE_CPU_SERVICE, "collect process cpu stat info error");
         return false;
     }
 
-    CollectResult<OHOS::HiviewDFX::SysCpuUsage> result = g_collector->CollectSysCpuUsage(true);
+    CollectResult<OHOS::HiviewDFX::SysCpuUsage> result = g_collector->CollectSysCpuUsage(false);
     if (result.retCode != OHOS::HiviewDFX::UCollect::UcError::SUCCESS) {
         DUMPER_HILOGE(MODULE_CPU_SERVICE, "collect system cpu usage error,retCode is %{public}d", result.retCode);
         return false;
@@ -219,7 +219,7 @@ bool DumpManagerCpuService::GetSysCPUInfo(std::shared_ptr<CPUInfo> &cpuInfo)
 
 bool DumpManagerCpuService::GetAllProcInfo(std::vector<std::shared_ptr<ProcInfo>> &procInfos)
 {
-    auto collectResult = g_collector->CollectProcessCpuStatInfos(true);
+    auto collectResult = g_collector->CollectProcessCpuStatInfos(false);
     if (collectResult.retCode != OHOS::HiviewDFX::UCollect::UcError::SUCCESS || collectResult.data.empty()) {
         DUMPER_HILOGE(MODULE_CPU_SERVICE, "collect process cpu stat info error");
         return false;
