@@ -82,8 +82,8 @@ private:
     using StringMatrix = std::shared_ptr<std::vector<std::vector<std::string>>>;
     bool started_{false};
     bool registered_{false};
-    uint64_t startTime_;
-    uint64_t endTime_;
+    uint64_t startTime_{0};
+    uint64_t endTime_{0};
     std::shared_ptr<CPUInfo> curCPUInfo_{nullptr};
     std::shared_ptr<ProcInfo> curSpecProc_{nullptr};
     std::vector<std::shared_ptr<ProcInfo>> curProcs_;
