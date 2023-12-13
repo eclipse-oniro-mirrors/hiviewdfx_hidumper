@@ -105,6 +105,7 @@ inline const std::map<int, std::string> saNameMap_ = {
     { SCREENLOCK_SERVICE_ID, "ScreenlockService" },
     { WALLPAPER_MANAGER_SERVICE_ID, "WallpaperManagerService" },
     { PRINT_SERVICE_ID, "PrintFramework" },
+    { SCAN_SERVICE_ID, "ScanFramework" },
     { TELEPHONY_SYS_ABILITY_ID, "Telephony" },
     { DCALL_SYS_ABILITY_ID, "DistributedCallMgr" },
     { TELEPHONY_CALL_MANAGER_SYS_ABILITY_ID, "TelephonyCallManager" },
