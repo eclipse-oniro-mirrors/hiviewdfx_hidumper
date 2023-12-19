@@ -67,10 +67,8 @@ DumpStatus ConfigUtils::GetDumperConfigs()
 {
     DUMPER_HILOGD(MODULE_COMMON, "enter|");
 
-    DumpCommonUtils::GetPidInfos(pidInfos_);
     DumpCommonUtils::GetCpuInfos(cpuInfos_);
-    DUMPER_HILOGD(MODULE_COMMON, "debug|pidInfos=%{public}zu, cpuInfos=%{public}zu",
-        pidInfos_.size(), cpuInfos_.size());
+    DUMPER_HILOGD(MODULE_COMMON, "debug|cpuInfos=%{public}zu", cpuInfos_.size());
 
     std::vector<std::shared_ptr<DumpCfg>> dumpCfgs;
 
@@ -138,6 +136,8 @@ bool ConfigUtils::MergePidInfos(std::vector<DumpCommonUtils::PidInfo> &pidInfos,
     if (pid < 0) {
         currentPidInfo_.pid_ = pid;
         currentPidInfo_.uid_ = -1;
+        DumpCommonUtils::GetPidInfos(pidInfos_);
+        DUMPER_HILOGD(MODULE_COMMON, "debug|pidInfos=%{public}zu", pidInfos_.size());
         pidInfos.assign(pidInfos_.begin(), pidInfos_.end());
     } else {
         if (DumpCommonUtils::GetProcessInfo(pid, currentPidInfo_)) {
