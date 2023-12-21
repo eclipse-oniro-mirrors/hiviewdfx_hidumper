@@ -41,7 +41,7 @@ namespace {
 const std::string DUMPMGR_CPU_SERVICE_NAME = "HiDumperCpuService";
 static constexpr size_t LOAD_AVG_INFO_COUNT = 3;
 static constexpr int PROC_CPU_LENGTH = 256;
-static constexpr int HUNDRED_PERCENT_VALUE = 100;
+static constexpr double HUNDRED_PERCENT_VALUE = 100.00;
 static constexpr long unsigned THOUSAND_PERCENT_VALUE = 1000;
 static constexpr int INVALID_PID = -1;
 static const int TM_START_YEAR = 1900;
@@ -230,9 +230,9 @@ bool DumpManagerCpuService::GetAllProcInfo(std::vector<std::shared_ptr<ProcInfo>
         ptrProcInfo->comm = cpuInfo.procName;
         ptrProcInfo->minflt = std::to_string(cpuInfo.minFlt);
         ptrProcInfo->majflt = std::to_string(cpuInfo.majFlt);
-        ptrProcInfo->userSpaceUsage = static_cast<long unsigned>(cpuInfo.uCpuUsage * HUNDRED_PERCENT_VALUE);
-        ptrProcInfo->sysSpaceUsage = static_cast<long unsigned>(cpuInfo.sCpuUsage * HUNDRED_PERCENT_VALUE);
-        ptrProcInfo->totalUsage = static_cast<long unsigned>(cpuInfo.cpuUsage * HUNDRED_PERCENT_VALUE);
+        ptrProcInfo->userSpaceUsage = cpuInfo.uCpuUsage * HUNDRED_PERCENT_VALUE;
+        ptrProcInfo->sysSpaceUsage = cpuInfo.sCpuUsage * HUNDRED_PERCENT_VALUE;
+        ptrProcInfo->totalUsage = cpuInfo.cpuUsage * HUNDRED_PERCENT_VALUE;
         procInfos.push_back(ptrProcInfo);
     }
     return true;
@@ -253,9 +253,9 @@ bool DumpManagerCpuService::GetSingleProcInfo(int pid, std::shared_ptr<ProcInfo>
     specProc->pid = std::to_string(collectResult.data.pid);
     specProc->minflt = std::to_string(collectResult.data.minFlt);
     specProc->majflt = std::to_string(collectResult.data.majFlt);
-    specProc->userSpaceUsage = static_cast<long unsigned>(collectResult.data.uCpuUsage * HUNDRED_PERCENT_VALUE);
-    specProc->sysSpaceUsage = static_cast<long unsigned>(collectResult.data.sCpuUsage * HUNDRED_PERCENT_VALUE);
-    specProc->totalUsage = static_cast<long unsigned>(collectResult.data.cpuUsage * HUNDRED_PERCENT_VALUE);
+    specProc->userSpaceUsage = collectResult.data.uCpuUsage * HUNDRED_PERCENT_VALUE;
+    specProc->sysSpaceUsage = collectResult.data.sCpuUsage * HUNDRED_PERCENT_VALUE;
+    specProc->totalUsage = collectResult.data.cpuUsage * HUNDRED_PERCENT_VALUE;
     return true;
 }
 
@@ -315,20 +315,23 @@ void DumpManagerCpuService::AddStrLineToDumpInfo(const std::string &strLine)
 
 void DumpManagerCpuService::CreateCPUStatString(std::string &str)
 {
-    int userSpaceUsage = static_cast<int>((curCPUInfo_->userUsage + curCPUInfo_->niceUsage) * HUNDRED_PERCENT_VALUE);
-    int sysSpaceUsage = static_cast<int>(curCPUInfo_->systemUsage * HUNDRED_PERCENT_VALUE);
-    int iowUsage = static_cast<int>(curCPUInfo_->ioWaitUsage * HUNDRED_PERCENT_VALUE);
-    int irqUsage = static_cast<int>((curCPUInfo_->irqUsage + curCPUInfo_->softIrqUsage) * HUNDRED_PERCENT_VALUE);
-    int idleUsage = static_cast<int>(curCPUInfo_->idleUsage * HUNDRED_PERCENT_VALUE);
-    int totalUsage = userSpaceUsage + sysSpaceUsage;
+    double userSpaceUsage = (curCPUInfo_->userUsage + curCPUInfo_->niceUsage) * HUNDRED_PERCENT_VALUE;
+    double sysSpaceUsage = curCPUInfo_->systemUsage * HUNDRED_PERCENT_VALUE;
+    double iowUsage = curCPUInfo_->ioWaitUsage * HUNDRED_PERCENT_VALUE;
+    double irqUsage = (curCPUInfo_->irqUsage + curCPUInfo_->softIrqUsage) * HUNDRED_PERCENT_VALUE;
+    double idleUsage = curCPUInfo_->idleUsage * HUNDRED_PERCENT_VALUE;
+    double totalUsage = userSpaceUsage + sysSpaceUsage;
 
-    str = "Total: ";
-    str.append(std::to_string(totalUsage)).append("%; ");
-    str.append("User Space: ").append(std::to_string(userSpaceUsage)).append("%; ");
-    str.append("Kernel Space: ").append(std::to_string(sysSpaceUsage)).append("%; ");
-    str.append("iowait: ").append(std::to_string(iowUsage)).append("%; ");
-    str.append("irq: ").append(std::to_string(irqUsage)).append("%; ");
-    str.append("idle: ").append(std::to_string(idleUsage)).append("%");
+    char format[PROC_CPU_LENGTH] = {0};
+    int ret = sprintf_s(format, PROC_CPU_LENGTH,
+                        "Total: %.2f%%; User Space: %.2f%%; Kernel Space: %.2f%%; "
+                        "iowait: %.2f%%; irq: %.2f%%; idle: %.2f%%",
+                        totalUsage, userSpaceUsage, sysSpaceUsage, iowUsage, irqUsage, idleUsage);
+    if (ret < 0) {
+        DUMPER_HILOGE(MODULE_CPU_SERVICE, "create process cpu info failed!.");
+        return;
+    }
+    str = std::string(format);
 }
 
 void DumpManagerCpuService::DumpProcInfo()
@@ -343,8 +346,8 @@ void DumpManagerCpuService::DumpProcInfo()
     if (cpuUsagePid_ != INVALID_PID) {
         char format[PROC_CPU_LENGTH] = {0};
         int ret = sprintf_s(format, PROC_CPU_LENGTH,
-                            "    %-5s    %3lu%%             %3lu%%"
-                            "           %3lu%%            %8s            %8s        %-15s",
+                            "    %-5s    %.2f%%             %.2f%%"
+                            "           %.2f%%            %8s            %8s        %-15s",
                             (curSpecProc_->pid).c_str(), curSpecProc_->totalUsage,
                             curSpecProc_->userSpaceUsage, curSpecProc_->sysSpaceUsage,
                             (curSpecProc_->minflt).c_str(), (curSpecProc_->majflt).c_str(),
@@ -358,8 +361,8 @@ void DumpManagerCpuService::DumpProcInfo()
     for (size_t i = 0; i < sortedInfos.size(); i++) {
         char format[PROC_CPU_LENGTH] = {0};
         int ret = sprintf_s(format, PROC_CPU_LENGTH,
-                            "    %-5s    %3lu%%             %3lu%%"
-                            "           %3lu%%            %8s            %8s        %-15s",
+                            "    %-5s    %.2f%%             %.2f%%"
+                            "           %.2f%%            %8s            %8s        %-15s",
                             (sortedInfos[i]->pid).c_str(), sortedInfos[i]->totalUsage,
                             sortedInfos[i]->userSpaceUsage, sortedInfos[i]->sysSpaceUsage,
                             (sortedInfos[i]->minflt).c_str(), (sortedInfos[i]->majflt).c_str(),

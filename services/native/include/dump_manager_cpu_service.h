@@ -37,9 +37,9 @@ struct CPUInfo {
 };
 
 struct ProcInfo {
-    long unsigned userSpaceUsage;
-    long unsigned sysSpaceUsage;
-    long unsigned totalUsage;
+    double userSpaceUsage;
+    double sysSpaceUsage;
+    double totalUsage;
     std::string pid;
     std::string comm;
     std::string minflt;
