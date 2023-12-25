@@ -99,7 +99,7 @@ bool ParseSmapsInfo::GetSmapsValue(const MemoryFilter::MemoryType &memType, cons
 bool ParseSmapsInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int &pid,
                              GroupMap &nativeMap, GroupMap &result)
 {
-    DUMPER_HILOGD(MODULE_SERVICE, "ParseSmapsInfo: GetInfo pid:(%d) begin.\n", pid);
+    DUMPER_HILOGD(MODULE_SERVICE, "ParseSmapsInfo: GetInfo pid:(%{public}d) begin.\n", pid);
     string path = "/proc/" + to_string(pid) + "/smaps";
     bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, true, [&](const string& line) -> void {
         string name;
@@ -116,7 +116,7 @@ bool ParseSmapsInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int 
             MemoryFilter::GetInstance().ParseNativeHeapMemoryGroup(name, nativeMemGroup_, iNode);
         }
     });
-    DUMPER_HILOGD(MODULE_SERVICE, "ParseSmapsInfo: GetInfo pid:(%d) end,success!\n", pid);
+    DUMPER_HILOGD(MODULE_SERVICE, "ParseSmapsInfo: GetInfo pid:(%{public}d) end,success!\n", pid);
     return ret;
 }
 

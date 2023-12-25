@@ -34,52 +34,23 @@ namespace HiviewDFX {
 #ifdef DUMPER_HILOGD
 #undef DUMPER_HILOGD
 #endif
-// param of log interface, such as DUMPER_HILOGF.
-enum DumperSubModule {
-    MODULE_COMMON = 0,
-    MODULE_ZIDL,
-    MODULE_CLIENT,
-    MODULE_SERVICE,
-    MODULE_CPU_SERVICE,
-    MODULE_CPU_ZIDL,
-    MODULE_CPU_CLIENT,
-    MODULE_CPU_DATA,
-    MODULE_MAX,
-};
+
 // 0xD002900: subsystem:DumperMgr module:DumperManager, 8 bits reserved.
-static constexpr unsigned int BASE_DUMPER_DOMAIN_ID = 0xD002900;
-enum DumperMgrDomainId {
-    DUMPER_COMMON_DOMAIN = BASE_DUMPER_DOMAIN_ID + MODULE_COMMON,
-    DUMPER_ZIDL_DOMAIN,
-    DUMPER_CLIENT_DOMAIN,
-    DUMPER_SERVICE_DOMAIN,
-    DUMPER_CPU_SERVICE_DOMAIN,
-    DUMPER_CPU_ZIDL_DOMAIN,
-    DUMPER_CPU_CLIENT_DOMAIN,
-    DUMPER_CPU_DATA
-};
-static constexpr OHOS::HiviewDFX::HiLogLabel DUMPER_LABEL[MODULE_MAX] = {
-    {LOG_CORE, DUMPER_COMMON_DOMAIN, "DumperCommon"},
-    {LOG_CORE, DUMPER_ZIDL_DOMAIN, "DumperZIDL"},
-    {LOG_CORE, DUMPER_CLIENT_DOMAIN, "DumperClient"},
-    {LOG_CORE, DUMPER_SERVICE_DOMAIN, "DumperService"},
-    {LOG_CORE, DUMPER_CPU_SERVICE_DOMAIN, "DumperCpuService"},
-    {LOG_CORE, DUMPER_CPU_ZIDL_DOMAIN, "DumperCpuZIDL"},
-    {LOG_CORE, DUMPER_CPU_CLIENT_DOMAIN, "DumperCpuClient"},
-    {LOG_CORE, DUMPER_CPU_DATA, "DumperCpuData"},
-};
-// In order to improve performance, do not check the module range.
-// Besides, make sure module is less than DUMPER_MAX_DOMAIN.
+#undef LOG_DOMAIN
+#define LOG_DOMAIN 0xD002900
+#undef LOG_TAG
+#define LOG_TAG "DumperService"
+
 #define DUMPER_HILOGF(module, fmt, ...) \
-    (void)OHOS::HiviewDFX::HiLog::Fatal(DUMPER_LABEL[module], "%{public}s# " fmt, __FUNCTION__, ##__VA_ARGS__)
+    HILOG_FATAL(LOG_CORE, "%{public}s# " fmt, __FUNCTION__, ##__VA_ARGS__)
 #define DUMPER_HILOGE(module, fmt, ...) \
-    (void)OHOS::HiviewDFX::HiLog::Error(DUMPER_LABEL[module], "%{public}s# " fmt, __FUNCTION__, ##__VA_ARGS__)
+    HILOG_ERROR(LOG_CORE, "%{public}s# " fmt, __FUNCTION__, ##__VA_ARGS__)
 #define DUMPER_HILOGW(module, fmt, ...) \
-    (void)OHOS::HiviewDFX::HiLog::Warn(DUMPER_LABEL[module], "%{public}s# " fmt, __FUNCTION__, ##__VA_ARGS__)
+    HILOG_WARN(LOG_CORE, "%{public}s# " fmt, __FUNCTION__, ##__VA_ARGS__)
 #define DUMPER_HILOGI(module, fmt, ...) \
-    (void)OHOS::HiviewDFX::HiLog::Info(DUMPER_LABEL[module], "%{public}s# " fmt, __FUNCTION__, ##__VA_ARGS__)
+    HILOG_INFO(LOG_CORE, "%{public}s# " fmt, __FUNCTION__, ##__VA_ARGS__)
 #define DUMPER_HILOGD(module, fmt, ...) \
-    (void)OHOS::HiviewDFX::HiLog::Debug(DUMPER_LABEL[module], "%{public}s# " fmt, __FUNCTION__, ##__VA_ARGS__)
+    HILOG_DEBUG(LOG_CORE, "%{public}s# " fmt, __FUNCTION__, ##__VA_ARGS__)
 } // namespace HiviewDFX
 } // namespace OHOS
 #else

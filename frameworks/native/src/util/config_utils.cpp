@@ -491,7 +491,7 @@ bool ConfigUtils::HandleDumpAppendix(std::vector<std::shared_ptr<DumpCfg>> &dump
     if (callingUid == ROOT_UID || callingUid == BMS_UID) {
         GetConfig(CONFIG_GROUP_STACK, dumpCfgs, args);
     } else {
-        DUMPER_HILOGE(MODULE_COMMON, "No permission to perform dump stack operation, uid=%d", callingUid);
+        DUMPER_HILOGE(MODULE_COMMON, "No permission to perform dump stack operation, uid=%{public}d", callingUid);
     }
     currentPidInfos_.clear();
     currentPidInfo_.Reset();
