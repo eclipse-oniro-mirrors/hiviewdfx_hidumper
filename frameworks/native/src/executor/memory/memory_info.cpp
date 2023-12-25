@@ -629,7 +629,7 @@ void MemoryInfo::GetNSPidByPid(const int32_t &pid, std::string &nsPid)
     string cmd = "ls -al /proc/" + to_string(pid) + "/ns/pid";
     vector<string> cmdResult;
     if (!MemoryUtil::GetInstance().RunCMD(cmd, cmdResult) || cmdResult.size() == 0) {
-        DUMPER_HILOGE(MODULE_SERVICE, "GetNSPidByPid fail! pid = %d", pid);
+        DUMPER_HILOGE(MODULE_SERVICE, "GetNSPidByPid fail! pid = %{public}d", pid);
         return;
     }
     string pidStr = cmdResult.front();
@@ -659,7 +659,7 @@ std::string MemoryInfo::GetProcStatusName(const int32_t &pid)
     string procName = UNKNOWN_PROCESS;
     vector<string> cmdResult;
     if (!MemoryUtil::GetInstance().RunCMD(str, cmdResult) || cmdResult.size() == 0) {
-        DUMPER_HILOGE(MODULE_SERVICE, "GetProcName fail! pid = %d", pid);
+        DUMPER_HILOGE(MODULE_SERVICE, "GetProcName fail! pid = %{public}d", pid);
         return procName;
     }
     vector<string> names;
@@ -732,7 +732,7 @@ uint64_t MemoryInfo::GetVss(const int32_t &pid)
             if (retScanf != -1) {
                 res = tempValue * VSS_BIT;
             } else {
-                DUMPER_HILOGE(MODULE_SERVICE, "GetVss error! pid = %d", pid);
+                DUMPER_HILOGE(MODULE_SERVICE, "GetVss error! pid = %{public}d", pid);
             }
         }
     });
