@@ -54,6 +54,7 @@ namespace HiviewDFX {
 
 static string g_initProcessNSPid; //init process namespace pid
 static const std::string UNKNOWN_PROCESS = "unknown";
+static const std::string PRE_BLANK = "        ";
 
 MemoryInfo::MemoryInfo()
 {
@@ -1074,7 +1075,7 @@ void MemoryInfo::GetMemoryByAdj(StringMatrix result)
         });
         for (const auto &memUsage : memUsages) {
             vector<string> line;
-            string name = memUsage.name + "(pid=" + to_string(memUsage.pid) + "): ";
+            string name = PRE_BLANK + memUsage.name + "(pid=" + to_string(memUsage.pid) + "): ";
             StringUtils::GetInstance().SetWidth(NAME_AND_PID_WIDTH, BLANK_, true, name);
             line.push_back(name + AddKbUnit(memUsage.pss + memUsage.swapPss));
             if (memUsage.swapPss > 0) {

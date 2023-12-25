@@ -346,8 +346,8 @@ void DumpManagerCpuService::DumpProcInfo()
     if (cpuUsagePid_ != INVALID_PID) {
         char format[PROC_CPU_LENGTH] = {0};
         int ret = sprintf_s(format, PROC_CPU_LENGTH,
-                            "    %-5s    %.2f%%             %.2f%%"
-                            "           %.2f%%            %8s            %8s        %-15s",
+                            "    %-5s    %6.2f%%         %6.2f%%"
+                            "        %6.2f%%        %8s            %8s            %-15s",
                             (curSpecProc_->pid).c_str(), curSpecProc_->totalUsage,
                             curSpecProc_->userSpaceUsage, curSpecProc_->sysSpaceUsage,
                             (curSpecProc_->minflt).c_str(), (curSpecProc_->majflt).c_str(),
@@ -361,8 +361,8 @@ void DumpManagerCpuService::DumpProcInfo()
     for (size_t i = 0; i < sortedInfos.size(); i++) {
         char format[PROC_CPU_LENGTH] = {0};
         int ret = sprintf_s(format, PROC_CPU_LENGTH,
-                            "    %-5s    %.2f%%             %.2f%%"
-                            "           %.2f%%            %8s            %8s        %-15s",
+                            "    %-5s    %6.2f%%         %6.2f%%"
+                            "        %6.2f%%        %8s            %8s            %-15s",
                             (sortedInfos[i]->pid).c_str(), sortedInfos[i]->totalUsage,
                             sortedInfos[i]->userSpaceUsage, sortedInfos[i]->sysSpaceUsage,
                             (sortedInfos[i]->minflt).c_str(), (sortedInfos[i]->majflt).c_str(),
