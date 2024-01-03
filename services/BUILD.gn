@@ -272,6 +272,7 @@ ohos_source_set("hidumperservice_cpu_source_test") {
 
 ohos_shared_library("hidumperservice") {
   deps = [ ":hidumperservice_source" ]
+  external_deps = [ "hilog:libhilog" ]
   install_enable = true
   version_script = "hidumper.map"
   shlib_type = "sa"
@@ -281,6 +282,7 @@ ohos_shared_library("hidumperservice") {
 
 ohos_shared_library("hidumpercpuservice") {
   deps = [ ":hidumperservice_cpu_source" ]
+  external_deps = [ "hilog:libhilog" ]
   install_enable = true
   version_script = "hidumper.map"
   shlib_type = "sa"

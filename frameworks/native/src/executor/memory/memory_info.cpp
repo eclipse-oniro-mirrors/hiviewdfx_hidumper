@@ -54,7 +54,7 @@ namespace HiviewDFX {
 
 static string g_initProcessNSPid; //init process namespace pid
 static const std::string UNKNOWN_PROCESS = "unknown";
-static const std::string PRE_BLANK = "        ";
+static const std::string PRE_BLANK = "   ";
 
 MemoryInfo::MemoryInfo()
 {

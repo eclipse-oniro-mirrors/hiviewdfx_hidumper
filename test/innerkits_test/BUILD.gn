@@ -25,6 +25,7 @@ ohos_executable("innerkits_test") {
   configs = [ ":innerkits_test_config" ]
   sources = [ "main.cpp" ]
   deps = [ "../../interfaces/innerkits:lib_dump_usage" ]
+  external_deps = [ "hilog:libhilog" ]
 
   subsystem_name = "hiviewdfx"
   part_name = "hidumper"
