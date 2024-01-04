@@ -42,7 +42,7 @@ auto dumpManagerService = DumpDelayedSpSingleton<DumpManagerService>::GetInstanc
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(dumpManagerService.GetRefPtr());
 static const int32_t HIPORFILER_UID = 3063;
 static const int32_t STOP_WAIT = 3;
-static const int32_t REQUEST_MAX = 2;
+static const int32_t REQUEST_MAX = 5;
 static const uint32_t REQUESTID_MAX = 100000;
 const std::string TASK_ID = "unload";
 constexpr int32_t DYNAMIC_EXIT_DELAY_TIME = 120000;
@@ -150,6 +150,7 @@ int32_t DumpManagerService::Request(std::vector<std::u16string> &args, int outfd
     int sum = GetRequestSum();
     DUMPER_HILOGD(MODULE_SERVICE, "debug|sum=%{public}d", sum);
     if (sum >= REQUEST_MAX) {
+        DUMPER_HILOGE(MODULE_SERVICE, "sum is greater than the request max, sum:%{pubilc}d.", sum);
         return DumpStatus::DUMP_REQUEST_MAX;
     } else if (sum == 0) {
         DumpLogManager::Init();
