@@ -288,14 +288,13 @@ bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
 #endif
         GetRenderServiceGraphics(pid, graphicsMemory);
         graphicsMemory.gl -= g_sumPidsMemGL;
-    } else if (!IsOHService(pid)) {
-        GetRenderServiceGraphics(pid, graphicsMemory);
     } else {
+        GetRenderServiceGraphics(pid, graphicsMemory);
 #ifdef HIDUMPER_GRAPHIC_ENABLE
         auto& rsClient = Rosen::RSInterfaces::GetInstance();
         unique_ptr<MemoryGraphic> memGraphic = make_unique<MemoryGraphic>(rsClient.GetMemoryGraphic(pid));
-        graphicsMemory.gl = memGraphic-> GetGpuMemorySize() / BYTE_PER_KB;
-        graphicsMemory.graph = memGraphic-> GetCpuMemorySize() / BYTE_PER_KB;
+        graphicsMemory.gl += memGraphic-> GetGpuMemorySize() / BYTE_PER_KB;
+        graphicsMemory.graph += memGraphic-> GetCpuMemorySize() / BYTE_PER_KB;
 #endif
     }
 
@@ -429,8 +428,11 @@ void MemoryInfo::GetPssTotal(const GroupMap &infos, StringMatrix result)
 
     vector<pair<string, uint64_t>> gpuValue;
     gpuValue.push_back(make_pair(MemoryFilter::GetInstance().GL_OUT_LABEL, totalGL_));
-    gpuValue.push_back(make_pair(MemoryFilter::GetInstance().GRAPH_OUT_LABEL, totalGraph_));
     PairToStringMatrix(MemoryFilter::GetInstance().GPU_TAG, gpuValue, result);
+
+    vector<pair<string, uint64_t>> graphValue;
+    graphValue.push_back(make_pair(MemoryFilter::GetInstance().GRAPH_OUT_LABEL, totalGraph_));
+    PairToStringMatrix(MemoryFilter::GetInstance().GRAPH_OUT_LABEL, graphValue, result);
 
     vector<pair<string, uint64_t>> dmaValue;
     dmaValue.push_back(make_pair(MemoryFilter::GetInstance().DMA_OUT_LABEL, dmaInfo_.GetTotalDma()));
@@ -750,17 +752,16 @@ bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &gra
 #endif
         GetRenderServiceGraphics(pid, graphicsMemory);
         graphicsMemory.gl -= g_sumPidsMemGL;
-    } else if (!IsOHService(pid)) {
-        GetRenderServiceGraphics(pid, graphicsMemory);
     } else {
+        GetRenderServiceGraphics(pid, graphicsMemory);
 #ifdef HIDUMPER_GRAPHIC_ENABLE
         if (memGraphicVec_.empty()) {
             return false;
         }
         auto& rsClient = Rosen::RSInterfaces::GetInstance();
         unique_ptr<MemoryGraphic> memGraphic = make_unique<MemoryGraphic>(rsClient.GetMemoryGraphic(pid));
-        graphicsMemory.gl = memGraphic-> GetGpuMemorySize() / BYTE_PER_KB;
-        graphicsMemory.graph = memGraphic-> GetCpuMemorySize() / BYTE_PER_KB;
+        graphicsMemory.gl += memGraphic-> GetGpuMemorySize() / BYTE_PER_KB;
+        graphicsMemory.graph += memGraphic-> GetCpuMemorySize() / BYTE_PER_KB;
 #endif
     }
     return true;
