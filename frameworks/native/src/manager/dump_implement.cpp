@@ -38,6 +38,7 @@
 #include "common/dumper_constant.h"
 #include "securec.h"
 #include "parameters.h"
+#include "parameter.h"
 namespace OHOS {
 namespace HiviewDFX {
 
@@ -202,6 +203,10 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
             }
             std::string debugMode = "0";
             debugMode = OHOS::system::GetParameter("const.debuggable", debugMode);
+            std::string buildVersion = GetDisplayVersion();
+            if (opts_.isShowSmaps_ && debugMode == "0" && buildVersion.find("log") != std::string::npos) {
+                break;
+            }
             if (opts_.isShowSmaps_ && debugMode == "0") {
                 CmdHelp();
                 return DumpStatus::DUMP_HELP;
