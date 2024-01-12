@@ -32,6 +32,7 @@
                 "ipc",
                 "memmgr",
                 "memmgr_plugin",
+                "netmanager_base",
                 "safwk",
                 "samgr",
                 "drivers_interface_memorytracker",

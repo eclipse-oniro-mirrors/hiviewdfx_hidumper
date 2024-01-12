@@ -31,6 +31,7 @@
 #include "factory/zip_output_factory.h"
 #include "factory/dumper_group_factory.h"
 #include "factory/memory_dumper_factory.h"
+#include "factory/traffic_dumper_factory.h"
 #include "dump_utils.h"
 #include "string_ex.h"
 #include "file_ex.h"
@@ -72,6 +73,8 @@ void DumpImplement::AddExecutorFactoryToMap()
     ptrExecutorFactoryMap_->insert(std::make_pair(DumperConstant::GROUP, std::make_shared<DumperGroupFactory>()));
     ptrExecutorFactoryMap_->insert(
         std::make_pair(DumperConstant::MEMORY_DUMPER, std::make_shared<MemoryDumperFactory>()));
+    ptrExecutorFactoryMap_->insert(
+        std::make_pair(DumperConstant::TRAFFIC_DUMPER, std::make_shared<TrafficDumperFactory>()));
 }
 
 DumpStatus DumpImplement::Main(int argc, char *argv[], const std::shared_ptr<RawParam> &reqCtl)
@@ -261,6 +264,10 @@ DumpStatus DumpImplement::SetCmdParameter(int argc, char *argv[], DumperOpts &op
             opts_.logArgs_.push_back(argv[optind - 1]);
         } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "--mem")) {
             status = SetCmdIntegerParameter(argv[optind - 1], opts_.memPid_);
+        } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "--net")) {
+            status = SetCmdIntegerParameter(argv[optind - 1], opts_.netPid_);
+        } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "--storage")) {
+            status = SetCmdIntegerParameter(argv[optind - 1], opts_.storagePid_);
         } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "-c")) {
             opts_.systemArgs_.push_back(argv[optind - 1]);
         } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "-p")) {
@@ -407,8 +414,9 @@ void DumpImplement::CmdHelp()
         "  -s [SA0 SA1]                |system abilities labeled \"SA0\" and \"SA1\"\n"
         "  -s [SA] -a ['-h']           |system ability labeled \"SA\" with arguments \"-h\" specified\n"
         "  -e                          |faultlogs of crash history\n"
-        "  --net                       |dump network information\n"
-        "  --storage                   |dump storage information\n"
+        "  --net [pid]                 |dump network information; if pid is specified,"
+        " dump traffic usage of specified pid\n"
+        "  --storage [pid]             |dump storage information; if pid is specified, dump /proc/pid/io\n"
         "  -p                          |processes information, include list and infromation of processes"
         " and threads\n"
         "  -p [pid]                    |dump threads under pid, includes smap, block channel,"
@@ -659,6 +667,14 @@ DumpStatus DumpImplement::CheckProcessAlive(const DumperOpts &opts_)
     }
     if ((opts_.processPid_ > -1) && !DumpUtils::CheckProcessAlive(opts_.processPid_)) {
         SendPidErrorMessage(opts_.processPid_);
+        return DumpStatus::DUMP_FAIL;
+    }
+    if ((opts_.storagePid_ > -1) && !DumpUtils::CheckProcessAlive(opts_.storagePid_)) {
+        SendPidErrorMessage(opts_.storagePid_);
+        return DumpStatus::DUMP_FAIL;
+    }
+    if ((opts_.netPid_ > -1) && !DumpUtils::CheckProcessAlive(opts_.netPid_)) {
+        SendPidErrorMessage(opts_.netPid_);
         return DumpStatus::DUMP_FAIL;
     }
     return DumpStatus::DUMP_OK;

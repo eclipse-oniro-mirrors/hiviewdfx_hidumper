@@ -27,7 +27,9 @@ struct DumperOpts {
     bool isDumpMem_;
     int memPid_;
     bool isDumpStorage_;
+    int storagePid_;
     bool isDumpNet_;
+    int netPid_;
     bool isDumpList_;
     bool isDumpService_;
     bool isDumpSystemAbility_;
