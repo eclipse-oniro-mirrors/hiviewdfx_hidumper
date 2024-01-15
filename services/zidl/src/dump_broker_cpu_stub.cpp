@@ -48,23 +48,8 @@ int DumpBrokerCpuStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Messa
             break;
         }
         case static_cast<int>(HidumperCpuServiceInterfaceCode::DUMP_USAGE_ONLY): {
-            int32_t pid = data.ReadInt32();
-            int32_t calllingUid = IPCSkeleton::GetCallingUid();
-            int32_t calllingPid = IPCSkeleton::GetCallingPid();
-            if (calllingUid >= APP_UID && pid != calllingPid) {
-                return ERROR_GET_DUMPER_SERVICE;
-            }
-            if (pid < 0) {
-                return ERROR_READ_PARCEL;
-            }
-            int32_t usage = 0;
-            int32_t res = GetCpuUsageByPid(pid, usage);
-            if (!reply.WriteInt32(usage)) {
-                return ERROR_WRITE_PARCEL;
-            }
-            if (res != 0) {
-                return ERROR_WRITE_PARCEL;
-            }
+            DUMPER_HILOGD(MODULE_CPU_ZIDL, "debug|DumpCpuUsageOnly");
+            ret = DumpCpuUsageOnly(data, reply);
             break;
         }
         default: {
@@ -73,6 +58,28 @@ int DumpBrokerCpuStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Messa
         }
     }
     return ret;
+}
+
+int DumpBrokerCpuStub::DumpCpuUsageOnly(MessageParcel& data, MessageParcel& reply)
+{
+    int32_t pid = data.ReadInt32();
+    int32_t calllingUid = IPCSkeleton::GetCallingUid();
+    int32_t calllingPid = IPCSkeleton::GetCallingPid();
+    if (calllingUid >= APP_UID && pid != calllingPid) {
+        return ERROR_GET_DUMPER_SERVICE;
+    }
+    if (pid < 0) {
+        return ERROR_READ_PARCEL;
+    }
+    int32_t usage = 0;
+    int32_t res = GetCpuUsageByPid(pid, usage);
+    if (!reply.WriteInt32(usage)) {
+        return ERROR_WRITE_PARCEL;
+    }
+    if (res != 0) {
+        return ERROR_WRITE_PARCEL;
+    }
+    return ERR_OK;
 }
 } // namespace HiviewDFX
 } // namespace OHOS
