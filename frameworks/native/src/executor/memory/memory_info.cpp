@@ -215,24 +215,17 @@ bool MemoryInfo::GetRenderServiceGraphics(int32_t pid, MemInfoData::GraphicsMemo
         return ret;
     }
 
-    for (const auto &memTrackerType : MemoryFilter::GetInstance().MEMORY_TRACKER_TYPES) {
-        std::vector<MemoryRecord> records;
-        if (memtrack->GetDevMem(pid, memTrackerType.first, records) == HDF_SUCCESS) {
-            uint64_t value = 0;
-            for (const auto &record : records) {
-                if ((static_cast<uint32_t>(record.flags) & FLAG_UNMAPPED) == FLAG_UNMAPPED) {
-                    value = static_cast<uint64_t>(record.size / BYTE_PER_KB);
-                    break;
-                }
-            }
-            if (memTrackerType.first == MEMORY_TRACKER_TYPE_GL) {
-                graphicsMemory.gl = value;
-                ret = true;
-            } else if (memTrackerType.first == MEMORY_TRACKER_TYPE_GRAPH) {
-                graphicsMemory.graph = value;
-                ret = true;
+    std::vector<MemoryRecord> records;
+    if (memtrack->GetDevMem(pid, MEMORY_TRACKER_TYPE_GL, records) == HDF_SUCCESS) {
+        uint64_t value = 0;
+        for (const auto& record : records) {
+            if ((static_cast<uint32_t>(record.flags) & FLAG_UNMAPPED) == FLAG_UNMAPPED) {
+                value = static_cast<uint64_t>(record.size / BYTE_PER_KB);
+                break;
             }
         }
+        graphicsMemory.gl = value;
+        ret = true;
     }
     return ret;
 }
@@ -294,9 +287,9 @@ bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
         auto& rsClient = Rosen::RSInterfaces::GetInstance();
         unique_ptr<MemoryGraphic> memGraphic = make_unique<MemoryGraphic>(rsClient.GetMemoryGraphic(pid));
         graphicsMemory.gl += memGraphic-> GetGpuMemorySize() / BYTE_PER_KB;
-        graphicsMemory.graph += memGraphic-> GetCpuMemorySize() / BYTE_PER_KB;
 #endif
     }
+    graphicsMemory.graph = dmaInfo_.GetDmaByPid(pid);
 
     map<string, uint64_t> valueMap;
     valueMap.insert(pair<string, uint64_t>("Pss", graphicsMemory.gl));
@@ -761,7 +754,6 @@ bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &gra
         auto& rsClient = Rosen::RSInterfaces::GetInstance();
         unique_ptr<MemoryGraphic> memGraphic = make_unique<MemoryGraphic>(rsClient.GetMemoryGraphic(pid));
         graphicsMemory.gl += memGraphic-> GetGpuMemorySize() / BYTE_PER_KB;
-        graphicsMemory.graph += memGraphic-> GetCpuMemorySize() / BYTE_PER_KB;
 #endif
     }
     return true;
@@ -789,6 +781,7 @@ bool MemoryInfo::GetMemByProcessPid(const int32_t &pid, const DmaInfo &dmaInfo, 
 
     MemInfoData::GraphicsMemory graphicsMemory;
     MemoryUtil::GetInstance().InitGraphicsMemory(graphicsMemory);
+    graphicsMemory.graph = dmaInfo_.GetDmaByPid(pid);
     if (GetGraphicsMemory(pid, graphicsMemory)) {
         usage.gl = graphicsMemory.gl;
         usage.graph = graphicsMemory.graph;
