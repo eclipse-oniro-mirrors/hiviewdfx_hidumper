@@ -199,7 +199,7 @@ ohos_source_set("hidumperservice_source") {
   part_name = "${hidumper_part_name}"
 }
 
-ohos_shared_library("hidumperservice_cpu_source") {
+ohos_source_set("hidumperservice_cpu_source") {
   public_configs = [ ":dump_cpu_config" ]
   sources = [ "native/src/dump_manager_cpu_service.cpp" ]
 
