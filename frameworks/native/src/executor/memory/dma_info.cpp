@@ -13,10 +13,7 @@
  * limitations under the License.
  */
 #include "executor/memory/dma_info.h"
-#include "executor/memory/memory_filter.h"
-#include "executor/memory/memory_util.h"
 #include "util/file_utils.h"
-#include "util/string_utils.h"
 #include "securec.h"
 
 using namespace std;
