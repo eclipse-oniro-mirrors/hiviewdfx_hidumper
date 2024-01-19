@@ -26,6 +26,8 @@ public:
     virtual ~DumpBrokerCpuStub() = default;
 public:
     int OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+private:
+    int DumpCpuUsageOnly(MessageParcel& data, MessageParcel& reply);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

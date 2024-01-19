@@ -80,7 +80,7 @@ private:
 // PipeReader
 class PipeReader {
 public:
-    PipeReader(int Id, StringMatrix Data) : id_(Id), spData_(Data)
+    PipeReader(int id, StringMatrix data) : id_(id), spData_(data)
     {
         fds_[PIPE_READ] = PIPE_INIT;
         fds_[PIPE_WRITE] = PIPE_INIT;
@@ -119,6 +119,7 @@ public:
             }
         }
         fclose(fp);
+        fp = nullptr;
     }
 
 private:

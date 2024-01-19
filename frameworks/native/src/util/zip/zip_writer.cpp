@@ -21,8 +21,8 @@ namespace OHOS {
 namespace HiviewDFX {
 namespace {
 static const int PROCENT100 = 100;
-static const int kZipBufSize = 8192;
-static const int kBaseYear = 1900;
+static const int ZIP_BUF_SIZE = 8192;
+static const int BASE_YEAR = 1900;
 static const uLong LANGUAGE_ENCODING_FLAG = 0x1 << 11;
 } // namespace
 
@@ -138,7 +138,7 @@ bool ZipWriter::SetTimeToZipFileInfo(zip_fileinfo &zipInfo)
         return false;
     }
 
-    zipInfo.tmz_date.tm_year = static_cast<uInt>(localTime.tm_year + kBaseYear);
+    zipInfo.tmz_date.tm_year = static_cast<uInt>(localTime.tm_year + BASE_YEAR);
     zipInfo.tmz_date.tm_mon = static_cast<uInt>(localTime.tm_mon);
     zipInfo.tmz_date.tm_mday = static_cast<uInt>(localTime.tm_mday);
     zipInfo.tmz_date.tm_hour = static_cast<uInt>(localTime.tm_hour);
@@ -185,9 +185,9 @@ bool ZipWriter::AddFileContentToZip(zipFile zip_file, std::string &file_path)
     }
 
     bool ret = true;
-    char buf[kZipBufSize];
+    char buf[ZIP_BUF_SIZE];
     while (!feof(fp)) {
-        size_t readSum = fread(buf, 1, kZipBufSize, fp);
+        size_t readSum = fread(buf, 1, ZIP_BUF_SIZE, fp);
         if (readSum < 1) {
             continue;
         }

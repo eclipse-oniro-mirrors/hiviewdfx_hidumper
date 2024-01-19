@@ -53,6 +53,7 @@ void HiDumperManagerTest::TearDownTestCase(void)
 {
     if (g_fd != -1) {
         close(g_fd);
+        g_fd = -1;
     }
     unlink(g_fileName);
 }
