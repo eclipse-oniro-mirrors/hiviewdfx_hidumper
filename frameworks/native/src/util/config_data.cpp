@@ -38,7 +38,9 @@ const std::string ConfigData::CONFIG_GROUP_LOG_HILOG = ConfigData::CONFIG_GROUP_
 const std::string ConfigData::CONFIG_GROUP_LOG_INIT = ConfigData::CONFIG_GROUP_LOG_ + "init";
 const std::string ConfigData::CONFIG_GROUP_MEMORY = ConfigData::CONFIG_GROUP_ + "memory";
 const std::string ConfigData::CONFIG_GROUP_STORAGE = ConfigData::CONFIG_GROUP_ + "storage";
+const std::string ConfigData::CONFIG_GROUP_STORAGE_IO = ConfigData::CONFIG_GROUP_ + "storage io";
 const std::string ConfigData::CONFIG_GROUP_NET = ConfigData::CONFIG_GROUP_ + "net";
+const std::string ConfigData::CONFIG_GROUP_NET_TRAFFIC = ConfigData::CONFIG_GROUP_ + "net traffic";
 const std::string ConfigData::CONFIG_GROUP_SERVICE = ConfigData::CONFIG_GROUP_ + "service";
 const std::string ConfigData::CONFIG_GROUP_ABILITY = ConfigData::CONFIG_GROUP_ + "ability";
 const std::string ConfigData::CONFIG_GROUP_SYSTEM = ConfigData::CONFIG_GROUP_ + "system";
@@ -732,6 +734,28 @@ const ConfigData::ItemCfg ConfigData::testDumper_[] = {
     },
 };
 
+const ConfigData::ItemCfg ConfigData::ioDumper_[] = {
+    {
+        "dumper_io_info", "io information", "/proc/%pid/io", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::NONE,""
+    },
+    {
+        "", "", "", "",
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+};
+
+const ConfigData::ItemCfg ConfigData::trafficDumper_[] = {
+    {
+        "dumper_traffic", "Traffic Information", "%pid", "",
+        DumperConstant::TRAFFIC_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "", "",
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+};
+
 const ConfigData::DumperCfg ConfigData::dumpers_[] = {
     {.name_ = baseInfoDumper_[0].name_,
      .desc_ = baseInfoDumper_[0].desc_,
@@ -898,6 +922,14 @@ const ConfigData::DumperCfg ConfigData::dumpers_[] = {
      .desc_ = testDumper_[0].desc_,
      .list_ = testDumper_,
      .size_ = ARRAY_SIZE(testDumper_)},
+    {.name_ = ioDumper_[0].name_,
+     .desc_ = ioDumper_[0].desc_,
+     .list_ = ioDumper_,
+     .size_ = ARRAY_SIZE(ioDumper_)},
+    {.name_ = trafficDumper_[0].name_,
+     .desc_ = trafficDumper_[0].desc_,
+     .list_ = trafficDumper_,
+     .size_ = ARRAY_SIZE(trafficDumper_)},
 };
 
 const std::string ConfigData::cpuFreqGroup_[] = {
@@ -928,9 +960,17 @@ const std::string ConfigData::storageGroup_[] = {
     "dumper_storage_state", "dumper_block", "dumper_file", "dumper_top_io", "dumper_mounts",
 };
 
+const std::string ConfigData::storageIoGroup_[] = {
+    "dumper_io_info",
+};
+
 const std::string ConfigData::netGroup_[] = {
     "dumper_port",        "dumper_packet", "dumper_ip",       "dumper_ip_table",
     "dumper_route_table", "dumper_ipc",    "dumper_ip_rules",
+};
+
+const std::string ConfigData::netTrafficGroup_[] = {
+    "dumper_traffic",
 };
 
 const std::string ConfigData::serviceGroup_[] = {
@@ -1117,6 +1157,22 @@ const ConfigData::GroupCfg ConfigData::groups_[] = {
         .list_ = systemBaseGroup_,
         .size_ = ARRAY_SIZE(systemBaseGroup_),
         .type_ = DumperConstant::NONE,
+        .expand_ = false,
+    },
+    {
+        .name_ = ConfigData::CONFIG_GROUP_STORAGE_IO,
+        .desc_ = "group of io dumper",
+        .list_ = storageIoGroup_,
+        .size_ = ARRAY_SIZE(storageIoGroup_),
+        .type_ = DumperConstant::GROUPTYPE_PID,
+        .expand_ = false,
+    },
+    {
+        .name_ = ConfigData::CONFIG_GROUP_NET_TRAFFIC,
+        .desc_ = "group of traffic dumper",
+        .list_ = netTrafficGroup_,
+        .size_ = ARRAY_SIZE(netTrafficGroup_),
+        .type_ = DumperConstant::GROUPTYPE_PID,
         .expand_ = false,
     },
     {

@@ -46,7 +46,9 @@ void DumperOpts::Reset()
     isDumpMem_ = false;
     memPid_ = -1;
     isDumpStorage_ = false;
+    storagePid_ = -1;
     isDumpNet_ = false;
+    netPid_ = -1;
     isDumpList_ = false;
     isDumpService_ = false;
     isDumpSystemAbility_ = false;
@@ -77,7 +79,9 @@ DumperOpts& DumperOpts::operator = (const DumperOpts& opts)
     isDumpMem_ = opts.isDumpMem_;
     memPid_ = opts.memPid_;
     isDumpStorage_ = opts.isDumpStorage_;
+    storagePid_ = opts.storagePid_;
     isDumpNet_ = opts.isDumpNet_;
+    netPid_ = opts.netPid_;
     isDumpList_ = opts.isDumpList_;
     isDumpService_ = opts.isDumpService_;
     isDumpSystemAbility_ = opts.isDumpSystemAbility_;
@@ -195,6 +199,14 @@ bool DumperOpts::CheckOptions(std::string& errStr) const
     }
     if (limitSize_ < 1) {
         errStr = std::to_string(limitSize_);
+        return false;
+    }
+    if (storagePid_ < -1) {
+        errStr = std::to_string(storagePid_);
+        return false;
+    }
+    if (netPid_ < -1) {
+        errStr = std::to_string(netPid_);
         return false;
     }
     return true;

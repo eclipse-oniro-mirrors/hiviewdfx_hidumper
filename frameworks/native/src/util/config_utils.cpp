@@ -382,13 +382,24 @@ bool ConfigUtils::HandleDumpStorage(std::vector<std::shared_ptr<DumpCfg>> &dumpC
         return false;
     }
 
+    DUMPER_HILOGD(MODULE_COMMON, "debug|isDumpSystem=%{public}d, storagePid=%{public}d",
+        isDumpSystemSystem, dumperOpts.storagePid_);
+    if (isDumpSystemSystem && (dumperOpts.memPid_ < 0)) {
+        return false;
+    }
+
     DUMPER_HILOGD(MODULE_COMMON, "debug|storage");
     currentPidInfo_.Reset();
     currentPidInfos_.clear();
+    MergePidInfos(currentPidInfos_, dumperOpts.storagePid_);
 
     std::shared_ptr<OptionArgs> args;
-    GetConfig(CONFIG_GROUP_STORAGE, dumpCfgs, args);
-
+    if (dumperOpts.storagePid_ < 0) {
+        GetConfig(CONFIG_GROUP_STORAGE, dumpCfgs, args);
+    } else {
+        GetConfig(CONFIG_GROUP_STORAGE_IO, dumpCfgs, args);
+    }
+    
     currentPidInfos_.clear();
     currentPidInfo_.Reset();
     return true;
@@ -401,12 +412,22 @@ bool ConfigUtils::HandleDumpNet(std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs)
         return false;
     }
 
+    DUMPER_HILOGD(MODULE_COMMON, "debug|isDumpSystem=%{public}d, netPid=%{public}d",
+        isDumpSystemSystem, dumperOpts.netPid_);
+    if (isDumpSystemSystem && (dumperOpts.netPid_ < 0)) {
+        return false;
+    }
+
     DUMPER_HILOGD(MODULE_COMMON, "debug|net");
     currentPidInfo_.Reset();
     currentPidInfos_.clear();
+    MergePidInfos(currentPidInfos_, dumperOpts.netPid_);
 
     std::shared_ptr<OptionArgs> args;
-    GetConfig(CONFIG_GROUP_NET, dumpCfgs, args);
+    GetConfig(CONFIG_GROUP_NET_TRAFFIC, dumpCfgs, args);
+    if (dumperOpts.netPid_ < 0) {
+        GetConfig(CONFIG_GROUP_NET, dumpCfgs, args);
+    }
 
     currentPidInfos_.clear();
     currentPidInfo_.Reset();

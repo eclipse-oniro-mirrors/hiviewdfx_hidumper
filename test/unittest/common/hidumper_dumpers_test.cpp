@@ -22,6 +22,7 @@
 #include "executor/list_dumper.h"
 #include "executor/sa_dumper.h"
 #include "executor/version_dumper.h"
+#include "executor/traffic_dumper.h"
 #include "util/config_utils.h"
 #include "util/string_utils.h"
 #undef private
@@ -45,6 +46,7 @@ public:
     static void HandleDumperExcute(std::string dumperType);
     static void HandleCpuDumperTest(int pid);
     static void HandleMemoryDumperTest(int pid);
+    static void HandleTrafficDumperTest(int pid);
     static void GetDumperVariable();
 
 protected:
@@ -147,6 +149,20 @@ void HidumperDumpersTest::HandleMemoryDumperTest(int pid)
         res = memoryDumper->Execute();
     }
     ASSERT_EQ(res, DumpStatus::DUMP_OK);
+}
+
+void HidumperDumpersTest::HandleTrafficDumperTest(int pid)
+{
+    auto trafficDumper = std::make_shared<TrafficDumper>();
+    trafficDumper->pid_ = pid;
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    ASSERT_NE(dumpDatas, nullptr);
+    trafficDumper->result_ = dumpDatas;
+    DumpStatus ret = DumpStatus::DUMP_FAIL;
+    ret = trafficDumper->Execute();
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+    ret = trafficDumper->AfterExecute();
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
 
 void HidumperDumpersTest::HandleDumperComon(std::string dumperType)
@@ -385,6 +401,26 @@ HWTEST_F(HidumperDumpersTest, ListDumperTest002, TestSize.Level1)
 {
     g_config->target_ = ConfigUtils::STR_SYSTEM;
     HandleDumperExcute("ListDumper");
+}
+
+/**
+ * @tc.name: TrafficDumperTest001
+ * @tc.desc: Test TrafficDumper dump valid process traffic information.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, TrafficDumperTest001, TestSize.Level1)
+{
+    HandleTrafficDumperTest(1);
+}
+
+/**
+ * @tc.name: TrafficDumperTest002
+ * @tc.desc: Test TrafficDumper dump invalid process traffic information.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, TrafficDumperTest002, TestSize.Level1)
+{
+    HandleTrafficDumperTest(-1);
 }
 } // namespace HiviewDFX
 } // namespace OHOS

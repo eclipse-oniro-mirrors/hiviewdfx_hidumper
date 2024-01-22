@@ -47,6 +47,8 @@ public:
     static const std::string CONFIG_GROUP_SYSTEM_;
     static const std::string CONFIG_GROUP_SYSTEM_BASE;
     static const std::string CONFIG_GROUP_SYSTEM_SYSTEM;
+    static const std::string CONFIG_GROUP_STORAGE_IO;
+    static const std::string CONFIG_GROUP_NET_TRAFFIC;
     static const std::string CONFIG_GROUP_PROCESSES;
     static const std::string CONFIG_GROUP_PROCESSES_ENG;
     static const std::string CONFIG_GROUP_PROCESSES_PID;
@@ -127,6 +129,8 @@ private:
     static const ItemCfg blockDumper_[];
     static const ItemCfg fileDumper_[];
     static const ItemCfg topIoDumper_[];
+    static const ItemCfg ioDumper_[];
+    static const ItemCfg trafficDumper_[];
     static const ItemCfg mountsDumper_[];
     static const ItemCfg threadsDumper_[];
     static const ItemCfg threadsPidDumper_[];
@@ -152,7 +156,9 @@ private:
     static const std::string serviceGroup_[];
     static const std::string systemAbilityGroup_[];
     static const std::string systemBaseGroup_[];
+    static const std::string storageIoGroup_[];
     static const std::string systemSystemGroup_[];
+    static const std::string netTrafficGroup_[];
     static const std::string processesGroup_[];
     static const std::string processesGroup_eng_[];
     static const std::string processesPidGroup_[];

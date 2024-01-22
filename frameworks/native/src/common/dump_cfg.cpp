@@ -197,6 +197,8 @@ std::string DumpCfg::ToDumperStr(int type)
         return "mem_dumper";
     } else if (type == DumperConstant::STACK_DUMPER) {
         return "stack_dumper";
+    } else if (type == DumperConstant::TRAFFIC_DUMPER) {
+        return "traffic_dumper";
     }
     return "unknown_dumper";
 }
