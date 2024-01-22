@@ -16,6 +16,7 @@
 #include "dump_manager_cpu_client.h"
 #include "executor/memory/parse/parse_smaps_rollup_info.h"
 #include "executor/memory/memory_util.h"
+#include "executor/memory/dma_info.h"
 #include "hilog_wrapper.h"
 
 using namespace std;
@@ -63,6 +64,14 @@ float DumpUsage::GetCpuUsage(const int &pid)
     return static_cast<float>(cpuUsage);
 }
 
-
+uint64_t DumpUsage::GetDma(const int& pid)
+{
+    DmaInfo dmaInfo;
+    if (!dmaInfo.ParseDmaInfo()) {
+        DUMPER_HILOGE(MODULE_SERVICE, "Parse dma info error\n");
+        return 0;
+    }
+    return dmaInfo.GetDmaByPid(pid);
+}
 } // namespace HiviewDFX
 } // namespace OHOS
