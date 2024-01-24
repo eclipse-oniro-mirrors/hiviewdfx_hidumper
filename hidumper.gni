@@ -43,6 +43,7 @@ declare_args() {
   hidumper_ability_runtime_enable = true
   hidumper_graphic_enable = true
   hidumper_ablility_base_enable = false
+  hidumper_netmanager_base_enable = true
   if (!defined(global_parts_info.ability_ability_runtime)) {
     hidumper_ability_runtime_enable = false
   }
@@ -57,5 +58,8 @@ declare_args() {
   }
   if (defined(global_parts_info.ability_ability_base)) {
     hidumper_ablility_base_enable = true
+  }
+  if (!defined(global_parts_info.communication_netmanager_base)) {
+    hidumper_netmanager_base_enable = false
   }
 }

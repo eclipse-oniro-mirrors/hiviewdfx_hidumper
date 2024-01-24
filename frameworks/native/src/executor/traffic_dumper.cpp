@@ -14,7 +14,9 @@
  */
 
 #include "executor/traffic_dumper.h"
+#ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
 #include "net_stats_client.h"
+#endif
 #include "dump_common_utils.h"
 
 namespace OHOS {
@@ -52,27 +54,28 @@ void TrafficDumper::GetAllBytes()
 {
     DUMPER_HILOGD(MODULE_SERVICE, "debug|GetAllRxBytes.\n");
     uint64_t receivedStats = 0;
+#ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
     int32_t ret = DelayedSingleton<NetManagerStandard::NetStatsClient>::GetInstance()->GetAllRxBytes(receivedStats);
     if (ret != NetManagerStandard::NETMANAGER_SUCCESS) {
         DUMPER_HILOGE(MODULE_SERVICE, "GetAllRxBytes failed, ret:%{public}d.\n", ret);
         status_ = DumpStatus::DUMP_FAIL;
     }
+#endif
     std::vector<std::string> line_vector;
     line_vector.push_back(RECEIVED_BYTES + std::to_string(receivedStats));
     result_->push_back(line_vector);
-
+#ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
     uint64_t sendStats = 0;
     ret = DelayedSingleton<NetManagerStandard::NetStatsClient>::GetInstance()->GetAllTxBytes(sendStats);
     if (ret != NetManagerStandard::NETMANAGER_SUCCESS) {
         DUMPER_HILOGE(MODULE_SERVICE, "GetAllRxBytes failed, ret:%{public}d.\n", ret);
         status_ = DumpStatus::DUMP_FAIL;
     }
+#endif
     line_vector.clear();
     line_vector.push_back(SEND_BYTES + std::to_string(sendStats));
     result_->push_back(line_vector);
     status_ = DumpStatus::DUMP_OK;
-    DUMPER_HILOGD(MODULE_SERVICE, "debug|GetAllRxBytes end, rx:%{public}llu, rx:%{public}llu.\n",
-        receivedStats, sendStats);
 }
 
 void TrafficDumper::GetApplicationUidBytes()
@@ -87,6 +90,7 @@ void TrafficDumper::GetApplicationUidBytes()
         return;
     }
     uint64_t receivedStats = 0;
+#ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
     int32_t ret = DelayedSingleton<NetManagerStandard::NetStatsClient>::GetInstance()->GetUidRxBytes(
         receivedStats, static_cast<uint32_t>(currentPidInfo.uid_));
     if (ret != NetManagerStandard::NETMANAGER_SUCCESS) {
@@ -94,11 +98,13 @@ void TrafficDumper::GetApplicationUidBytes()
             ret, currentPidInfo.uid_);
         status_ = DumpStatus::DUMP_FAIL;
     }
+#endif
     std::vector<std::string> line_vector;
     line_vector.push_back(RECEIVED_BYTES + std::to_string(receivedStats));
     result_->push_back(line_vector);
 
     uint64_t sendStats = 0;
+#ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
     ret = DelayedSingleton<NetManagerStandard::NetStatsClient>::GetInstance()->GetUidTxBytes(
         sendStats, static_cast<uint32_t>(currentPidInfo.uid_));
     if (ret != NetManagerStandard::NETMANAGER_SUCCESS) {
@@ -106,12 +112,13 @@ void TrafficDumper::GetApplicationUidBytes()
             ret, currentPidInfo.uid_);
         status_ = DumpStatus::DUMP_FAIL;
     }
+#endif
     line_vector.clear();
     line_vector.push_back(SEND_BYTES + std::to_string(sendStats));
     result_->push_back(line_vector);
     status_ = DumpStatus::DUMP_OK;
-    DUMPER_HILOGD(MODULE_SERVICE, "debug|GetApplicationUidBytes end, pid:%{public}d, uid:%{public}d,\
-        rx:%{public}llu, rx:%{public}llu.\n", pid_, currentPidInfo.uid_, receivedStats, sendStats);
+    DUMPER_HILOGD(MODULE_SERVICE, "debug|GetApplicationUidBytes end, pid:%{public}d, uid:%{public}d.\n",
+        pid_, currentPidInfo.uid_);
 }
 }  // namespace HiviewDFX
 }  // namespace OHOS
