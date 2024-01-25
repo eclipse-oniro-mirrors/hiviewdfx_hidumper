@@ -216,6 +216,7 @@ inline const std::map<int, std::string> saNameMap_ = {
     { INTELL_VOICE_SERVICE_ID, "IntellVoiceService" },
     { FILE_ACCESS_SERVICE_ID, "FileAccessService" },
     { MSDP_USER_STATUS_SERVICE_ID, "UserStatusAwarenessService" },
+    { NEARLINK_HOST_SYS_ABILITY_ID, "NearLinkHost" },
 };
 
 namespace HiviewDFX {
