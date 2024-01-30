@@ -30,7 +30,7 @@ public:
 private:
     StringMatrix result_;
     DumpStatus status_ = DUMP_FAIL;
-    int pid_;
+    int pid_ = 0;
 
     void GetAllBytes();
     void GetApplicationUidBytes();
