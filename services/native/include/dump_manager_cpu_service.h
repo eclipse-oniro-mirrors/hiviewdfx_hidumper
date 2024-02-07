@@ -56,7 +56,7 @@ public:
 public:
     // Used for dump request
     int32_t Request(DumpCpuData &dumpCpuData) override;
-    int32_t GetCpuUsageByPid(int32_t pid, int &cpuUsage) override;
+    int32_t GetCpuUsageByPid(int32_t pid, double &cpuUsage) override;
     int32_t DumpCpuUsageData();
     void InitParam(DumpCpuData &dumpCpuData);
     void ResetParam();

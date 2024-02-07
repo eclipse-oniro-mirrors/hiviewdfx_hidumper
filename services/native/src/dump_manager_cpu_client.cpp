@@ -47,7 +47,7 @@ int32_t DumpManagerCpuClient::Request(DumpCpuData &dumpCpuData)
     return ret;
 }
 
-int32_t DumpManagerCpuClient::GetCpuUsageByPid(int32_t pid, int &cpuUsage)
+int32_t DumpManagerCpuClient::GetCpuUsageByPid(int32_t pid, double &cpuUsage)
 {
     if (Connect() != ERR_OK) {
         DUMPER_HILOGE(MODULE_CPU_CLIENT, "debug|cpu connect error");
