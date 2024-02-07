@@ -180,7 +180,6 @@ DumpStatus SADumper::GetData(const std::string &name, const sptr<ISystemAbilityM
 
 DumpStatus SADumper::Execute()
 {
-    DUMPER_HILOGI(MODULE_COMMON, "info|SADumper Execute");
     sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (sam == nullptr) {
         DUMPER_HILOGE(MODULE_SERVICE, "get samgr fail!");
@@ -195,7 +194,6 @@ DumpStatus SADumper::Execute()
             DUMPER_HILOGD(MODULE_SERVICE, "system ability:%{public}s execute fail!\n", names_[i].c_str());
         }
     }
-    DUMPER_HILOGI(MODULE_COMMON, "info|SADumper Execute end");
     return DumpStatus::DUMP_OK;
 }
 
