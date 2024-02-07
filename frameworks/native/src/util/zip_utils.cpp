@@ -29,7 +29,7 @@ bool ZipUtils::ZipFolder(const std::string &srcPath, const std::string &dstFile,
     DUMPER_HILOGD(MODULE_COMMON, "debug|srcFolder=[%{public}s]", srcFolder.c_str());
 
     if (!DumpUtils::DirectoryExists(srcFolder)) {
-        DUMPER_HILOGD(MODULE_COMMON, "leave|ret=false, srcFolder=[%{public}s]", srcFolder.c_str());
+        DUMPER_HILOGE(MODULE_COMMON, "leave|ret=false, srcFolder=[%{public}s]", srcFolder.c_str());
         return false;
     }
 
@@ -39,7 +39,7 @@ bool ZipUtils::ZipFolder(const std::string &srcPath, const std::string &dstFile,
     GetDirFiles(srcFolder, allFiles);
 
     if ((notify != nullptr) && (notify(UNSET_PROGRESS, UNSET_PROGRESS))) {
-        DUMPER_HILOGD(MODULE_COMMON, "leave|notify");
+        DUMPER_HILOGE(MODULE_COMMON, "leave|notify");
         return false;
     }
 

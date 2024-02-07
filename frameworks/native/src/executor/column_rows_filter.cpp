@@ -34,6 +34,7 @@ DumpStatus ColumnRowsFilter::PreExecute(const std::shared_ptr<DumperParameter>& 
 
 DumpStatus ColumnRowsFilter::Execute()
 {
+    DUMPER_HILOGI(MODULE_COMMON, "info|ColumnRowsFilter Execute");
     return DumpStatus::DUMP_OK;
 }
 

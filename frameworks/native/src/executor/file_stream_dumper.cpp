@@ -141,6 +141,7 @@ DumpStatus FileStreamDumper::ReadLineInFile()
 
 DumpStatus FileStreamDumper::Execute()
 {
+    DUMPER_HILOGI(MODULE_COMMON, "info|FileStreamDumper Execute");
     DumpStatus ret = DumpStatus::DUMP_OK;
     if (need_loop_) {
         // file dump one line
@@ -154,6 +155,7 @@ DumpStatus FileStreamDumper::Execute()
             ret = ReadLineInFile();
         } while (ret == DumpStatus::DUMP_MORE_DATA);
     }
+    DUMPER_HILOGI(MODULE_COMMON, "info|FileStreamDumper Execute end");
     return ret;
 }
 
