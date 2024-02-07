@@ -265,7 +265,7 @@ int DumpUtils::FdToRead(const std::string &file)
 {
     char path[PATH_MAX] = {0};
     if (realpath(file.c_str(), path) == nullptr) {
-        DUMPER_HILOGD(MODULE_COMMON, "realpath, no such file. path=[%{public}s], file=[%{public}s]",
+        DUMPER_HILOGE(MODULE_COMMON, "realpath, no such file. path=[%{public}s], file=[%{public}s]",
             path, file.c_str());
         return -1;
     }
@@ -277,7 +277,7 @@ int DumpUtils::FdToRead(const std::string &file)
 
     int fd = TEMP_FAILURE_RETRY(open(path, O_RDONLY | O_CLOEXEC | O_NONBLOCK));
     if (fd == -1) {
-        DUMPER_HILOGD(MODULE_COMMON, "open [%{public}s] %{public}s", path, ErrnoToMsg(errno).c_str());
+        DUMPER_HILOGE(MODULE_COMMON, "open [%{public}s] %{public}s", path, ErrnoToMsg(errno).c_str());
     }
     return fd;
 }
@@ -287,7 +287,7 @@ int DumpUtils::FdToWrite(const std::string &file)
     std::string split = "/";
     auto pos = file.find_last_of(split);
     if (pos == std::string::npos) {
-        DUMPER_HILOGD(MODULE_COMMON, "file path:[%{public}s] error", file.c_str());
+        DUMPER_HILOGE(MODULE_COMMON, "file path:[%{public}s] error", file.c_str());
         return -1;
     }
     std::string tempPath = file.substr(0, pos + 1);
@@ -299,7 +299,7 @@ int DumpUtils::FdToWrite(const std::string &file)
         int fd = TEMP_FAILURE_RETRY(open(fileName.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC | O_NOFOLLOW,
                                          S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH));
         if (fd == -1) {
-            DUMPER_HILOGD(MODULE_COMMON, "open [%{public}s] %{public}s",
+            DUMPER_HILOGE(MODULE_COMMON, "open [%{public}s] %{public}s",
                 fileName.c_str(), ErrnoToMsg(errno).c_str());
         }
         return fd;

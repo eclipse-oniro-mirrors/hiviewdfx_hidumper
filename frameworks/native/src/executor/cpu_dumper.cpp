@@ -32,7 +32,7 @@ CPUDumper::~CPUDumper()
 
 DumpStatus CPUDumper::PreExecute(const std::shared_ptr<DumperParameter> &parameter, StringMatrix dumpDatas)
 {
-    DUMPER_HILOGD(MODULE_COMMON, "debug|CPUDumper PreExecute");
+    DUMPER_HILOGI(MODULE_COMMON, "info|CPUDumper PreExecute");
     dumpCPUDatas_ = dumpDatas;
     isDumpCpuUsage_ = (parameter->GetOpts()).isDumpCpuUsage_;
     cpuUsagePid_ = (parameter->GetOpts()).cpuUsagePid_;
@@ -41,6 +41,7 @@ DumpStatus CPUDumper::PreExecute(const std::shared_ptr<DumperParameter> &paramet
 
 DumpStatus CPUDumper::Execute()
 {
+    DUMPER_HILOGI(MODULE_COMMON, "info|CPUDumper Execute");
     if (isDumpCpuUsage_) {
         auto& dumpManagerCpuClient = DumpManagerCpuClient::GetInstance();
         DumpCpuData dumpData = GetDumpCpuData();
@@ -57,6 +58,7 @@ DumpStatus CPUDumper::Execute()
     } else {
         return DumpStatus::DUMP_FAIL;
     }
+    DUMPER_HILOGI(MODULE_COMMON, "info|CPUDumper Execute end");
 }
 
 DumpStatus CPUDumper::AfterExecute()

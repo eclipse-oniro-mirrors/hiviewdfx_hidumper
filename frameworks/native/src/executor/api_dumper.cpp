@@ -39,6 +39,7 @@ DumpStatus APIDumper::PreExecute(const std::shared_ptr<DumperParameter>& paramet
 
 DumpStatus APIDumper::Execute()
 {
+    DUMPER_HILOGI(MODULE_COMMON, "info|APIDumper Execute");
     AddApiRetIntoResult(GetDisplayVersion(), "BuildId");
     AddApiRetIntoResult(GetOsReleaseType(), "RleaseType");
     AddApiRetIntoResult(GetVersionId(), "OsVersion");
@@ -63,6 +64,7 @@ DumpStatus APIDumper::Execute()
     AddApiRetIntoResult(GetBuildUser(), "BuildUser");
     AddApiRetIntoResult(GetBuildHost(), "BuildHost");
     AddApiRetIntoResult(GetBuildTime(), "BuildTime");
+    DUMPER_HILOGI(MODULE_COMMON, "info|APIDumper Execute end");
     return DumpStatus::DUMP_OK;
 }
 

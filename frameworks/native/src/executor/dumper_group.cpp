@@ -30,6 +30,7 @@ DumpStatus DumperGroup::PreExecute(const std::shared_ptr<DumperParameter>& param
 
 DumpStatus DumperGroup::Execute()
 {
+    DUMPER_HILOGI(MODULE_COMMON, "info|DumperGroup Execute");
     return DumpStatus::DUMP_OK;
 }
 
