@@ -54,11 +54,11 @@ DumpStatus FDOutput::PreExecute(const std::shared_ptr<DumperParameter>& paramete
 
 DumpStatus FDOutput::Execute()
 {
-    DUMPER_HILOGI(MODULE_COMMON, "info|FDOutput Execute");
     if ((ptrReqCtl_ != nullptr) && (dumpDatas_ != nullptr)) {
         OutMethod();
+    } else {
+        DUMPER_HILOGE(MODULE_COMMON, "FDOutput Execute failed");
     }
-    DUMPER_HILOGI(MODULE_COMMON, "info|FDOutput Execute end");
     return DumpStatus::DUMP_OK;
 }
 
