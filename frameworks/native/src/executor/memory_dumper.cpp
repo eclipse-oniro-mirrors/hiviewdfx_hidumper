@@ -43,7 +43,6 @@ DumpStatus MemoryDumper::PreExecute(const shared_ptr<DumperParameter> &parameter
 
 DumpStatus MemoryDumper::Execute()
 {
-    DUMPER_HILOGI(MODULE_COMMON, "info|MemoryDumper Execute");
     if (dumpDatas_ != nullptr && memoryInfo_ != nullptr) {
         if (pid_ >= 0) {
             if (isShowMaps_) {
@@ -61,7 +60,6 @@ DumpStatus MemoryDumper::Execute()
             status_ = memoryInfo_->GetMemoryInfoNoPid(dumpDatas_);
         }
     }
-    DUMPER_HILOGI(MODULE_COMMON, "info|MemoryDumper Execute end");
     return status_;
 }
 
