@@ -53,7 +53,7 @@ int32_t DumpBrokerCpuProxy::Request(DumpCpuData &dumpCpuData)
     return ret;
 }
 
-int32_t DumpBrokerCpuProxy::GetCpuUsageByPid(int32_t pid, int &cpuUsage)
+int32_t DumpBrokerCpuProxy::GetCpuUsageByPid(int32_t pid, double &cpuUsage)
 {
     int32_t ret = -1;
     sptr<IRemoteObject> remoteObject = Remote();
@@ -75,7 +75,7 @@ int32_t DumpBrokerCpuProxy::GetCpuUsageByPid(int32_t pid, int &cpuUsage)
         DUMPER_HILOGE(MODULE_CPU_SERVICE, "error|SendCpuRequest error code: %{public}d", res);
         return ret;
     }
-    if (!reply.ReadInt32(cpuUsage)) {
+    if (!reply.ReadDouble(cpuUsage)) {
         return ERROR_READ_PARCEL;
     }
     if (cpuUsage < 0) {
