@@ -55,13 +55,13 @@ uint64_t DumpUsage::GetSharedDirty(const int &pid)
     return GetMemInfo(pid, info) ? info.sharedDirty : 0;
 }
 
-float DumpUsage::GetCpuUsage(const int &pid)
+double DumpUsage::GetCpuUsage(const int &pid)
 {
-    int cpuUsage = 0;
+    double cpuUsage = 0.00;
     auto& dumpManagerCpuClient = DumpManagerCpuClient::GetInstance();
     dumpManagerCpuClient.GetCpuUsageByPid(pid, cpuUsage);
-    DUMPER_HILOGD(MODULE_CPU_SERVICE, "GetCpuUsage end, pid = %{public}d, cpuUsage = %{public}d", pid, cpuUsage);
-    return static_cast<float>(cpuUsage);
+    DUMPER_HILOGD(MODULE_CPU_SERVICE, "GetCpuUsage end, pid = %{public}d, cpuUsage = %{public}f", pid, cpuUsage);
+    return cpuUsage;
 }
 
 uint64_t DumpUsage::GetDma(const int& pid)
