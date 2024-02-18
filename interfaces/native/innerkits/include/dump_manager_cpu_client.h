@@ -29,7 +29,7 @@ public:
     DISALLOW_COPY_AND_MOVE(DumpManagerCpuClient);
 public:
     int32_t Request(DumpCpuData &dumpCpuData);
-    int32_t GetCpuUsageByPid(int32_t pid, int &cpuUsage);
+    int32_t GetCpuUsageByPid(int32_t pid, double &cpuUsage);
     // Used for connect to hidump cpu SA.
     ErrCode Connect();
     // Used for reset connect.

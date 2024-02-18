@@ -137,11 +137,10 @@ int DumpManagerCpuService::DumpCpuUsageData()
     return DumpStatus::DUMP_OK;
 }
 
-int DumpManagerCpuService::GetCpuUsageByPid(int32_t pid, int &cpuUsage)
+int DumpManagerCpuService::GetCpuUsageByPid(int32_t pid, double &cpuUsage)
 {
     static std::mutex mutex_;
     unique_lock<mutex> lock(mutex_);
-    cpuUsage = 0;
     if (g_collector == nullptr) {
         g_collector = OHOS::HiviewDFX::UCollectUtil::CpuCollector::Create();
     }
@@ -150,9 +149,9 @@ int DumpManagerCpuService::GetCpuUsageByPid(int32_t pid, int &cpuUsage)
         if (!GetSingleProcInfo(pid, singleProcInfo)) {
             return DumpStatus::DUMP_FAIL;
         }
-        cpuUsage = static_cast<int>(singleProcInfo->totalUsage);
+        cpuUsage = singleProcInfo->totalUsage / HUNDRED_PERCENT_VALUE;
     }
-    DUMPER_HILOGD(MODULE_CPU_SERVICE, "GetCpuUsageByPid end, pid = %{public}d, cpuUsage = %{public}d", pid, cpuUsage);
+    DUMPER_HILOGD(MODULE_CPU_SERVICE, "GetCpuUsageByPid end, pid = %{public}d, cpuUsage = %{public}f", pid, cpuUsage);
     return DumpStatus::DUMP_OK;
 }
 

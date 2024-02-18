@@ -71,9 +71,9 @@ int DumpBrokerCpuStub::DumpCpuUsageOnly(MessageParcel& data, MessageParcel& repl
     if (pid < 0) {
         return ERROR_READ_PARCEL;
     }
-    int32_t usage = 0;
+    double usage = 0.00;
     int32_t res = GetCpuUsageByPid(pid, usage);
-    if (!reply.WriteInt32(usage)) {
+    if (!reply.WriteDouble(usage)) {
         return ERROR_WRITE_PARCEL;
     }
     if (res != 0) {
