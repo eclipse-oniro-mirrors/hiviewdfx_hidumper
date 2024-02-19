@@ -43,14 +43,14 @@ bool ZipWriter::Open()
     DUMPER_HILOGD(MODULE_COMMON, "Open enter|zipFilePath=[%{public}s]", zipFilePath_.c_str());
 
     if (zipFilePath_.empty()) {
-        DUMPER_HILOGD(MODULE_COMMON, "Open leave|false, path is empty");
+        DUMPER_HILOGE(MODULE_COMMON, "Open leave|false, path is empty");
         return false;
     }
 
     DUMPER_HILOGD(MODULE_COMMON, "Open debug|");
     zipFile_ = OpenForZipping(zipFilePath_, APPEND_STATUS_CREATE);
     if (zipFile_ == nullptr) {
-        DUMPER_HILOGD(MODULE_COMMON, "Open leave|false, couldn't create ZIP file");
+        DUMPER_HILOGE(MODULE_COMMON, "Open leave|false, couldn't create ZIP file");
         return false;
     }
 
@@ -80,6 +80,7 @@ bool ZipWriter::Write(const std::vector<std::pair<std::string, std::string>> &zi
     DUMPER_HILOGD(MODULE_COMMON, "Write enter|");
 
     if (zipFile_ == nullptr) {
+        DUMPER_HILOGE(MODULE_COMMON, "Write failed, zipFile_ is nullptr");
         return false;
     }
 
@@ -233,14 +234,14 @@ bool ZipWriter::AddFileEntryToZip(zipFile zip_file, std::string &relativePath, s
         relativePath.c_str(), absolutePath.c_str());
 
     if (!OpenNewFileEntry(zip_file, relativePath)) {
-        DUMPER_HILOGD(MODULE_COMMON, "AddFileEntryToZip leave|false, open");
+        DUMPER_HILOGE(MODULE_COMMON, "AddFileEntryToZip leave|false, open");
         return false;
     }
 
     bool ret = AddFileContentToZip(zip_file, absolutePath);
 
     if (!CloseNewFileEntry(zip_file)) {
-        DUMPER_HILOGD(MODULE_COMMON, "AddFileEntryToZip leave|false, close");
+        DUMPER_HILOGE(MODULE_COMMON, "AddFileEntryToZip leave|false, close");
         return false;
     }
 

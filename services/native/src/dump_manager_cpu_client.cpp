@@ -40,7 +40,7 @@ DumpManagerCpuClient::~DumpManagerCpuClient()
 int32_t DumpManagerCpuClient::Request(DumpCpuData &dumpCpuData)
 {
     if (Connect() != ERR_OK) {
-        DUMPER_HILOGD(MODULE_CPU_CLIENT, "debug|cpu connect error");
+        DUMPER_HILOGE(MODULE_CPU_CLIENT, "debug|cpu connect error");
         return DumpStatus::DUMP_FAIL;
     }
     int32_t ret = proxy_->Request(dumpCpuData);
@@ -50,7 +50,7 @@ int32_t DumpManagerCpuClient::Request(DumpCpuData &dumpCpuData)
 int32_t DumpManagerCpuClient::GetCpuUsageByPid(int32_t pid, double &cpuUsage)
 {
     if (Connect() != ERR_OK) {
-        DUMPER_HILOGE(MODULE_CPU_CLIENT, "debug|cpu connect error");
+        DUMPER_HILOGE(MODULE_CPU_CLIENT, "cpu connect error");
         return DumpStatus::DUMP_FAIL;
     }
     int32_t ret = proxy_->GetCpuUsageByPid(pid, cpuUsage);
@@ -65,7 +65,7 @@ ErrCode DumpManagerCpuClient::Connect()
     }
     sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (sam == nullptr) {
-        DUMPER_HILOGI(MODULE_CPU_CLIENT, "sam is null");
+        DUMPER_HILOGE(MODULE_CPU_CLIENT, "sam is null");
         return ERROR_GET_SYSTEM_ABILITY_MANAGER;
     }
     sptr<IRemoteObject> remoteObject = sam->CheckSystemAbility(DFX_SYS_HIDUMPER_CPU_ABILITY_ID);

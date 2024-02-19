@@ -40,6 +40,7 @@ DumpStatus VersionDumper::PreExecute(const std::shared_ptr<DumperParameter>& par
 
 DumpStatus VersionDumper::Execute()
 {
+    DUMPER_HILOGI(MODULE_COMMON, "info|VersionDumper Execute");
     std::vector<std::string> line_vector;
     line_vector.push_back(VERSION_DUMPER_VERSION_STRING);
     result_->push_back(line_vector);

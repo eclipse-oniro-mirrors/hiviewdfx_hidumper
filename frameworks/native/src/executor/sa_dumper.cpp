@@ -153,26 +153,26 @@ DumpStatus SADumper::GetData(const std::string &name, const sptr<ISystemAbilityM
 {
     int id = DumpUtils::StrToId(name);
     if (id == -1) {
-        DUMPER_HILOGD(MODULE_SERVICE, "no such ability id '%{public}s'\n", name.c_str());
+        DUMPER_HILOGE(MODULE_SERVICE, "no such ability id '%{public}s'\n", name.c_str());
         return DumpStatus::DUMP_FAIL;
     }
     sptr<IRemoteObject> sa = sam->CheckSystemAbility(id);
     if (sa == nullptr) {
-        DUMPER_HILOGD(MODULE_SERVICE, "no such system ability %{public}s\n", name.c_str());
+        DUMPER_HILOGE(MODULE_SERVICE, "no such system ability %{public}s\n", name.c_str());
         return DumpStatus::DUMP_FAIL;
     }
     char line[LINE_LENGTH] = {};
     int ret = sprintf_s(line, sizeof(line), SEPARATOR_TEMPLATE,
                     DumpUtils::ConvertSaIdToSaName(name).c_str());
     if (ret < 0) {
-        DUMPER_HILOGD(MODULE_SERVICE, "print separator line fail!");
+        DUMPER_HILOGE(MODULE_SERVICE, "print separator line fail!");
         return DumpStatus::DUMP_FAIL;
     }
     MatrixWriter(result_).WriteLine(line);
     PipeReader reader(id, result_);
     reader.Run();
     if (sa->Dump(reader.GetWritePipe(), args_) != ERR_OK) {
-        DUMPER_HILOGD(MODULE_SERVICE, "system ability:%{public}s dump fail!\n", name.c_str());
+        DUMPER_HILOGE(MODULE_SERVICE, "system ability:%{public}s dump fail!\n", name.c_str());
     }
     reader.Stop();
     return DumpStatus::DUMP_OK;
@@ -182,7 +182,7 @@ DumpStatus SADumper::Execute()
 {
     sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (sam == nullptr) {
-        DUMPER_HILOGD(MODULE_SERVICE, "get samgr fail!");
+        DUMPER_HILOGE(MODULE_SERVICE, "get samgr fail!");
         return DumpStatus::DUMP_FAIL;
     }
     if (names_.empty()) {

@@ -56,6 +56,7 @@ DumpStatus ZipOutput::PreExecute(const std::shared_ptr<DumperParameter>& paramet
 
 DumpStatus ZipOutput::Execute()
 {
+    DUMPER_HILOGI(MODULE_COMMON, "info|ZipOutput Execute");
     if (!mDumpDatas_.get() || (fd_ < 0)) {
         return DumpStatus::DUMP_FAIL;
     }
@@ -99,6 +100,7 @@ DumpStatus ZipOutput::Execute()
     CompressAndWriteToFd();
     // clear dump data.
     mDumpDatas_->clear();
+    DUMPER_HILOGI(MODULE_COMMON, "info|ZipOutput Execute end");
     return DumpStatus::DUMP_OK;
 }
 

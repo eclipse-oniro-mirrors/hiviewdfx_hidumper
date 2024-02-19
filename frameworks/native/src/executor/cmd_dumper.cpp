@@ -73,6 +73,7 @@ DumpStatus CMDDumper::PreExecute(const std::shared_ptr<DumperParameter>& paramet
 
 DumpStatus CMDDumper::Execute()
 {
+    DUMPER_HILOGI(MODULE_COMMON, "info|CMDDumper Execute");
     DumpStatus ret = DumpStatus::DUMP_OK;
     if (needLoop_) {
         // cmd dump one line
@@ -86,6 +87,7 @@ DumpStatus CMDDumper::Execute()
             ret = ReadLineInCmd();
         } while (ret == DumpStatus::DUMP_MORE_DATA);
     }
+    DUMPER_HILOGI(MODULE_COMMON, "info|CMDDumper Execute end");
     return ret;
 }
 

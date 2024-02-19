@@ -73,6 +73,7 @@ DumpStatus ZipFolderOutput::PreExecute(const std::shared_ptr<DumperParameter>& p
 
 DumpStatus ZipFolderOutput::Execute()
 {
+    DUMPER_HILOGI(MODULE_COMMON, "info|ZipFolderOutput Execute");
     if ((dumpDatas_ == nullptr) || (fd_ < 0)) {
         DUMPER_HILOGE(MODULE_COMMON, "Execute error|dumpDatas or fd has issue");
         return DumpStatus::DUMP_FAIL;
@@ -98,7 +99,7 @@ DumpStatus ZipFolderOutput::Execute()
     SaveStringToFd(fd_, outstr);
 
     outstr.clear();
-
+    DUMPER_HILOGI(MODULE_COMMON, "info|ZipFolderOutput Execute end");
     return DumpStatus::DUMP_OK;
 }
 

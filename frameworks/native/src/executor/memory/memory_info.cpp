@@ -546,7 +546,7 @@ void MemoryInfo::GetNativeValue(const string& tag, const GroupMap& nativeGroupMa
 
     auto info = nativeGroupMap.find(tag);
     if (info == nativeGroupMap.end()) {
-        DUMPER_HILOGD(MODULE_SERVICE, "GetNativeValue fail! tag = %{public}s", tag.c_str());
+        DUMPER_HILOGE(MODULE_SERVICE, "GetNativeValue fail! tag = %{public}s", tag.c_str());
         return;
     }
     string nativeValue;
