@@ -137,7 +137,7 @@ bool ConfigUtils::MergePidInfos(std::vector<DumpCommonUtils::PidInfo> &pidInfos,
         currentPidInfo_.pid_ = pid;
         currentPidInfo_.uid_ = -1;
         DumpCommonUtils::GetPidInfos(pidInfos_);
-        DUMPER_HILOGD(MODULE_COMMON, "debug|pidInfos=%{public}zu", pidInfos_.size());
+        DUMPER_HILOGI(MODULE_COMMON, "info|pidInfos=%{public}zu", pidInfos_.size());
         pidInfos.assign(pidInfos_.begin(), pidInfos_.end());
     } else {
         if (DumpCommonUtils::GetProcessInfo(pid, currentPidInfo_)) {
@@ -776,7 +776,7 @@ bool ConfigUtils::CopySmaps()
 
     std::shared_ptr<RawParam> callback = dumperParam_->getClientCallback();
     if (callback == nullptr) {
-        DUMPER_HILOGD(MODULE_COMMON, "CopySmaps leave|callback");
+        DUMPER_HILOGE(MODULE_COMMON, "CopySmaps leave|callback");
         return false;
     }
 

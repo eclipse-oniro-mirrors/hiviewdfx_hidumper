@@ -39,9 +39,11 @@ DumpStatus TrafficDumper::PreExecute(const std::shared_ptr<DumperParameter> &par
 
 DumpStatus TrafficDumper::Execute()
 {
+    DUMPER_HILOGI(MODULE_COMMON, "info|TrafficDumper Execute");
     if (result_ != nullptr) {
         pid_ >= 0 ? GetApplicationUidBytes() : GetAllBytes();
     }
+    DUMPER_HILOGI(MODULE_COMMON, "info|TrafficDumper Execute end");
     return status_;
 }
 

@@ -134,7 +134,7 @@ ErrCode DumpManagerClient::OnDemandStart(sptr<ISystemAbilityManager> sam, sptr<I
     sptr<OnDemandLoadCallback> loadCallback = new OnDemandLoadCallback();
     int32_t result = sam->LoadSystemAbility(DFX_SYS_HIDUMPER_ABILITY_ID, loadCallback);
     if (result != ERR_OK) {
-        DUMPER_HILOGD(MODULE_CLIENT, "debug|systemAbilityId:%{public}d load failed, result code:%{public}d",
+        DUMPER_HILOGE(MODULE_CLIENT, "systemAbilityId:%{public}d load failed, result code:%{public}d",
             DFX_SYS_HIDUMPER_ABILITY_ID, result);
         return ERROR_GET_DUMPER_SERVICE;
     }

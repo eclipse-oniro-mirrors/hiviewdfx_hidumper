@@ -56,6 +56,8 @@ DumpStatus FDOutput::Execute()
 {
     if ((ptrReqCtl_ != nullptr) && (dumpDatas_ != nullptr)) {
         OutMethod();
+    } else {
+        DUMPER_HILOGE(MODULE_COMMON, "FDOutput Execute end");
     }
     return DumpStatus::DUMP_OK;
 }

@@ -44,6 +44,7 @@ DumpStatus ListDumper::PreExecute(const std::shared_ptr<DumperParameter>& parame
 
 DumpStatus ListDumper::Execute()
 {
+    DUMPER_HILOGI(MODULE_COMMON, "info|ListDumper Execute");
     std::string header;
     std::vector<std::string> list;
     if (target_ == ConfigUtils::STR_ABILITY) {
@@ -83,6 +84,7 @@ DumpStatus ListDumper::Execute()
         line_vector.clear();
         result_->push_back(line_vector);
     }
+    DUMPER_HILOGI(MODULE_COMMON, "info|ListDumper Execute end");
     return DumpStatus::DUMP_OK;
 }
 
