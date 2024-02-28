@@ -699,10 +699,7 @@ string MemoryInfo::GetProcessAdjLabel(const int32_t pid)
     if (!ret) {
         return adjLabel;
     }
-    auto it = Memory::ReclaimPriorityMapping.find(value);
-    if (it != Memory::ReclaimPriorityMapping.end()) {
-        adjLabel = it->second;
-    }
+    adjLabel = Memory::GetReclaimPriorityString(value);
     return adjLabel;
 }
 #endif
