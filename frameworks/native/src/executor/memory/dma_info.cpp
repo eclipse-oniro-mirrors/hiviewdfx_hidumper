@@ -47,16 +47,19 @@ void DmaInfo::CreateDmaInfo(const string &str)
         Total dmabuf size of render_service: 35520512 bytes
     */
     MemInfoData::DmaInfo dmaInfo;
-    if (sscanf_s(str.c_str(), "%*s %llu %*llu %llu %llu %*n %*s %*s %*s",
-                 &dmaInfo.pid, &dmaInfo.size, &dmaInfo.ino) == 0) {
+    char name[256] = {0};
+    if (sscanf_s(str.c_str(), "%255s %llu %*llu %llu %llu %*n %*s %*s %*s",
+                 name, sizeof(name), &dmaInfo.pid, &dmaInfo.size, &dmaInfo.ino) == 0) {
         return;
     }
+    dmaInfo.name = name;
     dmaInfo.size /= BYTE_PER_KB;
     auto it = dmaInfos_.find(dmaInfo.ino);
-    if (it != dmaInfos_.end()) {
-        it->second.pid = dmaInfo.pid;
-    } else {
+    if (it == dmaInfos_.end()) {
         dmaInfos_.insert(pair<uint64_t, MemInfoData::DmaInfo>(dmaInfo.ino, dmaInfo));
+    } else if ((dmaInfo.name != "composer_host" && dmaInfo.name != "render_service") ||
+               (dmaInfo.name == "render_service" && it->second.name == "composer_host")) {
+        it->second.pid = dmaInfo.pid;
     }
 }
 
