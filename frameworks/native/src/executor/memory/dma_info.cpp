@@ -47,7 +47,7 @@ void DmaInfo::CreateDmaInfo(const string &str)
         Total dmabuf size of render_service: 35520512 bytes
     */
     MemInfoData::DmaInfo dmaInfo;
-    char name[256] = {0};
+    char name[256] = {0}; // 256: max size of name
     if (sscanf_s(str.c_str(), "%255s %llu %*llu %llu %llu %*n %*s %*s %*s",
                  name, sizeof(name), &dmaInfo.pid, &dmaInfo.size, &dmaInfo.ino) == 0) {
         return;
