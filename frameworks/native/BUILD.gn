@@ -105,11 +105,11 @@ ohos_source_set("dump_main") {
     "eventhandler:libeventhandler",
     "hdf_core:libhdf_utils",
     "hilog:libhilog",
+    "hisysevent:libhisysevent",
     "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "hisysevent:libhisysevent",
   ]
   defines = []
   if (hidumper_graphic_enable) {

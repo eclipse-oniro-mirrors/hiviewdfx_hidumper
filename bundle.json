@@ -45,6 +45,9 @@
                 "zlib"
             ]
         },
+        "hisysevent_config": [
+            "//base/hiviewdfx/hidumper/hidumper.yaml"
+        ],
         "build": {
             "sub_component": [
                 "//base/hiviewdfx/hidumper:bin",
