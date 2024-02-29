@@ -109,6 +109,7 @@ ohos_source_set("dump_main") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "hisysevent:libhisysevent",
   ]
   defines = []
   if (hidumper_graphic_enable) {

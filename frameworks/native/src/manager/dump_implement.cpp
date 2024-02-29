@@ -40,6 +40,8 @@
 #include "securec.h"
 #include "parameters.h"
 #include "parameter.h"
+#include "hisysevent.h"
+
 namespace OHOS {
 namespace HiviewDFX {
 
@@ -123,6 +125,8 @@ DumpStatus DumpImplement::Main(int argc, char *argv[], const std::shared_ptr<Raw
 
 DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<DumperParameter> &dumpParameter)
 {
+    std::stringstream cmdSs;
+
     if (argc > ARG_MAX_COUNT) {
         LOG_ERR("too many arguments(%d), limit size %d.\n", argc, ARG_MAX_COUNT);
         return DumpStatus::DUMP_FAIL;
@@ -141,6 +145,7 @@ DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<Dumpe
             LOG_ERR("too long argument(%d), limit size %d.\n", i, SINGLE_ARG_MAXLEN);
             return DumpStatus::DUMP_FAIL;
         }
+        cmdSs << argv[i] << " ";
     }
     DumperOpts opts;
     DumpStatus status = CmdParseWithParameter(dumpParameter, argc, argv, opts);
@@ -163,6 +168,8 @@ DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<Dumpe
         dumpParameter->SetPid(clientPid);
     }
 
+    std::string cmdStr = cmdSs.str();
+    ReportHisysevent(opts, cmdStr.substr(0, cmdStr.length() - 1));
     dumpParameter->SetOpts(opts);
     return DumpStatus::DUMP_OK;
 }
@@ -690,6 +697,57 @@ void DumpImplement::RemoveDuplicateString(DumperOpts &opts_)
     DumpUtils::RemoveDuplicateString(opts_.logArgs_);       // remove duplicate log names
     DumpUtils::RemoveDuplicateString(opts_.systemArgs_);    // remove duplicate system names
     DumpUtils::RemoveDuplicateString(opts_.abilitieNames_); // remove duplicate ability names
+}
+
+std::string DumpImplement::TransferVectorToString(const std::vector<std::string>& vs)
+{
+    std::string outputStr;
+    std::stringstream ss;
+
+    for (auto& i : vs) {
+        ss << i << " ";
+    }
+    outputStr = ss.str();
+
+    return outputStr.substr(0, outputStr.length() - 1);
+}
+
+void DumpImplement::ReportHisysevent(const DumperOpts &opts_, const std::string &cmdStr)
+{
+    int ret = HiSysEventWrite(HiSysEvent::Domain::HIVIEWDFX, "HIDUMPER_USAGE",
+        OHOS::HiviewDFX::HiSysEvent::EventType::STATISTIC,
+        "ISDUMPCPUFREQ", opts_.isDumpCpuFreq_,
+        "ISDUMPCPUUSAGE", opts_.isDumpCpuUsage_,
+        "CPUUSAGEPID", opts_.cpuUsagePid_,
+        "ISDUMPLOG", opts_.isDumpLog_,
+        "LOGARGS", opts_.logArgs_,
+        "ISDUMPMEM", opts_.isDumpMem_,
+        "MEMPID", opts_.memPid_,
+        "ISDUMPSTORAGE", opts_.isDumpStorage_,
+        "STORAGEPID", opts_.storagePid_,
+        "ISDUMPNET", opts_.isDumpNet_,
+        "NETPID", opts_.netPid_,
+        "ISDUMPLIST", opts_.isDumpList_,
+        "ISDUMPSERVICE", opts_.isDumpService_,
+        "ISDUMPSYSTEMABILITY", opts_.isDumpSystemAbility_,
+        "ABILITIENAMES", TransferVectorToString(opts_.abilitieNames_),
+        "ABILITIEARGS", TransferVectorToString(opts_.abilitieArgs_),
+        "ISDUMPSYSTEM", opts_.isDumpSystem_,
+        "SYSTEMARGS", TransferVectorToString(opts_.systemArgs_),
+        "ISDUMPPROCESSES", opts_.isDumpProcesses_,
+        "PROCESSPID", opts_.processPid_,
+        "ISFAULTLOG", opts_.isFaultLog_,
+        "TIMEOUT", opts_.timeout_,
+        "LIMITSIZE", opts_.limitSize_,
+        "PATH", opts_.path_,
+        "ISAPPENDIX", opts_.isAppendix_,
+        "ISTEST", opts_.isTest_,
+        "ISSHOWSMAPS", opts_.isShowSmaps_,
+        "ISSHOWSMAPSINFO", opts_.isShowSmapsInfo_,
+        "FULLUSERINPUT", cmdStr);
+    if (ret != 0) {
+        DUMPER_HILOGE(MODULE_COMMON, "hisysevent report hidumper usage failed! ret %{public}d.", ret);
+    }
 }
 } // namespace HiviewDFX
 } // namespace OHOS
