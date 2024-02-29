@@ -31,6 +31,7 @@
 #include "factory/zip_output_factory.h"
 #include "factory/dumper_group_factory.h"
 #include "factory/memory_dumper_factory.h"
+#include "factory/jsheap_memory_dumper_factory.h"
 #include "factory/traffic_dumper_factory.h"
 #include "dump_utils.h"
 #include "string_ex.h"
@@ -74,6 +75,8 @@ void DumpImplement::AddExecutorFactoryToMap()
     ptrExecutorFactoryMap_->insert(std::make_pair(DumperConstant::GROUP, std::make_shared<DumperGroupFactory>()));
     ptrExecutorFactoryMap_->insert(
         std::make_pair(DumperConstant::MEMORY_DUMPER, std::make_shared<MemoryDumperFactory>()));
+    ptrExecutorFactoryMap_->insert(
+        std::make_pair(DumperConstant::JSHEAP_MEMORY_DUMPER, std::make_shared<JsHeapMemoryDumperFactory>()));
     ptrExecutorFactoryMap_->insert(
         std::make_pair(DumperConstant::TRAFFIC_DUMPER, std::make_shared<TrafficDumperFactory>()));
 }
@@ -183,7 +186,7 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
 {
     optind = 0; // reset getopt_long
     opterr = 0; // getopt not show error info
-    const char optStr[] = "-ht:lcsa:epv";
+    const char optStr[] = "-ht:lcsa:epvT:";
     bool loop = true;
     while (loop) {
         int optionIndex = 0;
@@ -195,6 +198,8 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
                                               {"zip", no_argument, 0, 0},
                                               {"test", no_argument, 0, 0},
                                               {"mem-smaps", required_argument, 0, 0},
+                                              {"mem-jsheap", required_argument, 0, 0},
+                                              {"gc", no_argument, 0, 0},
                                               {0, 0, 0, 0}};
         int c = getopt_long(argc, argv, optStr, longOptions, &optionIndex);
         if (c == -1) {
@@ -207,7 +212,9 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
             std::string debugMode = "0";
             debugMode = OHOS::system::GetParameter("const.debuggable", debugMode);
             std::string buildVersion = GetDisplayVersion();
-            if (opts_.isShowSmaps_ && debugMode == "0" && buildVersion.find("log") != std::string::npos) {
+            // release版本不执行
+            if ((opts_.isShowSmaps_ || opts_.isDumpJsHeapMem_) &&
+                (debugMode == "0") && (buildVersion.find("log") != std::string::npos)) {
                 break;
             }
             if (opts_.isShowSmaps_ && debugMode == "0") {
@@ -277,6 +284,8 @@ DumpStatus DumpImplement::SetCmdParameter(int argc, char *argv[], DumperOpts &op
             opts_.systemArgs_.push_back(argv[optind - 1]);
         } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "-p")) {
             status = SetCmdIntegerParameter(argv[optind - 1], opts_.processPid_);
+        } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "-T")) {
+            status = SetCmdIntegerParameter(argv[optind - 1], opts_.threadId_);
         } else if (IsSADumperOption(argv)) {
             opts_.abilitieNames_.push_back(argv[optind - 1]);
         } else {
@@ -340,6 +349,18 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts_, const 
         if (status != DumpStatus::DUMP_OK) {
             return status;
         }
+    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-jsheap")) {
+        opts_.isDumpJsHeapMem_ = true;
+        if (optarg != nullptr) {
+            return SetCmdIntegerParameter(optarg, opts_.dumpJsHeapMemPid_);
+        } else {
+            DUMPER_HILOGE(MODULE_COMMON, "mem-jsheap nullptr");
+            return DumpStatus::DUMP_FAIL;
+        }
+    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "gc")) {
+        opts_.isDumpJsHeapMemGC_ = true;
+    } else {
+        DUMPER_HILOGE(MODULE_COMMON, "ParseLongCmdOption %{public}s", longOptions[optionIndex].name);
     }
     return DumpStatus::DUMP_OK;
 }
@@ -432,7 +453,8 @@ void DumpImplement::CmdHelp()
         "  --mem [pid]                 |dump memory usage of total; dump memory usage of specified"
         " pid if pid was specified\n"
         "  --zip                       |compress output to /data/log/hidumper\n"
-        "  --mem-smaps pid [-v]        |display statistic in /proc/pid/smaps, use -v specify more details\n";
+        "  --mem-smaps pid [-v]        |display statistic in /proc/pid/smaps, use -v specify more details\n"
+        "  --mem-jsheap pid [-T tid] [--gc]  |triggerGC and dumpHeapSnapshot under pid and tid\n";
     if (ptrReqCtl_ == nullptr) {
         return;
     }
@@ -680,6 +702,10 @@ DumpStatus DumpImplement::CheckProcessAlive(const DumperOpts &opts_)
     }
     if ((opts_.netPid_ > -1) && !DumpUtils::CheckProcessAlive(opts_.netPid_)) {
         SendPidErrorMessage(opts_.netPid_);
+        return DumpStatus::DUMP_FAIL;
+    }
+    if ((opts_.dumpJsHeapMemPid_ > 0) && !DumpUtils::CheckProcessAlive(opts_.dumpJsHeapMemPid_)) {
+        SendPidErrorMessage(opts_.dumpJsHeapMemPid_);
         return DumpStatus::DUMP_FAIL;
     }
     return DumpStatus::DUMP_OK;

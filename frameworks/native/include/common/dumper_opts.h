@@ -47,6 +47,10 @@ struct DumperOpts {
     bool isTest_;
     bool isShowSmaps_;
     bool isShowSmapsInfo_;
+    bool isDumpJsHeapMem_;
+    bool isDumpJsHeapMemGC_;
+    int dumpJsHeapMemPid_;
+    int threadId_;
 public:
     DumperOpts();
     void Reset();
