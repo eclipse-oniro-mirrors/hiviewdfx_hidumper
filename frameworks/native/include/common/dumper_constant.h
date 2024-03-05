@@ -36,6 +36,7 @@ enum DumperConstant {
     VERSION_DUMPER,
     SA_DUMPER,
     MEMORY_DUMPER,
+    JSHEAP_MEMORY_DUMPER,
     STACK_DUMPER,
     TRAFFIC_DUMPER,
     DUMPER_END,   // dumper end
