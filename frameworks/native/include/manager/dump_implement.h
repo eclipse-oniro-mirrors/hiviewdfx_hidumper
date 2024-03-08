@@ -83,6 +83,8 @@ private:
     void RemoveDuplicateString(DumperOpts& opts_);
     void ReportCmdUsage(const DumperOpts &opts_, const std::string& cmdStr);
     std::string TransferVectorToString(const std::vector<std::string>& vs);
+    bool CheckAppDebugVersion(int pid);
+    bool CheckDumpPermission(DumperOpts &opt);
 
 private:
     using ExecutorFactoryMap = std::map<int, std::shared_ptr<ExecutorFactory>>;

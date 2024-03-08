@@ -75,6 +75,7 @@ public:
         uint64_t size;
         uint64_t ino;
         uint32_t pid;
+        std::string name;
     };
 
     struct GraphicsMemory {

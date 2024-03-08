@@ -31,6 +31,7 @@
 #include "factory/zip_output_factory.h"
 #include "factory/dumper_group_factory.h"
 #include "factory/memory_dumper_factory.h"
+#include "factory/jsheap_memory_dumper_factory.h"
 #include "factory/traffic_dumper_factory.h"
 #include "dump_utils.h"
 #include "string_ex.h"
@@ -41,6 +42,10 @@
 #include "parameters.h"
 #include "parameter.h"
 #include "hisysevent.h"
+#include "application_info.h"
+#include "bundle_mgr_proxy.h"
+#include "system_ability_definition.h"
+#include "file_ex.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -76,6 +81,8 @@ void DumpImplement::AddExecutorFactoryToMap()
     ptrExecutorFactoryMap_->insert(std::make_pair(DumperConstant::GROUP, std::make_shared<DumperGroupFactory>()));
     ptrExecutorFactoryMap_->insert(
         std::make_pair(DumperConstant::MEMORY_DUMPER, std::make_shared<MemoryDumperFactory>()));
+    ptrExecutorFactoryMap_->insert(
+        std::make_pair(DumperConstant::JSHEAP_MEMORY_DUMPER, std::make_shared<JsHeapMemoryDumperFactory>()));
     ptrExecutorFactoryMap_->insert(
         std::make_pair(DumperConstant::TRAFFIC_DUMPER, std::make_shared<TrafficDumperFactory>()));
 }
@@ -190,7 +197,7 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
 {
     optind = 0; // reset getopt_long
     opterr = 0; // getopt not show error info
-    const char optStr[] = "-ht:lcsa:epv";
+    const char optStr[] = "-ht:lcsa:epvT:";
     bool loop = true;
     while (loop) {
         int optionIndex = 0;
@@ -202,6 +209,8 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
                                               {"zip", no_argument, 0, 0},
                                               {"test", no_argument, 0, 0},
                                               {"mem-smaps", required_argument, 0, 0},
+                                              {"mem-jsheap", required_argument, 0, 0},
+                                              {"gc", no_argument, 0, 0},
                                               {0, 0, 0, 0}};
         int c = getopt_long(argc, argv, optStr, longOptions, &optionIndex);
         if (c == -1) {
@@ -210,16 +219,6 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
             DumpStatus status = ParseLongCmdOption(argc, opts_, longOptions, optionIndex, argv);
             if (status != DumpStatus::DUMP_OK) {
                 return status;
-            }
-            std::string debugMode = "0";
-            debugMode = OHOS::system::GetParameter("const.debuggable", debugMode);
-            std::string buildVersion = GetDisplayVersion();
-            if (opts_.isShowSmaps_ && debugMode == "0" && buildVersion.find("log") != std::string::npos) {
-                break;
-            }
-            if (opts_.isShowSmaps_ && debugMode == "0") {
-                CmdHelp();
-                return DumpStatus::DUMP_HELP;
             }
         } else if (c == 'h') {
             CmdHelp();
@@ -237,6 +236,10 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
     DumpStatus status = CheckProcessAlive(opts_);
     if (status != DumpStatus::DUMP_OK) {
         return status;
+    }
+    if (!CheckDumpPermission(opts_)) {
+        CmdHelp();
+        return DumpStatus::DUMP_HELP;
     }
     RemoveDuplicateString(opts_);
     return DumpStatus::DUMP_OK;
@@ -284,6 +287,8 @@ DumpStatus DumpImplement::SetCmdParameter(int argc, char *argv[], DumperOpts &op
             opts_.systemArgs_.push_back(argv[optind - 1]);
         } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "-p")) {
             status = SetCmdIntegerParameter(argv[optind - 1], opts_.processPid_);
+        } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "-T")) {
+            status = SetCmdIntegerParameter(argv[optind - 1], opts_.threadId_);
         } else if (IsSADumperOption(argv)) {
             opts_.abilitieNames_.push_back(argv[optind - 1]);
         } else {
@@ -347,6 +352,18 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts_, const 
         if (status != DumpStatus::DUMP_OK) {
             return status;
         }
+    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-jsheap")) {
+        opts_.isDumpJsHeapMem_ = true;
+        if (optarg != nullptr) {
+            return SetCmdIntegerParameter(optarg, opts_.dumpJsHeapMemPid_);
+        } else {
+            DUMPER_HILOGE(MODULE_COMMON, "mem-jsheap nullptr");
+            return DumpStatus::DUMP_FAIL;
+        }
+    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "gc")) {
+        opts_.isDumpJsHeapMemGC_ = true;
+    } else {
+        DUMPER_HILOGE(MODULE_COMMON, "ParseLongCmdOption %{public}s", longOptions[optionIndex].name);
     }
     return DumpStatus::DUMP_OK;
 }
@@ -439,7 +456,8 @@ void DumpImplement::CmdHelp()
         "  --mem [pid]                 |dump memory usage of total; dump memory usage of specified"
         " pid if pid was specified\n"
         "  --zip                       |compress output to /data/log/hidumper\n"
-        "  --mem-smaps pid [-v]        |display statistic in /proc/pid/smaps, use -v specify more details\n";
+        "  --mem-smaps pid [-v]        |display statistic in /proc/pid/smaps, use -v specify more details\n"
+        "  --mem-jsheap pid [-T tid] [--gc]  |triggerGC and dumpHeapSnapshot under pid and tid\n";
     if (ptrReqCtl_ == nullptr) {
         return;
     }
@@ -689,6 +707,10 @@ DumpStatus DumpImplement::CheckProcessAlive(const DumperOpts &opts_)
         SendPidErrorMessage(opts_.netPid_);
         return DumpStatus::DUMP_FAIL;
     }
+    if ((opts_.dumpJsHeapMemPid_ > 0) && !DumpUtils::CheckProcessAlive(opts_.dumpJsHeapMemPid_)) {
+        SendPidErrorMessage(opts_.dumpJsHeapMemPid_);
+        return DumpStatus::DUMP_FAIL;
+    }
     return DumpStatus::DUMP_OK;
 }
 
@@ -748,6 +770,71 @@ void DumpImplement::ReportCmdUsage(const DumperOpts &opts_, const std::string &c
     if (ret != 0) {
         DUMPER_HILOGE(MODULE_COMMON, "hisysevent report hidumper usage failed! ret %{public}d.", ret);
     }
+bool DumpImplement::CheckAppDebugVersion(int pid)
+{
+    if (pid <= 0) {
+        DUMPER_HILOGE(MODULE_COMMON, "AppDebugVersion pid %{public}d false", pid);
+        return false;
+    }
+    std::string bundleName;
+    std::string filePath = "/proc/" + std::to_string(pid) + "/cmdline";
+    if (!OHOS::LoadStringFromFile(filePath, bundleName)) {
+        DUMPER_HILOGE(MODULE_COMMON, "Get process name by pid %{public}d failed!", pid);
+        return false;
+    }
+    if (bundleName.empty()) {
+        DUMPER_HILOGE(MODULE_COMMON, "Pid %{public}d or process name is illegal!", pid);
+        return false;
+    }
+    std::string appName = bundleName.substr(0, strlen(bundleName.c_str()));
+    sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (sam == nullptr) {
+        DUMPER_HILOGE(MODULE_COMMON, "Pid %{public}d GetSystemAbilityManager", pid);
+        return false;
+    }
+    sptr<IRemoteObject> remoteObject = sam->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (remoteObject == nullptr) {
+        DUMPER_HILOGE(MODULE_COMMON, "Pid %{public}d Get BundleMgr SA failed!", pid);
+        return false;
+    }
+    sptr<AppExecFwk::BundleMgrProxy> proxy = iface_cast<AppExecFwk::BundleMgrProxy>(remoteObject);
+    AppExecFwk::ApplicationInfo appInfo;
+    bool ret = proxy->GetApplicationInfo(appName, AppExecFwk::GET_APPLICATION_INFO_WITH_DISABLE,
+                                         AppExecFwk::Constants::ANY_USERID, appInfo);
+    if (!ret) {
+        DUMPER_HILOGE(MODULE_COMMON, "Pid %{public}d %{public}s Get App info failed!", pid, appName.c_str());
+        return false;
+    }
+    DUMPER_HILOGD(MODULE_COMMON, "debug|pid %{public}d %{public}s DebugVersion %{public}d",
+        pid, appName.c_str(), appInfo.debug);
+    return appInfo.debug;
+}
+
+bool DumpImplement::CheckDumpPermission(DumperOpts &opt)
+{
+    std::string debugMode = "0";
+    debugMode = OHOS::system::GetParameter("const.debuggable", debugMode);
+    std::string buildVersion = GetDisplayVersion();
+    bool releaseVersion = false;
+    DUMPER_HILOGD(MODULE_COMMON, "debug|debugMode %{public}s version %{public}s",
+        debugMode.c_str(), buildVersion.c_str());
+    if ((debugMode == "0") && (buildVersion.find("log") == std::string::npos)) {
+        releaseVersion = true;
+    }
+    if (!releaseVersion) {
+        return true;
+    }
+    if (opt.isShowSmaps_) {
+        DUMPER_HILOGE(MODULE_COMMON, "ShowSmaps false debugMode %{public}s version %{public}s",
+            debugMode.c_str(), buildVersion.c_str());
+        return false;
+    }
+    if (opt.isDumpJsHeapMem_ && !CheckAppDebugVersion(opt.dumpJsHeapMemPid_)) {
+        DUMPER_HILOGE(MODULE_COMMON, "DumpJsHeapMem false debugMode %{public}s version %{public}s",
+            debugMode.c_str(), buildVersion.c_str());
+        return false;
+    }
+    return true;
 }
 } // namespace HiviewDFX
 } // namespace OHOS

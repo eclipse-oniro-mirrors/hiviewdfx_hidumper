@@ -24,6 +24,7 @@
             "components": [
                 "ability_base",
                 "access_token",
+                "bundle_framework",
                 "c_utils",
                 "eventhandler",
                 "hilog",

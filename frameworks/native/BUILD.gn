@@ -37,8 +37,10 @@ ohos_source_set("dump_main") {
     "src/executor/file_format_dump_filter.cpp",
     "src/executor/file_stream_dumper.cpp",
     "src/executor/hidumper_executor.cpp",
+    "src/executor/jsheap_memory_dumper.cpp",
     "src/executor/list_dumper.cpp",
     "src/executor/memory/dma_info.cpp",
+    "src/executor/memory/dump_jsheap_info.cpp",
     "src/executor/memory/get_cma_info.cpp",
     "src/executor/memory/get_hardware_info.cpp",
     "src/executor/memory/get_heap_info.cpp",
@@ -69,6 +71,7 @@ ohos_source_set("dump_main") {
     "src/factory/fd_output_factory.cpp",
     "src/factory/file_dumper_factory.cpp",
     "src/factory/file_format_dump_filter_factory.cpp",
+    "src/factory/jsheap_memory_dumper_factory.cpp",
     "src/factory/list_dumper_factory.cpp",
     "src/factory/memory_dumper_factory.cpp",
     "src/factory/properties_dumper_factory.cpp",
@@ -100,6 +103,8 @@ ohos_source_set("dump_main") {
   ]
 
   external_deps = [
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
     "eventhandler:libeventhandler",

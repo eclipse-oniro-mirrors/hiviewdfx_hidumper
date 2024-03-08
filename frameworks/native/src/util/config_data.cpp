@@ -29,6 +29,7 @@ const std::string ConfigData::CONFIG_DUMPER_LIST_ = ConfigData::CONFIG_DUMPER_LI
 const std::string ConfigData::CONFIG_DUMPER_LIST_SERVICE = ConfigData::CONFIG_DUMPER_LIST_ + "service";
 const std::string ConfigData::CONFIG_DUMPER_LIST_SYSTEM_ABILITY = ConfigData::CONFIG_DUMPER_LIST_ + "system_ability";
 const std::string ConfigData::CONFIG_DUMPER_LIST_SYSTEM = ConfigData::CONFIG_DUMPER_LIST_ + "system";
+const std::string ConfigData::CONFIG_DUMPER_JSHEAP_MEMORY = ConfigData::CONFIG_DUMPER_ + "jsheap_memory";
 const std::string ConfigData::CONFIG_GROUP_CPU_FREQ = ConfigData::CONFIG_GROUP_ + "cpufreq";
 const std::string ConfigData::CONFIG_GROUP_CPU_USAGE = ConfigData::CONFIG_GROUP_ + "cpuusage";
 const std::string ConfigData::CONFIG_GROUP_LOG = ConfigData::CONFIG_GROUP_ + "log";
@@ -167,6 +168,17 @@ const ConfigData::ItemCfg ConfigData::memDumper_[] = {
     {
         "dumper_mem", "Memory Information", "%pid", "",
         DumperConstant::MEMORY_DUMPER, DumperConstant::NONE, DumperConstant::LOOP, ""
+    },
+    {
+        "", "", "", "",
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::LOOP, ""
+    },
+};
+
+const ConfigData::ItemCfg ConfigData::jsHeapMemDumper_[] = {
+    {
+        CONFIG_DUMPER_JSHEAP_MEMORY, "jsheap Memory Information", "%pid", "",
+        DumperConstant::JSHEAP_MEMORY_DUMPER, DumperConstant::NONE, DumperConstant::LOOP, ""
     },
     {
         "", "", "", "",
@@ -789,8 +801,18 @@ const ConfigData::DumperCfg ConfigData::dumpers_[] = {
      .desc_ = cpuFreqDumper_[0].desc_,
      .list_ = cpuFreqDumper_,
      .size_ = ARRAY_SIZE(cpuFreqDumper_)},
-    {.name_ = memDumper_[0].name_, .desc_ = memDumper_[0].desc_, .list_ = memDumper_, .size_ = ARRAY_SIZE(memDumper_)},
-    {.name_ = envDumper_[0].name_, .desc_ = envDumper_[0].desc_, .list_ = envDumper_, .size_ = ARRAY_SIZE(envDumper_)},
+    {.name_ = memDumper_[0].name_,
+     .desc_ = memDumper_[0].desc_,
+     .list_ = memDumper_,
+     .size_ = ARRAY_SIZE(memDumper_)},
+    {.name_ = jsHeapMemDumper_[0].name_,
+     .desc_ = jsHeapMemDumper_[0].desc_,
+     .list_ = jsHeapMemDumper_,
+     .size_ = ARRAY_SIZE(jsHeapMemDumper_)},
+    {.name_ = envDumper_[0].name_,
+     .desc_ = envDumper_[0].desc_,
+     .list_ = envDumper_,
+     .size_ = ARRAY_SIZE(envDumper_)},
     {.name_ = kernelModuleDumper_[0].name_,
      .desc_ = kernelModuleDumper_[0].desc_,
      .list_ = kernelModuleDumper_,
