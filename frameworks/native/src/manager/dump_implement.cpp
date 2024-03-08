@@ -41,6 +41,11 @@
 #include "securec.h"
 #include "parameters.h"
 #include "parameter.h"
+#include "application_info.h"
+#include "bundle_mgr_proxy.h"
+#include "system_ability_definition.h"
+#include "file_ex.h"
+
 namespace OHOS {
 namespace HiviewDFX {
 
@@ -209,18 +214,6 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
             if (status != DumpStatus::DUMP_OK) {
                 return status;
             }
-            std::string debugMode = "0";
-            debugMode = OHOS::system::GetParameter("const.debuggable", debugMode);
-            std::string buildVersion = GetDisplayVersion();
-            // release版本不执行
-            if ((opts_.isShowSmaps_ || opts_.isDumpJsHeapMem_) &&
-                (debugMode == "0") && (buildVersion.find("log") != std::string::npos)) {
-                break;
-            }
-            if (opts_.isShowSmaps_ && debugMode == "0") {
-                CmdHelp();
-                return DumpStatus::DUMP_HELP;
-            }
         } else if (c == 'h') {
             CmdHelp();
             return DumpStatus::DUMP_HELP;
@@ -237,6 +230,10 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
     DumpStatus status = CheckProcessAlive(opts_);
     if (status != DumpStatus::DUMP_OK) {
         return status;
+    }
+    if (!CheckDumpPermission(opts_)) {
+        CmdHelp();
+        return DumpStatus::DUMP_HELP;
     }
     RemoveDuplicateString(opts_);
     return DumpStatus::DUMP_OK;
@@ -716,6 +713,73 @@ void DumpImplement::RemoveDuplicateString(DumperOpts &opts_)
     DumpUtils::RemoveDuplicateString(opts_.logArgs_);       // remove duplicate log names
     DumpUtils::RemoveDuplicateString(opts_.systemArgs_);    // remove duplicate system names
     DumpUtils::RemoveDuplicateString(opts_.abilitieNames_); // remove duplicate ability names
+}
+
+bool DumpImplement::CheckAppDebugVersion(int pid)
+{
+    if (pid <= 0) {
+        DUMPER_HILOGE(MODULE_COMMON, "AppDebugVersion pid %{public}d false", pid);
+        return false;
+    }
+    std::string bundleName;
+    std::string filePath = "/proc/" + std::to_string(pid) + "/cmdline";
+    if (!OHOS::LoadStringFromFile(filePath, bundleName)) {
+        DUMPER_HILOGE(MODULE_COMMON, "Get process name by pid %{public}d failed!", pid);
+        return false;
+    }
+    if (bundleName.empty()) {
+        DUMPER_HILOGE(MODULE_COMMON, "Pid %{public}d or process name is illegal!", pid);
+        return false;
+    }
+    std::string appName = bundleName.substr(0, strlen(bundleName.c_str()));
+    sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (sam == nullptr) {
+        DUMPER_HILOGE(MODULE_COMMON, "Pid %{public}d GetSystemAbilityManager", pid);
+        return false;
+    }
+    sptr<IRemoteObject> remoteObject = sam->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (remoteObject == nullptr) {
+        DUMPER_HILOGE(MODULE_COMMON, "Pid %{public}d Get BundleMgr SA failed!", pid);
+        return false;
+    }
+    sptr<AppExecFwk::BundleMgrProxy> proxy = iface_cast<AppExecFwk::BundleMgrProxy>(remoteObject);
+    AppExecFwk::ApplicationInfo appInfo;
+    bool ret = proxy->GetApplicationInfo(appName, AppExecFwk::GET_APPLICATION_INFO_WITH_DISABLE,
+                                         AppExecFwk::Constants::ANY_USERID, appInfo);
+    if (!ret) {
+        DUMPER_HILOGE(MODULE_COMMON, "Pid %{public}d %{public}s Get App info failed!", pid, appName.c_str());
+        return false;
+    }
+    DUMPER_HILOGD(MODULE_COMMON, "debug|pid %{public}d %{public}s DebugVersion %{public}d",
+        pid, appName.c_str(), appInfo.debug);
+    return appInfo.debug;
+}
+
+bool DumpImplement::CheckDumpPermission(DumperOpts &opt)
+{
+    std::string debugMode = "0";
+    debugMode = OHOS::system::GetParameter("const.debuggable", debugMode);
+    std::string buildVersion = GetDisplayVersion();
+    bool releaseVersion = false;
+    DUMPER_HILOGD(MODULE_COMMON, "debug|debugMode %{public}s version %{public}s",
+        debugMode.c_str(), buildVersion.c_str());
+    if ((debugMode == "0") && (buildVersion.find("log") == std::string::npos)) {
+        releaseVersion = true;
+    }
+    if (!releaseVersion) {
+        return true;
+    }
+    if (opt.isShowSmaps_) {
+        DUMPER_HILOGE(MODULE_COMMON, "ShowSmaps false debugMode %{public}s version %{public}s",
+            debugMode.c_str(), buildVersion.c_str());
+        return false;
+    }
+    if (opt.isDumpJsHeapMem_ && !CheckAppDebugVersion(opt.dumpJsHeapMemPid_)) {
+        DUMPER_HILOGE(MODULE_COMMON, "DumpJsHeapMem false debugMode %{public}s version %{public}s",
+            debugMode.c_str(), buildVersion.c_str());
+        return false;
+    }
+    return true;
 }
 } // namespace HiviewDFX
 } // namespace OHOS
