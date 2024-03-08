@@ -86,7 +86,7 @@ private:
         {"Perceived", {}}, {"Background", {}}, {"Undefined", {}},
     };
     std::vector<std::string> NATIVE_HEAP_TAG_ = {"heap", "jemalloc meta", "jemalloc heap",
-                                                 "brk heap","musl heap", "mmap heap"};
+                                                 "brk heap", "musl heap", "mmap heap"};
     DmaInfo dmaInfo_;
     void insertMemoryTitle(StringMatrix result);
     void BuildResult(const GroupMap &infos, StringMatrix result);
