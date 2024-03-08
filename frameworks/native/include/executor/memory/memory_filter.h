@@ -114,8 +114,7 @@ private:
     const std::map<std::string, std::string> heapBeginMap_ = {
         {"[heap]", "heap"}, {"[anon:native_heap:jemalloc meta", "jemalloc meta"},
         {"[anon:native_heap:jemalloc]", "jemalloc heap"}, {"[anon:native_heap:brk", "brk heap"},
-        {"[anon:native_heap:meta", "musl heap"},
-        {"[anon:native_heap:mmap", "mmap heap"},
+        {"[anon:native_heap:meta", "musl heap"}, {"[anon:native_heap:mmap", "mmap heap"},
     };
     const std::map<std::string, std::string> endMap_ = {
         {".so", ".so"}, {".so.1", ".so"}, {".ttf", ".ttf"},
