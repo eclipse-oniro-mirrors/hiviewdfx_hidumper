@@ -41,6 +41,7 @@
 #include "securec.h"
 #include "parameters.h"
 #include "parameter.h"
+#include "hisysevent.h"
 #include "application_info.h"
 #include "bundle_mgr_proxy.h"
 #include "system_ability_definition.h"
@@ -131,6 +132,8 @@ DumpStatus DumpImplement::Main(int argc, char *argv[], const std::shared_ptr<Raw
 
 DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<DumperParameter> &dumpParameter)
 {
+    std::stringstream dumpCmdSs;
+
     if (argc > ARG_MAX_COUNT) {
         LOG_ERR("too many arguments(%d), limit size %d.\n", argc, ARG_MAX_COUNT);
         return DumpStatus::DUMP_FAIL;
@@ -149,6 +152,7 @@ DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<Dumpe
             LOG_ERR("too long argument(%d), limit size %d.\n", i, SINGLE_ARG_MAXLEN);
             return DumpStatus::DUMP_FAIL;
         }
+        dumpCmdSs << argv[i] << " ";
     }
     DumperOpts opts;
     DumpStatus status = CmdParseWithParameter(dumpParameter, argc, argv, opts);
@@ -171,6 +175,8 @@ DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<Dumpe
         dumpParameter->SetPid(clientPid);
     }
 
+    std::string dumpCmdStr = dumpCmdSs.str();
+    ReportCmdUsage(opts, dumpCmdStr.substr(0, dumpCmdStr.length() - 1));
     dumpParameter->SetOpts(opts);
     return DumpStatus::DUMP_OK;
 }
@@ -713,6 +719,57 @@ void DumpImplement::RemoveDuplicateString(DumperOpts &opts_)
     DumpUtils::RemoveDuplicateString(opts_.logArgs_);       // remove duplicate log names
     DumpUtils::RemoveDuplicateString(opts_.systemArgs_);    // remove duplicate system names
     DumpUtils::RemoveDuplicateString(opts_.abilitieNames_); // remove duplicate ability names
+}
+
+std::string DumpImplement::TransferVectorToString(const std::vector<std::string>& vs)
+{
+    std::string outputStr;
+    std::stringstream ss;
+
+    for (auto& i : vs) {
+        ss << i << " ";
+    }
+    outputStr = ss.str();
+
+    return outputStr.substr(0, outputStr.length() - 1);
+}
+
+void DumpImplement::ReportCmdUsage(const DumperOpts &opts_, const std::string &cmdStr)
+{
+    int ret = HiSysEventWrite(HiSysEvent::Domain::HIDUMPER, "CMD_USAGE",
+        OHOS::HiviewDFX::HiSysEvent::EventType::STATISTIC,
+        "IS_DUMP_CPU_FREQ", opts_.isDumpCpuFreq_,
+        "IS_DUMP_CPU_USAGE", opts_.isDumpCpuUsage_,
+        "CPU_USAGE_PID", opts_.cpuUsagePid_,
+        "IS_DUMP_LOG", opts_.isDumpLog_,
+        "LOG_ARGS", opts_.logArgs_,
+        "IS_DUMP_MEM", opts_.isDumpMem_,
+        "MEM_PID", opts_.memPid_,
+        "IS_DUMP_STORAGE", opts_.isDumpStorage_,
+        "STORAGE_PID", opts_.storagePid_,
+        "IS_DUMP_NET", opts_.isDumpNet_,
+        "NET_PID", opts_.netPid_,
+        "IS_DUMP_LIST", opts_.isDumpList_,
+        "IS_DUMP_SERVICE", opts_.isDumpService_,
+        "IS_DUMP_SYSTEM_ABILITY", opts_.isDumpSystemAbility_,
+        "ABILITIE_NAMES", TransferVectorToString(opts_.abilitieNames_),
+        "ABILITIE_ARGS", TransferVectorToString(opts_.abilitieArgs_),
+        "IS_DUMP_SYSTEM", opts_.isDumpSystem_,
+        "SYSTEM_ARGS", TransferVectorToString(opts_.systemArgs_),
+        "IS_DUMP_PROCESSES", opts_.isDumpProcesses_,
+        "PROCESS_PID", opts_.processPid_,
+        "IS_FAULT_LOG", opts_.isFaultLog_,
+        "TIME_OUT", opts_.timeout_,
+        "LIMIT_SIZE", opts_.limitSize_,
+        "PATH", opts_.path_,
+        "IS_APPENDIX", opts_.isAppendix_,
+        "IS_TEST", opts_.isTest_,
+        "IS_SHOW_SMAPS", opts_.isShowSmaps_,
+        "IS_SHOW_SMAPS_INFO", opts_.isShowSmapsInfo_,
+        "CMD_USER_INPUT", cmdStr);
+    if (ret != 0) {
+        DUMPER_HILOGE(MODULE_COMMON, "hisysevent report hidumper usage failed! ret %{public}d.", ret);
+    }
 }
 
 bool DumpImplement::CheckAppDebugVersion(int pid)

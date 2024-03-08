@@ -39,12 +39,16 @@
                 "drivers_interface_memorytracker",
                 "hdf_core",
                 "ability_runtime",
-                "graphic_2d"
+                "graphic_2d",
+                "hisysevent"
             ],
             "third_party": [
                 "zlib"
             ]
         },
+        "hisysevent_config": [
+            "//base/hiviewdfx/hidumper/hidumper.yaml"
+        ],
         "build": {
             "sub_component": [
                 "//base/hiviewdfx/hidumper:bin",
