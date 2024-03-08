@@ -83,6 +83,11 @@ public:
         uint64_t graph;
     };
 
+    struct HiaiUserAllocatedMemInfo {
+        int pid;
+        int size;
+    };
+
 private:
 };
 } // namespace HiviewDFX

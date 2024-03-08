@@ -14,6 +14,7 @@
 */
 #include "executor/memory/memory_info.h"
 
+#include <dlfcn.h>
 #include <cinttypes>
 #include <fstream>
 #include <numeric>
@@ -51,10 +52,18 @@ using namespace OHOS::HDI::Memorytracker::V1_0;
 
 namespace OHOS {
 namespace HiviewDFX {
+#if defined(__LP64__)
+static const std::string LIB_PATH = "/vendor/lib64/libai_infra.so";
+#else
+static const std::string LIB_PATH = "/vendor/lib/libai_infra.so";
+#endif
 
 static string g_initProcessNSPid; //init process namespace pid
 static const std::string UNKNOWN_PROCESS = "unknown";
 static const std::string PRE_BLANK = "   ";
+constexpr int HIAI_MAX_QUERIED_USER_MEMINFO_LIMIT = 256;
+constexpr char HIAI_MEM_INFO_FN[] = "HIAI_Memory_QueryAllUserAllocatedMemInfo";
+using HiaiFunc = int (*)(MemInfoData::HiaiUserAllocatedMemInfo*, int, int*);
 
 MemoryInfo::MemoryInfo()
 {
@@ -305,6 +314,7 @@ bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
     GetNativeHeap(nativeGroupMap, result);
     GetPurgByPid(pid, result);
     GetDmaByPid(pid, result);
+    GetHiaiServerIon(pid, result);
     return true;
 }
 
@@ -589,6 +599,39 @@ void MemoryInfo::GetDmaByPid(const int32_t &pid, StringMatrix result)
     dma.push_back(dmaTitle);
     dma.push_back(AddKbUnit(dmaInfo_.GetDmaByPid(pid)));
     result->push_back(dma);
+}
+
+void MemoryInfo::GetHiaiServerIon(const int32_t &pid, StringMatrix result)
+{
+    if (GetProcName(pid) != "hiaiserver") {
+        return;
+    }
+    void *handle = dlopen(LIB_PATH.c_str(), RTLD_LAZY);
+    if (handle == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "fail to open %{public}s.", LIB_PATH.c_str());
+        return;
+    }
+    HiaiFunc pfn = reinterpret_cast<HiaiFunc>(dlsym(handle, HIAI_MEM_INFO_FN));
+    if (pfn == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "fail to dlsym %{public}s.", HIAI_MEM_INFO_FN);
+        dlclose(handle);
+        return;
+    }
+    MemInfoData::HiaiUserAllocatedMemInfo memInfos[HIAI_MAX_QUERIED_USER_MEMINFO_LIMIT] = {};
+
+    int realSize = 0;
+    pfn(memInfos, HIAI_MAX_QUERIED_USER_MEMINFO_LIMIT, &realSize);
+    if (realSize > 0) {
+        AddBlankLine(result);
+        vector<string> vecIon;
+        vecIon.push_back("HIAIServer ION:\n");
+        for (int i = 0; i < realSize; i++) {
+            vecIon.push_back(GetProcName(memInfos[i].pid) + "(" + to_string(memInfos[i].pid) + "):" +
+                             to_string(memInfos[i].size / BYTE_PER_KB) + " kB\n");
+        }
+        result->push_back(vecIon);
+    }
+    dlclose(handle);
 }
 
 void MemoryInfo::GetRamCategory(const GroupMap &smapsInfos, const ValueMap &meminfos, StringMatrix result)

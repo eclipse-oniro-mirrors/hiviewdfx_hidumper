@@ -105,6 +105,7 @@ private:
     void GetPurgTotal(const ValueMap &meminfo, StringMatrix result);
     void GetPurgByPid(const int32_t &pid, StringMatrix result);
     void GetDmaByPid(const int32_t &pid, StringMatrix result);
+    void GetHiaiServerIon(const int32_t &pid, StringMatrix result);
     void GetNativeHeap(const GroupMap& nativeGroupMap, StringMatrix result);
     void GetNativeValue(const std::string& tag, const GroupMap& nativeGroupMap, StringMatrix result);
     void GetRamCategory(const GroupMap &smapsinfos, const ValueMap &meminfos, StringMatrix result);
