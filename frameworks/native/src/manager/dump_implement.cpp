@@ -770,6 +770,8 @@ void DumpImplement::ReportCmdUsage(const DumperOpts &opts_, const std::string &c
     if (ret != 0) {
         DUMPER_HILOGE(MODULE_COMMON, "hisysevent report hidumper usage failed! ret %{public}d.", ret);
     }
+}
+
 bool DumpImplement::CheckAppDebugVersion(int pid)
 {
     if (pid <= 0) {
