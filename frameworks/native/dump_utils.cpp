@@ -219,6 +219,7 @@ inline const std::map<int, std::string> saNameMap_ = {
     { NEARLINK_HOST_SYS_ABILITY_ID, "NearLinkHost" },
     { ECOLOGICAL_RULE_MANAGER_SA_ID, "EcologicalRuleManager" },
     { ASSET_SERVICE_ID, "AssetService" },
+    { TEST_SERVER_SA_ID, "TestServer" },
 };
 
 namespace HiviewDFX {
