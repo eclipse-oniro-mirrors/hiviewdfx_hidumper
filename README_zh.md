@@ -174,6 +174,11 @@ hidumper可以为开发者导出系统当前基本信息，通过这些基本信
     hidumper --mem-smaps pid [-v]
     ```
 
+19. 运行  **hidumper --mem-jsheap pid [-T tid] [--gc]**  pid 必选参数。命令触发所有线程gc和快照导出。如果指定线程的tid，只触发该线程gc和快照导出；如果指定--gc，只触发gc不做快照导出。
+
+    ```
+    hidumper --mem-jsheap pid [-T tid] [--gc]
+    ```
 
 ## 相关仓<a name="section1371113476307"></a>
 

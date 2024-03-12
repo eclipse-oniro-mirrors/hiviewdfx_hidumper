@@ -170,6 +170,12 @@ The procedure is as follows:
     hidumper --zip
     ```
 
+19. run the **hidumper --mem-jsheap pid [-T tid] [--gc]** The pid parameter is mandatory.Run the following command to trigger all threads gc and export snapshot.If -T is specified, only the thread's GC and snapshot export will be triggered; If --gc is specified, only trigger GC without doing snapshot export.
+
+    ```
+    hidumper --mem-jsheap pid [-T tid] [--gc]
+    ```
+
 ## Repositories Involved<a name="section1371113476307"></a>
 
 [DFX Subsystem](https://gitee.com/openharmony/docs/blob/master/en/readme/dfx.md)
