@@ -97,10 +97,7 @@ ohos_source_set("dump_main") {
     ":hidumper_include",
   ]
 
-  deps = [
-    "${hidumper_utils_path}:utils",
-    "//third_party/zlib:shared_libz",
-  ]
+  deps = [ "${hidumper_utils_path}:utils" ]
 
   external_deps = [
     "bundle_framework:appexecfwk_base",
@@ -115,6 +112,7 @@ ohos_source_set("dump_main") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "zlib:shared_libz",
   ]
   defines = []
   if (hidumper_graphic_enable) {
