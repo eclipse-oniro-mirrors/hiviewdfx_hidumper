@@ -39,9 +39,7 @@
                 "hdf_core",
                 "ability_runtime",
                 "graphic_2d",
-                "hisysevent"
-            ],
-            "third_party": [
+                "hisysevent",
                 "zlib"
             ]
         },

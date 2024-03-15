@@ -124,7 +124,7 @@ ohos_source_set("zidl_cpu_service") {
   part_name = "${hidumper_part_name}"
 }
 
-ohos_source_set("hidumper_client") {
+ohos_shared_library("hidumper_client") {
   sources = [
     "native/src/dump_cpu_data.cpp",
     "native/src/dump_manager_client.cpp",
@@ -199,7 +199,7 @@ ohos_source_set("hidumperservice_source") {
   part_name = "${hidumper_part_name}"
 }
 
-ohos_source_set("hidumperservice_cpu_source") {
+ohos_shared_library("hidumperservice_cpu_source") {
   public_configs = [ ":dump_cpu_config" ]
   sources = [ "native/src/dump_manager_cpu_service.cpp" ]
 

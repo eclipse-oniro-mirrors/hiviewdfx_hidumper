@@ -15,7 +15,7 @@
 #ifndef SADUMPER_H
 #define SADUMPER_H
 #include <iservice_registry.h>
-#include "../include/executor/hidumper_executor.h"
+#include "hidumper_executor.h"
 
 namespace OHOS {
 namespace HiviewDFX {
