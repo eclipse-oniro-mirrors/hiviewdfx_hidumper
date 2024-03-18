@@ -37,6 +37,41 @@ static const std::string MEMINFO_HEAP_SIZE = "Heap_Size";
 static const std::string MEMINFO_HEAP_ALLOC = "Heap_Alloc";
 static const std::string MEMINFO_HEAP_FREE = "Heap_Free";
 static const std::string MEMINFO_DMA = "Dma";
+
+// system app
+constexpr int RECLAIM_PRIORITY_SYSTEM = -1000;
+//ondemand system app
+constexpr int RECLAIM_ONDEMAND_SYSTEM = -900;
+// persist(killable) system app
+constexpr int RECLAIM_PRIORITY_KILLABLE_SYSTEM = -800;
+// foreground process priority
+constexpr int RECLAIM_PRIORITY_FOREGROUND = 0;
+// visible process priority
+constexpr int RECLAIM_PRIORITY_VISIBLE = 1;
+// perceived suspend delay case
+constexpr int RECLAIM_PRIORITY_BG_SUSPEND_DELAY = 100;
+// perceived background process priority
+constexpr int RECLAIM_PRIORITY_BG_PERCEIVED = 200;
+// background and connected by distribute device
+constexpr int RECLAIM_PRIORITY_BG_DIST_DEVICE = 260;
+// background priority
+constexpr int RECLAIM_PRIORITY_BACKGROUND = 400;
+// unknown process priority
+constexpr int RECLAIM_PRIORITY_UNKNOWN = 1000;
+
+const std::map<int, std::string> ReclaimPriorityMapping = {
+    { RECLAIM_PRIORITY_SYSTEM, "System" },
+    { RECLAIM_ONDEMAND_SYSTEM, "OnDemand_system" },
+    { RECLAIM_PRIORITY_KILLABLE_SYSTEM, "Persistent" },
+    { RECLAIM_PRIORITY_FOREGROUND, "Foreground" },
+    { RECLAIM_PRIORITY_VISIBLE, "visible" },
+    { RECLAIM_PRIORITY_BG_SUSPEND_DELAY, "Suspend-delay" },
+    { RECLAIM_PRIORITY_BG_PERCEIVED, "Perceived" },
+    { RECLAIM_PRIORITY_BG_DIST_DEVICE, "Dist-device" },
+    { RECLAIM_PRIORITY_BACKGROUND, "Background" },
+};
+
+const std::string RECLAIM_PRIORITY_UNKNOWN_DESC = "Undefined";
 }
 class MemoryInfo {
 public:
@@ -114,13 +149,13 @@ private:
     void PairToStringMatrix(const std::string &titleStr, std::vector<std::pair<std::string, uint64_t>> &vec,
                             StringMatrix result);
     void AddMemByProcessTitle(StringMatrix result, std::string sortType);
+    
     static uint64_t GetVss(const int32_t &pid);
     static std::string GetProcName(const int32_t &pid);
     static std::string GetProcStatusName(const int32_t &pid);
     static uint64_t GetProcValue(const int32_t &pid, const std::string& key);
-#ifdef HIDUMPER_MEMMGR_ENABLE
     static std::string GetProcessAdjLabel(const int32_t pid);
-#endif
+    static std::string GetReclaimPriorityString(int32_t priority);
     static void InitMemInfo(MemInfoData::MemInfo &memInfo);
     static void InitMemUsage(MemInfoData::MemUsage &usage);
     void CalcGroup(const GroupMap &infos, StringMatrix result);
@@ -133,9 +168,7 @@ private:
     static bool IsRenderService(int32_t pid);
     static bool IsOHService(const int32_t &pid);
     static void GetNSPidByPid(const int32_t &pid, std::string &nsPid);
-#ifdef HIDUMPER_MEMMGR_ENABLE
     void GetMemoryByAdj(StringMatrix result);
-#endif
     void SetPss(MemInfoData::MemInfo &meminfo, uint64_t value);
     void SetSharedClean(MemInfoData::MemInfo &meminfo, uint64_t value);
     void SetSharedDirty(MemInfoData::MemInfo &meminfo, uint64_t value);

@@ -35,9 +35,6 @@
 #include "executor/memory/parse/parse_smaps_info.h"
 #include "hdf_base.h"
 #include "hilog_wrapper.h"
-#ifdef HIDUMPER_MEMMGR_ENABLE
-#include "mem_mgr_constant.h"
-#endif
 #include "securec.h"
 #include "string_ex.h"
 #include "util/string_utils.h"
@@ -726,12 +723,11 @@ uint64_t MemoryInfo::GetProcValue(const int32_t &pid, const string& key)
     return stoi(names[1].substr(0, names[1].size() - 3)); // 3: ' kB'
 }
 
-#ifdef HIDUMPER_MEMMGR_ENABLE
 string MemoryInfo::GetProcessAdjLabel(const int32_t pid)
 {
     string cmd = "cat /proc/" + to_string(pid) + "/oom_score_adj";
     vector<string> cmdResult;
-    string adjLabel = Memory::RECLAIM_PRIORITY_UNKNOWN_DESC;
+    string adjLabel = RECLAIM_PRIORITY_UNKNOWN_DESC;
     if (!MemoryUtil::GetInstance().RunCMD(cmd, cmdResult) || cmdResult.size() == 0) {
         DUMPER_HILOGE(MODULE_SERVICE, "GetProcessAdjLabel fail! pid = %{public}d", static_cast<int>(pid));
         return adjLabel;
@@ -742,10 +738,9 @@ string MemoryInfo::GetProcessAdjLabel(const int32_t pid)
     if (!ret) {
         return adjLabel;
     }
-    adjLabel = Memory::GetReclaimPriorityString(value);
+    adjLabel = GetReclaimPriorityString(value);
     return adjLabel;
 }
-#endif
 
 bool MemoryInfo::GetPids()
 {
@@ -813,9 +808,7 @@ bool MemoryInfo::GetMemByProcessPid(const int32_t &pid, const DmaInfo &dmaInfo, 
         usage.dma = dmaInfo.GetDmaByPid(pid);
         usage.name = GetProcName(pid);
         usage.pid = pid;
-#ifdef HIDUMPER_MEMMGR_ENABLE
         usage.adjLabel = GetProcessAdjLabel(pid);
-#endif
         success = true;
     }
 
@@ -1023,9 +1016,7 @@ DumpStatus MemoryInfo::DealResult(StringMatrix result)
 
     GetSortedMemoryInfoNoPid(result);
     AddBlankLine(result);
-#ifdef HIDUMPER_MEMMGR_ENABLE
     GetMemoryByAdj(result);
-#endif
     AddBlankLine(result);
 
     GroupMap smapsResult = fut_.get();
@@ -1075,7 +1066,6 @@ void MemoryInfo::GetSortedMemoryInfoNoPid(StringMatrix result)
     }
 }
 
-#ifdef HIDUMPER_MEMMGR_ENABLE
 void MemoryInfo::GetMemoryByAdj(StringMatrix result)
 {
     vector<string> title;
@@ -1083,10 +1073,10 @@ void MemoryInfo::GetMemoryByAdj(StringMatrix result)
     result->push_back(title);
 
     vector<string> reclaimPriority_;
-    for (auto reclaim : Memory::ReclaimPriorityMapping) {
+    for (auto reclaim : ReclaimPriorityMapping) {
         reclaimPriority_.push_back(reclaim.second);
     }
-    reclaimPriority_.push_back(Memory::RECLAIM_PRIORITY_UNKNOWN_DESC);
+    reclaimPriority_.push_back(RECLAIM_PRIORITY_UNKNOWN_DESC);
 
     for (const auto &adjLabel : reclaimPriority_) {
         vector<MemInfoData::MemUsage> memUsages = adjMemResult_[adjLabel];
@@ -1119,7 +1109,31 @@ void MemoryInfo::GetMemoryByAdj(StringMatrix result)
         }
     }
 }
-#endif
+
+std::string MemoryInfo::GetReclaimPriorityString(int32_t priority)
+{
+    if (priority < RECLAIM_PRIORITY_SYSTEM || priority > RECLAIM_PRIORITY_UNKNOWN) {
+        return RECLAIM_PRIORITY_UNKNOWN_DESC;
+    } else if (priority < RECLAIM_ONDEMAND_SYSTEM) {
+        return ReclaimPriorityMapping.at(RECLAIM_PRIORITY_SYSTEM);
+    } else if (priority < RECLAIM_PRIORITY_KILLABLE_SYSTEM) {
+        return ReclaimPriorityMapping.at(RECLAIM_ONDEMAND_SYSTEM);
+    } else if (priority < RECLAIM_PRIORITY_FOREGROUND) {
+        return ReclaimPriorityMapping.at(RECLAIM_PRIORITY_KILLABLE_SYSTEM);
+    } else if (priority < RECLAIM_PRIORITY_VISIBLE) {
+        return ReclaimPriorityMapping.at(RECLAIM_PRIORITY_FOREGROUND);
+    } else if (priority < RECLAIM_PRIORITY_BG_SUSPEND_DELAY) {
+        return ReclaimPriorityMapping.at(RECLAIM_PRIORITY_VISIBLE);
+    } else if (priority < RECLAIM_PRIORITY_BG_PERCEIVED) {
+        return ReclaimPriorityMapping.at(RECLAIM_PRIORITY_BG_SUSPEND_DELAY);
+    } else if (priority < RECLAIM_PRIORITY_BG_DIST_DEVICE) {
+        return ReclaimPriorityMapping.at(RECLAIM_PRIORITY_BG_PERCEIVED);
+    } else if (priority < RECLAIM_PRIORITY_BACKGROUND) {
+        return ReclaimPriorityMapping.at(RECLAIM_PRIORITY_BG_DIST_DEVICE);
+    } else {
+        return ReclaimPriorityMapping.at(RECLAIM_PRIORITY_BACKGROUND);
+    }
+}
 
 void MemoryInfo::SetPss(MemInfoData::MemInfo &meminfo, uint64_t value)
 {
