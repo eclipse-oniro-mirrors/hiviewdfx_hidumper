@@ -31,7 +31,6 @@
                 "hiview",
                 "init",
                 "ipc",
-                "memmgr",
                 "netmanager_base",
                 "safwk",
                 "samgr",
