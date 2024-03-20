@@ -17,6 +17,7 @@
 
 #include <string>
 #include <vector>
+#include <mutex>
 
 #include "common.h"
 #include "common/dumper_parameter.h"
@@ -54,6 +55,7 @@ private:
     std::vector<std::string> lineData_;
     std::shared_ptr<RawParam> ptrReqCtl_;
     static const mode_t OPEN_ARGV;
+    std::mutex mutex_;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

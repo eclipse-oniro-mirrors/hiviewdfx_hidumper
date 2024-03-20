@@ -15,6 +15,7 @@
 #ifndef SADUMPER_H
 #define SADUMPER_H
 #include <iservice_registry.h>
+#include <mutex>
 #include "hidumper_executor.h"
 
 namespace OHOS {
@@ -35,6 +36,7 @@ private:
     StringMatrix result_;
     StringVector names_;
     U16StringVector args_;
+    std::mutex mutex_;
 
     DumpStatus GetData(const std::string &name, const sptr<ISystemAbilityManager> &sam);
 };
