@@ -64,6 +64,7 @@ DumpStatus FDOutput::Execute()
 
 DumpStatus FDOutput::AfterExecute()
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     if (dumpDatas_ != nullptr) {
         dumpDatas_->clear();
     }
@@ -72,6 +73,7 @@ DumpStatus FDOutput::AfterExecute()
 
 void FDOutput::OutMethod()
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     for (size_t i = 0; i < dumpDatas_->size(); i++) {
         std::vector<std::string> line = dumpDatas_->at(i);
         for (size_t j = 0; j < line.size(); j++) {

@@ -168,6 +168,7 @@ DumpStatus SADumper::GetData(const std::string &name, const sptr<ISystemAbilityM
         DUMPER_HILOGE(MODULE_SERVICE, "print separator line fail!");
         return DumpStatus::DUMP_FAIL;
     }
+    std::lock_guard<std::mutex> lock(mutex_);
     MatrixWriter(result_).WriteLine(line);
     PipeReader reader(id, result_);
     reader.Run();
