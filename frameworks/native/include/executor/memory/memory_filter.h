@@ -94,7 +94,9 @@ public:
     const std::vector<std::string> CALC_TOTAL_SWAP_PSS_ = {"SwapPss"};
     const std::vector<std::string> CALC_KERNEL_USED_ = {"Shmem", "Slab", "VmallocUsed", "PageTables", "KernelStack"};
     const std::vector<std::string> CALC_FREE_ = {"MemFree"};
-    const std::vector<std::string> CALC_CACHED_ = {"Buffers", "Cached", "Mapped"};
+    const std::vector<std::string> CALC_CACHED_ = {"Buffers", "Cached", "Mapped", "KReclaimable", "SReclaimable"};
+    const std::vector<std::string> CALC_KRECL_ = {"KReclaimable"};
+    const std::vector<std::string> CALC_SRECL_ = {"SReclaimable"};
     const std::vector<std::string> CALC_TOTAL_ = {"MemTotal"};
     const std::vector<std::string> CALC_ZARM_TOTAL_;
     const std::vector<std::string> HAS_PID_ORDER_ = {"Pss", "Shared_Clean", "Shared_Dirty", "Private_Clean",
