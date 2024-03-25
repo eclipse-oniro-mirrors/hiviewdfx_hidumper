@@ -86,8 +86,7 @@ uint64_t GetRamInfo::GetCachedInfo(const ValueMap &infos) const
     uint64_t totalValue = GetValueMapValue(infos, MemoryFilter::GetInstance().CALC_CACHED_);
     uint64_t kReclaimable = GetKreclInfo(infos);
     if (kReclaimable != 0) {
-        uint64_t sReclaimable = GetSreclInfo(infos);
-        totalValue -= sReclaimable;
+        totalValue -= GetSreclInfo(infos);
     }
     uint64_t mapped = GetMappedInfo(infos);
     return totalValue > mapped ? totalValue - mapped : 0;
