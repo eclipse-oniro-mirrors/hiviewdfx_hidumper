@@ -51,6 +51,7 @@ private:
     uint64_t GetCachedInfo(const ValueMap &infos) const;
     uint64_t GetKreclInfo(const ValueMap &infos) const;
     uint64_t GetSreclInfo(const ValueMap &infos) const;
+    uint64_t GetMappedInfo(const ValueMap &infos) const;
     uint64_t GetTotalRam(const ValueMap &infos) const;
     uint64_t GetZramTotalInfo(const ValueMap &infos) const;
     uint64_t GetUsedRam(const GroupMap &smapsInfo, const ValueMap &meminfo, Ram &ram) const;

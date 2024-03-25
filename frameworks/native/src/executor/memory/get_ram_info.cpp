@@ -87,14 +87,21 @@ uint64_t GetRamInfo::GetCachedInfo(const ValueMap &infos) const
     uint64_t kReclaimable = GetKreclInfo(infos);
     if (kReclaimable != 0) {
         uint64_t sReclaimable = GetSreclInfo(infos);
-        totalValue = totalValue > sReclaimable ? totalValue - sReclaimable : 0;
+        totalValue -= sReclaimable;
     }
-    return totalValue;
+    uint64_t mapped = GetMappedInfo(infos);
+    return totalValue > mapped ? totalValue - mapped : 0;
 }
 
 uint64_t GetRamInfo::GetKreclInfo(const ValueMap &infos) const
 {
     uint64_t totalValue = GetValueMapValue(infos, MemoryFilter::GetInstance().CALC_KRECL_);
+    return totalValue;
+}
+
+uint64_t GetRamInfo::GetMappedInfo(const ValueMap &infos) const
+{
+    uint64_t totalValue = GetValueMapValue(infos, MemoryFilter::GetInstance().CALC_MAPPED_);
     return totalValue;
 }
 
