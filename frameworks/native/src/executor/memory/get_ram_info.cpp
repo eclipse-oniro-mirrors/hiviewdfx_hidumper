@@ -84,6 +84,29 @@ uint64_t GetRamInfo::GetKernelUsedInfo(const ValueMap &infos) const
 uint64_t GetRamInfo::GetCachedInfo(const ValueMap &infos) const
 {
     uint64_t totalValue = GetValueMapValue(infos, MemoryFilter::GetInstance().CALC_CACHED_);
+    uint64_t kReclaimable = GetKreclInfo(infos);
+    if (kReclaimable != 0) {
+        totalValue -= GetSreclInfo(infos);
+    }
+    uint64_t mapped = 0 - GetMappedInfo(infos);
+    return totalValue > mapped ? totalValue - mapped : 0;
+}
+
+uint64_t GetRamInfo::GetKreclInfo(const ValueMap &infos) const
+{
+    uint64_t totalValue = GetValueMapValue(infos, MemoryFilter::GetInstance().CALC_KRECL_);
+    return totalValue;
+}
+
+uint64_t GetRamInfo::GetMappedInfo(const ValueMap &infos) const
+{
+    uint64_t totalValue = GetValueMapValue(infos, MemoryFilter::GetInstance().CALC_MAPPED_);
+    return totalValue;
+}
+
+uint64_t GetRamInfo::GetSreclInfo(const ValueMap &infos) const
+{
+    uint64_t totalValue = GetValueMapValue(infos, MemoryFilter::GetInstance().CALC_SRECL_);
     return totalValue;
 }
 
