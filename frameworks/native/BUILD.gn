@@ -129,7 +129,7 @@ ohos_source_set("dump_main") {
   }
 
   if (hidumper_bundlemanager_framework_enable) {
-    external_deps += [ 
+    external_deps += [
       "bundle_framework:appexecfwk_base",
       "bundle_framework:appexecfwk_core",
     ]
