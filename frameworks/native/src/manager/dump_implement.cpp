@@ -815,7 +815,7 @@ bool DumpImplement::CheckAppDebugVersion(int pid)
     return appInfo.debug;
 #else
     DUMPER_HILOGD(MODULE_COMMON, "debug|pid %{public}d %{public}s DebugVersion false", pid, appName.c_str());
-    return appInfo.debug;
+    return false;
 #endif
 }
 
