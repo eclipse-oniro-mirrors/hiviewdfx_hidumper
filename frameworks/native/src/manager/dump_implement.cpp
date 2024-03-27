@@ -45,9 +45,9 @@
 #ifdef HIDUMPER_BUNDLEMANAGER_FRAMEWORK_ENABLE
 #include "application_info.h"
 #include "bundle_mgr_proxy.h"
+#endif
 #include "system_ability_definition.h"
 #include "file_ex.h"
-#endif
 
 namespace OHOS {
 namespace HiviewDFX {
