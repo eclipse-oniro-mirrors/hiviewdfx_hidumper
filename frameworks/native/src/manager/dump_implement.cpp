@@ -42,10 +42,12 @@
 #include "parameters.h"
 #include "parameter.h"
 #include "hisysevent.h"
+#ifdef HIDUMPER_BUNDLEMANAGER_FRAMEWORK_ENABLE
 #include "application_info.h"
 #include "bundle_mgr_proxy.h"
 #include "system_ability_definition.h"
 #include "file_ex.h"
+#endif
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -799,6 +801,7 @@ bool DumpImplement::CheckAppDebugVersion(int pid)
         DUMPER_HILOGE(MODULE_COMMON, "Pid %{public}d Get BundleMgr SA failed!", pid);
         return false;
     }
+#ifdef HIDUMPER_BUNDLEMANAGER_FRAMEWORK_ENABLE
     sptr<AppExecFwk::BundleMgrProxy> proxy = iface_cast<AppExecFwk::BundleMgrProxy>(remoteObject);
     AppExecFwk::ApplicationInfo appInfo;
     bool ret = proxy->GetApplicationInfo(appName, AppExecFwk::GET_APPLICATION_INFO_WITH_DISABLE,
@@ -810,6 +813,10 @@ bool DumpImplement::CheckAppDebugVersion(int pid)
     DUMPER_HILOGD(MODULE_COMMON, "debug|pid %{public}d %{public}s DebugVersion %{public}d",
         pid, appName.c_str(), appInfo.debug);
     return appInfo.debug;
+#else
+    DUMPER_HILOGD(MODULE_COMMON, "debug|pid %{public}d %{public}s DebugVersion false", pid, appName.c_str());
+    return appInfo.debug;
+#endif
 }
 
 bool DumpImplement::CheckDumpPermission(DumperOpts &opt)
