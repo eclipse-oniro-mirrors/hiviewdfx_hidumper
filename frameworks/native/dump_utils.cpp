@@ -220,6 +220,8 @@ inline const std::map<int, std::string> saNameMap_ = {
     { ECOLOGICAL_RULE_MANAGER_SA_ID, "EcologicalRuleManager" },
     { ASSET_SERVICE_ID, "AssetService" },
     { TEST_SERVER_SA_ID, "TestServer" },
+    { APP_DOMAIN_VERIFY_MANAGER_SA_ID, "AppDomainVerifyManager" },
+    { APP_DOMAIN_VERIFY_AGENT_SA_ID, "AppDomainVerifyAgent" },
 };
 
 namespace HiviewDFX {
