@@ -100,8 +100,6 @@ ohos_source_set("dump_main") {
   deps = [ "${hidumper_utils_path}:utils" ]
 
   external_deps = [
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
     "eventhandler:libeventhandler",
@@ -128,6 +126,14 @@ ohos_source_set("dump_main") {
   if (hidumper_netmanager_base_enable) {
     external_deps += [ "netmanager_base:net_stats_manager_if" ]
     defines += [ "HIDUMPER_NETMANAGER_BASE_ENABLE" ]
+  }
+
+  if (hidumper_bundlemanager_framework_enable) {
+    external_deps += [
+      "bundle_framework:appexecfwk_base",
+      "bundle_framework:appexecfwk_core",
+    ]
+    defines += [ "HIDUMPER_BUNDLEMANAGER_FRAMEWORK_ENABLE" ]
   }
 
   subsystem_name = "hiviewdfx"
