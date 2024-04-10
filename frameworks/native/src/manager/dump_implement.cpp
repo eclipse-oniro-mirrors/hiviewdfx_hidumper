@@ -41,7 +41,9 @@
 #include "securec.h"
 #include "parameters.h"
 #include "parameter.h"
+#ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
 #include "hisysevent.h"
+#endif
 #ifdef HIDUMPER_BUNDLEMANAGER_FRAMEWORK_ENABLE
 #include "application_info.h"
 #include "bundle_mgr_proxy.h"
@@ -134,8 +136,9 @@ DumpStatus DumpImplement::Main(int argc, char *argv[], const std::shared_ptr<Raw
 
 DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<DumperParameter> &dumpParameter)
 {
+#ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
     std::stringstream dumpCmdSs;
-
+#endif
     if (argc > ARG_MAX_COUNT) {
         LOG_ERR("too many arguments(%d), limit size %d.\n", argc, ARG_MAX_COUNT);
         return DumpStatus::DUMP_FAIL;
@@ -154,15 +157,15 @@ DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<Dumpe
             LOG_ERR("too long argument(%d), limit size %d.\n", i, SINGLE_ARG_MAXLEN);
             return DumpStatus::DUMP_FAIL;
         }
+#ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
         dumpCmdSs << argv[i] << " ";
+#endif
     }
     DumperOpts opts;
     DumpStatus status = CmdParseWithParameter(dumpParameter, argc, argv, opts);
-    if (status != DumpStatus::DUMP_OK) {
+    if (status != DumpStatus::DUMP_OK)
         return status;
-    }
-    if (!opts.IsSelectAny()) {
-        // 注：hidumper不添加任何参数时，dump全部内容；IPC方式dump时，仅dump 当前进程的CPU和memory情况
+    if (!opts.IsSelectAny()) { // 注：hidumper不添加任何参数时，dump全部内容；IPC方式dump时，仅dump 当前进程的CPU和memory情况
         int clientPid = dumpParameter->GetPid(); // to be set value
         if (IsHidumperClientProcess(clientPid)) {
             opts.AddSelectAll();
@@ -176,9 +179,9 @@ DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<Dumpe
         }
         dumpParameter->SetPid(clientPid);
     }
-
-    std::string dumpCmdStr = dumpCmdSs.str();
-    ReportCmdUsage(opts, dumpCmdStr.substr(0, dumpCmdStr.length() - 1));
+#ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
+    ReportCmdUsage(opts, dumpCmdSs.str().substr(0, dumpCmdSs.str().length() - 1));
+#endif
     dumpParameter->SetOpts(opts);
     return DumpStatus::DUMP_OK;
 }
@@ -723,6 +726,7 @@ void DumpImplement::RemoveDuplicateString(DumperOpts &opts_)
     DumpUtils::RemoveDuplicateString(opts_.abilitieNames_); // remove duplicate ability names
 }
 
+#ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
 std::string DumpImplement::TransferVectorToString(const std::vector<std::string>& vs)
 {
     std::string outputStr;
@@ -773,6 +777,7 @@ void DumpImplement::ReportCmdUsage(const DumperOpts &opts_, const std::string &c
         DUMPER_HILOGE(MODULE_COMMON, "hisysevent report hidumper usage failed! ret %{public}d.", ret);
     }
 }
+#endif
 
 bool DumpImplement::CheckAppDebugVersion(int pid)
 {
