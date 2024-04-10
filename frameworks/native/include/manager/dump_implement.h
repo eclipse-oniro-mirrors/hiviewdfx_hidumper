@@ -81,8 +81,10 @@ private:
     bool IsSADumperOption(char* argv[]);
     DumpStatus CheckProcessAlive(const DumperOpts& opts_);
     void RemoveDuplicateString(DumperOpts& opts_);
+#ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
     void ReportCmdUsage(const DumperOpts &opts_, const std::string& cmdStr);
     std::string TransferVectorToString(const std::vector<std::string>& vs);
+#endif
     bool CheckAppDebugVersion(int pid);
     bool CheckDumpPermission(DumperOpts &opt);
 
