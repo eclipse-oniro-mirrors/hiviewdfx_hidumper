@@ -732,7 +732,7 @@ std::string DumpImplement::TransferVectorToString(const std::vector<std::string>
     std::string outputStr;
     std::stringstream ss;
 
-    for (auto& i : vs) {
+    for (const auto& i : vs) {
         ss << i << " ";
     }
     outputStr = ss.str();
