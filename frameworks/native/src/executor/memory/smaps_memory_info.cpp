@@ -45,6 +45,7 @@ namespace HiviewDFX {
 static constexpr int LINE_WIDTH = 12;
 static constexpr int LINE_NAME_VAL_WIDTH = 60;
 static constexpr int LINE_START_VAL_WIDTH = 18;
+static constexpr int LINE_NAME_V_WIDTH = 16;
 static constexpr size_t TYPE_SIZE = 2;
 static constexpr char BLANK = ' ';
 SmapsMemoryInfo::SmapsMemoryInfo()
@@ -99,7 +100,7 @@ void SmapsMemoryInfo::InsertSmapsTitle(StringMatrix result, bool isShowSmapsInfo
             line1.push_back(space);
             constexpr int LINE_NAME_KEY_WIDTH = 22;
             if (StringUtils::GetInstance().IsSameStr(title, "Name")) {
-                StringUtils::GetInstance().SetWidth(isShowSmapsInfo ? LINE_START_VAL_WIDTH : LINE_NAME_KEY_WIDTH,
+                StringUtils::GetInstance().SetWidth(isShowSmapsInfo ? LINE_NAME_V_WIDTH : LINE_NAME_KEY_WIDTH,
                     BLANK, false, title);
             } else {
                 StringUtils::GetInstance().SetWidth(StringUtils::GetInstance().IsSameStr(title, "Start") ?
@@ -150,8 +151,6 @@ void SmapsMemoryInfo::BuildSmapsResult(const GroupMap &infos, StringMatrix resul
             if (it != valueMap.end()) {
                 if (StringUtils::GetInstance().IsSameStr(tag, "Name")) {
                     value = info.first;
-                } else if (StringUtils::GetInstance().IsSameStr(tag, "Perm")) {
-                    value = MemoryUtil::GetInstance().PermToString(it->second);
                 } else {
                     value = to_string(it->second);
                 }
@@ -218,8 +217,8 @@ void SmapsMemoryInfo::CalcSmapsGroup(const GroupMap &infos, StringMatrix result,
     MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.swapPss), lines, values, true);
     if (!isShowSmapsInfo) {
         MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.counts), lines, values, true);
-        MemoryUtil::GetInstance().SetMemTotalValue("", lines, values, true);
     } else {
+        MemoryUtil::GetInstance().SetMemTotalValue("", lines, values, true);
         MemoryUtil::GetInstance().SetMemTotalValue("", lines, values, true);
         MemoryUtil::GetInstance().SetMemTotalValue("", lines, values, true);
     }
