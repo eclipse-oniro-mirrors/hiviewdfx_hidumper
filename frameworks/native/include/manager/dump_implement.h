@@ -77,7 +77,6 @@ private:
     DumpStatus ParseShortCmdOption(int c, DumperOpts& opts_, int argc, char* argv[]);
     void CheckIncorrectCmdOption(const char* optStr, char* argv[]);
     std::string RemoveCharacterFromStr(const std::string& str, const char character);
-    bool IsLongOption(const std::string& str, const struct option longOptions[], int size);
     bool IsSADumperOption(char* argv[]);
     DumpStatus CheckProcessAlive(const DumperOpts& opts_);
     void RemoveDuplicateString(DumperOpts& opts_);

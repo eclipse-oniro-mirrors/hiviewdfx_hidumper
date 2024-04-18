@@ -197,6 +197,7 @@ HWTEST_F(HidumperDumpersTest, FileDumperTest001, TestSize.Level3)
     g_config->loop_ = DumperConstant::LOOP;
     g_config->args_ = OptionArgs::Create();
     g_config->args_->SetPid(DEFAULT_PID, DEFAULT_UID);
+    g_config->args_->SetCpuId(0);
     HandleDumperComon("FileStreamDumper");
 }
 
@@ -227,6 +228,7 @@ HWTEST_F(HidumperDumpersTest, FileDumperTest005, TestSize.Level0)
     g_config->loop_ = DumperConstant::LOOP;
     g_config->args_ = OptionArgs::Create();
     g_config->args_->SetPid(DEFAULT_PID, DEFAULT_UID);
+    g_config->args_->SetCpuId(1);
     HandleDumperComon("FileStreamDumper");
 }
 
