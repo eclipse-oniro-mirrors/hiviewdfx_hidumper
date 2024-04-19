@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <fcntl.h>
 #include <gtest/gtest.h>
 #define private public
 #include "executor/memory_dumper.h"
@@ -19,6 +20,7 @@
 #include "executor/cmd_dumper.h"
 #include "executor/cpu_dumper.h"
 #include "executor/file_stream_dumper.h"
+#include "executor/ipc_stat_dumper.h"
 #include "executor/list_dumper.h"
 #include "executor/sa_dumper.h"
 #include "executor/version_dumper.h"
@@ -48,6 +50,7 @@ public:
     static void HandleMemoryDumperTest(int pid);
     static void HandleTrafficDumperTest(int pid);
     static void GetDumperVariable();
+    static void HandleIpcStatDumperTest(void);
 
 protected:
     static constexpr auto& FILE_CPUINFO = "/proc/cpuinfo";
@@ -182,6 +185,35 @@ void HidumperDumpersTest::HandleDumperComon(std::string dumperType)
         ret = dumper->DoAfterExecute();
         ASSERT_TRUE(ret == DumpStatus::DUMP_OK || ret == DumpStatus::DUMP_MORE_DATA) << "Execute failed.";
     }
+}
+
+void HidumperDumpersTest::HandleIpcStatDumperTest(void)
+{
+    auto parameter = std::make_shared<DumperParameter>();
+    std::vector<std::u16string> args;
+    DumperOpts opts;
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    auto ipcStatDumper = std::make_shared<IPCStatDumper>();
+
+    int fd = open("/dev/null", O_RDWR | O_CREAT | O_TRUNC, 0664);
+    if (fd <= 0) {
+        fd = STDERR_FILENO;
+    }
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, fd);
+
+    opts.isDumpIpc_ = true;
+    opts.isDumpAllIpc_ = true;
+    opts.isDumpIpcStartStat_ = true;
+    parameter->SetOpts(opts);
+    parameter->setClientCallback(rawParam);
+
+    DumpStatus ret = DumpStatus::DUMP_FAIL;
+    ret = ipcStatDumper->PreExecute(parameter, dumpDatas);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+    ret = ipcStatDumper->Execute();
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+    ret = ipcStatDumper->AfterExecute();
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
 
 /**
@@ -423,6 +455,16 @@ HWTEST_F(HidumperDumpersTest, TrafficDumperTest001, TestSize.Level1)
 HWTEST_F(HidumperDumpersTest, TrafficDumperTest002, TestSize.Level1)
 {
     HandleTrafficDumperTest(-1);
+}
+
+/**
+ * @tc.name: IpcStatDumperTest001
+ * @tc.desc: Test IpcDumper dump all processes.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, IpcStatDumperTest001, TestSize.Level1)
+{
+    HandleIpcStatDumperTest();
 }
 } // namespace HiviewDFX
 } // namespace OHOS

@@ -57,6 +57,7 @@ private:
     bool HandleDumpProcesses(std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs);
     bool HandleDumpFaultLog(std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs);
     bool HandleDumpAppendix(std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs);
+    bool HandleDumpIpcStat(std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs);
     bool CopySmaps();
     DumpStatus GetConfig(const std::string &name, std::vector<std::shared_ptr<DumpCfg>> &result,
         std::shared_ptr<OptionArgs> args);
