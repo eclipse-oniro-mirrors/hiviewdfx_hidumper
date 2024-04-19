@@ -32,12 +32,7 @@ DumpManagerClient::DumpManagerClient()
 
 DumpManagerClient::~DumpManagerClient()
 {
-    if (proxy_ != nullptr) {
-        auto remoteObject = proxy_->AsObject();
-        if (remoteObject != nullptr) {
-            remoteObject->RemoveDeathRecipient(deathRecipient_);
-        }
-    }
+    Reset();
 }
 
 int32_t DumpManagerClient::Request(std::vector<std::u16string> &args, int outfd)

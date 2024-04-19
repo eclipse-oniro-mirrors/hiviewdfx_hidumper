@@ -669,16 +669,6 @@ std::string DumpImplement::RemoveCharacterFromStr(const std::string &str, const 
     return strTmp;
 }
 
-bool DumpImplement::IsLongOption(const std::string &str, const struct option longOptions[], int size)
-{
-    for (int i = 0; i < (size - 1); i++) {
-        if (StringUtils::GetInstance().IsSameStr(str, longOptions[i].name)) {
-            return true;
-        }
-    }
-    return false;
-}
-
 bool DumpImplement::IsSADumperOption(char *argv[])
 {
     for (int i = optind - 2; i > 0; i--) {

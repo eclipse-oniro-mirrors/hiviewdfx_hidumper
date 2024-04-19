@@ -29,12 +29,7 @@ DumpManagerCpuClient::DumpManagerCpuClient()
 
 DumpManagerCpuClient::~DumpManagerCpuClient()
 {
-    if (proxy_ != nullptr) {
-        auto remoteObject = proxy_->AsObject();
-        if (remoteObject != nullptr) {
-            remoteObject->RemoveDeathRecipient(deathRecipient_);
-        }
-    }
+    Reset();
 }
 
 int32_t DumpManagerCpuClient::Request(DumpCpuData &dumpCpuData)

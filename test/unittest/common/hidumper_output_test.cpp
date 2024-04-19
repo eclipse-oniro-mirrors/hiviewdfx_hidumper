@@ -333,6 +333,45 @@ HWTEST_F(HidumperOutputTest, HidumperOutputTest008, TestSize.Level3)
 }
 
 /**
+ * @tc.name: HidumperOutputTest009
+ * @tc.desc: Test ZipOutpu with multibytes content.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperOutputTest, HidumperOutputTest009, TestSize.Level3)
+{
+    auto parameter = std::make_shared<DumperParameter>();
+    auto dump_datas = std::make_shared<std::vector<std::vector<std::string>>>();
+    auto zip_output = make_shared<ZipOutput>();
+
+    // multibytes content
+    {
+        std::string line_content;
+        for (int i = 0; i < 1025; i++) { // 1025: loop size
+            line_content += "HidumperOutputTest000008 big one";
+        }
+        std::vector<std::string> line_vector;
+        line_vector.push_back(line_content);
+        dump_datas->push_back(line_vector);
+    }
+
+    DumperOpts opts;
+    opts.path_ = FILE_ROOT + "GZ_HidumperOutputTest008.gz";
+    parameter->SetOpts(opts);
+
+    auto config = std::make_shared<DumpCfg>();
+    zip_output->SetDumpConfig(config);
+
+    DumpStatus ret = zip_output->PreExecute(parameter, dump_datas);
+    ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "PreExecute failed.";
+
+    ret = zip_output->Execute();
+    ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "Execute failed.";
+
+    ret = zip_output->AfterExecute();
+    ASSERT_TRUE(ret == DumpStatus::DUMP_OK) << "AfterExecute failed.";
+}
+
+/**
  * @tc.name: HidumperOutputTest007
  * @tc.desc: Test FdOutput.
  * @tc.type: FUNC
