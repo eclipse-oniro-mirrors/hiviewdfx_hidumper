@@ -180,7 +180,9 @@ DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<Dumpe
         dumpParameter->SetPid(clientPid);
     }
 #ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
-    ReportCmdUsage(opts, dumpCmdSs.str().substr(0, dumpCmdSs.str().length() - 1));
+    if (dumpCmdSs.str().length() > 0) {
+        ReportCmdUsage(opts, dumpCmdSs.str().substr(0, dumpCmdSs.str().length() - 1));
+    }
 #endif
     dumpParameter->SetOpts(opts);
     return DumpStatus::DUMP_OK;
@@ -736,7 +738,9 @@ std::string DumpImplement::TransferVectorToString(const std::vector<std::string>
         ss << i << " ";
     }
     outputStr = ss.str();
-
+    if (outputStr.empty()) {
+        return "";
+    }
     return outputStr.substr(0, outputStr.length() - 1);
 }
 

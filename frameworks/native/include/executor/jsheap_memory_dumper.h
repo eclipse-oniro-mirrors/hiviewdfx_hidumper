@@ -36,10 +36,10 @@ private:
     StringMatrix dumpDatas_;
     std::unique_ptr<DumpJsHeapInfo> jsHeapInfo_;
 
-    bool needSnapshot_;
-    bool needGc_;
-    uint32_t pid_;
-    uint32_t tid_;
+    bool needSnapshot_ = true;
+    bool needGc_ = true;
+    uint32_t pid_ = 0;
+    uint32_t tid_ = 0;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
