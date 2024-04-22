@@ -281,22 +281,20 @@ bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
 
     MemInfoData::GraphicsMemory graphicsMemory;
     MemoryUtil::GetInstance().InitGraphicsMemory(graphicsMemory);
-    if ((IsRenderService(pid))) {
-#ifdef HIDUMPER_GRAPHIC_ENABLE
-        GetMemGraphics();
-#endif
-        GetRenderServiceGraphics(pid, graphicsMemory);
-        graphicsMemory.gl -= g_sumPidsMemGL;
-    } else {
-        GetRenderServiceGraphics(pid, graphicsMemory);
-#ifdef HIDUMPER_GRAPHIC_ENABLE
-        auto& rsClient = Rosen::RSInterfaces::GetInstance();
-        unique_ptr<MemoryGraphic> memGraphic = make_unique<MemoryGraphic>(rsClient.GetMemoryGraphic(pid));
-        graphicsMemory.gl += memGraphic-> GetGpuMemorySize() / BYTE_PER_KB;
-#endif
-    }
     graphicsMemory.graph = dmaInfo_.GetDmaByPid(pid);
+    GetGraphicsMemory(pid, graphicsMemory);
+    SetGraphGroupMap(groupMap, graphicsMemory);
+    BuildResult(groupMap, result);
+    CalcGroup(groupMap, result);
+    GetNativeHeap(nativeGroupMap, result);
+    GetPurgByPid(pid, result);
+    GetDmaByPid(pid, result);
+    GetHiaiServerIon(pid, result);
+    return true;
+}
 
+void MemoryInfo::SetGraphGroupMap(GroupMap& groupMap, MemInfoData::GraphicsMemory &graphicsMemory)
+{
     map<string, uint64_t> valueMap;
     valueMap.insert(pair<string, uint64_t>("Pss", graphicsMemory.gl));
     valueMap.insert(pair<string, uint64_t>("Private_Dirty", graphicsMemory.gl));
@@ -305,14 +303,6 @@ bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
     valueMap.insert(pair<string, uint64_t>("Pss", graphicsMemory.graph));
     valueMap.insert(pair<string, uint64_t>("Private_Dirty", graphicsMemory.graph));
     groupMap.insert(pair<string, map<string, uint64_t>>("AnonPage # Graph", valueMap));
-
-    BuildResult(groupMap, result);
-    CalcGroup(groupMap, result);
-    GetNativeHeap(nativeGroupMap, result);
-    GetPurgByPid(pid, result);
-    GetDmaByPid(pid, result);
-    GetHiaiServerIon(pid, result);
-    return true;
 }
 
 string MemoryInfo::AddKbUnit(const uint64_t &value) const
@@ -779,13 +769,15 @@ bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &gra
         GetMemGraphics();
 #endif
         GetRenderServiceGraphics(pid, graphicsMemory);
-        graphicsMemory.gl -= g_sumPidsMemGL;
+        if (graphicsMemory.gl > g_sumPidsMemGL) {
+            graphicsMemory.gl -= g_sumPidsMemGL;
+        } else {
+            DUMPER_HILOGE(MODULE_SERVICE, "GL: %{public}d, sum pid GL: %{public}d",
+                static_cast<int>(graphicsMemory.gl), static_cast<int>(g_sumPidsMemGL));
+        }
     } else {
         GetRenderServiceGraphics(pid, graphicsMemory);
 #ifdef HIDUMPER_GRAPHIC_ENABLE
-        if (memGraphicVec_.empty()) {
-            return false;
-        }
         auto& rsClient = Rosen::RSInterfaces::GetInstance();
         unique_ptr<MemoryGraphic> memGraphic = make_unique<MemoryGraphic>(rsClient.GetMemoryGraphic(pid));
         graphicsMemory.gl += memGraphic-> GetGpuMemorySize() / BYTE_PER_KB;

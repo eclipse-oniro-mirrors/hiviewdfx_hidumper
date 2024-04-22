@@ -144,6 +144,7 @@ private:
     void GetNativeHeap(const GroupMap& nativeGroupMap, StringMatrix result);
     void GetNativeValue(const std::string& tag, const GroupMap& nativeGroupMap, StringMatrix result);
     void GetRamCategory(const GroupMap &smapsinfos, const ValueMap &meminfos, StringMatrix result);
+    void SetGraphGroupMap(GroupMap& groupMap, MemInfoData::GraphicsMemory &graphicsMemory);
     void AddBlankLine(StringMatrix result);
     void MemUsageToMatrix(const MemInfoData::MemUsage &memUsage, StringMatrix result);
     void PairToStringMatrix(const std::string &titleStr, std::vector<std::pair<std::string, uint64_t>> &vec,
