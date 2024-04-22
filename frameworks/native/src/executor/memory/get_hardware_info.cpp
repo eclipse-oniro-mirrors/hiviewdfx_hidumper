@@ -54,6 +54,9 @@ void GetHardwareInfo::GetResverRegPath(string &path)
     vector<string> strs;
     StringUtils::GetInstance().StringSplit(path, "/", strs);
     path = "";
+    if (strs.size() == 0) {
+        return;
+    }
     strs[strs.size() - 1] = "reg";
     for (size_t i = 0; i < strs.size(); i++) {
         path += "/";
@@ -134,6 +137,9 @@ uint64_t GetHardwareInfo::CalcHardware(const vector<string> &paths)
 void GetHardwareInfo::GetGroupOfPaths(const size_t &index, const size_t &size, const std::vector<std::string> &paths,
                                       std::vector<string> &groupPaths)
 {
+    if ((index + 1) * size <= 0) {
+        return;
+    }
     for (size_t i = index * size; i <= (index + 1) * size - 1; i++) {
         if (i <= paths.size() - 1) {
             groupPaths.push_back(paths.at(i));

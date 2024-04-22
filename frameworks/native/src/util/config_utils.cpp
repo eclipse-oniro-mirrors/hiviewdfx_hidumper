@@ -47,11 +47,11 @@ DumpStatus ConfigUtils::GetDumperConfigs(const std::shared_ptr<DumperParameter> 
     DUMPER_HILOGD(MODULE_COMMON, "enter|");
     DumpStatus ret = DumpStatus::DUMP_FAIL;
 
-    if (param != nullptr) {
-        ConfigUtils configUtils(param);
-        ret = configUtils.GetDumperConfigs();
+    if (param == nullptr) {
+        return ret;
     }
-
+    ConfigUtils configUtils(param);
+    ret = configUtils.GetDumperConfigs();
     if (ret == DumpStatus::DUMP_OK) {
         auto dumpCfgs = param->GetExecutorConfigList();
         for (size_t i = 0; i < dumpCfgs.size(); i++) {
