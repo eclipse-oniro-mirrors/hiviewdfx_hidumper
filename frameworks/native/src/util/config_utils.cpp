@@ -90,6 +90,7 @@ DumpStatus ConfigUtils::GetDumperConfigs()
     HandleDumpProcesses(dumpCfgs);
     HandleDumpFaultLog(dumpCfgs);
     HandleDumpAppendix(dumpCfgs);
+    HandleDumpIpcStat(dumpCfgs);
     DUMPER_HILOGD(MODULE_COMMON, "debug|dumpCfgs=%{public}zu", dumpCfgs.size());
     dumperParam_->SetExecutorConfigList(dumpCfgs);
     DUMPER_HILOGD(MODULE_COMMON, "leave|");
@@ -531,6 +532,25 @@ bool ConfigUtils::HandleDumpAppendix(std::vector<std::shared_ptr<DumpCfg>> &dump
     } else {
         DUMPER_HILOGE(MODULE_COMMON, "No permission to perform dump stack operation, uid=%{public}d", callingUid);
     }
+    currentPidInfos_.clear();
+    currentPidInfo_.Reset();
+    return true;
+}
+
+bool ConfigUtils::HandleDumpIpcStat(std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs)
+{
+    const DumperOpts &dumperOpts = dumperParam_->GetOpts();
+    if (!dumperOpts.isDumpIpc_) {
+        return false;
+    }
+
+    currentPidInfo_.Reset();
+    currentPidInfos_.clear();
+    MergePidInfos(currentPidInfos_, dumperOpts.ipcStatPid_);
+
+    std::shared_ptr<OptionArgs> args;
+    GetConfig(CONFIG_GROUP_IPC_STAT, dumpCfgs, args);
+
     currentPidInfos_.clear();
     currentPidInfo_.Reset();
     return true;

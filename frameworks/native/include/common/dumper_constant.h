@@ -39,6 +39,7 @@ enum DumperConstant {
     JSHEAP_MEMORY_DUMPER,
     STACK_DUMPER,
     TRAFFIC_DUMPER,
+    IPC_STAT_DUMPER,
     DUMPER_END,   // dumper end
     FILTER_BEGIN, // filter begin
     COLUMN_ROWS_FILTER,
