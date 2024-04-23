@@ -136,8 +136,6 @@ private:
     static const ItemCfg mountsDumper_[];
     static const ItemCfg threadsDumper_[];
     static const ItemCfg threadsPidDumper_[];
-    static const ItemCfg smapDumper_[];
-    static const ItemCfg mapDumper_[];
     static const ItemCfg blockChannelDumper_[];
     static const ItemCfg excuteTimeDumper_[];
     static const ItemCfg mountInfoDumper_[];
