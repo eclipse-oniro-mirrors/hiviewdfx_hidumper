@@ -18,7 +18,6 @@
 #include "dump_common_utils.h"
 #include "dump_utils.h"
 #include "parameter.h"
-#include "parameters.h"
 #include "common/dumper_constant.h"
 namespace OHOS {
 namespace HiviewDFX {
@@ -570,19 +569,11 @@ DumpStatus ConfigUtils::GetConfig(const std::string &name, std::vector<std::shar
     return ret;
 }
 
-bool ConfigUtils::commercialVersion_ =
-    OHOS::system::GetParameter("const.logsystem.versiontype", "unknown") == "commercial";
-
-bool ConfigUtils::GetCommercialVersion()
-{
-    return commercialVersion_;
-}
-
 DumpStatus ConfigUtils::GetDumper(int index, std::vector<std::shared_ptr<DumpCfg>> &result,
                                   std::shared_ptr<OptionArgs> args, int level)
 {
     if ((index < 0) || (index >= dumperSum_) ||
-        (ConfigUtils::GetCommercialVersion() && (index == SMAPS || index == MAPS))) {
+        ((index == SMAPS || index == MAPS) && DumpUtils::IsCommercialVersion())) {
         return DumpStatus::DUMP_INVALID_ARG;
     }
     auto itemlist = dumpers_[index].list_;

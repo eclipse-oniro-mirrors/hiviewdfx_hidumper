@@ -17,6 +17,7 @@
 #include <string>
 #include <vector>
 #include <unistd.h>
+#include "parameters.h"
 namespace OHOS {
 namespace HiviewDFX {
 #ifndef TEMP_FAILURE_RETRY
@@ -49,6 +50,7 @@ public:
     static bool DirectoryExists(const std::string &path);
     static bool PathIsValid(const std::string &path);
     static bool CopyFile(const std::string &src, const std::string &des);
+    static bool IsCommercialVersion();
 
     static constexpr int TOP_PRIORITY = -20;
     static constexpr int TOP_OOM_ADJ = -1000;

@@ -407,5 +407,10 @@ bool DumpUtils::CopyFile(const std::string &src, const std::string &des)
     fout.flush();
     return true;
 }
+
+bool DumpUtils::IsCommercialVersion()
+{
+    return OHOS::system::GetParameter("const.logsystem.versiontype", "unknown") == "commercial";;
+}
 } // namespace HiviewDFX
 } // namespace OHOS
