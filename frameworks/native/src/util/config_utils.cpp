@@ -18,6 +18,7 @@
 #include "dump_common_utils.h"
 #include "dump_utils.h"
 #include "parameter.h"
+#include "parameters.h"
 #include "common/dumper_constant.h"
 namespace OHOS {
 namespace HiviewDFX {
@@ -25,6 +26,8 @@ namespace {
 constexpr int ROOT_UID = 0;
 constexpr int BMS_UID = 1000;
 constexpr int APP_FIRST_UID = 10000;
+constexpr int SMAPS = 35;
+constexpr int MAPS = 36;
 static const std::string SMAPS_PATH = "smaps/";
 static const std::string SMAPS_PATH_START = "/proc/";
 static const std::string SMAPS_PATH_END = "/smaps";
@@ -567,10 +570,12 @@ DumpStatus ConfigUtils::GetConfig(const std::string &name, std::vector<std::shar
     return ret;
 }
 
+bool ConfigUtils::commercialVersion_ =
+    OHOS::system::GetParameter("const.logsystem.versiontype", "unknown") == "commercial";
 DumpStatus ConfigUtils::GetDumper(int index, std::vector<std::shared_ptr<DumpCfg>> &result,
                                   std::shared_ptr<OptionArgs> args, int level)
 {
-    if ((index < 0) || (index >= dumperSum_)) {
+    if ((index < 0) || (index >= dumperSum_) || (commercialVersion_ && (index == SMAPS || index == MAPS))) {
         return DumpStatus::DUMP_INVALID_ARG;
     }
     auto itemlist = dumpers_[index].list_;

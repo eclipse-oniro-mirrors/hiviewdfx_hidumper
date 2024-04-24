@@ -617,6 +617,28 @@ const ConfigData::ItemCfg ConfigData::threadsPidDumper_[] = {
     },
 };
 
+const ConfigData::ItemCfg ConfigData::smapDumper_[] = {
+    {
+        "dumper_smap", "Process SMAP Information", "/proc/%pid/smaps", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::LOOP, ""
+    },
+    {
+        "", "", "", "",
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::LOOP, ""
+    },
+};
+
+const ConfigData::ItemCfg ConfigData::mapDumper_[] = {
+    {
+        "dumper_map", "Process MAP Information", "/proc/%pid/maps", "",
+        DumperConstant::FILE_DUMPER, DumperConstant::NONE, DumperConstant::LOOP, ""
+    },
+    {
+        "", "", "", "",
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::LOOP, ""
+    },
+};
+
 const ConfigData::ItemCfg ConfigData::blockChannelDumper_[] = {
     {
         "dumper_block_channel", "Block Channel", "/proc/%pid/wchan", "",
@@ -881,6 +903,11 @@ const ConfigData::DumperCfg ConfigData::dumpers_[] = {
      .desc_ = threadsPidDumper_[0].desc_,
      .list_ = threadsPidDumper_,
      .size_ = ARRAY_SIZE(threadsPidDumper_)},
+    {.name_ = smapDumper_[0].name_,
+     .desc_ = smapDumper_[0].desc_,
+     .list_ = smapDumper_,
+     .size_ = ARRAY_SIZE(smapDumper_)},
+    {.name_ = mapDumper_[0].name_, .desc_ = mapDumper_[0].desc_, .list_ = mapDumper_, .size_ = ARRAY_SIZE(mapDumper_)},
     {.name_ = blockChannelDumper_[0].name_,
      .desc_ = blockChannelDumper_[0].desc_,
      .list_ = blockChannelDumper_,

@@ -84,6 +84,7 @@ private:
     std::vector<DumpCommonUtils::PidInfo> currentPidInfos_;
     DumpCommonUtils::PidInfo currentPidInfo_;
     bool isDumpSystemSystem {false};
+    static bool commercialVersion_;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
