@@ -572,10 +572,17 @@ DumpStatus ConfigUtils::GetConfig(const std::string &name, std::vector<std::shar
 
 bool ConfigUtils::commercialVersion_ =
     OHOS::system::GetParameter("const.logsystem.versiontype", "unknown") == "commercial";
+
+bool ConfigUtils::GetCommercialVersion()
+{
+    return commercialVersion_;
+}
+
 DumpStatus ConfigUtils::GetDumper(int index, std::vector<std::shared_ptr<DumpCfg>> &result,
                                   std::shared_ptr<OptionArgs> args, int level)
 {
-    if ((index < 0) || (index >= dumperSum_) || (commercialVersion_ && (index == SMAPS || index == MAPS))) {
+    if ((index < 0) || (index >= dumperSum_) ||
+        (ConfigUtils::GetCommercialVersion() && (index == SMAPS || index == MAPS))) {
         return DumpStatus::DUMP_INVALID_ARG;
     }
     auto itemlist = dumpers_[index].list_;

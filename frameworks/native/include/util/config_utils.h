@@ -70,6 +70,7 @@ private:
         std::shared_ptr<OptionArgs> args, int level = DumperConstant::NONE, int nest = 0);
     // Used for get section name from group name
     static std::string GetSectionName(const std::string &name);
+    static bool GetCommercialVersion();
 private:
     DumpStatus GetGroupSimple(const GroupCfg& groupCfg, std::vector<std::shared_ptr<DumpCfg>> &result,
         std::shared_ptr<OptionArgs> args, int level = DumperConstant::NONE, int nest = 0);
