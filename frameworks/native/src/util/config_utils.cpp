@@ -25,6 +25,8 @@ namespace {
 constexpr int ROOT_UID = 0;
 constexpr int BMS_UID = 1000;
 constexpr int APP_FIRST_UID = 10000;
+constexpr int SMAPS = 35;
+constexpr int MAPS = 36;
 static const std::string SMAPS_PATH = "smaps/";
 static const std::string SMAPS_PATH_START = "/proc/";
 static const std::string SMAPS_PATH_END = "/smaps";
@@ -592,6 +594,10 @@ DumpStatus ConfigUtils::GetDumper(int index, std::vector<std::shared_ptr<DumpCfg
 {
     if ((index < 0) || (index >= dumperSum_)) {
         return DumpStatus::DUMP_INVALID_ARG;
+    }
+    if ((index == SMAPS || index == MAPS) && DumpUtils::IsCommercialVersion()) {
+        DUMPER_HILOGE(MODULE_COMMON, "error|commercial version, index=%{public}d", index);
+        return DumpStatus::DUMP_NOPERMISSION;
     }
     auto itemlist = dumpers_[index].list_;
     auto itemsize = dumpers_[index].size_;

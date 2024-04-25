@@ -33,6 +33,7 @@
 
 #include "common.h"
 #include "datetime_ex.h"
+#include "parameters.h"
 #include "securec.h"
 #include "string_ex.h"
 
@@ -406,6 +407,12 @@ bool DumpUtils::CopyFile(const std::string &src, const std::string &des)
     }
     fout.flush();
     return true;
+}
+
+bool DumpUtils::IsCommercialVersion()
+{
+    bool isCommercialVersion = OHOS::system::GetParameter("const.logsystem.versiontype", "unknown") == "commercial";
+    return isCommercialVersion;
 }
 } // namespace HiviewDFX
 } // namespace OHOS
