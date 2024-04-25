@@ -411,7 +411,7 @@ bool DumpUtils::CopyFile(const std::string &src, const std::string &des)
 
 bool DumpUtils::IsCommercialVersion()
 {
-    isCommercialVersion = OHOS::system::GetParameter("const.logsystem.versiontype", "unknown") == "commercial";
+    bool isCommercialVersion = OHOS::system::GetParameter("const.logsystem.versiontype", "unknown") == "commercial";
     return isCommercialVersion;
 }
 } // namespace HiviewDFX
