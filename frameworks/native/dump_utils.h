@@ -17,7 +17,6 @@
 #include <string>
 #include <vector>
 #include <unistd.h>
-#include "parameters.h"
 namespace OHOS {
 namespace HiviewDFX {
 #ifndef TEMP_FAILURE_RETRY
