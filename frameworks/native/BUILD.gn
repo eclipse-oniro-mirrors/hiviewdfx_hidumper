@@ -112,6 +112,9 @@ ohos_source_set("dump_main") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "zlib:shared_libz",
+    "ability_base:zuri",
+    "ability_base:base",
+    "json:nlohmann_json_static",
   ]
   defines = []
   if (hidumper_graphic_enable) {
@@ -172,6 +175,9 @@ ohos_shared_library("hidumperclient") {
     "hilog:libhilog",
     "init:libbegetutil",
     "safwk:system_ability_fwk",
+    "c_utils:utils",
+    "samgr:samgr_proxy",
+    "ipc:ipc_core",
   ]
 
   subsystem_name = "hiviewdfx"
