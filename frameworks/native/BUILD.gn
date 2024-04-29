@@ -102,6 +102,8 @@ ohos_source_set("dump_main") {
   deps = [ "${hidumper_utils_path}:utils" ]
 
   external_deps = [
+    "ability_base:base",
+    "ability_base:zuri",
     "c_utils:utils",
     "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
     "eventhandler:libeventhandler",
@@ -109,6 +111,7 @@ ohos_source_set("dump_main") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "json:nlohmann_json_static",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "zlib:shared_libz",
@@ -168,10 +171,13 @@ ohos_shared_library("hidumperclient") {
   ]
 
   external_deps = [
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "init:libbegetutil",
+    "ipc:ipc_core",
     "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
   ]
 
   subsystem_name = "hiviewdfx"
