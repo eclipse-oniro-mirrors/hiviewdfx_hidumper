@@ -47,7 +47,7 @@ ohos_shared_library("lib_dump_usage") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
-
+  version_script = "libdumpusage.map"
   subsystem_name = "hiviewdfx"
   innerapi_tags = [ "platformsdk" ]
   part_name = "hidumper"

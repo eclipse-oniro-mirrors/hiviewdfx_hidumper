@@ -1,0 +1,15 @@
+{
+    global:
+      extern "C++" {
+          "OHOS::HiviewDFX::DumpUsage::DumpUsage()";
+          "OHOS::HiviewDFX::DumpUsage::~DumpUsage()";
+          "OHOS::HiviewDFX::DumpUsage::GetMemInfo(int const&, OHOS::HiviewDFX::MemInfoData::MemInfo&)";
+          "OHOS::HiviewDFX::DumpUsage::GetPss(int const&)";
+          "OHOS::HiviewDFX::DumpUsage::GetPrivateDirty(int const&)";
+          "OHOS::HiviewDFX::DumpUsage::GetSharedDirty(int const&)";
+          "OHOS::HiviewDFX::DumpUsage::GetCpuUsage(int const&)";
+          "OHOS::HiviewDFX::DumpUsage::GetDma(int const&)";
+      };
+    local:
+      *;
+};
