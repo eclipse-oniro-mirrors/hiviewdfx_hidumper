@@ -40,7 +40,9 @@
                 "graphic_2d",
                 "hisysevent",
                 "zlib",
-                "json"
+                "json",
+                "graphic_surface",
+                "image_framework"
             ]
         },
         "hisysevent_config": [
