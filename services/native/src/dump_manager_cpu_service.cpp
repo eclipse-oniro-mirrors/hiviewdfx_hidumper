@@ -23,14 +23,16 @@
 #include <unistd.h>
 #include "securec.h"
 
+#include "accesstoken_kit.h"
 #include "common/dumper_constant.h"
 #include "cpu_collector.h"
-#include "dump_log_manager.h"
 #include "datetime_ex.h"
+#include "dump_log_manager.h"
+#include "dump_utils.h"
 #include "hilog_wrapper.h"
 #include "inner/dump_service_id.h"
 #include "manager/dump_implement.h"
-#include "dump_utils.h"
+#include "token_setproc.h"
 #include "util/string_utils.h"
 #include "util/file_utils.h"
 
@@ -75,6 +77,11 @@ int32_t DumpManagerCpuService::Request(DumpCpuData &dumpCpuData)
     static std::mutex mutex_;
     unique_lock<mutex> lock(mutex_);
     InitParam(dumpCpuData);
+    if (!HasDumpPermission()) {
+        DUMPER_HILOGE(MODULE_SERVICE,
+                      "No ohos.permission.DUMP permission to acccess hidumper cpuservice, please check!");
+        return DumpStatus::DUMP_NOPERMISSION;
+    }
     int32_t ret = DumpCpuUsageData();
     dumpCpuData.dumpCPUDatas_ = *dumpCPUDatas_;
     ResetParam();
@@ -404,6 +411,18 @@ void DumpManagerCpuService::StartService()
         return;
     }
     OnStart();
+}
+
+// Authenticate dump permissions
+bool DumpManagerCpuService::HasDumpPermission() const
+{
+    uint32_t callingTokenID = IPCSkeleton::GetCallingTokenID();
+    int res = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callingTokenID, "ohos.permission.DUMP");
+    if (res != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
+        DUMPER_HILOGI(MODULE_SERVICE, "No dump permission, please check!");
+        return false;
+    }
+    return true;
 }
 } // namespace HiviewDFX
 } // namespace OHOS

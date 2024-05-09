@@ -78,6 +78,7 @@ private:
     bool GetSysCPUInfo(std::shared_ptr<CPUInfo> &cpuInfo);
     bool GetAllProcInfo(std::vector<std::shared_ptr<ProcInfo>> &procInfos);
     bool GetDateAndTime(uint64_t timeStamp, std::string& dateTime);
+    bool HasDumpPermission() const;
 private:
     using StringMatrix = std::shared_ptr<std::vector<std::vector<std::string>>>;
     bool started_{false};
