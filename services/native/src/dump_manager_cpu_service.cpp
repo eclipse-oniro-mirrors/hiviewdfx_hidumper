@@ -78,7 +78,8 @@ int32_t DumpManagerCpuService::Request(DumpCpuData &dumpCpuData)
     unique_lock<mutex> lock(mutex_);
     InitParam(dumpCpuData);
     if (!HasDumpPermission()) {
-        DUMPER_HILOGE(MODULE_SERVICE, "No ohos.permission.DUMP permission to acccess hidumper cpuservice, please check!");
+        DUMPER_HILOGE(MODULE_SERVICE,
+                      "No ohos.permission.DUMP permission to acccess hidumper cpuservice, please check!");
         return DumpStatus::DUMP_NOPERMISSION;
     }
     int32_t ret = DumpCpuUsageData();
