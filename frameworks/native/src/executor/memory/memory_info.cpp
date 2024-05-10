@@ -715,19 +715,26 @@ uint64_t MemoryInfo::GetProcValue(const int32_t &pid, const string& key)
 
 string MemoryInfo::GetProcessAdjLabel(const int32_t pid)
 {
-    string cmd = "cat /proc/" + to_string(pid) + "/oom_score_adj";
-    vector<string> cmdResult;
     string adjLabel = RECLAIM_PRIORITY_UNKNOWN_DESC;
-    if (!MemoryUtil::GetInstance().RunCMD(cmd, cmdResult) || cmdResult.size() == 0) {
-        DUMPER_HILOGE(MODULE_SERVICE, "GetProcessAdjLabel fail! pid = %{public}d", static_cast<int>(pid));
+    string fillPath = "/proc/" + to_string(pid) + "/oom_score_adj";
+    auto fp = fopen(fillPath.c_str(), "rb");
+    if (fp == nullptr) {
+        DUMPER_HILOGE(MODULE_COMMON, "Open oom_score_adj failed.");
         return adjLabel;
     }
-    string oom_score = cmdResult.front();
-    int value = 0;
-    bool ret = StrToInt(oom_score, value);
-    if (!ret) {
+    constexpr int bufSize = 128; // 128: buf size
+    char buf[bufSize] = {0};
+    if (memset_s(buf, bufSize, 0, bufSize) != EOK) {
+        return adjLabel;
+    };
+    size_t readSum = fread(buf, 1, bufSize, fp);
+    (void)fclose(fp);
+    fp = nullptr;
+    if (readSum < 1) {
+        DUMPER_HILOGE(MODULE_COMMON, "Read oom_score_adj failed.");
         return adjLabel;
     }
+    int value = atoi(buf);
     adjLabel = GetReclaimPriorityString(value);
     return adjLabel;
 }
