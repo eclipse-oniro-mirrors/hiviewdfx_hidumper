@@ -22,6 +22,7 @@
 #include <v1_0/imemory_tracker_interface.h>
 
 #include "dump_common_utils.h"
+#include "dump_utils.h"
 #include "executor/memory/get_cma_info.h"
 #include "executor/memory/get_heap_info.h"
 #include "executor/memory/get_hardware_info.h"
@@ -717,6 +718,10 @@ string MemoryInfo::GetProcessAdjLabel(const int32_t pid)
 {
     string adjLabel = RECLAIM_PRIORITY_UNKNOWN_DESC;
     string fillPath = "/proc/" + to_string(pid) + "/oom_score_adj";
+    if (!DumpUtils::PathIsValid(fillPath)) {
+        DUMPER_HILOGE(MODULE_COMMON, "GetProcessAdjLabel leave|false, PathIsValid");
+        return adjLabel;
+    }
     auto fp = fopen(fillPath.c_str(), "rb");
     if (fp == nullptr) {
         DUMPER_HILOGE(MODULE_COMMON, "Open oom_score_adj failed.");
@@ -727,11 +732,13 @@ string MemoryInfo::GetProcessAdjLabel(const int32_t pid)
     size_t readSum = fread(buf, 1, bufSize, fp);
     (void)fclose(fp);
     fp = nullptr;
-    if (readSum < 1) {
+    if (readSum < 2) { // 2: string size with \n
         DUMPER_HILOGE(MODULE_COMMON, "Read oom_score_adj failed.");
         return adjLabel;
     }
-    int value = atoi(buf);
+    int value = 0;
+    std::string priority(buf);
+    StrToInt(priority.substr(0, priority.size() - 1), value);
     adjLabel = GetReclaimPriorityString(value);
     return adjLabel;
 }
