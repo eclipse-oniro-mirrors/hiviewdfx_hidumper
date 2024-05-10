@@ -732,7 +732,7 @@ string MemoryInfo::GetProcessAdjLabel(const int32_t pid)
     size_t readSum = fread(buf, 1, bufSize, fp);
     (void)fclose(fp);
     fp = nullptr;
-    if (readSum < 2) { // 2: string size with \n
+    if (readSum < 1) {
         DUMPER_HILOGE(MODULE_COMMON, "Read oom_score_adj failed.");
         return adjLabel;
     }
