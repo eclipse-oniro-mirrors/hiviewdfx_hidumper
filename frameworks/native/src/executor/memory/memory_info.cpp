@@ -724,9 +724,6 @@ string MemoryInfo::GetProcessAdjLabel(const int32_t pid)
     }
     constexpr int bufSize = 128; // 128: buf size
     char buf[bufSize] = {0};
-    if (memset_s(buf, bufSize, 0, bufSize) != EOK) {
-        return adjLabel;
-    };
     size_t readSum = fread(buf, 1, bufSize, fp);
     (void)fclose(fp);
     fp = nullptr;
