@@ -736,9 +736,12 @@ string MemoryInfo::GetProcessAdjLabel(const int32_t pid)
         DUMPER_HILOGE(MODULE_COMMON, "Read oom_score_adj failed.");
         return adjLabel;
     }
-    int value = 0;
-    std::string priority(buf);
-    StrToInt(priority.substr(0, priority.size() - 1), value);
+    int value = RECLAIM_PRIORITY_UNKNOWN;
+    std::string label(buf);
+    if (!StrToInt(label.substr(0, label.size() - 1), value)) {
+        DUMPER_HILOGE(MODULE_COMMON, "StrToInt failed.");
+        return adjLabel;
+    }
     adjLabel = GetReclaimPriorityString(value);
     return adjLabel;
 }
