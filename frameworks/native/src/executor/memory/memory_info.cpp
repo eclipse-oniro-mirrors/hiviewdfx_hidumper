@@ -22,6 +22,7 @@
 #include <v1_0/imemory_tracker_interface.h>
 
 #include "dump_common_utils.h"
+#include "dump_utils.h"
 #include "executor/memory/get_cma_info.h"
 #include "executor/memory/get_heap_info.h"
 #include "executor/memory/get_hardware_info.h"
@@ -715,17 +716,30 @@ uint64_t MemoryInfo::GetProcValue(const int32_t &pid, const string& key)
 
 string MemoryInfo::GetProcessAdjLabel(const int32_t pid)
 {
-    string cmd = "cat /proc/" + to_string(pid) + "/oom_score_adj";
-    vector<string> cmdResult;
     string adjLabel = RECLAIM_PRIORITY_UNKNOWN_DESC;
-    if (!MemoryUtil::GetInstance().RunCMD(cmd, cmdResult) || cmdResult.size() == 0) {
-        DUMPER_HILOGE(MODULE_SERVICE, "GetProcessAdjLabel fail! pid = %{public}d", static_cast<int>(pid));
+    string fillPath = "/proc/" + to_string(pid) + "/oom_score_adj";
+    if (!DumpUtils::PathIsValid(fillPath)) {
+        DUMPER_HILOGE(MODULE_COMMON, "GetProcessAdjLabel leave|false, PathIsValid");
         return adjLabel;
     }
-    string oom_score = cmdResult.front();
-    int value = 0;
-    bool ret = StrToInt(oom_score, value);
-    if (!ret) {
+    auto fp = fopen(fillPath.c_str(), "rb");
+    if (fp == nullptr) {
+        DUMPER_HILOGE(MODULE_COMMON, "Open oom_score_adj failed.");
+        return adjLabel;
+    }
+    constexpr int bufSize = 128; // 128: buf size
+    char buf[bufSize] = {0};
+    size_t readSum = fread(buf, 1, bufSize, fp);
+    (void)fclose(fp);
+    fp = nullptr;
+    if (readSum < 1) {
+        DUMPER_HILOGE(MODULE_COMMON, "Read oom_score_adj failed.");
+        return adjLabel;
+    }
+    int value = RECLAIM_PRIORITY_UNKNOWN;
+    std::string label(buf);
+    if (!StrToInt(label.substr(0, label.size() - 1), value)) {
+        DUMPER_HILOGE(MODULE_COMMON, "StrToInt failed.");
         return adjLabel;
     }
     adjLabel = GetReclaimPriorityString(value);
