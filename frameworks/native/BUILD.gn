@@ -128,6 +128,7 @@ ohos_source_set("dump_main") {
     ]
     defines += [
       "HIDUMPER_GRAPHIC_ENABLE",
+      "NEW_SKIA",
       "ROSEN_CROSS_PLATFORM",
     ]
   }
