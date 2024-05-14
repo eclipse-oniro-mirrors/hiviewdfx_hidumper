@@ -111,7 +111,6 @@ ohos_source_set("dump_main") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "json:nlohmann_json_static",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "zlib:shared_libz",
@@ -123,11 +122,11 @@ ohos_source_set("dump_main") {
       "graphic_2d:libcomposer",
       "graphic_2d:librender_service_base",
       "graphic_2d:librender_service_client",
-      "graphic_surface:surface",
       "image_framework:image_native",
     ]
     defines += [
       "HIDUMPER_GRAPHIC_ENABLE",
+      "NEW_SKIA",
       "ROSEN_CROSS_PLATFORM",
     ]
   }
