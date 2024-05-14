@@ -32,7 +32,6 @@ DumpStatus EnvParamDumper::PreExecute(const std::shared_ptr<DumperParameter>& pa
 
 DumpStatus EnvParamDumper::Execute()
 {
-    DUMPER_HILOGI(MODULE_COMMON, "info|EnvParamDumper Execute");
     return DumpStatus::DUMP_OK;
 }
 
