@@ -272,12 +272,12 @@ bool DumpCommonUtils::GetProcessNameByPid(int pid, std::string& name)
     }
     vector<string> names;
     StringUtils::GetInstance().StringSplit(content, " ", names);
-    if (names.size() <= 0) {
+    if (names.empty()) {
         return false;
     }
     vector<string> longNames;
     StringUtils::GetInstance().StringSplit(names[0], "/", longNames);
-    if (longNames.size() <= 0) {
+    if (longNames.empty()) {
         return false;
     }
     name = longNames[longNames.size() - 1];

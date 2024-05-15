@@ -434,7 +434,7 @@ DumpStatus DumpImplement::ParseCmdOptionForA(DumperOpts &opts_, char *argv[])
         if (optarg != nullptr) {
             std::vector<std::string> ipcStatParams;
             SplitStr(optarg, "--", ipcStatParams);
-            if (ipcStatParams.size() <= 0) {
+            if (ipcStatParams.empty()) {
                 SendErrorMessage(invalidError_);
                 return DumpStatus::DUMP_INVALID_ARG;
             }

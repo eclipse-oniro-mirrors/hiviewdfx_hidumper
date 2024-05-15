@@ -827,6 +827,9 @@ bool MemoryInfo::GetMemByProcessPid(const int32_t &pid, const DmaInfo &dmaInfo, 
         usage.uss = usage.uss + graphicsMemory.gl + graphicsMemory.graph;
         usage.pss = usage.pss + graphicsMemory.gl + graphicsMemory.graph;
         usage.rss = usage.rss + graphicsMemory.gl + graphicsMemory.graph;
+        DUMPER_HILOGD(MODULE_SERVICE, "uss:%{public}d pss:%{public}d rss:%{public}d gl:%{public}d graph:%{public}d",
+                      static_cast<int>(usage.uss), static_cast<int>(usage.pss), static_cast<int>(usage.rss),
+                      static_cast<int>(graphicsMemory.gl), static_cast<int>(graphicsMemory.graph));
     }
     return success;
 }

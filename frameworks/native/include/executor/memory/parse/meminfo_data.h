@@ -25,67 +25,67 @@ public:
     ~MemInfoData();
 
     struct MemInfo {
-        uint64_t rss;
-        uint64_t pss;
-        uint64_t sharedClean;
-        uint64_t sharedDirty;
-        uint64_t privateClean;
-        uint64_t privateDirty;
-        uint64_t swap;
-        uint64_t swapPss;
-        uint64_t heapSize;
-        uint64_t heapAlloc;
-        uint64_t heapFree;
+        uint64_t rss = 0;
+        uint64_t pss = 0;
+        uint64_t sharedClean = 0;
+        uint64_t sharedDirty = 0;
+        uint64_t privateClean = 0;
+        uint64_t privateDirty = 0;
+        uint64_t swap = 0;
+        uint64_t swapPss = 0;
+        uint64_t heapSize = 0;
+        uint64_t heapAlloc = 0;
+        uint64_t heapFree = 0;
     };
 
     struct MemSmapsInfo {
-        uint64_t rss;
-        uint64_t pss;
-        uint64_t sharedClean;
-        uint64_t sharedDirty;
-        uint64_t privateClean;
-        uint64_t privateDirty;
-        uint64_t swap;
-        uint64_t swapPss;
+        uint64_t rss = 0;
+        uint64_t pss = 0;
+        uint64_t sharedClean = 0;
+        uint64_t sharedDirty = 0;
+        uint64_t privateClean = 0;
+        uint64_t privateDirty = 0;
+        uint64_t swap = 0;
+        uint64_t swapPss = 0;
         std::string name;
         std::string start;
         std::string end;
         std::string perm;
-        uint64_t size;
-        uint64_t counts;
+        uint64_t size = 0;
+        uint64_t counts = 0;
     };
 
     struct MemUsage {
-        uint64_t vss;
-        uint64_t rss;
-        uint64_t uss;
-        uint64_t pss;
-        uint64_t swapPss;
-        uint64_t gl;
-        uint64_t graph;
-        uint64_t dma;
-        uint64_t purgSum;
-        uint64_t purgPin;
-        int pid;
+        uint64_t vss = 0;
+        uint64_t rss = 0;
+        uint64_t uss = 0;
+        uint64_t pss = 0;
+        uint64_t swapPss = 0;
+        uint64_t gl = 0;
+        uint64_t graph = 0;
+        uint64_t dma = 0;
+        uint64_t purgSum = 0;
+        uint64_t purgPin = 0;
+        int pid = -1;
         std::string name;
         std::string adjLabel;
     };
 
     struct DmaInfo {
-        uint64_t size;
-        uint64_t ino;
-        uint32_t pid;
+        uint64_t size = 0;
+        uint64_t ino = 0;
+        uint32_t pid = 0;
         std::string name;
     };
 
     struct GraphicsMemory {
-        uint64_t gl;
-        uint64_t graph;
+        uint64_t gl = 0;
+        uint64_t graph = 0;
     };
 
     struct HiaiUserAllocatedMemInfo {
-        int pid;
-        int size;
+        int pid = -1;
+        int size = 0;
     };
 
 private:
