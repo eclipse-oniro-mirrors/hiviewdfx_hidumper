@@ -28,13 +28,11 @@ ColumnRowsFilter::~ColumnRowsFilter()
 DumpStatus ColumnRowsFilter::PreExecute(const std::shared_ptr<DumperParameter>& parameter,
     StringMatrix dumpDatas)
 {
-    DUMPER_HILOGD(MODULE_COMMON, "debug|ColumnRowsFilter PreExecute");
     return DumpStatus::DUMP_OK;
 }
 
 DumpStatus ColumnRowsFilter::Execute()
 {
-    DUMPER_HILOGI(MODULE_COMMON, "info|ColumnRowsFilter Execute");
     return DumpStatus::DUMP_OK;
 }
 

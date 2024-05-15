@@ -35,9 +35,9 @@ namespace HiviewDFX {
 #undef DUMPER_HILOGD
 #endif
 
-// 0xD002900: subsystem:DumperMgr module:DumperManager, 8 bits reserved.
+// 0xD002D20: subsystem:DumperMgr module:DumperManager, 8 bits reserved.
 #undef LOG_DOMAIN
-#define LOG_DOMAIN 0xD002900
+#define LOG_DOMAIN 0xD002D20
 #undef LOG_TAG
 #define LOG_TAG "DumperService"
 
