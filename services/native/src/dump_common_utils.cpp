@@ -280,7 +280,11 @@ bool DumpCommonUtils::GetProcessNameByPid(int pid, std::string& name)
     if (longNames.size() <= 0) {
         return false;
     }
-    name = longNames[longNames.size() - 1];
+    if (names[0].find("/system/bin") == std::string::npos) {
+        name = longNames[longNames.size() - 1];
+    } else {
+        name = names[0];
+    }
     return true;
 }
 
