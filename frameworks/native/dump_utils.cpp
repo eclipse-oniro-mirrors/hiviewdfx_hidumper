@@ -225,6 +225,7 @@ inline const std::map<int, std::string> saNameMap_ = {
     { APP_DOMAIN_VERIFY_AGENT_SA_ID, "AppDomainVerifyAgent" },
     { AOT_COMPILER_SERVICE_ID, "AotCompilerService" },
     { EL5_FILEKEY_MANAGER_SERVICE_ID, "El5FilekeyManager"},
+    { COMM_FIREWALL_MANAGER_SYS_ABILITY_ID, "NetFirewallManager" },
 };
 
 namespace HiviewDFX {
