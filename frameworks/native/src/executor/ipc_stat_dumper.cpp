@@ -108,10 +108,6 @@ bool IPCStatDumper::CheckPidIsApp(const sptr<ISystemAbilityManager> &sam, std::v
     }
 
     auto appMgrClient = std::make_unique<AppMgrClient>();
-    if (appMgrClient == nullptr) {
-        DUMPER_HILOGE(MODULE_SERVICE, "get AppMgrClient fail!");
-        return false;
-    }
     std::vector<RunningProcessInfo> runningProcessInfos;
     int32_t ret = appMgrClient->GetAllRunningProcesses(runningProcessInfos);
     if (ret != ERR_OK) {
