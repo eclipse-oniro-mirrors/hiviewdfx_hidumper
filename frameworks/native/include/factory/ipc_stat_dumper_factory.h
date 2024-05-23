@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,30 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "executor/dumper_group.h"
+#ifndef IPC_STAT_DUMPER_FACTORY_H
+#define IPC_STAT_DUMPER_FACTORY_H
+
+#include "executor_factory.h"
+
 namespace OHOS {
 namespace HiviewDFX {
-DumperGroup::DumperGroup()
-{
-}
-
-DumperGroup::~DumperGroup()
-{
-}
-
-DumpStatus DumperGroup::PreExecute(const std::shared_ptr<DumperParameter>& parameter, StringMatrix dumpDatas)
-{
-    return DumpStatus::DUMP_OK;
-}
-
-DumpStatus DumperGroup::Execute()
-{
-    return DumpStatus::DUMP_OK;
-}
-
-DumpStatus DumperGroup::AfterExecute()
-{
-    return DumpStatus::DUMP_OK;
-}
-} // namespace HiviewDFX
-} // namespace OHOS
+class IPCStatDumperFactory : public ExecutorFactory {
+public:
+    std::shared_ptr<HidumperExecutor> CreateExecutor() override;
+};
+}  // namespace HiviewDFX
+}  // namespace OHOS
+#endif  // TRAFFIC_DUMPER_FACTORY_H

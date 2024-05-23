@@ -25,6 +25,8 @@ namespace {
 constexpr int ROOT_UID = 0;
 constexpr int BMS_UID = 1000;
 constexpr int APP_FIRST_UID = 10000;
+constexpr int SMAPS = 35;
+constexpr int MAPS = 36;
 static const std::string SMAPS_PATH = "smaps/";
 static const std::string SMAPS_PATH_START = "/proc/";
 static const std::string SMAPS_PATH_END = "/smaps";
@@ -47,11 +49,11 @@ DumpStatus ConfigUtils::GetDumperConfigs(const std::shared_ptr<DumperParameter> 
     DUMPER_HILOGD(MODULE_COMMON, "enter|");
     DumpStatus ret = DumpStatus::DUMP_FAIL;
 
-    if (param != nullptr) {
-        ConfigUtils configUtils(param);
-        ret = configUtils.GetDumperConfigs();
+    if (param == nullptr) {
+        return ret;
     }
-
+    ConfigUtils configUtils(param);
+    ret = configUtils.GetDumperConfigs();
     if (ret == DumpStatus::DUMP_OK) {
         auto dumpCfgs = param->GetExecutorConfigList();
         for (size_t i = 0; i < dumpCfgs.size(); i++) {
@@ -90,6 +92,7 @@ DumpStatus ConfigUtils::GetDumperConfigs()
     HandleDumpProcesses(dumpCfgs);
     HandleDumpFaultLog(dumpCfgs);
     HandleDumpAppendix(dumpCfgs);
+    HandleDumpIpcStat(dumpCfgs);
     DUMPER_HILOGD(MODULE_COMMON, "debug|dumpCfgs=%{public}zu", dumpCfgs.size());
     dumperParam_->SetExecutorConfigList(dumpCfgs);
     DUMPER_HILOGD(MODULE_COMMON, "leave|");
@@ -536,6 +539,25 @@ bool ConfigUtils::HandleDumpAppendix(std::vector<std::shared_ptr<DumpCfg>> &dump
     return true;
 }
 
+bool ConfigUtils::HandleDumpIpcStat(std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs)
+{
+    const DumperOpts &dumperOpts = dumperParam_->GetOpts();
+    if (!dumperOpts.isDumpIpc_) {
+        return false;
+    }
+
+    currentPidInfo_.Reset();
+    currentPidInfos_.clear();
+    MergePidInfos(currentPidInfos_, dumperOpts.ipcStatPid_);
+
+    std::shared_ptr<OptionArgs> args;
+    GetConfig(CONFIG_GROUP_IPC_STAT, dumpCfgs, args);
+
+    currentPidInfos_.clear();
+    currentPidInfo_.Reset();
+    return true;
+}
+
 int ConfigUtils::GetDumpLevelByPid(int uid, const DumpCommonUtils::PidInfo &pidInfo)
 {
     int ret = DumperConstant::LEVEL_NONE;
@@ -572,6 +594,10 @@ DumpStatus ConfigUtils::GetDumper(int index, std::vector<std::shared_ptr<DumpCfg
 {
     if ((index < 0) || (index >= dumperSum_)) {
         return DumpStatus::DUMP_INVALID_ARG;
+    }
+    if ((index == SMAPS || index == MAPS) && DumpUtils::IsCommercialVersion()) {
+        DUMPER_HILOGE(MODULE_COMMON, "error|commercial version, index=%{public}d", index);
+        return DumpStatus::DUMP_NOPERMISSION;
     }
     auto itemlist = dumpers_[index].list_;
     auto itemsize = dumpers_[index].size_;

@@ -37,6 +37,7 @@ ohos_source_set("dump_main") {
     "src/executor/file_format_dump_filter.cpp",
     "src/executor/file_stream_dumper.cpp",
     "src/executor/hidumper_executor.cpp",
+    "src/executor/ipc_stat_dumper.cpp",
     "src/executor/jsheap_memory_dumper.cpp",
     "src/executor/list_dumper.cpp",
     "src/executor/memory/dma_info.cpp",
@@ -71,6 +72,7 @@ ohos_source_set("dump_main") {
     "src/factory/fd_output_factory.cpp",
     "src/factory/file_dumper_factory.cpp",
     "src/factory/file_format_dump_filter_factory.cpp",
+    "src/factory/ipc_stat_dumper_factory.cpp",
     "src/factory/jsheap_memory_dumper_factory.cpp",
     "src/factory/list_dumper_factory.cpp",
     "src/factory/memory_dumper_factory.cpp",
@@ -100,12 +102,14 @@ ohos_source_set("dump_main") {
   deps = [ "${hidumper_utils_path}:utils" ]
 
   external_deps = [
+    "ability_base:base",
+    "ability_base:want",
+    "ability_base:zuri",
     "c_utils:utils",
     "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
     "eventhandler:libeventhandler",
     "hdf_core:libhdf_utils",
     "hilog:libhilog",
-    "hisysevent:libhisysevent",
     "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
@@ -114,8 +118,18 @@ ohos_source_set("dump_main") {
   ]
   defines = []
   if (hidumper_graphic_enable) {
-    external_deps += [ "graphic_2d:librender_service_client" ]
-    defines += [ "HIDUMPER_GRAPHIC_ENABLE" ]
+    external_deps += [
+      "graphic_2d:2d_graphics_new",
+      "graphic_2d:libcomposer",
+      "graphic_2d:librender_service_base",
+      "graphic_2d:librender_service_client",
+      "image_framework:image_native",
+    ]
+    defines += [
+      "HIDUMPER_GRAPHIC_ENABLE",
+      "NEW_SKIA",
+      "ROSEN_CROSS_PLATFORM",
+    ]
   }
 
   if (hidumper_ability_runtime_enable) {
@@ -134,6 +148,11 @@ ohos_source_set("dump_main") {
       "bundle_framework:appexecfwk_core",
     ]
     defines += [ "HIDUMPER_BUNDLEMANAGER_FRAMEWORK_ENABLE" ]
+  }
+
+  if (hidumper_hiviewdfx_hisysevent_enable) {
+    external_deps += [ "hisysevent:libhisysevent" ]
+    defines += [ "HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE" ]
   }
 
   subsystem_name = "hiviewdfx"
@@ -162,10 +181,13 @@ ohos_shared_library("hidumperclient") {
   ]
 
   external_deps = [
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "init:libbegetutil",
+    "ipc:ipc_core",
     "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
   ]
 
   subsystem_name = "hiviewdfx"

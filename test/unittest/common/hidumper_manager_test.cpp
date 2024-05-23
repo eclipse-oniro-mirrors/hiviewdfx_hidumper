@@ -496,5 +496,303 @@ HWTEST_F(HiDumperManagerTest, DumpTest022, TestSize.Level0)
     int ret = GetDumpResult(argc, argv);
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
+
+/**
+ * @tc.name: MemoryDumperTest024
+ * @tc.desc: Test ? msg has correct ret.
+ * @tc.type: FUNC
+ * @tc.require: issueI5NWZQ
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest024, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("-?"),
+        const_cast<char *>(""),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_EQ(ret, DumpStatus::DUMP_INVALID_ARG);
+}
+
+/**
+ * @tc.name: MemoryDumperTest025
+ * @tc.desc: Test ? with -vv msg has correct ret.
+ * @tc.type: FUNC
+ * @tc.require: issueI5NWZQ
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest025, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("-?"),
+        const_cast<char *>("-v"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_EQ(ret, DumpStatus::DUMP_INVALID_ARG);
+}
+
+/**
+ * @tc.name: MemoryDumperTest026
+ * @tc.desc: Test cpufreq with ? msg has correct ret.
+ * @tc.type: FUNC
+ * @tc.require: issueI5NWZQ
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest026, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("--cpufreq"),
+        const_cast<char *>("-?"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: MemoryDumperTest027
+ * @tc.desc: Test error msg has correct ret.
+ * @tc.type: FUNC
+ * @tc.require: issueI5NWZQ
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest027, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("--error"),
+        const_cast<char *>(""),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_EQ(ret, DumpStatus::DUMP_INVALID_ARG);
+}
+
+/**
+ * @tc.name: MemoryDumperTest028
+ * @tc.desc: Test dump error process memory info has correct ret.
+ * @tc.type: FUNC
+ * @tc.require: issueI5NWZQ
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest028, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("--mem"),
+        const_cast<char *>("-1"),
+        const_cast<char *>(""),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_EQ(ret, DumpStatus::DUMP_INVALID_ARG);
+}
+
+/**
+ * @tc.name: MemoryDumperTest029
+ * @tc.desc: Test dump statistic in /proc/pid/smaps has correct ret.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest029, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("--mem-jsheap"),
+        const_cast<char *>(std::to_string(getpid()).c_str()),
+        const_cast<char *>(""),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: MemoryDumperTest030
+ * @tc.desc: Test dump statistic in /proc/pid/smaps has error ret.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest030, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("--mem-smaps"),
+        const_cast<char *>(""),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
+}
+
+/**
+ * @tc.name: IpcStatDumpTest001
+ * @tc.desc: hidumper --ipc -a --start-stat
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, IpcStatDumpTest001, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("--ipc"),
+        const_cast<char *>("-a"),
+        const_cast<char *>("--start-stat"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: IpcStatDumpTest002
+ * @tc.desc: hidumper --ipc -a --stop-stat
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, IpcStatDumpTest002, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("--ipc"),
+        const_cast<char *>("-a"),
+        const_cast<char *>("--stop-stat"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: IpcStatDumpTest003
+ * @tc.desc: hidumper --ipc -a --stat
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, IpcStatDumpTest003, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("--ipc"),
+        const_cast<char *>("-a"),
+        const_cast<char *>("--stat"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: IpcStatDumpTest004
+ * @tc.desc: hidumper --ipc
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, IpcStatDumpTest004, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("--ipc"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_TRUE(ret != DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: IpcStatDumpTest005
+ * @tc.desc: hidumper --ipc -a
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, IpcStatDumpTest005, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("--ipc"),
+        const_cast<char *>("-a"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_TRUE(ret != DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: IpcStatDumpTest006
+ * @tc.desc: hidumper --ipc -a --start-stat --stop-stat
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, IpcStatDumpTest006, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("--ipc"),
+        const_cast<char *>("-a"),
+        const_cast<char *>("--start-stat"),
+        const_cast<char *>("--stop-stat"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_TRUE(ret != DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: IpcStatDumpTest007
+ * @tc.desc: hidumper --start-stat
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, IpcStatDumpTest007, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("--start-stat"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_TRUE(ret != DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: IpcStatDumpTest008
+ * @tc.desc: hidumper --stop-stat
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, IpcStatDumpTest008, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("--stop-stat"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_TRUE(ret != DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: IpcStatDumpTest009
+ * @tc.desc: hidumper --stat
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, IpcStatDumpTest009, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("--stat"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_TRUE(ret != DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: IpcStatDumpTest010
+ * @tc.desc: hidumper --ipc -1 --start-stat
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, IpcStatDumpTest010, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("--ipc"),
+        const_cast<char *>("-1"),
+        const_cast<char *>("--start-stat"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_TRUE(ret != DumpStatus::DUMP_OK);
+}
 } // namespace HiviewDFX
 } // namespace OHOS

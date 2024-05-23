@@ -70,6 +70,12 @@ void DumperOpts::Reset()
     isDumpJsHeapMemGC_ = false;
     dumpJsHeapMemPid_ = 0;
     threadId_ = 0;
+    ipcStatPid_ = -1;
+    isDumpAllIpc_ = false;
+    isDumpIpc_ = false;
+    isDumpIpcStartStat_ = false;
+    isDumpIpcStopStat_ = false;
+    isDumpIpcStat_ = false;
 }
 
 DumperOpts& DumperOpts::operator = (const DumperOpts& opts)
@@ -107,6 +113,12 @@ DumperOpts& DumperOpts::operator = (const DumperOpts& opts)
     isDumpJsHeapMemGC_ = opts.isDumpJsHeapMemGC_;
     dumpJsHeapMemPid_ = opts.dumpJsHeapMemPid_;
     threadId_ = opts.threadId_;
+    ipcStatPid_ = opts.ipcStatPid_;
+    isDumpAllIpc_ = opts.isDumpAllIpc_;
+    isDumpIpc_ = opts.isDumpIpc_;
+    isDumpIpcStartStat_ = opts.isDumpIpcStartStat_;
+    isDumpIpcStopStat_ = opts.isDumpIpcStopStat_;
+    isDumpIpcStat_ = opts.isDumpIpcStat_;
     return *this;
 }
 
@@ -161,6 +173,9 @@ bool DumperOpts::IsSelectAny() const
         return true;
     }
     if (isDumpJsHeapMem_) {
+        return true;
+    }
+    if (isDumpIpc_) {
         return true;
     }
     DUMPER_HILOGE(MODULE_COMMON, "select nothing.");
@@ -226,6 +241,10 @@ bool DumperOpts::CheckOptions(std::string& errStr) const
     }
     if (threadId_ < 0) {
         errStr = std::to_string(threadId_);
+        return false;
+    }
+    if (ipcStatPid_ < -1) {
+        errStr = std::to_string(ipcStatPid_);
         return false;
     }
     return true;

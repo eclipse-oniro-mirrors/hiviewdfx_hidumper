@@ -33,6 +33,7 @@
 #include "factory/memory_dumper_factory.h"
 #include "factory/jsheap_memory_dumper_factory.h"
 #include "factory/traffic_dumper_factory.h"
+#include "factory/ipc_stat_dumper_factory.h"
 #include "dump_utils.h"
 #include "string_ex.h"
 #include "file_ex.h"
@@ -41,10 +42,12 @@
 #include "securec.h"
 #include "parameters.h"
 #include "parameter.h"
+#ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
 #include "hisysevent.h"
+#endif
 #ifdef HIDUMPER_BUNDLEMANAGER_FRAMEWORK_ENABLE
 #include "application_info.h"
-#include "bundle_mgr_proxy.h"
+#include "bundlemgr/bundle_mgr_proxy.h"
 #endif
 #include "system_ability_definition.h"
 #include "file_ex.h"
@@ -87,6 +90,8 @@ void DumpImplement::AddExecutorFactoryToMap()
         std::make_pair(DumperConstant::JSHEAP_MEMORY_DUMPER, std::make_shared<JsHeapMemoryDumperFactory>()));
     ptrExecutorFactoryMap_->insert(
         std::make_pair(DumperConstant::TRAFFIC_DUMPER, std::make_shared<TrafficDumperFactory>()));
+    ptrExecutorFactoryMap_->insert(
+        std::make_pair(DumperConstant::IPC_STAT_DUMPER, std::make_shared<IPCStatDumperFactory>()));
 }
 
 DumpStatus DumpImplement::Main(int argc, char *argv[], const std::shared_ptr<RawParam> &reqCtl)
@@ -134,8 +139,9 @@ DumpStatus DumpImplement::Main(int argc, char *argv[], const std::shared_ptr<Raw
 
 DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<DumperParameter> &dumpParameter)
 {
+#ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
     std::stringstream dumpCmdSs;
-
+#endif
     if (argc > ARG_MAX_COUNT) {
         LOG_ERR("too many arguments(%d), limit size %d.\n", argc, ARG_MAX_COUNT);
         return DumpStatus::DUMP_FAIL;
@@ -154,15 +160,15 @@ DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<Dumpe
             LOG_ERR("too long argument(%d), limit size %d.\n", i, SINGLE_ARG_MAXLEN);
             return DumpStatus::DUMP_FAIL;
         }
+#ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
         dumpCmdSs << argv[i] << " ";
+#endif
     }
     DumperOpts opts;
     DumpStatus status = CmdParseWithParameter(dumpParameter, argc, argv, opts);
-    if (status != DumpStatus::DUMP_OK) {
+    if (status != DumpStatus::DUMP_OK)
         return status;
-    }
-    if (!opts.IsSelectAny()) {
-        // 注：hidumper不添加任何参数时，dump全部内容；IPC方式dump时，仅dump 当前进程的CPU和memory情况
+    if (!opts.IsSelectAny()) { // 注：hidumper不添加任何参数时，dump全部内容；IPC方式dump时，仅dump 当前进程的CPU和memory情况
         int clientPid = dumpParameter->GetPid(); // to be set value
         if (IsHidumperClientProcess(clientPid)) {
             opts.AddSelectAll();
@@ -176,9 +182,11 @@ DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<Dumpe
         }
         dumpParameter->SetPid(clientPid);
     }
-
-    std::string dumpCmdStr = dumpCmdSs.str();
-    ReportCmdUsage(opts, dumpCmdStr.substr(0, dumpCmdStr.length() - 1));
+#ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
+    if (dumpCmdSs.str().length() > 0) {
+        ReportCmdUsage(opts, dumpCmdSs.str().substr(0, dumpCmdSs.str().length() - 1));
+    }
+#endif
     dumpParameter->SetOpts(opts);
     return DumpStatus::DUMP_OK;
 }
@@ -213,6 +221,10 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
                                               {"mem-smaps", required_argument, 0, 0},
                                               {"mem-jsheap", required_argument, 0, 0},
                                               {"gc", no_argument, 0, 0},
+                                              {"ipc", optional_argument, 0, 0},
+                                              {"start-stat", no_argument, 0, 0},
+                                              {"stop-stat", no_argument, 0, 0},
+                                              {"stat", no_argument, 0, 0},
                                               {0, 0, 0, 0}};
         int c = getopt_long(argc, argv, optStr, longOptions, &optionIndex);
         if (c == -1) {
@@ -293,6 +305,8 @@ DumpStatus DumpImplement::SetCmdParameter(int argc, char *argv[], DumperOpts &op
             status = SetCmdIntegerParameter(argv[optind - 1], opts_.threadId_);
         } else if (IsSADumperOption(argv)) {
             opts_.abilitieNames_.push_back(argv[optind - 1]);
+        } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "--ipc")) {
+            status = SetCmdIntegerParameter(argv[optind - 1], opts_.ipcStatPid_);
         } else {
             std::string optionName = RemoveCharacterFromStr(argv[optind - 1], '-');
             std::string errorStr = unrecognizedError_ + optionName;
@@ -322,8 +336,8 @@ std::string DumpImplement::GetTime()
     return currentTime;
 }
 
-DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts_, const struct option longOptions[],
-                                             const int &optionIndex, char *argv[])
+bool DumpImplement::ParseSubLongCmdOption(int argc, DumperOpts &opts_, const struct option longOptions[],
+                                          const int &optionIndex, char *argv[])
 {
     path_ = "";
     if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "cpufreq")) {
@@ -343,6 +357,18 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts_, const 
         opts_.path_ = path_;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "test")) {
         opts_.isTest_ = true;
+    } else {
+        return false;
+    }
+
+    return true;
+}
+
+DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts_, const struct option longOptions[],
+                                             const int &optionIndex, char *argv[])
+{
+    if (ParseSubLongCmdOption(argc, opts_, longOptions, optionIndex, argv)) {
+        return DumpStatus::DUMP_OK;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-smaps")) {
         opts_.isShowSmaps_ = true;
         DumpStatus status;
@@ -364,8 +390,64 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts_, const 
         }
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "gc")) {
         opts_.isDumpJsHeapMemGC_ = true;
+    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "ipc")) {
+        opts_.isDumpIpc_ = true;
+        if (IPC_STAT_ARG_NUMS != argc) {
+            DUMPER_HILOGE(MODULE_COMMON, "ipc stat cmd args invalid");
+            SendErrorMessage("ipc stat cmd args invalid\n");
+            CmdHelp();
+            return DumpStatus::DUMP_HELP;
+        }
+    } else if (SetIpcStatParam(opts_, longOptions[optionIndex].name)) {
+        if (!opts_.isDumpIpc_) {
+            DUMPER_HILOGE(MODULE_COMMON, "ipc stat param invalid");
+            SendErrorMessage("ipc stat cmd args invalid\n");
+            CmdHelp();
+            return DumpStatus::DUMP_HELP;
+        }
     } else {
         DUMPER_HILOGE(MODULE_COMMON, "ParseLongCmdOption %{public}s", longOptions[optionIndex].name);
+    }
+    return DumpStatus::DUMP_OK;
+}
+
+bool DumpImplement::SetIpcStatParam(DumperOpts &opts_, const std::string& param)
+{
+    if (StringUtils::GetInstance().IsSameStr(param, "start-stat")) {
+        opts_.isDumpIpcStartStat_ = true;
+    } else if (StringUtils::GetInstance().IsSameStr(param, "stop-stat")) {
+        opts_.isDumpIpcStopStat_ = true;
+    } else if (StringUtils::GetInstance().IsSameStr(param, "stat")) {
+        opts_.isDumpIpcStat_ = true;
+    } else {
+        return false;
+    }
+    return true;
+}
+
+DumpStatus DumpImplement::ParseCmdOptionForA(DumperOpts &opts_, char *argv[])
+{
+    if (opts_.isDumpSystemAbility_) {
+        SplitStr(optarg, " ", opts_.abilitieArgs_);
+    } else if (opts_.isDumpIpc_) {
+        opts_.isDumpAllIpc_ = true;
+        if (optarg != nullptr) {
+            std::vector<std::string> ipcStatParams;
+            SplitStr(optarg, "--", ipcStatParams);
+            if (ipcStatParams.empty()) {
+                SendErrorMessage(invalidError_);
+                return DumpStatus::DUMP_INVALID_ARG;
+            }
+            if (!SetIpcStatParam(opts_, ipcStatParams[0])) {
+                SendErrorMessage(invalidError_ + ":" + ipcStatParams[0]);
+                return DumpStatus::DUMP_INVALID_ARG;
+            }
+        }
+    } else {
+        std::string optionName = RemoveCharacterFromStr(argv[optind - 1], '-');
+        std::string errorStr = unrecognizedError_ + optionName;
+        SendErrorMessage(errorStr);
+        return DumpStatus::DUMP_INVALID_ARG;
     }
     return DumpStatus::DUMP_OK;
 }
@@ -374,13 +456,9 @@ DumpStatus DumpImplement::ParseShortCmdOption(int c, DumperOpts &opts_, int argc
 {
     switch (c) {
         case 'a': {
-            if (opts_.isDumpSystemAbility_) {
-                SplitStr(optarg, " ", opts_.abilitieArgs_);
-            } else {
-                std::string optionName = RemoveCharacterFromStr(argv[optind - 1], '-');
-                std::string errorStr = unrecognizedError_ + optionName;
-                SendErrorMessage(errorStr);
-                return DumpStatus::DUMP_INVALID_ARG;
+            DumpStatus status = ParseCmdOptionForA(opts_, argv);
+            if (status != DumpStatus::DUMP_OK) {
+                return status;
             }
             break;
         }
@@ -459,7 +537,9 @@ void DumpImplement::CmdHelp()
         " pid if pid was specified\n"
         "  --zip                       |compress output to /data/log/hidumper\n"
         "  --mem-smaps pid [-v]        |display statistic in /proc/pid/smaps, use -v specify more details\n"
-        "  --mem-jsheap pid [-T tid] [--gc]  |triggerGC and dumpHeapSnapshot under pid and tid\n";
+        "  --mem-jsheap pid [-T tid] [--gc]  |triggerGC and dumpHeapSnapshot under pid and tid\n"
+        "  --ipc pid ARG               |ipc load statistic; pid must be specified or set to -a dump all"
+        " processes. ARG must be one of --start-stat | --stop-stat | --stat\n";
     if (ptrReqCtl_ == nullptr) {
         return;
     }
@@ -573,6 +653,10 @@ void DumpImplement::AddGroupTitle(const std::string &groupName, HidumperExecutor
      * -------------------------------[groupName]-------------------------------
      * '
      */
+    if (StringUtils::GetInstance().IsSameStr(groupName, "ipc")) {
+        DUMPER_HILOGI(MODULE_COMMON, "ipc statistic cmd, do not need title.");
+        return;
+    }
     std::vector<std::string> lineData;
     lineData.push_back("");
     dumpDatas->push_back(lineData);
@@ -666,16 +750,6 @@ std::string DumpImplement::RemoveCharacterFromStr(const std::string &str, const 
     return strTmp;
 }
 
-bool DumpImplement::IsLongOption(const std::string &str, const struct option longOptions[], int size)
-{
-    for (int i = 0; i < (size - 1); i++) {
-        if (StringUtils::GetInstance().IsSameStr(str, longOptions[i].name)) {
-            return true;
-        }
-    }
-    return false;
-}
-
 bool DumpImplement::IsSADumperOption(char *argv[])
 {
     for (int i = optind - 2; i > 0; i--) {
@@ -713,6 +787,10 @@ DumpStatus DumpImplement::CheckProcessAlive(const DumperOpts &opts_)
         SendPidErrorMessage(opts_.dumpJsHeapMemPid_);
         return DumpStatus::DUMP_FAIL;
     }
+    if ((opts_.ipcStatPid_ > 0) && !DumpUtils::CheckProcessAlive(opts_.ipcStatPid_)) {
+        SendPidErrorMessage(opts_.ipcStatPid_);
+        return DumpStatus::DUMP_FAIL;
+    }
     return DumpStatus::DUMP_OK;
 }
 
@@ -723,16 +801,19 @@ void DumpImplement::RemoveDuplicateString(DumperOpts &opts_)
     DumpUtils::RemoveDuplicateString(opts_.abilitieNames_); // remove duplicate ability names
 }
 
+#ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
 std::string DumpImplement::TransferVectorToString(const std::vector<std::string>& vs)
 {
     std::string outputStr;
     std::stringstream ss;
 
-    for (auto& i : vs) {
+    for (const auto& i : vs) {
         ss << i << " ";
     }
     outputStr = ss.str();
-
+    if (outputStr.empty()) {
+        return "";
+    }
     return outputStr.substr(0, outputStr.length() - 1);
 }
 
@@ -773,6 +854,7 @@ void DumpImplement::ReportCmdUsage(const DumperOpts &opts_, const std::string &c
         DUMPER_HILOGE(MODULE_COMMON, "hisysevent report hidumper usage failed! ret %{public}d.", ret);
     }
 }
+#endif
 
 bool DumpImplement::CheckAppDebugVersion(int pid)
 {

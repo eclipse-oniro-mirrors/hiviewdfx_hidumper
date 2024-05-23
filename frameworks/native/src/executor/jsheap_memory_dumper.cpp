@@ -60,6 +60,7 @@ DumpStatus JsHeapMemoryDumper::PreExecute(const shared_ptr<DumperParameter> &par
     pid_ = static_cast<uint32_t>(parameter->GetOpts().dumpJsHeapMemPid_);
     tid_ = static_cast<uint32_t>(parameter->GetOpts().threadId_);
     dumpDatas_ = dumpDatas;
+    ptrReqCtl_ = parameter->getClientCallback();
     return DumpStatus::DUMP_OK;
 }
 

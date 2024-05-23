@@ -33,6 +33,7 @@
 
 #include "common.h"
 #include "datetime_ex.h"
+#include "parameters.h"
 #include "securec.h"
 #include "string_ex.h"
 
@@ -222,6 +223,9 @@ inline const std::map<int, std::string> saNameMap_ = {
     { TEST_SERVER_SA_ID, "TestServer" },
     { APP_DOMAIN_VERIFY_MANAGER_SA_ID, "AppDomainVerifyManager" },
     { APP_DOMAIN_VERIFY_AGENT_SA_ID, "AppDomainVerifyAgent" },
+    { AOT_COMPILER_SERVICE_ID, "AotCompilerService" },
+    { EL5_FILEKEY_MANAGER_SERVICE_ID, "El5FilekeyManager"},
+    { COMM_FIREWALL_MANAGER_SYS_ABILITY_ID, "NetFirewallManager" },
 };
 
 namespace HiviewDFX {
@@ -406,6 +410,12 @@ bool DumpUtils::CopyFile(const std::string &src, const std::string &des)
     }
     fout.flush();
     return true;
+}
+
+bool DumpUtils::IsCommercialVersion()
+{
+    bool isCommercialVersion = OHOS::system::GetParameter("const.logsystem.versiontype", "unknown") == "commercial";
+    return isCommercialVersion;
 }
 } // namespace HiviewDFX
 } // namespace OHOS

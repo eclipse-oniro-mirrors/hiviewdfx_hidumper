@@ -30,6 +30,7 @@ const std::string ConfigData::CONFIG_DUMPER_LIST_SERVICE = ConfigData::CONFIG_DU
 const std::string ConfigData::CONFIG_DUMPER_LIST_SYSTEM_ABILITY = ConfigData::CONFIG_DUMPER_LIST_ + "system_ability";
 const std::string ConfigData::CONFIG_DUMPER_LIST_SYSTEM = ConfigData::CONFIG_DUMPER_LIST_ + "system";
 const std::string ConfigData::CONFIG_DUMPER_JSHEAP_MEMORY = ConfigData::CONFIG_DUMPER_ + "jsheap_memory";
+const std::string ConfigData::CONFIG_GROUP_IPC_STAT = ConfigData::CONFIG_GROUP_ + "ipc";
 const std::string ConfigData::CONFIG_GROUP_CPU_FREQ = ConfigData::CONFIG_GROUP_ + "cpufreq";
 const std::string ConfigData::CONFIG_GROUP_CPU_USAGE = ConfigData::CONFIG_GROUP_ + "cpuusage";
 const std::string ConfigData::CONFIG_GROUP_LOG = ConfigData::CONFIG_GROUP_ + "log";
@@ -768,6 +769,18 @@ const ConfigData::ItemCfg ConfigData::trafficDumper_[] = {
     },
 };
 
+
+const ConfigData::ItemCfg ConfigData::ipcStatDumper_[] = {
+    {
+        "dumper_ipc_stat", "IPC stat Information", "%pid", "",
+        DumperConstant::IPC_STAT_DUMPER, DumperConstant::NONE, DumperConstant::NONE,""
+    },
+    {
+        "", "", "", "",
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+};
+
 const ConfigData::DumperCfg ConfigData::dumpers_[] = {
     {.name_ = baseInfoDumper_[0].name_,
      .desc_ = baseInfoDumper_[0].desc_,
@@ -952,6 +965,10 @@ const ConfigData::DumperCfg ConfigData::dumpers_[] = {
      .desc_ = trafficDumper_[0].desc_,
      .list_ = trafficDumper_,
      .size_ = ARRAY_SIZE(trafficDumper_)},
+    {.name_ = ipcStatDumper_[0].name_,
+     .desc_ = ipcStatDumper_[0].desc_,
+     .list_ = ipcStatDumper_,
+     .size_ = ARRAY_SIZE(ipcStatDumper_)},
 };
 
 const std::string ConfigData::cpuFreqGroup_[] = {
@@ -1092,6 +1109,10 @@ const std::string ConfigData::testGroup_[] = {
     "dumper_test",
 };
 
+const std::string ConfigData::ipcStatGroup_[] = {
+    "dumper_ipc_stat",
+};
+
 const ConfigData::GroupCfg ConfigData::groups_[] = {
     {
         .name_ = ConfigData::CONFIG_GROUP_CPU_FREQ,
@@ -1138,6 +1159,14 @@ const ConfigData::GroupCfg ConfigData::groups_[] = {
         .desc_ = "group of memory dumper",
         .list_ = memoryGroup_,
         .size_ = ARRAY_SIZE(memoryGroup_),
+        .type_ = DumperConstant::GROUPTYPE_PID,
+        .expand_ = false,
+    },
+    {
+        .name_ = ConfigData::CONFIG_GROUP_IPC_STAT,
+        .desc_ = "group of ipc stat dumper",
+        .list_ = ipcStatGroup_,
+        .size_ = ARRAY_SIZE(ipcStatGroup_),
         .type_ = DumperConstant::GROUPTYPE_PID,
         .expand_ = false,
     },

@@ -72,19 +72,24 @@ private:
     bool IsShortOptionReqArg(const char* optStr);
     void SendErrorMessage(const std::string& errorStr);
     void SendPidErrorMessage(int pid);
+    bool ParseSubLongCmdOption(int argc, DumperOpts &opts_, const struct option longOptions[],
+        const int &optionIndex, char *argv[]);
     DumpStatus ParseLongCmdOption(int argc, DumperOpts& opts_, const struct option longOptions[],
         const int& optionIndex, char* argv[]);
     DumpStatus ParseShortCmdOption(int c, DumperOpts& opts_, int argc, char* argv[]);
     void CheckIncorrectCmdOption(const char* optStr, char* argv[]);
     std::string RemoveCharacterFromStr(const std::string& str, const char character);
-    bool IsLongOption(const std::string& str, const struct option longOptions[], int size);
     bool IsSADumperOption(char* argv[]);
     DumpStatus CheckProcessAlive(const DumperOpts& opts_);
     void RemoveDuplicateString(DumperOpts& opts_);
+#ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
     void ReportCmdUsage(const DumperOpts &opts_, const std::string& cmdStr);
     std::string TransferVectorToString(const std::vector<std::string>& vs);
+#endif
     bool CheckAppDebugVersion(int pid);
     bool CheckDumpPermission(DumperOpts &opt);
+    bool SetIpcStatParam(DumperOpts &opt, const std::string& param);
+    DumpStatus ParseCmdOptionForA(DumperOpts &opt, char *argv[]);
 
 private:
     using ExecutorFactoryMap = std::map<int, std::shared_ptr<ExecutorFactory>>;
@@ -99,6 +104,7 @@ private:
     sptr<ISystemAbilityManager> sam_;
     std::string GetTime();
     std::string path_;
+    static const int IPC_STAT_ARG_NUMS = 4;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
