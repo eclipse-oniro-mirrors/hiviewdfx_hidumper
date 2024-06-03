@@ -49,7 +49,6 @@ ohos_source_set("dump_main") {
     "src/executor/memory/get_process_info.cpp",
     "src/executor/memory/get_ram_info.cpp",
     "src/executor/memory/memory_filter.cpp",
-    "src/executor/memory/memory_info.cpp",
     "src/executor/memory/memory_util.cpp",
     "src/executor/memory/parse/parse_meminfo.cpp",
     "src/executor/memory/parse/parse_smaps_info.cpp",
@@ -117,20 +116,6 @@ ohos_source_set("dump_main") {
     "zlib:shared_libz",
   ]
   defines = []
-  if (hidumper_graphic_enable) {
-    external_deps += [
-      "graphic_2d:2d_graphics_new",
-      "graphic_2d:libcomposer",
-      "graphic_2d:librender_service_base",
-      "graphic_2d:librender_service_client",
-      "image_framework:image_native",
-    ]
-    defines += [
-      "HIDUMPER_GRAPHIC_ENABLE",
-      "NEW_SKIA",
-      "ROSEN_CROSS_PLATFORM",
-    ]
-  }
 
   if (hidumper_ability_runtime_enable) {
     external_deps += [ "ability_runtime:app_manager" ]

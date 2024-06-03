@@ -22,6 +22,7 @@ group("service") {
     "interfaces/innerkits:lib_dump_usage",
     "sa_profile:hidumper_service_sa_profile",
     "services:hidumper_service.rc",
+    "services:hidumpermemory",
     "services:hidumperservice",
     "services:infos_config",
   ]

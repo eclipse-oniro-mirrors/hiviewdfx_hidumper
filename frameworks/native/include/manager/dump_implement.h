@@ -59,7 +59,8 @@ private:
     DumpStatus DumpDatas(const std::vector<std::shared_ptr<HidumperExecutor>>& executors,
         const std::shared_ptr<DumperParameter>& dumpParameter,
         HidumperExecutor::StringMatrix dumpDatas);
-    void AddGroupTitle(const std::string& groupName, HidumperExecutor::StringMatrix dumpDatas);
+    void AddGroupTitle(const std::string& groupName, HidumperExecutor::StringMatrix dumpDatas,
+        const std::shared_ptr<DumperParameter>& dumpParameter);
     void AddExecutorFactoryToMap();
     /**
      * Check group name changed.

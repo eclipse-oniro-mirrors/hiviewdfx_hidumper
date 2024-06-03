@@ -612,7 +612,7 @@ DumpStatus DumpImplement::DumpDatas(const std::vector<std::shared_ptr<HidumperEx
 
         auto dumpCfg = executors[index]->GetDumpConfig();
         if (dumpCfg->IsDumper() && CheckGroupName(groupName, dumpCfg->section_)) {
-            AddGroupTitle(groupName, dumpDatas);
+            AddGroupTitle(groupName, dumpDatas, dumpParameter);
         }
 
         DumpStatus ret = DumpStatus::DUMP_FAIL;
@@ -645,7 +645,8 @@ DumpStatus DumpImplement::DumpDatas(const std::vector<std::shared_ptr<HidumperEx
     return DumpStatus::DUMP_OK;
 }
 
-void DumpImplement::AddGroupTitle(const std::string &groupName, HidumperExecutor::StringMatrix dumpDatas)
+void DumpImplement::AddGroupTitle(const std::string &groupName, HidumperExecutor::StringMatrix dumpDatas,
+    const std::shared_ptr<DumperParameter>& dumpParameter)
 {
     /**
      * @brief The group title is followed
@@ -655,6 +656,10 @@ void DumpImplement::AddGroupTitle(const std::string &groupName, HidumperExecutor
      */
     if (StringUtils::GetInstance().IsSameStr(groupName, "ipc")) {
         DUMPER_HILOGI(MODULE_COMMON, "ipc statistic cmd, do not need title.");
+        return;
+    }
+    if (StringUtils::GetInstance().IsSameStr(groupName, "memory") && dumpParameter->GetOpts().memPid_ <= 0) {
+        DUMPER_HILOGI(MODULE_COMMON, "hidumper --mem cmd, do not need title.");
         return;
     }
     std::vector<std::string> lineData;

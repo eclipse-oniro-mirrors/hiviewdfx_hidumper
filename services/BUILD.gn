@@ -284,6 +284,80 @@ ohos_shared_library("hidumperservice") {
   part_name = "${hidumper_part_name}"
 }
 
+ohos_source_set("hidumpermemory_source") {
+  sources = [
+    "${hidumper_frameworks_path}/dump_utils.cpp",
+    "${hidumper_frameworks_path}/src/common/dump_cfg.cpp",
+    "${hidumper_frameworks_path}/src/common/dumper_opts.cpp",
+    "${hidumper_frameworks_path}/src/common/dumper_parameter.cpp",
+    "${hidumper_frameworks_path}/src/common/option_args.cpp",
+    "${hidumper_frameworks_path}/src/executor/memory/dma_info.cpp",
+    "${hidumper_frameworks_path}/src/executor/memory/get_cma_info.cpp",
+    "${hidumper_frameworks_path}/src/executor/memory/get_hardware_info.cpp",
+    "${hidumper_frameworks_path}/src/executor/memory/get_heap_info.cpp",
+    "${hidumper_frameworks_path}/src/executor/memory/get_kernel_info.cpp",
+    "${hidumper_frameworks_path}/src/executor/memory/get_process_info.cpp",
+    "${hidumper_frameworks_path}/src/executor/memory/get_ram_info.cpp",
+    "${hidumper_frameworks_path}/src/executor/memory/memory_filter.cpp",
+    "${hidumper_frameworks_path}/src/executor/memory/memory_info.cpp",
+    "${hidumper_frameworks_path}/src/executor/memory/memory_info_wrapper.cpp",
+    "${hidumper_frameworks_path}/src/executor/memory/memory_util.cpp",
+    "${hidumper_frameworks_path}/src/executor/memory/parse/parse_meminfo.cpp",
+    "${hidumper_frameworks_path}/src/executor/memory/parse/parse_smaps_info.cpp",
+    "${hidumper_frameworks_path}/src/executor/memory/parse/parse_smaps_rollup_info.cpp",
+    "${hidumper_frameworks_path}/src/executor/memory/parse/parse_vmallocinfo.cpp",
+    "${hidumper_frameworks_path}/src/executor/memory/smaps_memory_info.cpp",
+    "${hidumper_frameworks_path}/src/util/config_data.cpp",
+    "${hidumper_frameworks_path}/src/util/config_utils.cpp",
+    "${hidumper_frameworks_path}/src/util/file_utils.cpp",
+    "${hidumper_frameworks_path}/src/util/string_utils.cpp",
+    "native/src/dump_common_utils.cpp",
+  ]
+
+  configs = [
+    "${hidumper_utils_path}:utils_config",
+    ":interface_include",
+    "${hidumper_frameworks_path}:hidumper_include",
+    "${hidumper_service_path}:service_config",
+  ]
+  deps = [ "${hidumper_utils_path}:utils" ]
+  external_deps = [
+    "c_utils:utils",
+    "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
+    "eventhandler:libeventhandler",
+    "hdf_core:libhdf_utils",
+    "hilog:libhilog",
+    "init:libbegetutil",
+  ]
+  defines = []
+  if (hidumper_graphic_enable) {
+    external_deps += [
+      "graphic_2d:2d_graphics_new",
+      "graphic_2d:libcomposer",
+      "graphic_2d:librender_service_base",
+      "graphic_2d:librender_service_client",
+      "image_framework:image_native",
+    ]
+    defines += [
+      "HIDUMPER_GRAPHIC_ENABLE",
+      "NEW_SKIA",
+      "ROSEN_CROSS_PLATFORM",
+    ]
+  }
+
+  subsystem_name = "${hidumper_subsystem_name}"
+  part_name = "${hidumper_part_name}"
+}
+
+ohos_shared_library("hidumpermemory") {
+  deps = [ ":hidumpermemory_source" ]
+  external_deps = [ "hilog:libhilog" ]
+  install_enable = true
+  version_script = "hidumper.map"
+  subsystem_name = "${hidumper_subsystem_name}"
+  part_name = "${hidumper_part_name}"
+}
+
 ohos_shared_library("hidumpercpuservice") {
   deps = [ ":hidumperservice_cpu_source" ]
   external_deps = [ "hilog:libhilog" ]
