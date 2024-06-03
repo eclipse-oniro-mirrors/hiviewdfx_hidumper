@@ -20,7 +20,6 @@
 #include "hidumper_executor.h"
 #include "app_jsheap_mem_info.h"
 #include "memory/dump_jsheap_info.h"
-#include "raw_param.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -36,15 +35,11 @@ private:
     DumpStatus status_ = DUMP_FAIL;
     StringMatrix dumpDatas_;
     std::unique_ptr<DumpJsHeapInfo> jsHeapInfo_;
-    std::shared_ptr<RawParam> ptrReqCtl_;
 
     bool needSnapshot_ = true;
     bool needGc_ = true;
     uint32_t pid_ = 0;
     uint32_t tid_ = 0;
-    std::vector<uint32_t> fdVec_;
-
-    void SendJsHeapDumpMessage(const std::string &errorStr);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

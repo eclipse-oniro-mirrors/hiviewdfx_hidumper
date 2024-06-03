@@ -32,7 +32,6 @@ public:
     bool GetInfo(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &nativeMap, GroupMap &result);
     bool ShowSmapsData(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &result,
         bool isShowSmapsInfo, std::vector<std::map<std::string, std::string>> &vectMap);
-    bool GetArkTsHeapTid(const int &pid, std::vector<uint32_t> &tidVec);
 
 private:
     std::string memGroup_ = "";
