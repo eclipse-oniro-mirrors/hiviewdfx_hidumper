@@ -859,7 +859,7 @@ void DumpImplement::ReportCmdUsage(const DumperOpts &opts_, const std::string &c
             OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
             "TYPE", "hidumper");
         if (memJsheapRet != 0) {
-            DUMPER_HILOGE(MODULE_COMMON, "hisysevent report hidumper usage failed! ret %{public}d.", ret);
+            DUMPER_HILOGE(MODULE_COMMON, "hisysevent report mem jsheap failed! ret %{public}d.", memJsheapRet);
         }
     }
 }
