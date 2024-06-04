@@ -175,27 +175,5 @@ bool ParseSmapsInfo::ShowSmapsData(const MemoryFilter::MemoryType &memType, cons
     }
     return ret;
 }
-
-bool ParseSmapsInfo::GetArkTsHeapTid(const int &pid, std::vector<uint32_t> &tidVec)
-{
-    DUMPER_HILOGD(MODULE_SERVICE, "ParseSmapsInfo: GetArkTsHeapTid pid:(%{public}d) begin.\n", pid);
-    string path = "/proc/" + to_string(pid) + "/smaps";
-    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, true, [&](const string& line) -> void {
-        string name;
-        uint64_t iNode = 0;
-        if (MemoryUtil::GetInstance().IsNameLine(line, name, iNode) &&
-            name.find("[anon:ArkTS Heap") != string::npos) {
-                std::string tidStr = "0";
-                StringUtils::GetInstance().StringRegex(name, "[0-9]+", 0, tidStr);
-                uint32_t tid = static_cast<uint32_t>(stoul(tidStr));
-                auto it = std::find(tidVec.begin(), tidVec.end(), tid);
-                if (it == tidVec.end() && tidStr != "0" && static_cast<int>(tid) >= pid) {
-                    tidVec.push_back(tid);
-                }
-        }
-    });
-    DUMPER_HILOGD(MODULE_SERVICE, "ParseSmapsInfo: GetArkTsHeapTid pid:(%{public}d) end,success!\n", pid);
-    return ret;
-}
 } // namespace HiviewDFX
 } // namespace OHOS
