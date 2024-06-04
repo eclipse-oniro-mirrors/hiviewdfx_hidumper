@@ -857,6 +857,7 @@ void DumpImplement::ReportCmdUsage(const DumperOpts &opts_, const std::string &c
         int memJsheapRet = HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::FRAMEWORK,
             "ARK_STATS_DUMP",
             OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
+            "PID", opts_.dumpJsHeapMemPid_,
             "TYPE", "hidumper");
         if (memJsheapRet != 0) {
             DUMPER_HILOGE(MODULE_COMMON, "hisysevent report mem jsheap failed! ret %{public}d.", memJsheapRet);
