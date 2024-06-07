@@ -1,7 +1,8 @@
 {
     global:
       extern "C++" {
-
+        GetMemoryInfoByPid;
+        GetMemoryInfoNoPid;
       };
     local:
       *;

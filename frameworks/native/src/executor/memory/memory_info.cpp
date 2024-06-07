@@ -56,9 +56,9 @@ static const std::string LIB_PATH = "/vendor/lib64/libai_infra.so";
 static const std::string LIB_PATH = "/vendor/lib/libai_infra.so";
 #endif
 
-static string g_initProcessNSPid; //init process namespace pid
 static const std::string UNKNOWN_PROCESS = "unknown";
 static const std::string PRE_BLANK = "   ";
+static const std::string MEMORY_LINE = "-------------------------------[memory]-------------------------------";
 constexpr int HIAI_MAX_QUERIED_USER_MEMINFO_LIMIT = 256;
 constexpr char HIAI_MEM_INFO_FN[] = "HIAI_Memory_QueryAllUserAllocatedMemInfo";
 using HiaiFunc = int (*)(MemInfoData::HiaiUserAllocatedMemInfo*, int, int*);
@@ -86,10 +86,6 @@ MemoryInfo::MemoryInfo()
         bind(&MemoryInfo::SetHeapAlloc, this, placeholders::_1, placeholders::_2)));
     methodVec_.push_back(make_pair(MEMINFO_HEAP_FREE,
         bind(&MemoryInfo::SetHeapFree, this, placeholders::_1, placeholders::_2)));
-
-    if (g_initProcessNSPid.empty()) {
-        GetNSPidByPid(1, g_initProcessNSPid);
-    }
 }
 
 MemoryInfo::~MemoryInfo()
@@ -250,17 +246,6 @@ bool MemoryInfo::IsRenderService(int32_t pid)
     return false;
 }
 
-bool MemoryInfo::IsOHService(const int32_t &pid)
-{
-    string namespacePid;
-    GetNSPidByPid(pid, namespacePid);
-    if (namespacePid.empty()) {
-        DUMPER_HILOGE(MODULE_SERVICE, "get namespace pid error\n");
-        return false;
-    }
-    return namespacePid == g_initProcessNSPid;
-}
-
 bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
 {
     if (!dmaInfo_.ParseDmaInfo()) {
@@ -270,7 +255,7 @@ bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
     GroupMap nativeGroupMap;
     unique_ptr<ParseSmapsInfo> parseSmapsInfo = make_unique<ParseSmapsInfo>();
     if (!parseSmapsInfo->GetInfo(MemoryFilter::APPOINT_PID, pid, nativeGroupMap, groupMap)) {
-        DUMPER_HILOGE(MODULE_SERVICE, "parse smaps info fail");
+        DUMPER_HILOGE(MODULE_SERVICE, "parse smaps info fail, pid:%{public}d", pid);
         return false;
     }
 
@@ -646,22 +631,6 @@ void MemoryInfo::GetRamCategory(const GroupMap &smapsInfos, const ValueMap &memi
     GetProcesses(smapsInfos, result);
 }
 
-void MemoryInfo::GetNSPidByPid(const int32_t &pid, std::string &nsPid)
-{
-    /*
-        ls -al /proc/1/ns/pid
-        lrwxrwxrwx 1 root root 0 2023-11-01 16:03 /proc/1/ns/pid -> pid:[4026531836]
-    */
-    string cmd = "ls -al /proc/" + to_string(pid) + "/ns/pid";
-    vector<string> cmdResult;
-    if (!MemoryUtil::GetInstance().RunCMD(cmd, cmdResult) || cmdResult.size() == 0) {
-        DUMPER_HILOGE(MODULE_SERVICE, "GetNSPidByPid fail! pid = %{public}d", pid);
-        return;
-    }
-    string pidStr = cmdResult.front();
-    StringUtils::GetInstance().StringRegex(pidStr, "\\[([0-9]+)\\]", 1, nsPid);
-}
-
 void MemoryInfo::AddBlankLine(StringMatrix result)
 {
     vector<string> blank;
@@ -886,20 +855,19 @@ void MemoryInfo::MemUsageToMatrix(const MemInfoData::MemUsage &memUsage, StringM
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedPurgPin);
     strs.push_back(unMappedPurgPin);
 
-    string name = memUsage.name;
-    string preBlank = "   ";
+    string name = "    " + memUsage.name;
     StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, name);
-    strs.push_back(preBlank.append(name));
 
-    result->emplace_back(strs);
+    (void)dprintf(rawParamFd_, "%s%s%s%s%s%s%s%s%s%s%s\n", pid.c_str(),
+        totalPss.c_str(), totalVss.c_str(), totalRss.c_str(), totalUss.c_str(),
+        unMappedGL.c_str(), unMappedGraph.c_str(), unMappedDma.c_str(), unMappedPurgSum.c_str(),
+        unMappedPurgPin.c_str(), name.c_str());
 }
 
 void MemoryInfo::AddMemByProcessTitle(StringMatrix result, string sortType)
 {
-    vector<string> process;
     string processTitle = "Total Memory Usage by " + sortType + ":";
-    process.push_back(processTitle);
-    result->push_back(process);
+    (void)dprintf(rawParamFd_, "%s\n", processTitle.c_str());
 
     vector<string> title;
     string pid = "PID";
@@ -942,12 +910,14 @@ void MemoryInfo::AddMemByProcessTitle(StringMatrix result, string sortType)
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedPurgPin);
     title.push_back(unMappedPurgPin);
 
-    string name = "Name";
-    string preBlank = "   ";
+    string name = "    Name";
     StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, name);
-    title.push_back(preBlank.append(name));
+    title.push_back(name);
 
-    result->push_back(title);
+    (void)dprintf(rawParamFd_, "%s%s%s%s%s%s%s%s%s%s%s\n", pid.c_str(),
+        totalPss.c_str(), totalVss.c_str(), totalRss.c_str(), totalUss.c_str(),
+        unMappedGL.c_str(), unMappedGraph.c_str(), unMappedDma.c_str(), unMappedPurgSum.c_str(),
+        unMappedPurgPin.c_str(), name.c_str());
 }
 
 #ifdef HIDUMPER_GRAPHIC_ENABLE
@@ -964,8 +934,10 @@ void MemoryInfo::GetMemGraphics()
 }
 #endif
 
-DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
+DumpStatus MemoryInfo::GetMemoryInfoNoPid(int fd, StringMatrix result)
 {
+    rawParamFd_ = fd;
+    (void)dprintf(rawParamFd_, "%s\n", MEMORY_LINE.c_str());
     if (!dmaInfo_.ParseDmaInfo()) {
         DUMPER_HILOGE(MODULE_SERVICE, "Parse dma info error\n");
     }
@@ -982,7 +954,6 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
         GetMemGraphics();
 #endif
         isReady_ = true;
-        return DUMP_MORE_DATA;
     }
 
     if (!dumpSmapsOnStart_) {
@@ -998,19 +969,16 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(StringMatrix result)
     }
     MemInfoData::MemUsage usage;
     MemoryUtil::GetInstance().InitMemUsage(usage);
-    if (pids_.size() > 0) {
-        if (GetMemByProcessPid(pids_.front(), dmaInfo_, usage)) {
+    for (auto pid : pids_) {
+        if (GetMemByProcessPid(pid, dmaInfo_, usage)) {
             memUsages_.push_back(usage);
             adjMemResult_[usage.adjLabel].push_back(usage);
             totalGL_ += usage.gl;
             totalGraph_ += usage.graph;
             MemUsageToMatrix(usage, result);
         } else {
-            DUMPER_HILOGE(MODULE_SERVICE, "Get smaps_rollup error! pid = %{public}d\n",
-                          static_cast<int>(pids_.front()));
+            DUMPER_HILOGE(MODULE_SERVICE, "Get smaps_rollup error! pid = %{public}d\n", static_cast<int>(pid));
         }
-        pids_.erase(pids_.begin());
-        return DUMP_MORE_DATA;
     }
     return DealResult(result);
 }

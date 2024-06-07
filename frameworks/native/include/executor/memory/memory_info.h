@@ -84,7 +84,7 @@ public:
     using MemFun = std::function<void(MemInfoData::MemInfo&, uint64_t)>;
 
     bool GetMemoryInfoByPid(const int32_t &pid, StringMatrix result);
-    DumpStatus GetMemoryInfoNoPid(StringMatrix result);
+    DumpStatus GetMemoryInfoNoPid(int fd, StringMatrix result);
     DumpStatus DealResult(StringMatrix result);
 
 private:
@@ -94,7 +94,7 @@ private:
         SUCCESS_NO_MORE_DATA = 3,
         FAIL_NO_MORE_DATA = 4,
     };
-
+    int rawParamFd_ = 0;
     const int LINE_WIDTH_ = 14;
     const int RAM_WIDTH_ = 16;
     const size_t TYPE_SIZE = 2;
@@ -167,8 +167,6 @@ private:
     static bool GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory);
     static bool GetRenderServiceGraphics(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory);
     static bool IsRenderService(int32_t pid);
-    static bool IsOHService(const int32_t &pid);
-    static void GetNSPidByPid(const int32_t &pid, std::string &nsPid);
     void GetMemoryByAdj(StringMatrix result);
     void SetPss(MemInfoData::MemInfo &meminfo, uint64_t value);
     void SetSharedClean(MemInfoData::MemInfo &meminfo, uint64_t value);

@@ -13,16 +13,19 @@
  * limitations under the License.
  */
 #include "executor/memory_dumper.h"
-#include "dump_common_utils.h"
+#include <dlfcn.h>
 
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
+#if defined(__LP64__)
+static const std::string MEM_LIB_PATH = "/system/lib64/libhidumpermemory.z.so";
+#else
+static const std::string MEM_LIB_PATH = "/system/lib/libhidumpermemory.z.so";
+#endif
+
 MemoryDumper::MemoryDumper()
 {
-    if (memoryInfo_ == nullptr) {
-        memoryInfo_ = std::make_unique<MemoryInfo>();
-    }
     if (smapsMemoryInfo_ == nullptr) {
         smapsMemoryInfo_ = std::make_unique<SmapsMemoryInfo>();
     }
@@ -38,31 +41,67 @@ DumpStatus MemoryDumper::PreExecute(const shared_ptr<DumperParameter> &parameter
     isShowMaps_ = parameter->GetOpts().isShowSmaps_;
     isShowSmapsInfo_ =  parameter->GetOpts().isShowSmapsInfo_;
     dumpDatas_ = dumpDatas;
+    rawParamFd_ = parameter->getClientCallback()->GetOutputFd();
     return DumpStatus::DUMP_OK;
 }
 
 DumpStatus MemoryDumper::Execute()
 {
-    DUMPER_HILOGI(MODULE_COMMON, "info|MemoryDumper Execute");
-    if (dumpDatas_ != nullptr && memoryInfo_ != nullptr) {
+    DUMPER_HILOGI(MODULE_SERVICE, "info|MemoryDumper Execute enter");
+    if (dumpDatas_ != nullptr) {
         if (pid_ >= 0) {
             if (isShowMaps_) {
                 bool isShowMapsFlag = smapsMemoryInfo_->ShowMemorySmapsByPid(pid_, dumpDatas_, isShowSmapsInfo_);
                 status_ = isShowMapsFlag ? DumpStatus::DUMP_OK : DumpStatus::DUMP_FAIL;
                 return status_;
             }
-            bool success = memoryInfo_->GetMemoryInfoByPid(pid_, dumpDatas_);
-            if (success) {
-                status_ = DumpStatus::DUMP_OK;
-            } else {
-                status_ = DumpStatus::DUMP_FAIL;
-            }
+            GetMemByPid();
         } else {
-            status_ = memoryInfo_->GetMemoryInfoNoPid(dumpDatas_);
+            GetMemNoPid();
         }
     }
-    DUMPER_HILOGI(MODULE_COMMON, "info|MemoryDumper Execute end");
+    DUMPER_HILOGI(MODULE_SERVICE, "info|MemoryDumper Execute end");
     return status_;
+}
+
+void MemoryDumper::GetMemByPid()
+{
+    void *handle = dlopen(MEM_LIB_PATH.c_str(), RTLD_LAZY | RTLD_NODELETE);
+    if (handle == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "fail to open %{public}s. errno:%{public}s", MEM_LIB_PATH.c_str(), dlerror());
+        return;
+    }
+    GetMemByPidFunc pfn = reinterpret_cast<GetMemByPidFunc>(dlsym(handle, "GetMemoryInfoByPid"));
+    if (pfn == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "fail to dlsym GetMemoryInfoByPid. errno:%{public}s", dlerror());
+        dlclose(handle);
+        return;
+    }
+    if (!pfn(pid_, dumpDatas_)) {
+        status_ = DumpStatus::DUMP_OK;
+    } else {
+        DUMPER_HILOGE(MODULE_SERVICE, "MemoryDumper Execute failed, pid:%{public}d", pid_);
+        status_ = DumpStatus::DUMP_FAIL;
+    }
+    dlclose(handle);
+}
+
+void MemoryDumper::GetMemNoPid()
+{
+    void* handle = dlopen(MEM_LIB_PATH.c_str(), RTLD_LAZY | RTLD_NODELETE);
+    if (handle == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "fail to open %{public}s. errno:%{public}s", MEM_LIB_PATH.c_str(), dlerror());
+        return;
+    }
+    GetMemNoPidFunc getMemNoPidFunc = reinterpret_cast<GetMemNoPidFunc>(dlsym(handle, "GetMemoryInfoNoPid"));
+    if (getMemNoPidFunc == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "fail to dlsym GetMemoryInfoNoPid. errno:%{public}s", dlerror());
+        dlclose(handle);
+        status_ = DUMP_FAIL;
+        return;
+    }
+    status_ = (DumpStatus)(getMemNoPidFunc(rawParamFd_, dumpDatas_));
+    dlclose(handle);
 }
 
 DumpStatus MemoryDumper::AfterExecute()
