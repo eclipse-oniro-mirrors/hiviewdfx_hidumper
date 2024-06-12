@@ -14,6 +14,7 @@
  */
 #ifndef HIDUMPER_CLIENT_DUMP_MAIN_H
 #define HIDUMPER_CLIENT_DUMP_MAIN_H
+#include <vector>
 #include "singleton.h"
 namespace OHOS {
 namespace HiviewDFX {
@@ -24,6 +25,7 @@ public:
 public:
     int Main(int argc, char* argv[], int outFd);
 private:
+    void SetCmdArgs(int argc, char* argv[], std::vector<std::u16string>& args);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

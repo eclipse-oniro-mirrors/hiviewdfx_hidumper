@@ -144,13 +144,13 @@ int32_t DumpManagerService::Request(std::vector<std::u16string> &args, int outfd
     }
     int32_t uid = IPCSkeleton::GetCallingUid();
     if (!HasDumpPermission() && uid != HIPORFILER_UID) {
-        DUMPER_HILOGE(MODULE_SERVICE, "No dump permission, please check!, uid:%{pubilc}d.", uid);
+        DUMPER_HILOGE(MODULE_SERVICE, "No dump permission, please check!, uid:%{public}d.", uid);
         return DumpStatus::DUMP_FAIL;
     }
     int sum = GetRequestSum();
     DUMPER_HILOGD(MODULE_SERVICE, "debug|sum=%{public}d", sum);
     if (sum >= REQUEST_MAX) {
-        DUMPER_HILOGE(MODULE_SERVICE, "sum is greater than the request max, sum:%{pubilc}d.", sum);
+        DUMPER_HILOGE(MODULE_SERVICE, "sum is greater than the request max, sum:%{public}d.", sum);
         return DumpStatus::DUMP_REQUEST_MAX;
     } else if (sum == 0) {
         DumpLogManager::Init();
