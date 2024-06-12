@@ -648,16 +648,16 @@ string MemoryInfo::GetProcName(const int32_t &pid)
     return procName;
 }
 
-std::string MemoryInfo::GetProcStatusValue(const int32_t &pid, const string& key)
+string MemoryInfo::GetProcStatusValue(const int32_t &pid, const string& key)
 {
     string path = "/proc/" + to_string(pid) + "/status";
     if (!DumpUtils::PathIsValid(path)) {
         DUMPER_HILOGE(MODULE_COMMON, "GetProcessAdjLabel leave|false, PathIsValid");
         return UNKNOWN_PROCESS;
     }
-    auto fp = std::unique_ptr<FILE, decltype(&fclose)>{fopen(canonicalPath, "rd"), fclose};
+    auto fp = std::unique_ptr<FILE, decltype(&fclose)>{fopen(path.c_str(), "rd"), fclose};
     if (fp == nullptr) {
-        return false;
+        return UNKNOWN_PROCESS;
     }
     char *lineBuf = nullptr;
     ssize_t lineLen;
