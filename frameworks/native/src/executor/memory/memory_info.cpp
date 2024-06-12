@@ -643,44 +643,59 @@ string MemoryInfo::GetProcName(const int32_t &pid)
     string procName = UNKNOWN_PROCESS;
     DumpCommonUtils::GetProcessNameByPid(pid, procName);
     if (procName == UNKNOWN_PROCESS) {
-        procName = GetProcStatusName(pid);
+        procName = GetProcStatusValue(pid, "Name");
     }
     return procName;
 }
 
-std::string MemoryInfo::GetProcStatusName(const int32_t &pid)
+std::string MemoryInfo::GetProcStatusValue(const int32_t &pid, const string& key)
 {
-    string str = "grep \"Name\" /proc/" + to_string(pid) + "/status";
-    string procName = UNKNOWN_PROCESS;
-    vector<string> cmdResult;
-    if (!MemoryUtil::GetInstance().RunCMD(str, cmdResult) || cmdResult.size() == 0) {
-        DUMPER_HILOGE(MODULE_SERVICE, "GetProcName fail! pid = %{public}d", pid);
-        return procName;
+    string path = "/proc/" + to_string(pid) + "/status";
+    if (!DumpUtils::PathIsValid(path)) {
+        DUMPER_HILOGE(MODULE_COMMON, "GetProcessAdjLabel leave|false, PathIsValid");
+        return UNKNOWN_PROCESS;
     }
-    vector<string> names;
-    StringUtils::GetInstance().StringSplit(cmdResult.at(0), ":", names);
-    if (names.empty()) {
-        return procName;
+    auto fp = std::unique_ptr<FILE, decltype(&fclose)>{fopen(canonicalPath, "rd"), fclose};
+    if (fp == nullptr) {
+        return false;
     }
-    procName = cmdResult.at(0).substr(names[0].length() + 1);
-    return procName;
+    char *lineBuf = nullptr;
+    ssize_t lineLen;
+    size_t lineAlloc = 0;
+    string content;
+    while ((lineLen = getline(&lineBuf, &lineAlloc, fp.get())) > 0) {
+        lineBuf[lineLen] = '\0';
+        if (lineBuf[lineLen-1] == '\n') {
+            lineBuf[lineLen-1] = '\0';
+        }
+        content = lineBuf;
+        if (content.find(key) != std::string::npos) {
+            break;
+        }
+        content = "";
+    }
+    if (lineBuf != nullptr) {
+        free(lineBuf);
+        lineBuf = nullptr;
+    }
+    if (!content.empty()) {
+        vector<string> names;
+        StringUtils::GetInstance().StringSplit(content, ":", names);
+        if (names.empty()) {
+            DUMPER_HILOGE(MODULE_SERVICE, "GetProcStatusValue is empty");
+            return UNKNOWN_PROCESS;
+        } else {
+            return names[1];
+        }
+    } else {
+        return UNKNOWN_PROCESS;
+    }
 }
 
 uint64_t MemoryInfo::GetProcValue(const int32_t &pid, const string& key)
 {
-    string str = "grep \"" + key + "\" /proc/" + to_string(pid) + "/status";
-    vector<string> cmdResult;
-    if (!MemoryUtil::GetInstance().RunCMD(str, cmdResult) || cmdResult.size() == 0) {
-        DUMPER_HILOGE(MODULE_SERVICE, "GetProcValue RunCMD failed");
-        return 0;
-    }
-    vector<string> names;
-    StringUtils::GetInstance().StringSplit(cmdResult.at(0), ":", names);
-    if (names.empty()) {
-        DUMPER_HILOGE(MODULE_SERVICE, "GetProcValue names is empty");
-        return 0;
-    }
-    return stoi(names[1].substr(0, names[1].size() - 3)); // 3: ' kB'
+    std::string value = GetProcStatusValue(pid, key);
+    return stoi(value.substr(0, value.size() - 3)); // 3: ' kB'
 }
 
 string MemoryInfo::GetProcessAdjLabel(const int32_t pid)
