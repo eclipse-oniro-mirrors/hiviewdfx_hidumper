@@ -6,23 +6,7 @@
             "libpath": "libhidumperservice.z.so",
             "run-on-create": true,
             "distributed": false,
-            "dump_level": 1,
-            "start-on-demand": {
-                "deviceonline": [
-                    {
-                        "name": "deviceonline",
-                        "value": "on"
-                    }
-                ]
-            },
-            "stop-on-demand": {
-              "deviceonline": [
-                  {
-                      "name": "deviceonline",
-                      "value": "off"
-                  }
-              ]
-            }
+            "dump_level": 1
         }
     ]
 }
