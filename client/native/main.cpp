@@ -17,5 +17,6 @@
 using OHOS::HiviewDFX::DumpClientMain;
 int main(int argc, char *argv[])
 {
-    return DumpClientMain::GetInstance().Main(argc, argv, STDOUT_FILENO);
+    int ret = DumpClientMain::GetInstance().Main(argc, argv, STDOUT_FILENO);
+    _exit(ret);
 }
