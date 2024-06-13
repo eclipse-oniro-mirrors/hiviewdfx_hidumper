@@ -644,7 +644,7 @@ string MemoryInfo::GetProcName(const int32_t &pid)
     DumpCommonUtils::GetProcessNameByPid(pid, procName);
     if (procName == UNKNOWN_PROCESS) {
         string path = "/proc/" + to_string(pid) + "/status";
-        procName = GetProcValue(pid, path, "Name");
+        procName = FileUtils::GetInstance().GetProcValue(pid, path, "Name");
     }
     return procName;
 }
@@ -652,7 +652,7 @@ string MemoryInfo::GetProcName(const int32_t &pid)
 uint64_t MemoryInfo::GetProcValue(const int32_t &pid, const string& key)
 {
     string path = "/proc/" + to_string(pid) + "/status";
-    std::string value = FileUtils::GetInstance().LoadStringFromProcCb(pid, path, key);
+    std::string value = FileUtils::GetInstance().GetProcValue(pid, path, key);
     if (value == UNKNOWN_PROCESS) {
         DUMPER_HILOGE(MODULE_SERVICE, "GetProcStatusValue failed");
         return 0;
