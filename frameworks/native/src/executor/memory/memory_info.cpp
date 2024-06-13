@@ -652,11 +652,12 @@ string MemoryInfo::GetProcStatusValue(const int32_t &pid, const string& key)
 {
     string path = "/proc/" + to_string(pid) + "/status";
     if (!DumpUtils::PathIsValid(path)) {
-        DUMPER_HILOGE(MODULE_COMMON, "GetProcessAdjLabel leave|false, PathIsValid");
+        DUMPER_HILOGE(MODULE_COMMON, "PathIsValid");
         return UNKNOWN_PROCESS;
     }
     auto fp = std::unique_ptr<FILE, decltype(&fclose)>{fopen(path.c_str(), "rd"), fclose};
     if (fp == nullptr) {
+        DUMPER_HILOGE(MODULE_COMMON, "fopen failed");
         return UNKNOWN_PROCESS;
     }
     char *lineBuf = nullptr;
@@ -679,15 +680,16 @@ string MemoryInfo::GetProcStatusValue(const int32_t &pid, const string& key)
         lineBuf = nullptr;
     }
     if (!content.empty()) {
-        vector<string> names;
-        StringUtils::GetInstance().StringSplit(content, ":", names);
-        if (names.empty()) {
-            DUMPER_HILOGE(MODULE_SERVICE, "GetProcStatusValue is empty");
+        vector<string> values;
+        StringUtils::GetInstance().StringSplit(content, ":", values);
+        if (values.empty()) {
+            DUMPER_HILOGE(MODULE_SERVICE, "values is empty");
             return UNKNOWN_PROCESS;
         } else {
-            return names[1];
+            return values[1].substr(1);
         }
     } else {
+        DUMPER_HILOGE(MODULE_SERVICE, "content is empty");
         return UNKNOWN_PROCESS;
     }
 }
@@ -695,6 +697,10 @@ string MemoryInfo::GetProcStatusValue(const int32_t &pid, const string& key)
 uint64_t MemoryInfo::GetProcValue(const int32_t &pid, const string& key)
 {
     std::string value = GetProcStatusValue(pid, key);
+    if (value == UNKNOWN_PROCESS) {
+        DUMPER_HILOGE(MODULE_SERVICE, "GetProcStatusValue failed");
+        return 0;
+    }
     return stoi(value.substr(0, value.size() - 3)); // 3: ' kB'
 }
 
