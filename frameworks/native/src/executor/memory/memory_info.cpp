@@ -662,7 +662,7 @@ uint64_t MemoryInfo::GetProcValue(const int32_t &pid, const string& key)
         DUMPER_HILOGE(MODULE_COMMON, "StrToInt failed");
         return 0;
     }
-    return number; 
+    return static_cast<uint64_t>(number);
 }
 
 string MemoryInfo::GetProcessAdjLabel(const int32_t pid)
