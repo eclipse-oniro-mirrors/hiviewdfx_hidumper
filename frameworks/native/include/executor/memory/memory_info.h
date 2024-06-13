@@ -153,7 +153,6 @@ private:
     
     static uint64_t GetVss(const int32_t &pid);
     static std::string GetProcName(const int32_t &pid);
-    static std::string GetProcStatusValue(const int32_t &pid, const std::string& key);
     static uint64_t GetProcValue(const int32_t &pid, const std::string& key);
     static std::string GetProcessAdjLabel(const int32_t pid);
     static std::string GetReclaimPriorityString(int32_t priority);
