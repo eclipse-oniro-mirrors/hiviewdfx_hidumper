@@ -643,60 +643,16 @@ string MemoryInfo::GetProcName(const int32_t &pid)
     string procName = UNKNOWN_PROCESS;
     DumpCommonUtils::GetProcessNameByPid(pid, procName);
     if (procName == UNKNOWN_PROCESS) {
-        procName = GetProcStatusValue(pid, "Name");
+        string path = "/proc/" + to_string(pid) + "/status";
+        procName = GetProcValue(pid, path, "Name");
     }
     return procName;
 }
 
-string MemoryInfo::GetProcStatusValue(const int32_t &pid, const string& key)
-{
-    string path = "/proc/" + to_string(pid) + "/status";
-    if (!DumpUtils::PathIsValid(path)) {
-        DUMPER_HILOGE(MODULE_COMMON, "PathIsValid");
-        return UNKNOWN_PROCESS;
-    }
-    auto fp = std::unique_ptr<FILE, decltype(&fclose)>{fopen(path.c_str(), "rd"), fclose};
-    if (fp == nullptr) {
-        DUMPER_HILOGE(MODULE_COMMON, "fopen failed");
-        return UNKNOWN_PROCESS;
-    }
-    char *lineBuf = nullptr;
-    ssize_t lineLen;
-    size_t lineAlloc = 0;
-    string content;
-    while ((lineLen = getline(&lineBuf, &lineAlloc, fp.get())) > 0) {
-        lineBuf[lineLen] = '\0';
-        if (lineBuf[lineLen-1] == '\n') {
-            lineBuf[lineLen-1] = '\0';
-        }
-        content = lineBuf;
-        if (content.find(key) != std::string::npos) {
-            break;
-        }
-        content = "";
-    }
-    if (lineBuf != nullptr) {
-        free(lineBuf);
-        lineBuf = nullptr;
-    }
-    if (!content.empty()) {
-        vector<string> values;
-        StringUtils::GetInstance().StringSplit(content, ":", values);
-        if (values.empty()) {
-            DUMPER_HILOGE(MODULE_SERVICE, "values is empty");
-            return UNKNOWN_PROCESS;
-        } else {
-            return values[1].substr(1);
-        }
-    } else {
-        DUMPER_HILOGE(MODULE_SERVICE, "content is empty");
-        return UNKNOWN_PROCESS;
-    }
-}
-
 uint64_t MemoryInfo::GetProcValue(const int32_t &pid, const string& key)
 {
-    std::string value = GetProcStatusValue(pid, key);
+    string path = "/proc/" + to_string(pid) + "/status";
+    std::string value = FileUtils::GetInstance().LoadStringFromProcCb(pid, path, key);
     if (value == UNKNOWN_PROCESS) {
         DUMPER_HILOGE(MODULE_SERVICE, "GetProcStatusValue failed");
         return 0;
