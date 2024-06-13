@@ -98,8 +98,8 @@ string FileUtils::GetProcValue(const int32_t &pid, const string& path, const str
     string content;
     while ((lineLen = getline(&lineBuf, &lineAlloc, fp.get())) > 0) {
         lineBuf[lineLen] = '\0';
-        if (lineBuf[lineLen-1] == '\n') {
-            lineBuf[lineLen-1] = '\0';
+        if (lineBuf[lineLen - 1] == '\n') {
+            lineBuf[lineLen - 1] = '\0';
         }
         content = lineBuf;
         if (content.find(key) != std::string::npos) {
