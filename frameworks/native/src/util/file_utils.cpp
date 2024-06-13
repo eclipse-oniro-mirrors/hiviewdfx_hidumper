@@ -19,6 +19,7 @@
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
+static const std::string UNKNOWN = "unknown";
 FileUtils::FileUtils()
 {
 }
@@ -84,12 +85,12 @@ string FileUtils::GetProcValue(const int32_t &pid, const string& path, const str
 {
     if (!DumpUtils::PathIsValid(path)) {
         DUMPER_HILOGE(MODULE_COMMON, "path is valid");
-        return UNKNOWN_PROCESS;
+        return UNKNOWN;
     }
     auto fp = std::unique_ptr<FILE, decltype(&fclose)>{fopen(path.c_str(), "rd"), fclose};
     if (fp == nullptr) {
         DUMPER_HILOGE(MODULE_COMMON, "fopen failed");
-        return UNKNOWN_PROCESS;
+        return UNKNOWN;
     }
     char *lineBuf = nullptr;
     ssize_t lineLen;
@@ -115,13 +116,13 @@ string FileUtils::GetProcValue(const int32_t &pid, const string& path, const str
         StringUtils::GetInstance().StringSplit(content, ":", values);
         if (values.empty()) {
             DUMPER_HILOGE(MODULE_SERVICE, "values is empty");
-            return UNKNOWN_PROCESS;
+            return UNKNOWN;
         } else {
             return values[1].substr(1);
         }
     } else {
         DUMPER_HILOGE(MODULE_SERVICE, "content is empty");
-        return UNKNOWN_PROCESS;
+        return UNKNOWN;
     }
 }
 } // namespace HiviewDFX

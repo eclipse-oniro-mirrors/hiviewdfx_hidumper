@@ -15,7 +15,9 @@
 #ifndef FILE_UTILS_H
 #define FILE_UTILS_H
 #include <string>
+#include "dump_utils.h"
 #include "singleton.h"
+#include "string_utils.h"
 namespace OHOS {
 namespace HiviewDFX {
 class FileUtils : public Singleton<FileUtils> {
