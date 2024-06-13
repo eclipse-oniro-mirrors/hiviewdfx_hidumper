@@ -657,7 +657,12 @@ uint64_t MemoryInfo::GetProcValue(const int32_t &pid, const string& key)
         DUMPER_HILOGE(MODULE_SERVICE, "GetProcStatusValue failed");
         return 0;
     }
-    return stoi(value.substr(0, value.size() - 3)); // 3: ' kB'
+    int number = 0;
+    if (!StrToInt(value.substr(0, value.size() - 3), number)) { // 3: ' kB'
+        DUMPER_HILOGE(MODULE_COMMON, "StrToInt failed");
+        return 0;
+    }
+    return number; 
 }
 
 string MemoryInfo::GetProcessAdjLabel(const int32_t pid)
