@@ -643,44 +643,26 @@ string MemoryInfo::GetProcName(const int32_t &pid)
     string procName = UNKNOWN_PROCESS;
     DumpCommonUtils::GetProcessNameByPid(pid, procName);
     if (procName == UNKNOWN_PROCESS) {
-        procName = GetProcStatusName(pid);
+        string path = "/proc/" + to_string(pid) + "/status";
+        procName = FileUtils::GetInstance().GetProcValue(pid, path, "Name");
     }
-    return procName;
-}
-
-std::string MemoryInfo::GetProcStatusName(const int32_t &pid)
-{
-    string str = "grep \"Name\" /proc/" + to_string(pid) + "/status";
-    string procName = UNKNOWN_PROCESS;
-    vector<string> cmdResult;
-    if (!MemoryUtil::GetInstance().RunCMD(str, cmdResult) || cmdResult.size() == 0) {
-        DUMPER_HILOGE(MODULE_SERVICE, "GetProcName fail! pid = %{public}d", pid);
-        return procName;
-    }
-    vector<string> names;
-    StringUtils::GetInstance().StringSplit(cmdResult.at(0), ":", names);
-    if (names.empty()) {
-        return procName;
-    }
-    procName = cmdResult.at(0).substr(names[0].length() + 1);
     return procName;
 }
 
 uint64_t MemoryInfo::GetProcValue(const int32_t &pid, const string& key)
 {
-    string str = "grep \"" + key + "\" /proc/" + to_string(pid) + "/status";
-    vector<string> cmdResult;
-    if (!MemoryUtil::GetInstance().RunCMD(str, cmdResult) || cmdResult.size() == 0) {
-        DUMPER_HILOGE(MODULE_SERVICE, "GetProcValue RunCMD failed");
+    string path = "/proc/" + to_string(pid) + "/status";
+    std::string value = FileUtils::GetInstance().GetProcValue(pid, path, key);
+    if (value == UNKNOWN_PROCESS) {
+        DUMPER_HILOGE(MODULE_SERVICE, "GetProcStatusValue failed");
         return 0;
     }
-    vector<string> names;
-    StringUtils::GetInstance().StringSplit(cmdResult.at(0), ":", names);
-    if (names.empty()) {
-        DUMPER_HILOGE(MODULE_SERVICE, "GetProcValue names is empty");
+    int number = 0;
+    if (!StrToInt(value.substr(0, value.size() - 3), number)) { // 3: ' kB'
+        DUMPER_HILOGE(MODULE_COMMON, "StrToInt failed");
         return 0;
     }
-    return stoi(names[1].substr(0, names[1].size() - 3)); // 3: ' kB'
+    return static_cast<uint64_t>(number);
 }
 
 string MemoryInfo::GetProcessAdjLabel(const int32_t pid)

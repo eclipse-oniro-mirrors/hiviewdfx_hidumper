@@ -15,7 +15,9 @@
 #ifndef FILE_UTILS_H
 #define FILE_UTILS_H
 #include <string>
+#include "dump_utils.h"
 #include "singleton.h"
+#include "string_utils.h"
 namespace OHOS {
 namespace HiviewDFX {
 class FileUtils : public Singleton<FileUtils> {
@@ -28,7 +30,7 @@ public:
     bool CreateFolder(const std::string &path);
     using DataHandler = std::function<void(const std::string& content)>;
     bool LoadStringFromProcCb(const std::string& path, bool oneLine, bool lineEndWithN, const DataHandler& func);
-
+    std::string GetProcValue(const int32_t &pid, const std::string& path, const std::string& key);
 private:
 };
 } // namespace HiviewDFX
