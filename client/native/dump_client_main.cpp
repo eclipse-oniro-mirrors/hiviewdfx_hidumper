@@ -14,6 +14,8 @@
  */
 #include "dump_client_main.h"
 
+#include <ipc_skeleton.h>
+#include <sstream>
 #include <string_ex.h>
 #include <vector>
 
@@ -21,6 +23,7 @@
 #include "dump_controller.h"
 #include "dump_manager_client.h"
 #include "dump_utils.h"
+#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -58,10 +61,7 @@ int DumpClientMain::Main(int argc, char* argv[], int outFd)
         }
     }
     std::vector<std::u16string> args;
-    for (int i = 0; i < argc; i++) {
-        args.push_back(Str8ToStr16(std::string(argv[i])));
-    }
-
+    SetCmdArgs(argc, argv, args);
     auto& dumpManagerClient = DumpManagerClient::GetInstance();
     if (dumpManagerClient.Connect() != ERR_OK) {
         (void)dprintf(outFd, "connect error\n");
@@ -79,6 +79,19 @@ int DumpClientMain::Main(int argc, char* argv[], int outFd)
         (void)dprintf(outFd, "service error\n");
     }
     return ret;
+}
+
+void DumpClientMain::SetCmdArgs(int argc, char* argv[], std::vector<std::u16string>& args)
+{
+    std::stringstream dumpCmdSs;
+    for (int i = 0; i < argc; i++) {
+        args.push_back(Str8ToStr16(std::string(argv[i])));
+        dumpCmdSs << std::string(argv[i]) << " ";
+    }
+    int32_t calllingUid = IPCSkeleton::GetCallingUid();
+    int32_t calllingPid = IPCSkeleton::GetCallingPid();
+    DUMPER_HILOGI(MODULE_SERVICE, "hidumper cmd:%{public}s, calllingUid=%{public}d, calllingPid=%{public}d.",
+        dumpCmdSs.str().c_str(), calllingUid, calllingPid);
 }
 } // namespace HiviewDFX
 } // namespace OHOS
