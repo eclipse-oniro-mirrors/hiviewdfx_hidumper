@@ -38,15 +38,18 @@ DumpManagerClient::~DumpManagerClient()
 int32_t DumpManagerClient::Request(std::vector<std::u16string> &args, int outfd)
 {
     if ((args.size() < 1) || (outfd < 0)) {
+        DUMPER_HILOGE(MODULE_CLIENT, "args or outfd failed.");
         return DumpStatus::DUMP_FAIL;
     }
     for (size_t i = 0; i < args.size(); i++) {
         std::string trimArg = TrimStr(Str16ToStr8(args[i]));
         if (strlen(trimArg.c_str()) < 1) {
+            DUMPER_HILOGE(MODULE_CLIENT, "trimArg empty.");
             return DumpStatus::DUMP_FAIL;
         }
     }
     if (Connect() != ERR_OK) {
+        DUMPER_HILOGE(MODULE_CLIENT, "Connect failed.");
         return DumpStatus::DUMP_FAIL;
     }
     int32_t ret = proxy_->Request(args, outfd);
@@ -58,24 +61,29 @@ ErrCode DumpManagerClient::Connect()
 {
     std::lock_guard<std::mutex> lock(mutex_);
     if (proxy_ != nullptr) {
+        DUMPER_HILOGE(MODULE_CLIENT, "proxy_ is nullptr.");
         return ERR_OK;
     }
     sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (sam == nullptr) {
+        DUMPER_HILOGE(MODULE_CLIENT, "sam is nullptr.");
         return ERROR_GET_SYSTEM_ABILITY_MANAGER;
     }
     sptr<IRemoteObject> remoteObject = sam->CheckSystemAbility(DFX_SYS_HIDUMPER_ABILITY_ID);
     if (remoteObject == nullptr) {
         ErrCode retStart = OnDemandStart(sam, remoteObject);
         if (remoteObject == nullptr || retStart != ERR_OK) {
+            DUMPER_HILOGE(MODULE_CLIENT, "remoteObject is nullptr.");
             return ERROR_GET_DUMPER_SERVICE;
         }
     }
     deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new DumpManagerDeathRecipient());
     if (deathRecipient_ == nullptr) {
+        DUMPER_HILOGE(ERR_NO_MEMORY, "remoteObject is nullptr.");
         return ERR_NO_MEMORY;
     }
     if ((remoteObject->IsProxyObject()) && (!remoteObject->AddDeathRecipient(deathRecipient_))) {
+        DUMPER_HILOGE(ERR_NO_MEMORY, "IsProxyObject failed.");
         return ERROR_ADD_DEATH_RECIPIENT;
     }
     proxy_ = iface_cast<IDumpBroker>(remoteObject);
