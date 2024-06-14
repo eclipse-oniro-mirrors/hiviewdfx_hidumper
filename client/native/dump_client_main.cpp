@@ -73,7 +73,7 @@ int DumpClientMain::Main(int argc, char* argv[], int outFd)
     if (ret < DumpStatus::DUMP_OK) {
         if (ret != DumpStatus::DUMP_INVALID_ARG) {
             (void)dprintf(outFd, "request error\n");
-            DUMPER_HILOGE(MODULE_SERVICE, "request error.");
+            DUMPER_HILOGE(MODULE_SERVICE, "request error, ret: %{public}d.", ret);
         }
         return ret;
     }
