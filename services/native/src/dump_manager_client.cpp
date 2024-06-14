@@ -79,11 +79,11 @@ ErrCode DumpManagerClient::Connect()
     }
     deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new DumpManagerDeathRecipient());
     if (deathRecipient_ == nullptr) {
-        DUMPER_HILOGE(ERR_NO_MEMORY, "remoteObject is nullptr.");
+        DUMPER_HILOGE(MODULE_CLIENT, "deathRecipient_ is nullptr.");
         return ERR_NO_MEMORY;
     }
     if ((remoteObject->IsProxyObject()) && (!remoteObject->AddDeathRecipient(deathRecipient_))) {
-        DUMPER_HILOGE(ERR_NO_MEMORY, "IsProxyObject failed.");
+        DUMPER_HILOGE(MODULE_CLIENT, "IsProxyObject failed.");
         return ERROR_ADD_DEATH_RECIPIENT;
     }
     proxy_ = iface_cast<IDumpBroker>(remoteObject);
