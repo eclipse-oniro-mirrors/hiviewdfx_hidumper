@@ -65,6 +65,7 @@ int DumpClientMain::Main(int argc, char* argv[], int outFd)
     auto& dumpManagerClient = DumpManagerClient::GetInstance();
     if (dumpManagerClient.Connect() != ERR_OK) {
         (void)dprintf(outFd, "connect error\n");
+        DUMPER_HILOGE(MODULE_SERVICE, "connect error.");
         return -1;
     }
     DumpUtils::IgnoreStdoutCache();
@@ -72,11 +73,13 @@ int DumpClientMain::Main(int argc, char* argv[], int outFd)
     if (ret < DumpStatus::DUMP_OK) {
         if (ret != DumpStatus::DUMP_INVALID_ARG) {
             (void)dprintf(outFd, "request error\n");
+            DUMPER_HILOGE(MODULE_SERVICE, "request error, ret: %{public}d.", ret);
         }
         return ret;
     }
     if (!dumpManagerClient.IsConnected()) {
         (void)dprintf(outFd, "service error\n");
+        DUMPER_HILOGE(MODULE_SERVICE, "service error.");
     }
     return ret;
 }
