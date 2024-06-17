@@ -140,7 +140,7 @@ ohos_unittest("HidumperConfigUtilsTest") {
     ":module_private_config",
   ]
 
-  deps = [ ]
+  deps = []
 
   external_deps = [
     "c_utils:utils",
@@ -183,7 +183,7 @@ ohos_unittest("HidumperPrivacyTest") {
 
   configs = [ ":module_private_config" ]
 
-  deps = [ ]
+  deps = []
 
   external_deps = [
     "c_utils:utils",
