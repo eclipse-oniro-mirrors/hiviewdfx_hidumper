@@ -51,9 +51,9 @@ using namespace OHOS::HDI::Memorytracker::V1_0;
 namespace OHOS {
 namespace HiviewDFX {
 #if defined(__LP64__)
-static const std::string LIB_PATH = "/vendor/lib64/libai_infra.so";
+static const std::string LIB_PATH = "/vendor/lib64/chipsetsdk/libai_mnt_client.so";
 #else
-static const std::string LIB_PATH = "/vendor/lib/libai_infra.so";
+static const std::string LIB_PATH = "/vendor/lib/chipsetsdk/libai_mnt_client.so";
 #endif
 
 static const std::string UNKNOWN_PROCESS = "unknown";
