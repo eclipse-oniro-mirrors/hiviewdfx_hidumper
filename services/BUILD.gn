@@ -277,6 +277,7 @@ ohos_source_set("hidumperservice_cpu_source_test") {
 ohos_shared_library("hidumperservice") {
   deps = [ ":hidumperservice_source" ]
   external_deps = [ "hilog:libhilog" ]
+  cflags = [ "-fstack-protector-strong" ]
   install_enable = true
   version_script = "hidumper.map"
   shlib_type = "sa"
