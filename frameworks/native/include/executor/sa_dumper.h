@@ -37,6 +37,7 @@ private:
     StringVector names_;
     U16StringVector args_;
     std::mutex mutex_;
+    std::string argsStr_;
 
     DumpStatus GetData(const std::string &name, const sptr<ISystemAbilityManager> &sam);
 };

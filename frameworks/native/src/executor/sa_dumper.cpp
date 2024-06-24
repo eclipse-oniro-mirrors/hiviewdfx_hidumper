@@ -14,6 +14,7 @@
  */
 #include "executor/sa_dumper.h"
 #include <cstdio>
+#include <sstream>
 #include <thread>
 #include <unistd.h>
 #include "dump_utils.h"
@@ -145,6 +146,11 @@ DumpStatus SADumper::PreExecute(const std::shared_ptr<DumperParameter> &paramete
     StringVector args = ptrDumpCfg_->args_->GetArgList();
     if (!args.empty() && names_.size() == 1) {
         std::transform(args.begin(), args.end(), std::back_inserter(args_), Str8ToStr16);
+        std::stringstream argsStr;
+        for (std::string arg : args) {
+            argsStr << arg << " ";
+        }
+        argsStr_ = argsStr.str();
     }
     return DumpStatus::DUMP_OK;
 }
@@ -176,12 +182,12 @@ DumpStatus SADumper::GetData(const std::string &name, const sptr<ISystemAbilityM
         DUMPER_HILOGE(MODULE_SERVICE, "system ability:%{public}s dump fail!\n", name.c_str());
     }
     reader.Stop();
+    DUMPER_HILOGI(MODULE_COMMON, "SA name:%{public}s dump success, cmd:%{public}s!", name.c_str(), argsStr_.c_str());
     return DumpStatus::DUMP_OK;
 }
 
 DumpStatus SADumper::Execute()
 {
-    DUMPER_HILOGI(MODULE_COMMON, "info|SADumper Execute");
     sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (sam == nullptr) {
         DUMPER_HILOGE(MODULE_SERVICE, "get samgr fail!");
@@ -196,7 +202,6 @@ DumpStatus SADumper::Execute()
             DUMPER_HILOGI(MODULE_SERVICE, "system ability:%{public}s execute fail!\n", names_[i].c_str());
         }
     }
-    DUMPER_HILOGI(MODULE_COMMON, "info|SADumper Execute end");
     return DumpStatus::DUMP_OK;
 }
 
