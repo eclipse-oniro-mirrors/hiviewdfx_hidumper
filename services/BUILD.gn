@@ -233,7 +233,7 @@ ohos_shared_library("hidumperservice_cpu_source") {
     external_deps += [ "ability_runtime:app_manager" ]
     defines += [ "HIDUMPER_ABILITY_BASE_ENABLE" ]
   }
-
+  version_script = "hidumper.map"
   subsystem_name = "${hidumper_subsystem_name}"
 
   part_name = "${hidumper_part_name}"

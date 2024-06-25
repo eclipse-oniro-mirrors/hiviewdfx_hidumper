@@ -3,6 +3,9 @@
       extern "C++" {
         GetMemoryInfoByPid;
         GetMemoryInfoNoPid;
+        "OHOS::HiviewDFX::DumpManagerCpuService::DumpManagerCpuService()";
+        "OHOS::HiviewDFX::DumpManagerCpuService::StartService()";
+        "OHOS::HiviewDFX::DumpManagerCpuService::~DumpManagerCpuService()";
       };
     local:
       *;
