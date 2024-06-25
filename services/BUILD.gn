@@ -329,6 +329,9 @@ ohos_source_set("hidumpermemory_source") {
     "hdf_core:libhdf_utils",
     "hilog:libhilog",
     "init:libbegetutil",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
   ]
   defines = []
   if (hidumper_graphic_enable) {
@@ -344,6 +347,11 @@ ohos_source_set("hidumpermemory_source") {
       "NEW_SKIA",
       "ROSEN_CROSS_PLATFORM",
     ]
+  }
+
+  if (hidumper_ability_runtime_enable) {
+    external_deps += [ "ability_runtime:app_manager" ]
+    defines += [ "HIDUMPER_ABILITY_RUNTIME_ENABLE" ]
   }
 
   subsystem_name = "${hidumper_subsystem_name}"
