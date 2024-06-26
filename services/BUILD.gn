@@ -119,6 +119,14 @@ ohos_source_set("zidl_cpu_service") {
     "samgr:samgr_proxy",
   ]
 
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    cfi_no_nvcall = true
+    cfi_vcall_icall_only = true
+    debug = false
+  }
+
   subsystem_name = "${hidumper_subsystem_name}"
 
   part_name = "${hidumper_part_name}"
