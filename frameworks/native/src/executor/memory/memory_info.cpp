@@ -663,7 +663,7 @@ uint64_t MemoryInfo::GetProcValue(const int32_t &pid, const string& key)
         value = value.substr(value.find_last_of(' ') + 1);
     }
     if (!StrToInt(value, number)) {
-        DUMPER_HILOGE(MODULE_COMMON, "StrToInt failed, value: %{public}s",value.c_str());
+        DUMPER_HILOGE(MODULE_COMMON, "StrToInt failed, value: %{public}s", value.c_str());
         return 0;
     }
     return static_cast<uint64_t>(number);
