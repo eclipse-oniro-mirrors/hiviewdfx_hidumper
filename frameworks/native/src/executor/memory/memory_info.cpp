@@ -658,8 +658,12 @@ uint64_t MemoryInfo::GetProcValue(const int32_t &pid, const string& key)
         return 0;
     }
     int number = 0;
-    if (!StrToInt(value.substr(0, value.size() - 3), number)) { // 3: ' kB'
-        DUMPER_HILOGE(MODULE_COMMON, "StrToInt failed");
+    value = value.substr(0, value.size() - 3); // 3: ' kB'
+    if (value.find_last_of(' ') != std::string::npos) {
+        value = value.substr(value.find_last_of(' ') + 1);
+    }
+    if (!StrToInt(value, number)) {
+        DUMPER_HILOGE(MODULE_COMMON, "StrToInt failed, value: %{public}s",value.c_str());
         return 0;
     }
     return static_cast<uint64_t>(number);
