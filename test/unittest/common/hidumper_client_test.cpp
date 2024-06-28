@@ -143,5 +143,5 @@ HWTEST_F(HidumperClientTest, ManagerClientTest002, TestSize.Level0)
     int ret = DumpManagerClient::GetInstance().Request(args, STDOUT_FILENO);
     ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
 }
-}
-}
+} // namespace HiviewDFX
+} // namespace OHOS

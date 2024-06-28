@@ -278,9 +278,9 @@ ohos_unittest("HidumperClientTest") {
 
   configs = [ ":module_private_config" ]
 
-  deps = [ 
-    "${hidumper_service_path}:hidumper_client",
+  deps = [
     "${hidumper_frameworks_path}:hidumperclient",
+    "${hidumper_service_path}:hidumper_client",
   ]
 
   external_deps = [
