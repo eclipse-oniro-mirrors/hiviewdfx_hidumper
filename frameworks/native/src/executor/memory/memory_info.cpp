@@ -61,6 +61,7 @@ static const std::string PRE_BLANK = "   ";
 static const std::string MEMORY_LINE = "-------------------------------[memory]-------------------------------";
 constexpr int HIAI_MAX_QUERIED_USER_MEMINFO_LIMIT = 256;
 constexpr char HIAI_MEM_INFO_FN[] = "HIAI_Memory_QueryAllUserAllocatedMemInfo";
+constexpr int PAGETAG_MIN_LEN = 2;
 using HiaiFunc = int (*)(MemInfoData::HiaiUserAllocatedMemInfo*, int, int*);
 
 MemoryInfo::MemoryInfo()
@@ -153,6 +154,10 @@ void MemoryInfo::BuildResult(const GroupMap &infos, StringMatrix result)
         vector<string> pageTag;
         StringUtils::GetInstance().StringSplit(info.first, "#", pageTag);
         string group;
+        if (pageTag.size() < PAGETAG_MIN_LEN) {
+            DUMPER_HILOGE(MODULE_COMMON, "Infos are invalid, info.first: %s", info.first.c_str());
+            return;
+        }
         if (pageTag[1] == "other") {
             group = pageTag[0] == MemoryFilter::GetInstance().FILE_PAGE_TAG ? "FilePage other" : "AnonPage other";
         } else {
