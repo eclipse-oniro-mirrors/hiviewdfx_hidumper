@@ -79,7 +79,6 @@ void DumpManagerService::OnStart()
         DUMPER_HILOGE(MODULE_SERVICE, "error|init fail, nothing to do.");
         return;
     }
-    DelayUnloadTask();
     if (!Publish(DumpDelayedSpSingleton<DumpManagerService>::GetInstance())) {
         DUMPER_HILOGE(MODULE_SERVICE, "error|register to system ability manager failed.");
         return;
@@ -155,6 +154,7 @@ int32_t DumpManagerService::Request(std::vector<std::u16string> &args, int outfd
     } else if (sum == 0) {
         DumpLogManager::Init();
     }
+    DelayUnloadTask();
     DUMPER_HILOGD(MODULE_SERVICE, "enter|");
     const std::shared_ptr<RawParam> rawParam = AddRequestRawParam(args, outfd);
     int32_t ret = StartRequest(rawParam);
@@ -414,7 +414,7 @@ void DumpManagerService::RequestMain(const std::shared_ptr<RawParam> rawParam)
 
 void DumpManagerService::DelayUnloadTask()
 {
-    DUMPER_HILOGI(MODULE_SERVICE, "delay unload task begin");
+    DUMPER_HILOGI(MODULE_SERVICE, "recieve new request, delay unload task begin");
     auto task = [this]() {
         DUMPER_HILOGI(MODULE_SERVICE, "do unload task");
         auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
