@@ -152,38 +152,38 @@ bool GetHardwareInfo::GetHardwareUsage(uint64_t &totalValue)
     totalValue = 0;
     vector<string> paths;
     bool findPathSuccess = FindFilePaths(paths);
-    if (findPathSuccess) {
-        size_t size = paths.size();
-        if (size > 0) {
-            size_t threadNum =
-                MemoryUtil::GetInstance().GetMaxThreadNum(MemoryFilter::GetInstance().HARDWARE_USAGE_THREAD_NUM_);
-            if (threadNum == 0) {
-                threadNum = 1;
-            }
-            size_t groupSize = (size - 1) / threadNum + 1;
-
-            std::vector<future<uint64_t>> results;
-
-            for (size_t i = 0; i < threadNum; i++) {
-                vector<string> groupPaths;
-                GetGroupOfPaths(i, groupSize, paths, groupPaths);
-                auto future = std::async(std::launch::async, CalcHardware, groupPaths);
-                results.emplace_back(std::move(future));
-            }
-
-            for (auto &tempResult : results) {
-                uint64_t value = tempResult.get();
-                totalValue += value;
-            }
-            totalValue = totalValue / MemoryUtil::GetInstance().BYTE_TO_KB_;
-        } else {
-            DUMPER_HILOGD(MODULE_SERVICE, "GetHardwareInfo file path size is 0\n");
-        }
-
-        return true;
-    } else {
+    if (!findPathSuccess) {
+        DUMPER_HILOGE(MODULE_SERVICE, "find hardware path failed.");
         return false;
     }
+    size_t size = paths.size();
+    if (size > 0) {
+        size_t threadNum =
+            MemoryUtil::GetInstance().GetMaxThreadNum(MemoryFilter::GetInstance().HARDWARE_USAGE_THREAD_NUM_);
+        if (threadNum == 0) {
+            threadNum = 1;
+        }
+        size_t groupSize = (size - 1) / threadNum + 1;
+        std::vector<future<uint64_t>> results;
+        for (size_t i = 0; i < threadNum; i++) {
+            vector<string> groupPaths;
+            GetGroupOfPaths(i, groupSize, paths, groupPaths);
+            std::promise<uint64_t> promise;
+            std::future<uint64_t> future = promise.get_future();
+            std::thread([promise = std::move(promise), groupPaths]() mutable {
+                promise.set_value(CalcHardware(groupPaths));
+                }).detach();
+                results.emplace_back(std::move(future));
+        }
+        for (auto& tempResult : results) {
+            uint64_t value = tempResult.get();
+            totalValue += value;
+        }
+        totalValue = totalValue / MemoryUtil::GetInstance().BYTE_TO_KB_;
+    } else {
+        DUMPER_HILOGD(MODULE_SERVICE, "GetHardwareInfo file path size is 0\n");
+    }
+    return true;
 }
 } // namespace HiviewDFX
 } // namespace OHOS

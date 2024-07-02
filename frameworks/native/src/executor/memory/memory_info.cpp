@@ -949,14 +949,16 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(int fd, StringMatrix result)
 
     if (!dumpSmapsOnStart_) {
         dumpSmapsOnStart_ = true;
-        fut_ = std::async(std::launch::async, [&]() {
+        std::promise<GroupMap> promise;
+        fut_ = promise.get_future();
+        std::thread([promise = std::move(promise), this]() mutable {
             GroupMap groupMap;
-            std::vector<int32_t> pids(pids_);
+            std::vector<int32_t> pids(this->pids_);
             for (auto pid : pids) {
                 GetSmapsInfoNoPid(pid, groupMap);
             }
-            return groupMap;
-        });
+            promise.set_value(groupMap);
+            }).detach();
     }
     MemInfoData::MemUsage usage;
     MemoryUtil::GetInstance().InitMemUsage(usage);
