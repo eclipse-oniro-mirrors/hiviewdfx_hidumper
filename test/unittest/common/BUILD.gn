@@ -268,6 +268,32 @@ ohos_unittest("HidumperCpuServiceTest") {
   ]
 }
 
+ohos_unittest("HidumperClientTest") {
+  module_out_path = module_output_path
+
+  sources = [
+    "hidumper_client_test.cpp",
+    "hidumper_test_utils.cpp",
+  ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${hidumper_frameworks_path}:hidumperclient",
+    "${hidumper_service_path}:hidumper_client",
+  ]
+
+  external_deps = [
+    "googletest:gtest",
+    "hilog:libhilog",
+    "init:libbegetutil",
+  ]
+
+  cflags = [
+    "-Dprivate=public",  #allow test code access private members
+  ]
+}
+
 ###############################################################################
 group("unittest") {
   testonly = true
