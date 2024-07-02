@@ -624,6 +624,75 @@ HWTEST_F(HiDumperManagerTest, DumpTest030, TestSize.Level0)
 }
 
 /**
+ * @tc.name: MemoryDumperTest031
+ * @tc.desc: Test too many arguments.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest031, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+    };
+    int argc = ARG_MAX_COUNT + 1;
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
+}
+
+/**
+ * @tc.name: MemoryDumperTest032
+ * @tc.desc: Test empty argument.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest032, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("--mem"),
+        const_cast<char *>("-1"),
+        const_cast<char *>(""),
+        const_cast<char *>("--mem"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
+}
+
+/**
+ * @tc.name: MemoryDumperTest033
+ * @tc.desc: Test too long argument .
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest033, TestSize.Level0)
+{
+    std::string longArg;
+    longArg.assign(SINGLE_ARG_MAXLEN + 1, 'c');
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("-h"),
+        const_cast<char *>(longArg.c_str()),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
+}
+
+/**
+ * @tc.name: MemoryDumperTest034
+ * @tc.desc: Test null argument.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest034, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        nullptr,
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
+}
+
+/**
  * @tc.name: IpcStatDumpTest001
  * @tc.desc: hidumper --ipc -a --start-stat
  * @tc.type: FUNC
