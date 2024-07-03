@@ -315,9 +315,8 @@ ohos_unittest("HidumperClientTest") {
 ###############################################################################
 group("unittest") {
   testonly = true
-  deps = []
 
-  deps += [
+  deps = [
     # deps file
     ":HidumperClientTest",
     ":HidumperConfigUtilsTest",
