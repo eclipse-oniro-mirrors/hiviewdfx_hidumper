@@ -64,7 +64,6 @@ ohos_unittest("HidumperServiceTest") {
   external_deps = [
     "c_utils:utils",
     "eventhandler:libeventhandler",
-    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
@@ -93,7 +92,6 @@ ohos_unittest("HidumperDumpersTest") {
 
   external_deps = [
     "c_utils:utils",
-    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
@@ -114,7 +112,6 @@ ohos_unittest("HidumperOutputTest") {
 
   external_deps = [
     "c_utils:utils",
-    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
     "zlib:shared_libz",
@@ -147,7 +144,6 @@ ohos_unittest("HidumperConfigUtilsTest") {
 
   external_deps = [
     "c_utils:utils",
-    "googletest:gtest_main",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
@@ -172,7 +168,6 @@ ohos_unittest("MemoryDumperTest") {
   external_deps = [
     "c_utils:utils",
     "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
-    "googletest:gtest_main",
     "hdf_core:libhdf_utils",
     "hilog:libhilog",
     "ipc:ipc_core",
@@ -192,10 +187,7 @@ ohos_unittest("HidumperPrivacyTest") {
 
   deps = []
 
-  external_deps = [
-    "c_utils:utils",
-    "googletest:gtest_main",
-  ]
+  external_deps = [ "c_utils:utils" ]
 }
 
 ohos_unittest("HidumperInnerkitsTest") {
@@ -213,7 +205,6 @@ ohos_unittest("HidumperInnerkitsTest") {
   external_deps = [
     "c_utils:utils",
     "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
-    "googletest:gtest_main",
     "hdf_core:libhdf_utils",
     "hilog:libhilog",
     "ipc:ipc_core",
@@ -235,7 +226,6 @@ ohos_unittest("HidumperManagerTest") {
 
   external_deps = [
     "c_utils:utils",
-    "googletest:gtest_main",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
@@ -265,7 +255,6 @@ ohos_unittest("HidumperCpuServiceTest") {
   external_deps = [
     "c_utils:utils",
     "eventhandler:libeventhandler",
-    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
@@ -300,7 +289,6 @@ ohos_unittest("HidumperClientTest") {
 
   external_deps = [
     "c_utils:utils",
-    "googletest:gtest_main",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
