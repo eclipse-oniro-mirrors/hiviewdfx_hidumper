@@ -113,8 +113,10 @@ ohos_source_set("dump_main") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "skia:skia_canvaskit",
     "zlib:shared_libz",
   ]
+
   defines = []
 
   if (hidumper_ability_runtime_enable) {

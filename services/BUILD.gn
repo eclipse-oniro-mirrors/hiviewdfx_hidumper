@@ -267,6 +267,7 @@ ohos_source_set("hidumperservice_cpu_source_test") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hiview:libucollection_utility",
+    "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
@@ -331,6 +332,7 @@ ohos_source_set("hidumpermemory_source") {
   ]
   deps = [ "${hidumper_utils_path}:utils" ]
   external_deps = [
+    "ability_base:want",
     "c_utils:utils",
     "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
     "eventhandler:libeventhandler",
@@ -340,6 +342,7 @@ ohos_source_set("hidumpermemory_source") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "skia:skia_canvaskit",
   ]
   defines = []
   if (hidumper_graphic_enable) {

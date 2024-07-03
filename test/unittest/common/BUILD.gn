@@ -64,7 +64,7 @@ ohos_unittest("HidumperServiceTest") {
   external_deps = [
     "c_utils:utils",
     "eventhandler:libeventhandler",
-    "googletest:gtest",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
@@ -92,8 +92,11 @@ ohos_unittest("HidumperDumpersTest") {
   ]
 
   external_deps = [
-    "googletest:gtest",
+    "c_utils:utils",
+    "googletest:gtest_main",
     "hilog:libhilog",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
   ]
 }
 
@@ -111,7 +114,7 @@ ohos_unittest("HidumperOutputTest") {
 
   external_deps = [
     "c_utils:utils",
-    "googletest:gtest",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
     "zlib:shared_libz",
@@ -144,11 +147,12 @@ ohos_unittest("HidumperConfigUtilsTest") {
 
   external_deps = [
     "c_utils:utils",
-    "googletest:gtest",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
     "zlib:shared_libz",
   ]
 }
@@ -168,8 +172,11 @@ ohos_unittest("MemoryDumperTest") {
   external_deps = [
     "c_utils:utils",
     "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
-    "googletest:gtest",
+    "googletest:gtest_main",
+    "hdf_core:libhdf_utils",
     "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
   ]
 }
 
@@ -187,7 +194,7 @@ ohos_unittest("HidumperPrivacyTest") {
 
   external_deps = [
     "c_utils:utils",
-    "googletest:gtest",
+    "googletest:gtest_main",
   ]
 }
 
@@ -204,9 +211,13 @@ ohos_unittest("HidumperInnerkitsTest") {
   ]
 
   external_deps = [
+    "c_utils:utils",
     "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
-    "googletest:gtest",
+    "googletest:gtest_main",
+    "hdf_core:libhdf_utils",
     "hilog:libhilog",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
   ]
 }
 
@@ -223,9 +234,12 @@ ohos_unittest("HidumperManagerTest") {
   deps = [ "${hidumper_service_path}:hidumperservice_source" ]
 
   external_deps = [
-    "googletest:gtest",
+    "c_utils:utils",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "init:libbegetutil",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
   ]
 
   cflags = [
@@ -251,8 +265,9 @@ ohos_unittest("HidumperCpuServiceTest") {
   external_deps = [
     "c_utils:utils",
     "eventhandler:libeventhandler",
-    "googletest:gtest",
+    "googletest:gtest_main",
     "hilog:libhilog",
+    "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
@@ -284,9 +299,12 @@ ohos_unittest("HidumperClientTest") {
   ]
 
   external_deps = [
-    "googletest:gtest",
+    "c_utils:utils",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "init:libbegetutil",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
   ]
 
   cflags = [
@@ -301,6 +319,7 @@ group("unittest") {
 
   deps += [
     # deps file
+    ":HidumperClientTest",
     ":HidumperConfigUtilsTest",
     ":HidumperCpuServiceTest",
     ":HidumperDumpersTest",

@@ -34,6 +34,7 @@
                 "netmanager_base",
                 "safwk",
                 "samgr",
+                "skia",
                 "drivers_interface_memorytracker",
                 "hdf_core",
                 "ability_runtime",
