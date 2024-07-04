@@ -16,6 +16,7 @@
 #define HIVIEWDFX_HIDUMPER_INFO_WRAPPER_H
 
 #include "executor/memory/memory_info.h"
+#include "executor/memory/smaps_memory_info.h"
 #include <dlfcn.h>
 #include <vector>
 #include <string>
@@ -30,6 +31,7 @@ using StringMatrix = std::shared_ptr<std::vector<std::vector<std::string>>>;
 
 EXPORT_API int GetMemoryInfoByPid(int pid, StringMatrix data);
 EXPORT_API int GetMemoryInfoNoPid(int fd, StringMatrix data);
+EXPORT_API int ShowMemorySmapsByPid(int pid, StringMatrix data, bool isShowSmapsInfo);
 
 #ifdef __cplusplus
 }

@@ -18,12 +18,10 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <v1_0/imemory_tracker_interface.h>
 #include "singleton.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-using namespace OHOS::HDI::Memorytracker::V1_0;
 class MemoryFilter : public Singleton<MemoryFilter> {
 public:
     MemoryFilter();
@@ -51,11 +49,6 @@ public:
     const std::string PURGSUM_OUT_LABEL = "PurgSum";
     const std::string PURGPIN_OUT_LABEL = "PurgPin";
     const std::string NATIVE_HEAP_LABEL = "native heap";
-
-    const std::vector<std::pair<MemoryTrackerType, std::string>> MEMORY_TRACKER_TYPES = {
-        {MEMORY_TRACKER_TYPE_GL, "GL"}, {MEMORY_TRACKER_TYPE_GRAPH, "Graph"},
-        {MEMORY_TRACKER_TYPE_OTHER, "Other"}
-    };
 
     const std::vector<std::string> VALUE_WITH_PID = {"Pss", "Shared_Clean", "Shared_Dirty", "Private_Clean",
                                                      "Private_Dirty", "Swap", "SwapPss", "Heap_Size", "Heap_Alloc",

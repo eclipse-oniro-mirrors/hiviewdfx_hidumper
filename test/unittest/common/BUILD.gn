@@ -157,6 +157,7 @@ ohos_unittest("MemoryDumperTest") {
   module_out_path = module_output_path
 
   sources = [
+    "${hidumper_frameworks_path}/src/executor/memory/memory_util.cpp",
     "hidumper_test_utils.cpp",
     "memory_dumper_test.cpp",
   ]
@@ -193,7 +194,13 @@ ohos_unittest("HidumperPrivacyTest") {
 ohos_unittest("HidumperInnerkitsTest") {
   module_out_path = module_output_path
 
-  sources = [ "hidumper_innerkits_test.cpp" ]
+  sources = [
+    "${hidumper_frameworks_path}/src/executor/memory/get_heap_info.cpp",
+    "${hidumper_frameworks_path}/src/executor/memory/memory_filter.cpp",
+    "${hidumper_frameworks_path}/src/executor/memory/memory_util.cpp",
+    "${hidumper_frameworks_path}/src/executor/memory/parse/parse_smaps_info.cpp",
+    "hidumper_innerkits_test.cpp",
+  ]
 
   configs = [ ":module_private_config" ]
 

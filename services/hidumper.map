@@ -3,9 +3,19 @@
       extern "C++" {
         GetMemoryInfoByPid;
         GetMemoryInfoNoPid;
+        ShowMemorySmapsByPid;
         "OHOS::HiviewDFX::DumpManagerCpuService::DumpManagerCpuService()";
         "OHOS::HiviewDFX::DumpManagerCpuService::StartService()";
         "OHOS::HiviewDFX::DumpManagerCpuService::~DumpManagerCpuService()";
+        "OHOS::HiviewDFX::DumpClientMain::DumpClientMain()";
+        "OHOS::HiviewDFX::DumpClientMain::~DumpClientMain()";
+        "OHOS::HiviewDFX::DumpClientMain::Main(int, char**, int)";
+        "OHOS::HiviewDFX::DumpManagerClient::IsConnected()";
+        "OHOS::HiviewDFX::DumpManagerClient::DumpManagerClient()";
+        "OHOS::HiviewDFX::DumpManagerClient::Connect()";
+        "OHOS::HiviewDFX::DumpManagerClient::Request(std::__h::vector<std::__h::basic_string<char16_t, std::__h::char_traits<char16_t>, std::__h::allocator<char16_t>>, std::__h::allocator<std::__h::basic_string<char16_t, std::__h::char_traits<char16_t>, std::__h::allocator<char16_t>>>>&, int)";
+        "OHOS::HiviewDFX::DumpManagerCpuClient::GetCpuUsageByPid(int, double&)";
+        "OHOS::HiviewDFX::DumpManagerCpuClient::DumpManagerCpuClient()";
       };
     local:
       *;

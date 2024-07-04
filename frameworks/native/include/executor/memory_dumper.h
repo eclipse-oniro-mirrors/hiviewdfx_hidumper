@@ -16,9 +16,9 @@
 #define MEMORY_DUMPER_H
 #include <vector>
 #include <string>
+#include <map>
 #include <memory>
 #include "hidumper_executor.h"
-#include "executor/memory/smaps_memory_info.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -40,12 +40,13 @@ private:
     bool isShowSmapsInfo_ = false;
     DumpStatus status_ = DUMP_FAIL;
     StringMatrix dumpDatas_;
-    std::unique_ptr<SmapsMemoryInfo> smapsMemoryInfo_;
     using GetMemByPidFunc = int (*)(int, StringMatrix);
     using GetMemNoPidFunc = int (*)(int, StringMatrix);
+    using GetMemSmapsByPidFunc = int (*)(int, StringMatrix, bool);
 
     void GetMemByPid();
     void GetMemNoPid();
+    void GetMemSmapsByPid();
 };
 } // namespace HiviewDFX
 } // namespace OHOS
