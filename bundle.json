@@ -34,13 +34,13 @@
                 "netmanager_base",
                 "safwk",
                 "samgr",
+                "skia",
                 "drivers_interface_memorytracker",
                 "hdf_core",
                 "ability_runtime",
                 "graphic_2d",
                 "hisysevent",
-                "zlib",
-                "image_framework"
+                "zlib"
             ]
         },
         "hisysevent_config": [
