@@ -61,7 +61,7 @@ ErrCode DumpManagerClient::Connect()
 {
     std::lock_guard<std::mutex> lock(mutex_);
     if (proxy_ != nullptr) {
-        DUMPER_HILOGE(MODULE_CLIENT, "proxy_ is nullptr.");
+        DUMPER_HILOGE(MODULE_CLIENT, "proxy_ is not nullptr.");
         return ERR_OK;
     }
     sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();

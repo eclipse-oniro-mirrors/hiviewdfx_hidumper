@@ -28,7 +28,7 @@ int GetMemoryInfoByPid(int pid, StringMatrix data)
 {
     std::unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo = std::make_unique<OHOS::HiviewDFX::MemoryInfo>();
     if (!memoryInfo->GetMemoryInfoByPid(pid, data)) {
-        DUMPER_HILOGE(MODULE_SERVICE, "debug|GetMemoryInfoByPid error, pid:%{public}d", pid);
+        DUMPER_HILOGE(MODULE_SERVICE, "GetMemoryInfoByPid error, pid:%{public}d", pid);
         return OHOS::HiviewDFX::DumpStatus::DUMP_FAIL;
     }
     return OHOS::HiviewDFX::DumpStatus::DUMP_OK;
