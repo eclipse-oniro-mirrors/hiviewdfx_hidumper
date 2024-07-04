@@ -101,11 +101,13 @@ ohos_source_set("dump_main") {
   deps = [ "${hidumper_utils_path}:utils" ]
 
   external_deps = [
+    "ability_base:want",
     "c_utils:utils",
     "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
     "hdf_core:libhdf_utils",
     "hilog:libhilog",
     "init:libbegetutil",
+    "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "zlib:shared_libz",

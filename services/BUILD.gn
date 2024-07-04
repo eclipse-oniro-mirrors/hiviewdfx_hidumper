@@ -348,7 +348,6 @@ ohos_source_set("hidumpermemory_source") {
       "graphic_2d:libcomposer",
       "graphic_2d:librender_service_base",
       "graphic_2d:librender_service_client",
-      "image_framework:image_native",
       "skia:skia_canvaskit",
     ]
     defines += [

@@ -40,8 +40,7 @@
                 "ability_runtime",
                 "graphic_2d",
                 "hisysevent",
-                "zlib",
-                "image_framework"
+                "zlib"
             ]
         },
         "hisysevent_config": [
