@@ -101,7 +101,9 @@ public:
     }
     void Run()
     {
-        wt_ = std::thread(Execute, id_, fds_[PIPE_READ], spData_);
+        wt_ = std::thread([this]() {
+            Execute(this->id_, this->fds_[PIPE_READ], this->spData_);
+        });
     }
     void Stop()
     {
