@@ -662,6 +662,9 @@ void DumpImplement::AddGroupTitle(const std::string &groupName, HidumperExecutor
         DUMPER_HILOGI(MODULE_COMMON, "hidumper --mem cmd, do not need title.");
         return;
     }
+    if (StringUtils::GetInstance().IsSameStr(groupName, "ability")) {
+        return;
+    }
     std::vector<std::string> lineData;
     lineData.push_back("");
     dumpDatas->push_back(lineData);

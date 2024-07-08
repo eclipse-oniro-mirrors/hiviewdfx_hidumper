@@ -99,6 +99,13 @@ void HidumperDumpersTest::HandleDumperExcute(std::string dumperType)
     dumper->SetDumpConfig(g_config);
     if (StringUtils::GetInstance().IsSameStr(dumperType, "SADumper")
         || StringUtils::GetInstance().IsSameStr(dumperType, "ListDumper")) {
+        int fd = open("/dev/null", O_RDWR | O_CREAT | O_TRUNC, 0664);
+        if (fd <= 0) {
+            fd = STDERR_FILENO;
+        }
+        std::vector<std::u16string> args;
+        std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, fd);
+        g_parameter->setClientCallback(rawParam);
         DumpStatus ret = DumpStatus::DUMP_FAIL;
         ret = dumper->PreExecute(g_parameter, g_dump_datas);
         ASSERT_EQ(ret, DumpStatus::DUMP_OK);

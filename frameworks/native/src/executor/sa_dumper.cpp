@@ -18,119 +18,17 @@
 #include <thread>
 #include <unistd.h>
 #include "dump_utils.h"
+#include "file_ex.h"
 #include "securec.h"
 
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
-const int PIPE_LENGTH = 2;
-const int PIPE_INIT = 0;
-const int PIPE_READ = 0;
-const int PIPE_WRITE = 1;
-const int LINE_LENGTH = 256;
-const int BUF_LENGTH = 1024;
-const char *SEPARATOR_TEMPLATE = "\n----------------------------------%s---------------------------------\n";
-
+static const std::string SEPARATOR_TEMPLATE = "----------------------------------";
+static const std::string ABILITY_LINE = "-------------------------------[ability]-------------------------------";
+const std::string LOG_TXT = "log.txt";
 using StringMatrix = std::shared_ptr<std::vector<std::vector<std::string>>>;
 
-// UString class
-class UString {
-public:
-    explicit UString(const std::u16string &String)
-    {
-        string_ = std::wstring_convert<std::codecvt_utf8<char16_t>, char16_t> {}.to_bytes(String);
-    }
-
-public:
-    const char *GetString() const
-    {
-        return string_.c_str();
-    }
-    int GetInteger() const
-    {
-        return stoi(string_);
-    }
-
-private:
-    std::string string_;
-};
-
-// MatrixWriter
-class MatrixWriter {
-public:
-    explicit MatrixWriter(StringMatrix Data) : spData_(Data)
-    {
-    }
-
-public:
-    void WriteLine(const char *Line)
-    {
-        if (spData_) {
-            std::vector<std::string> lines;
-            lines.push_back(Line);
-            spData_->push_back(lines);
-        } else {
-            printf("%s\n", Line);
-        }
-    }
-
-private:
-    StringMatrix spData_;
-};
-
-// PipeReader
-class PipeReader {
-public:
-    PipeReader(int id, StringMatrix data) : id_(id), spData_(data)
-    {
-        fds_[PIPE_READ] = PIPE_INIT;
-        fds_[PIPE_WRITE] = PIPE_INIT;
-        pipe(fds_);
-    }
-    ~PipeReader()
-    {
-        if (wt_.joinable()) {
-            wt_.join();
-        }
-    }
-
-public:
-    int GetWritePipe()
-    {
-        return fds_[PIPE_WRITE];
-    }
-    void Run()
-    {
-        wt_ = std::thread([this]() {
-            Execute(this->id_, this->fds_[PIPE_READ], this->spData_);
-        });
-    }
-    void Stop()
-    {
-        close(fds_[PIPE_WRITE]);
-    }
-    static void Execute(int id, int fd, StringMatrix Data)
-    {
-        FILE *fp = fdopen(fd, "r");
-        if (fp == nullptr) {
-            return;
-        }
-        char buffer[BUF_LENGTH];
-        while (!feof(fp)) {
-            if (fgets(buffer, BUF_LENGTH - 1, fp) != nullptr) {
-                MatrixWriter(Data).WriteLine(buffer);
-            }
-        }
-        fclose(fp);
-        fp = nullptr;
-    }
-
-private:
-    int id_;
-    StringMatrix spData_;
-    int fds_[PIPE_LENGTH];
-    std::thread wt_;
-};
 } // namespace
 
 SADumper::SADumper(void)
@@ -145,6 +43,19 @@ DumpStatus SADumper::PreExecute(const std::shared_ptr<DumperParameter> &paramete
 {
     result_ = dump_datas;
     names_ = ptrDumpCfg_->args_->GetNameList();
+    bool isZip = parameter->GetOpts().IsDumpZip();
+    auto callback = parameter->getClientCallback();
+    if (callback == nullptr) {
+        DUMPER_HILOGE(MODULE_COMMON, "PreExecute error|callback is nullptr");
+        return DumpStatus::DUMP_FAIL;
+    }
+    std::string logDefaultPath_ = callback->GetFolder() + LOG_TXT;
+    if (isZip) {
+        outputFd_ = DumpUtils::FdToWrite(logDefaultPath_);
+    } else {
+        outputFd_ = parameter->getClientCallback()->GetOutputFd();
+    }
+
     StringVector args = ptrDumpCfg_->args_->GetArgList();
     if (!args.empty() && names_.size() == 1) {
         std::transform(args.begin(), args.end(), std::back_inserter(args_), Str8ToStr16);
@@ -169,21 +80,15 @@ DumpStatus SADumper::GetData(const std::string &name, const sptr<ISystemAbilityM
         DUMPER_HILOGE(MODULE_SERVICE, "no such system ability %{public}s\n", name.c_str());
         return DumpStatus::DUMP_FAIL;
     }
-    char line[LINE_LENGTH] = {};
-    int ret = sprintf_s(line, sizeof(line), SEPARATOR_TEMPLATE,
-                    DumpUtils::ConvertSaIdToSaName(name).c_str());
-    if (ret < 0) {
-        DUMPER_HILOGE(MODULE_SERVICE, "print separator line fail!");
-        return DumpStatus::DUMP_FAIL;
-    }
+    std::stringstream ss;
+    ss << SEPARATOR_TEMPLATE << DumpUtils::ConvertSaIdToSaName(name) << SEPARATOR_TEMPLATE;
     std::lock_guard<std::mutex> lock(mutex_);
-    MatrixWriter(result_).WriteLine(line);
-    PipeReader reader(id, result_);
-    reader.Run();
-    if (sa->Dump(reader.GetWritePipe(), args_) != ERR_OK) {
-        DUMPER_HILOGE(MODULE_SERVICE, "system ability:%{public}s dump fail!\n", name.c_str());
+    SaveStringToFd(outputFd_, "\n" + ABILITY_LINE + "\n");
+    SaveStringToFd(outputFd_, "\n\n" + ss.str() + "\n");
+    int result = sa->Dump(outputFd_, args_);
+    if (result != ERR_OK) {
+        DUMPER_HILOGE(MODULE_SERVICE, "system ability:%{public}s dump fail!ret:%{public}d\n", name.c_str(), result);
     }
-    reader.Stop();
     DUMPER_HILOGI(MODULE_COMMON, "SA name:%{public}s dump success, cmd:%{public}s!", name.c_str(), argsStr_.c_str());
     return DumpStatus::DUMP_OK;
 }

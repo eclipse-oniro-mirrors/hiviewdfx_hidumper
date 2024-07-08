@@ -76,6 +76,7 @@ private:
     void EraseRequestRawParam(const std::shared_ptr<RawParam> rawParam);
     void CancelAllRequest();
     int GetRequestSum();
+    void GetIdleRequest();
     uint32_t GetRequestId();
     int32_t StartRequest(const std::shared_ptr<RawParam> rawParam);
     void RequestMain(const std::shared_ptr<RawParam> rawParam);
