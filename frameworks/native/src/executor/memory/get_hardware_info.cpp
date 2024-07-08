@@ -173,7 +173,7 @@ bool GetHardwareInfo::GetHardwareUsage(uint64_t &totalValue)
             std::thread([promise = std::move(promise), groupPaths]() mutable {
                 promise.set_value(CalcHardware(groupPaths));
                 }).detach();
-                results.emplace_back(std::move(future));
+            results.emplace_back(std::move(future));
         }
         for (auto& tempResult : results) {
             uint64_t value = tempResult.get();

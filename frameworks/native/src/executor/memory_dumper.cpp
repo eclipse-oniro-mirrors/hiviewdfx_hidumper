@@ -26,9 +26,6 @@ static const std::string MEM_LIB_PATH = "/system/lib/libhidumpermemory.z.so";
 
 MemoryDumper::MemoryDumper()
 {
-    if (smapsMemoryInfo_ == nullptr) {
-        smapsMemoryInfo_ = std::make_unique<SmapsMemoryInfo>();
-    }
 }
 
 MemoryDumper::~MemoryDumper()
@@ -51,8 +48,8 @@ DumpStatus MemoryDumper::Execute()
     if (dumpDatas_ != nullptr) {
         if (pid_ >= 0) {
             if (isShowMaps_) {
-                bool isShowMapsFlag = smapsMemoryInfo_->ShowMemorySmapsByPid(pid_, dumpDatas_, isShowSmapsInfo_);
-                status_ = isShowMapsFlag ? DumpStatus::DUMP_OK : DumpStatus::DUMP_FAIL;
+                GetMemSmapsByPid();
+                DUMPER_HILOGI(MODULE_SERVICE, "get mem smaps end,pid:%{public}d", pid_);
                 return status_;
             }
             GetMemByPid();
@@ -101,6 +98,28 @@ void MemoryDumper::GetMemNoPid()
         return;
     }
     status_ = (DumpStatus)(getMemNoPidFunc(rawParamFd_, dumpDatas_));
+    dlclose(handle);
+}
+
+void MemoryDumper::GetMemSmapsByPid()
+{
+    void *handle = dlopen(MEM_LIB_PATH.c_str(), RTLD_LAZY | RTLD_NODELETE);
+    if (handle == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "fail to open %{public}s. errno:%{public}s", MEM_LIB_PATH.c_str(), dlerror());
+        return;
+    }
+    GetMemSmapsByPidFunc pfn = reinterpret_cast<GetMemSmapsByPidFunc>(dlsym(handle, "ShowMemorySmapsByPid"));
+    if (pfn == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "fail to dlsym ShowMemorySmapsByPid. errno:%{public}s", dlerror());
+        dlclose(handle);
+        return;
+    }
+    if (!pfn(pid_, dumpDatas_, isShowSmapsInfo_)) {
+        status_ = DumpStatus::DUMP_OK;
+    } else {
+        DUMPER_HILOGE(MODULE_SERVICE, "GetMemSmapsByPid failed, pid:%{public}d", pid_);
+        status_ = DumpStatus::DUMP_FAIL;
+    }
     dlclose(handle);
 }
 

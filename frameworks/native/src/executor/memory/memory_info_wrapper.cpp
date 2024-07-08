@@ -41,6 +41,17 @@ int GetMemoryInfoNoPid(int fd, StringMatrix data)
     return ret;
 }
 
+int ShowMemorySmapsByPid(int pid, StringMatrix data, bool isShowSmapsInfo)
+{
+    std::unique_ptr<OHOS::HiviewDFX::SmapsMemoryInfo> smapsMemoryInfo =
+        std::make_unique<OHOS::HiviewDFX::SmapsMemoryInfo>();
+    if (!smapsMemoryInfo->ShowMemorySmapsByPid(pid, data, isShowSmapsInfo)) {
+        DUMPER_HILOGE(MODULE_SERVICE, "ShowMemorySmapsByPid error, pid:%{public}d", pid);
+        return OHOS::HiviewDFX::DumpStatus::DUMP_FAIL;
+    }
+    return OHOS::HiviewDFX::DumpStatus::DUMP_OK;
+}
+
 #ifdef __cplusplus
 }
 #endif
