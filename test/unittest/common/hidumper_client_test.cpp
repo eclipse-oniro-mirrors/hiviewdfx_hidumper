@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,9 +16,11 @@
 #include <unistd.h>
 #include <cstdlib>
 #include <gtest/gtest.h>
+#include "inner/dump_service_id.h"
 #include "dump_client_main.h"
 #include "dump_controller.h"
 #include "dump_manager_client.h"
+
 using namespace testing::ext;
 using namespace std;
 using OHOS::HiviewDFX::DumpClientMain;
@@ -65,11 +67,11 @@ HWTEST_F(HidumperClientTest, ClientMainTest001, TestSize.Level0)
 }
 
 /**
- * @tc.name: MemoryDumperTest002
+ * @tc.name: ClientMainTest002
  * @tc.desc: Test empty argument.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperClientTest, ClientTest002, TestSize.Level0)
+HWTEST_F(HidumperClientTest, ClientMainTest002, TestSize.Level0)
 {
     char *argv[] = {
         const_cast<char *>(TOOL_NAME.c_str()),
@@ -142,6 +144,62 @@ HWTEST_F(HidumperClientTest, ManagerClientTest002, TestSize.Level0)
     };
     int ret = DumpManagerClient::GetInstance().Request(args, STDOUT_FILENO);
     ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
+}
+
+/**
+ * @tc.name: ManagerClientTest003
+ * @tc.desc: Test mamanage client Request.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperClientTest, ManagerClientTest003, TestSize.Level0)
+{
+    vector<u16string> args{
+        std::u16string(u"hidumper"),
+        std::u16string(u"-s"),
+        std::u16string(u"1212"),
+    };
+    int ret = DumpManagerClient::GetInstance().Request(args, STDOUT_FILENO);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: ManagerClientTest004
+ * @tc.desc: Test mamanage client ScanPidOverLimit.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperClientTest, ManagerClientTest004, TestSize.Level0)
+{
+    sptr<IDumpBroker> proxy_ {nullptr};
+    sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    ASSERT_TRUE(sam != nullptr) << "ManagerClientTest004 fail to get GetSystemAbilityManager";
+    sptr<IRemoteObject> remoteObject = sam->CheckSystemAbility(DFX_HI_DUMPER_SERVICE_ABILITY_ID);
+    ASSERT_TRUE(remoteObject != nullptr) << "Get SystemAbility failed.";
+    proxy_ = iface_cast<IDumpBroker>(remoteObject);
+    std::string requestType = "fd";
+    std::vector<int32_t> pidList;
+    int ret = proxy_->ScanPidOverLimit(requestType, LIMIT_SIZE, pidList);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: ManagerClientTest005
+ * @tc.desc: Test mamanage client CountFdNums.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperClientTest, ManagerClientTest005, TestSize.Level0)
+{
+    sptr<IDumpBroker> proxy_ {nullptr};
+    sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    ASSERT_TRUE(sam != nullptr) << "ManagerClientTest005 fail to get GetSystemAbilityManager";
+    sptr<IRemoteObject> remoteObject = sam->CheckSystemAbility(DFX_HI_DUMPER_SERVICE_ABILITY_ID);
+    ASSERT_TRUE(remoteObject != nullptr) << "Get SystemAbility failed.";
+    proxy_ = iface_cast<IDumpBroker>(remoteObject);
+    int32_t pid = 1;
+    uint32_t fdNums = 0;
+    std::string detailFdInfo;
+    std::string topLeakedType;
+    int ret = proxy_->CountFdNums(pid, fdNums, detailFdInfo, topLeakedType);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
 } // namespace HiviewDFX
 } // namespace OHOS

@@ -624,7 +624,7 @@ HWTEST_F(HiDumperManagerTest, DumpTest030, TestSize.Level0)
 }
 
 /**
- * @tc.name: MemoryDumperTest031
+ * @tc.name: DumpTest031
  * @tc.desc: Test too many arguments.
  * @tc.type: FUNC
  */
@@ -639,7 +639,7 @@ HWTEST_F(HiDumperManagerTest, DumpTest031, TestSize.Level0)
 }
 
 /**
- * @tc.name: MemoryDumperTest032
+ * @tc.name: DumpTest032
  * @tc.desc: Test empty argument.
  * @tc.type: FUNC
  */
@@ -658,7 +658,7 @@ HWTEST_F(HiDumperManagerTest, DumpTest032, TestSize.Level0)
 }
 
 /**
- * @tc.name: MemoryDumperTest033
+ * @tc.name: DumpTest033
  * @tc.desc: Test too long argument .
  * @tc.type: FUNC
  */
@@ -677,7 +677,7 @@ HWTEST_F(HiDumperManagerTest, DumpTest033, TestSize.Level0)
 }
 
 /**
- * @tc.name: MemoryDumperTest034
+ * @tc.name: DumpTest034
  * @tc.desc: Test null argument.
  * @tc.type: FUNC
  */
