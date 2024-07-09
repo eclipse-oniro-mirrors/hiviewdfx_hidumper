@@ -17,6 +17,7 @@
 #include <if_system_ability_manager.h>
 #include <ipc_skeleton.h>
 #include <iservice_registry.h>
+#include <sched.h>
 #include <string_ex.h>
 #include <system_ability_definition.h>
 #include <thread>
@@ -44,6 +45,7 @@ static const int32_t HIPORFILER_UID = 3063;
 static const int32_t STOP_WAIT = 3;
 static const int32_t REQUEST_MAX = 5;
 static const uint32_t REQUESTID_MAX = 100000;
+static const int SMALL_CPU_SIZE = 4;
 const std::string TASK_ID = "unload";
 constexpr int32_t DYNAMIC_EXIT_DELAY_TIME = 120000;
 constexpr int32_t UNLOAD_IMMEDIATELY = 0;
@@ -84,6 +86,7 @@ void DumpManagerService::OnStart()
         return;
     }
     started_ = true;
+    SetCpuSchedAffinity();
 }
 
 void DumpManagerService::OnStop()
@@ -118,6 +121,18 @@ int32_t DumpManagerService::OnIdle(const SystemAbilityOnDemandReason& idleReason
         }
     } else {
         return UNLOAD_IMMEDIATELY;
+    }
+}
+
+void DumpManagerService::SetCpuSchedAffinity()
+{
+    cpu_set_t mask;
+    CPU_ZERO(&mask);
+    for (int i = 0; i < SMALL_CPU_SIZE; i++) {
+        CPU_SET(i, &mask);
+    }
+    if (sched_setaffinity(0, sizeof(mask), &mask) < 0) {
+        DUMPER_HILOGE(MODULE_SERVICE, "error|sched_setaffinity failed");
     }
 }
 

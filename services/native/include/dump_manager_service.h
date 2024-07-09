@@ -84,6 +84,7 @@ private:
     void RecordDetailFdInfo(std::string &detailFdInfo, std::string &topLeakedType);
     void RecordDirFdInfo(std::string &detailFdInfo);
     std::string GetFdLinkNum(const std::string &linkPath) const;
+    void SetCpuSchedAffinity();
 private:
     std::mutex mutex_;
     std::shared_ptr<AppExecFwk::EventRunner> eventRunner_;
