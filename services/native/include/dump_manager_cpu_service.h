@@ -90,16 +90,6 @@ private:
     std::vector<std::shared_ptr<ProcInfo>> curProcs_;
     int cpuUsagePid_{-1};
     StringMatrix dumpCPUDatas_{nullptr};
-
-class SystemAbilityStatusChangeListener : public OHOS::SystemAbilityStatusChangeStub {
-public:
-    explicit SystemAbilityStatusChangeListener() {};
-    ~SystemAbilityStatusChangeListener() override = default;
-
-    virtual void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
-    virtual void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
-};
-    sptr<SystemAbilityStatusChangeListener> sysAbilityListener_{nullptr};
 };
 } // namespace HiviewDFX
 } // namespace OHOS

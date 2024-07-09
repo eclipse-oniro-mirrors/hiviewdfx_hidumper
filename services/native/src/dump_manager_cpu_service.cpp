@@ -57,7 +57,6 @@ DumpManagerCpuService::DumpManagerCpuService() : SystemAbility(DFX_SYS_HIDUMPER_
 
 DumpManagerCpuService::~DumpManagerCpuService()
 {
-    delete sysAbilityListener_;
 }
 
 void DumpManagerCpuService::OnStart()

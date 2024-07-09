@@ -30,6 +30,8 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
+protected:
+    static const uint32_t TEST_PID = 1;
 };
 
 void HidumperCpuServiceTest::SetUpTestCase(void)
@@ -76,5 +78,18 @@ HWTEST_F(HidumperCpuServiceTest, HidumperCpuServiceTest002, TestSize.Level3)
     ASSERT_TRUE(ret == 0) << "dump cpuusage failed.";
 }
 
+/**
+ * @tc.name: HidumperCpuServiceTest003
+ * @tc.desc: Test of send request to dump spuusage.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperCpuServiceTest, HidumperCpuServiceTest003, TestSize.Level3)
+{
+    auto dumpManagerCpuService = std::make_shared<DumpManagerCpuService>();
+    dumpManagerCpuService->StartService();
+    double cpuUsage;
+    int ret = dumpManagerCpuService->GetCpuUsageByPid(TEST_PID, cpuUsage);
+    ASSERT_TRUE(ret == 0) << "dump cpuusage failed.";
+}
 } // namespace HiviewDFX
 } // namespace OHOS
