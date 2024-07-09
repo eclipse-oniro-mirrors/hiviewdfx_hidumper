@@ -18,6 +18,7 @@
 #include <ipc_skeleton.h>
 #include <iservice_registry.h>
 #include <string_ex.h>
+#include <sstream>
 #include <system_ability_definition.h>
 #include <thread>
 #include <unistd.h>
@@ -114,6 +115,7 @@ int32_t DumpManagerService::OnIdle(const SystemAbilityOnDemandReason& idleReason
         if (GetRequestSum() == 0) {
             return UNLOAD_IMMEDIATELY;
         } else {
+            GetIdleRequest();
             return DYNAMIC_EXIT_DELAY_TIME;
         }
     } else {
@@ -382,6 +384,26 @@ uint32_t DumpManagerService::GetRequestId()
 {
     requestIndex_ = (requestIndex_ + 1) % REQUESTID_MAX;
     return requestIndex_;
+}
+
+void DumpManagerService::GetIdleRequest()
+{
+    for (auto &requestIt : requestRawParamMap_) {
+        if (requestIt.second == nullptr) {
+            continue;
+        }
+        int argC = requestIt.second->GetArgc();
+        char **argV = requestIt.second->GetArgv();
+        if (argV == nullptr) {
+            continue;
+        }
+        std::stringstream dumpCmdSs;
+        for (int i = 0; i < argC; i++) {
+            dumpCmdSs << std::string(argV[i]) << " ";
+        }
+        DUMPER_HILOGI(MODULE_SERVICE, "idle cmd:%{public}s, calllingUid=%{public}d, calllingPid=%{public}d.",
+            dumpCmdSs.str().c_str(), requestIt.second->GetUid(), requestIt.second->GetPid());
+    }
 }
 
 int32_t DumpManagerService::StartRequest(const std::shared_ptr<RawParam> rawParam)

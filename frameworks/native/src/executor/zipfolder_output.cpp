@@ -95,9 +95,9 @@ DumpStatus ZipFolderOutput::Execute()
         outstr.append(line);
         line.clear();
     }
-
-    SaveStringToFd(fd_, outstr);
-
+    if (!outstr.empty()) {
+        SaveStringToFd(fd_, outstr);
+    }
     outstr.clear();
     DUMPER_HILOGI(MODULE_COMMON, "info|ZipFolderOutput Execute end");
     return DumpStatus::DUMP_OK;

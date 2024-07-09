@@ -305,8 +305,13 @@ int DumpUtils::FdToWrite(const std::string &file)
     char path[PATH_MAX] = {0};
     if (realpath(tempPath.c_str(), path) != nullptr) {
         std::string fileName = path + split + name;
-        int fd = TEMP_FAILURE_RETRY(open(fileName.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC | O_NOFOLLOW,
+        int fd = -1;
+        if (access(fileName.c_str(), F_OK) == 0) {
+            fd = open(fileName.c_str(), O_WRONLY);
+        } else {
+            fd = TEMP_FAILURE_RETRY(open(fileName.c_str(), O_WRONLY | O_CREAT | O_CLOEXEC | O_NOFOLLOW,
                                          S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH));
+        }
         if (fd == -1) {
             DUMPER_HILOGE(MODULE_COMMON, "open [%{public}s] %{public}s",
                 fileName.c_str(), ErrnoToMsg(errno).c_str());
