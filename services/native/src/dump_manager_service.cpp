@@ -451,7 +451,8 @@ void DumpManagerService::RequestMain(const std::shared_ptr<RawParam> rawParam)
 
 void DumpManagerService::DelayUnloadTask()
 {
-    DUMPER_HILOGI(MODULE_SERVICE, "recieve new request, delay unload task begin");
+    int32_t calllingPid = IPCSkeleton::GetCallingPid();
+    DUMPER_HILOGI(MODULE_SERVICE, "recieve new request, delay unload task begin, calllingPid=%{public}d", calllingPid);
     auto task = [this]() {
         DUMPER_HILOGI(MODULE_SERVICE, "do unload task");
         auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();

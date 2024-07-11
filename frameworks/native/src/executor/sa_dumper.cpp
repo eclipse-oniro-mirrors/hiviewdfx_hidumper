@@ -14,6 +14,7 @@
  */
 #include "executor/sa_dumper.h"
 #include <cstdio>
+#include <ipc_skeleton.h>
 #include <sstream>
 #include <thread>
 #include <unistd.h>
@@ -89,7 +90,9 @@ DumpStatus SADumper::GetData(const std::string &name, const sptr<ISystemAbilityM
     if (result != ERR_OK) {
         DUMPER_HILOGE(MODULE_SERVICE, "system ability:%{public}s dump fail!ret:%{public}d\n", name.c_str(), result);
     }
-    DUMPER_HILOGI(MODULE_COMMON, "SA name:%{public}s dump success, cmd:%{public}s!", name.c_str(), argsStr_.c_str());
+    int32_t calllingPid = IPCSkeleton::GetCallingPid();
+    DUMPER_HILOGI(MODULE_COMMON, "SA name:%{public}s dump success, cmd:%{public}s, calllingPid=%{public}d!",
+        name.c_str(), argsStr_.c_str(), calllingPid);
     return DumpStatus::DUMP_OK;
 }
 
