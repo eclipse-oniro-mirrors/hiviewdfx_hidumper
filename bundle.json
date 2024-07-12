@@ -63,6 +63,7 @@
                     }
                 },
                 {
+                    "type": "so",
                     "name": "//base/hiviewdfx/hidumper/services:hidumper_client",
                     "header": {
                       "header_files": [
