@@ -14,7 +14,7 @@
  */
 
 #include "executor/traffic_dumper.h"
-#ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
+#ifdef HIDUMPER_NETMANAGER_BASE_ENABLE
 #include "net_stats_client.h"
 #endif
 #include "dump_common_utils.h"
@@ -56,7 +56,7 @@ void TrafficDumper::GetAllBytes()
 {
     DUMPER_HILOGD(MODULE_SERVICE, "debug|GetAllRxBytes.\n");
     uint64_t receivedStats = 0;
-#ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
+#ifdef HIDUMPER_NETMANAGER_BASE_ENABLE
     int32_t ret = DelayedSingleton<NetManagerStandard::NetStatsClient>::GetInstance()->GetAllRxBytes(receivedStats);
     if (ret != NetManagerStandard::NETMANAGER_SUCCESS) {
         DUMPER_HILOGE(MODULE_SERVICE, "GetAllRxBytes failed, ret:%{public}d.\n", ret);
@@ -66,8 +66,9 @@ void TrafficDumper::GetAllBytes()
     std::vector<std::string> line_vector;
     line_vector.push_back(RECEIVED_BYTES + std::to_string(receivedStats));
     result_->push_back(line_vector);
-#ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
+
     uint64_t sendStats = 0;
+#ifdef HIDUMPER_NETMANAGER_BASE_ENABLE
     ret = DelayedSingleton<NetManagerStandard::NetStatsClient>::GetInstance()->GetAllTxBytes(sendStats);
     if (ret != NetManagerStandard::NETMANAGER_SUCCESS) {
         DUMPER_HILOGE(MODULE_SERVICE, "GetAllRxBytes failed, ret:%{public}d.\n", ret);
@@ -92,7 +93,7 @@ void TrafficDumper::GetApplicationUidBytes()
         return;
     }
     uint64_t receivedStats = 0;
-#ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
+#ifdef HIDUMPER_NETMANAGER_BASE_ENABLE
     int32_t ret = DelayedSingleton<NetManagerStandard::NetStatsClient>::GetInstance()->GetUidRxBytes(
         receivedStats, static_cast<uint32_t>(currentPidInfo.uid_));
     if (ret != NetManagerStandard::NETMANAGER_SUCCESS) {
@@ -106,7 +107,7 @@ void TrafficDumper::GetApplicationUidBytes()
     result_->push_back(line_vector);
 
     uint64_t sendStats = 0;
-#ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
+#ifdef HIDUMPER_NETMANAGER_BASE_ENABLE
     ret = DelayedSingleton<NetManagerStandard::NetStatsClient>::GetInstance()->GetUidTxBytes(
         sendStats, static_cast<uint32_t>(currentPidInfo.uid_));
     if (ret != NetManagerStandard::NETMANAGER_SUCCESS) {
