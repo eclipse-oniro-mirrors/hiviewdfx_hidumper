@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <cstdlib>
 #include <gtest/gtest.h>
+#include <string_ex.h>
 #include "inner/dump_service_id.h"
 #include "dump_client_main.h"
 #include "dump_controller.h"
@@ -27,6 +28,7 @@ using OHOS::HiviewDFX::DumpClientMain;
 namespace OHOS {
 namespace HiviewDFX {
 const std::string TOOL_NAME = "hidumper";
+const int BUFFER_SIZE = 1024;
 class HidumperClientTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -199,6 +201,97 @@ HWTEST_F(HidumperClientTest, ManagerClientTest005, TestSize.Level0)
     std::string detailFdInfo;
     std::string topLeakedType;
     int ret = proxy_->CountFdNums(pid, fdNums, detailFdInfo, topLeakedType);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: ManagerClientTest006
+ * @tc.desc: Test ipc stat dump with pid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperClientTest, ManagerClientTest006, TestSize.Level0)
+{
+    string pid;
+    FILE* file = popen("pidof samgr", "r");
+    if (file) {
+        char buffer[BUFFER_SIZE];
+        if (fgets(buffer, sizeof(buffer), file) != nullptr) {
+            pid.assign(buffer);
+        };
+        pclose(file);
+    } else {
+        std::cerr << "Failed to execute command" << std::endl;
+    }
+    vector<u16string> args{
+        std::u16string(u"hidumper"),
+        std::u16string(u"--ipc"),
+        Str8ToStr16(pid),
+        std::u16string(u"--start-stat"),
+    };
+    int32_t ret = DumpManagerClient::GetInstance().Request(args, STDOUT_FILENO);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: ManagerClientTest007
+ * @tc.desc: Test ipc stat dump all.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperClientTest, ManagerClientTest007, TestSize.Level0)
+{
+    vector<u16string> args{
+        std::u16string(u"hidumper"),
+        std::u16string(u"--ipc"),
+        std::u16string(u"-a"),
+        std::u16string(u"--start-stat"),
+    };
+    int ret = DumpManagerClient::GetInstance().Request(args, STDOUT_FILENO);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: ManagerClientTest008
+ * @tc.desc: Test cpuusage of all processes.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperClientTest, ManagerClientTest008, TestSize.Level0)
+{
+    vector<u16string> args{
+        std::u16string(u"hidumper"),
+        std::u16string(u"--cpuusage"),
+    };
+    int ret = DumpManagerClient::GetInstance().Request(args, STDOUT_FILENO);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: ManagerClientTest009
+ * @tc.desc: Test cpuusage with pid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperClientTest, ManagerClientTest009, TestSize.Level0)
+{
+    vector<u16string> args{
+        std::u16string(u"hidumper"),
+        std::u16string(u"--cpuusage"),
+        std::u16string(u"1"),
+    };
+    int ret = DumpManagerClient::GetInstance().Request(args, STDOUT_FILENO);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: ManagerClientTest010
+ * @tc.desc: Test cpufreq.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperClientTest, ManagerClientTest010, TestSize.Level0)
+{
+    vector<u16string> args{
+        std::u16string(u"hidumper"),
+        std::u16string(u"--cpufreq"),
+    };
+    int ret = DumpManagerClient::GetInstance().Request(args, STDOUT_FILENO);
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
 } // namespace HiviewDFX
