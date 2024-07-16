@@ -140,10 +140,21 @@ uint64_t GetRamInfo::GetFreeRam(const ValueMap &meminfo, Ram &ram) const
 
 uint64_t GetRamInfo::GetLostRam(const GroupMap &smapsInfo, const ValueMap &meminfo) const
 {
-    uint64_t totalValue = GetTotalRam(meminfo) - (GetTotalPss(smapsInfo) - GetTotalSwapPss(smapsInfo))
-                      - GetFreeInfo(meminfo) - GetCachedInfo(meminfo) - GetKernelUsedInfo(meminfo)
-                      - GetZramTotalInfo(meminfo);
-    return totalValue;
+    uint64_t totalRam = GetTotalRam(meminfo);
+    uint64_t freeRam =
+        (GetTotalPss(smapsInfo) > GetTotalSwapPss(smapsInfo)) ?
+        GetTotalPss(smapsInfo) - GetTotalSwapPss(smapsInfo) : 0 +
+        GetFreeInfo(meminfo) + GetCachedInfo(meminfo) + GetKernelUsedInfo(meminfo) + GetZramTotalInfo(meminfo);
+    if (totalRam > freeRam) {
+        return totalRam - freeRam;
+    } else {
+        DUMPER_HILOGE(MODULE_COMMON, "GetLostRam failed: totalRam:%{public}llu, freeRam:%{public}llu, \
+            totalPss:%{public}llu, totalSwapPss:%{public}llu, freeInfo:%{public}llu, cachedInfo:%{public}llu, \
+            kernelUsedInfo:%{public}llu, zramTotalInfo:%{public}llu",
+            totalRam, freeRam, GetTotalPss(smapsInfo), GetTotalSwapPss(smapsInfo), GetFreeInfo(meminfo),
+            GetCachedInfo(meminfo), GetKernelUsedInfo(meminfo), GetZramTotalInfo(meminfo));
+        return 0;
+    }
 }
 
 GetRamInfo::Ram GetRamInfo::GetRam(const GroupMap &smapsInfo, const ValueMap &meminfo) const
