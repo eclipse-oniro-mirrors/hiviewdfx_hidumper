@@ -142,8 +142,8 @@ uint64_t GetRamInfo::GetLostRam(const GroupMap &smapsInfo, const ValueMap &memin
 {
     uint64_t totalRam = GetTotalRam(meminfo);
     uint64_t freeRam =
-        (GetTotalPss(smapsInfo) > GetTotalSwapPss(smapsInfo)) ?
-        GetTotalPss(smapsInfo) - GetTotalSwapPss(smapsInfo) : 0 +
+        ((GetTotalPss(smapsInfo) > GetTotalSwapPss(smapsInfo)) ?
+        GetTotalPss(smapsInfo) - GetTotalSwapPss(smapsInfo) : 0) +
         GetFreeInfo(meminfo) + GetCachedInfo(meminfo) + GetKernelUsedInfo(meminfo) + GetZramTotalInfo(meminfo);
     if (totalRam > freeRam) {
         return totalRam - freeRam;
