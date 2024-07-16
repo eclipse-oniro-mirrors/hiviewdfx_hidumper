@@ -15,7 +15,9 @@
 #include "executor/memory/get_ram_info.h"
 #include "executor/memory/memory_util.h"
 #include "executor/memory/memory_filter.h"
+#include "hilog_wrapper.h"
 #include "util/string_utils.h"
+
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
@@ -148,11 +150,13 @@ uint64_t GetRamInfo::GetLostRam(const GroupMap &smapsInfo, const ValueMap &memin
     if (totalRam > freeRam) {
         return totalRam - freeRam;
     } else {
-        DUMPER_HILOGE(MODULE_COMMON, "GetLostRam failed: totalRam:%{public}llu, freeRam:%{public}llu, \
-            totalPss:%{public}llu, totalSwapPss:%{public}llu, freeInfo:%{public}llu, cachedInfo:%{public}llu, \
-            kernelUsedInfo:%{public}llu, zramTotalInfo:%{public}llu",
-            totalRam, freeRam, GetTotalPss(smapsInfo), GetTotalSwapPss(smapsInfo), GetFreeInfo(meminfo),
-            GetCachedInfo(meminfo), GetKernelUsedInfo(meminfo), GetZramTotalInfo(meminfo));
+        DUMPER_HILOGE(MODULE_COMMON, "GetLostRam failed: totalRam:%{public}d, freeRam:%{public}d, \
+            totalPss:%{public}d, totalSwapPss:%{public}d, freeInfo:%{public}d, cachedInfo:%{public}d, \
+            kernelUsedInfo:%{public}d, zramTotalInfo:%{public}d",
+            static_cast<int>(totalRam), static_cast<int>(freeRam), static_cast<int>(GetTotalPss(smapsInfo)),
+            static_cast<int>(GetTotalSwapPss(smapsInfo)), static_cast<int>(GetFreeInfo(meminfo)),
+            static_cast<int>(GetCachedInfo(meminfo)), static_cast<int>(GetKernelUsedInfo(meminfo)),
+            static_cast<int>(GetZramTotalInfo(meminfo)));
         return 0;
     }
 }
