@@ -134,10 +134,7 @@ uint64_t GetRamInfo::GetUsedRam(const GroupMap &smapsInfo, const ValueMap &memin
 
 uint64_t GetRamInfo::GetFreeRam(const ValueMap &meminfo, Ram &ram) const
 {
-    ram.cachedInfo = GetCachedInfo(meminfo);
-    ram.freeInfo = GetFreeInfo(meminfo);
-    uint64_t totalValue = ram.cachedInfo + ram.freeInfo;
-    return totalValue;
+    return GetCachedInfo(meminfo);
 }
 
 uint64_t GetRamInfo::GetLostRam(const GroupMap &smapsInfo, const ValueMap &meminfo) const
