@@ -26,6 +26,7 @@ public:
     HidumperTestUtils(HidumperTestUtils const &) = delete;
     void operator=(HidumperTestUtils const &) = delete;
     bool IsExistInCmdResult(const std::string &cmd, const std::string &str);
+    bool IsExistStrInFile(const std::string &cmd, const std::string &str, const std::string &filePath);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

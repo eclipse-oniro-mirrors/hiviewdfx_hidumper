@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <fcntl.h>
 #include <vector>
 #include <unistd.h>
 #include <cstdlib>
@@ -116,6 +117,27 @@ HWTEST_F(HidumperClientTest, ClientMainTest004, TestSize.Level0)
     int argc = sizeof(argv) / sizeof(argv[0]);
     int ret = DumpClientMain::GetInstance().Main(argc, argv, STDOUT_FILENO);
     ASSERT_EQ(ret, DumpStatus::DUMP_INVALID_ARG);
+}
+
+/**
+ * @tc.name: ClientMainTest005
+ * @tc.desc: Test null fd.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperClientTest, ClientMainTest005, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--mem"),
+        const_cast<char *>("1"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    int fd = open("/dev/null", O_RDWR | O_CREAT | O_TRUNC, 0664);
+    if (fd <= 0) {
+        fd = STDERR_FILENO;
+    }
+    int ret = DumpClientMain::GetInstance().Main(argc, argv, fd);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
 
 /**
