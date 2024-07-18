@@ -134,7 +134,10 @@ uint64_t GetRamInfo::GetUsedRam(const GroupMap &smapsInfo, const ValueMap &memin
 
 uint64_t GetRamInfo::GetFreeRam(const ValueMap &meminfo, Ram &ram) const
 {
-    return GetCachedInfo(meminfo);
+    ram.cachedInfo = GetCachedInfo(meminfo);
+    ram.freeInfo = GetFreeInfo(meminfo);
+    uint64_t totalValue = ram.cachedInfo + ram.freeInfo;
+    return totalValue;
 }
 
 uint64_t GetRamInfo::GetLostRam(const GroupMap &smapsInfo, const ValueMap &meminfo) const
@@ -143,16 +146,17 @@ uint64_t GetRamInfo::GetLostRam(const GroupMap &smapsInfo, const ValueMap &memin
     uint64_t usedAndFreeRam =
         ((GetTotalPss(smapsInfo) > GetTotalSwapPss(smapsInfo)) ?
         GetTotalPss(smapsInfo) - GetTotalSwapPss(smapsInfo) : 0) +
-        GetCachedInfo(meminfo) + GetKernelUsedInfo(meminfo) + GetZramTotalInfo(meminfo);
+        GetFreeInfo(meminfo) + GetCachedInfo(meminfo) + GetKernelUsedInfo(meminfo) + GetZramTotalInfo(meminfo);
     if (totalRam > usedAndFreeRam) {
         return totalRam - usedAndFreeRam;
     } else {
-        DUMPER_HILOGE(MODULE_COMMON, "GetLostRam failed: totalRam:%{public}d, totalPss:%{public}d, \
-            totalSwapPss:%{public}d, freeInfo:%{public}d, cachedInfo:%{public}d, kernelUsedInfo:%{public}d, \
-            zramTotalInfo:%{public}d",
+        DUMPER_HILOGE(MODULE_COMMON, "GetLostRam failed: totalRam:%{public}d, usedAndFreeRam:%{public}d, \
+            totalPss:%{public}d, totalSwapPss:%{public}d, freeInfo:%{public}d, cachedInfo:%{public}d, \
+            kernelUsedInfo:%{public}d, zramTotalInfo:%{public}d",
             static_cast<int>(totalRam), static_cast<int>(usedAndFreeRam), static_cast<int>(GetTotalPss(smapsInfo)),
-            static_cast<int>(GetTotalSwapPss(smapsInfo)), static_cast<int>(GetCachedInfo(meminfo)),
-            static_cast<int>(GetKernelUsedInfo(meminfo)), static_cast<int>(GetZramTotalInfo(meminfo)));
+            static_cast<int>(GetTotalSwapPss(smapsInfo)), static_cast<int>(GetFreeInfo(meminfo)),
+            static_cast<int>(GetCachedInfo(meminfo)), static_cast<int>(GetKernelUsedInfo(meminfo)),
+            static_cast<int>(GetZramTotalInfo(meminfo)));
         return 0;
     }
 }
