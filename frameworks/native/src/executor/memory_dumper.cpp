@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include "executor/memory_dumper.h"
+#include "dump_utils.h"
 #include <dlfcn.h>
 
 using namespace std;
@@ -38,7 +39,19 @@ DumpStatus MemoryDumper::PreExecute(const shared_ptr<DumperParameter> &parameter
     isShowMaps_ = parameter->GetOpts().isShowSmaps_;
     isShowSmapsInfo_ =  parameter->GetOpts().isShowSmapsInfo_;
     dumpDatas_ = dumpDatas;
-    rawParamFd_ = parameter->getClientCallback()->GetOutputFd();
+
+    bool isZip = parameter->GetOpts().IsDumpZip();
+    auto callback = parameter->getClientCallback();
+    if (callback == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "PreExecute error|callback is nullptr");
+        return DumpStatus::DUMP_FAIL;
+    }
+    std::string logDefaultPath_ = callback->GetFolder() + "log.txt";
+    if (isZip) {
+        rawParamFd_ = DumpUtils::FdToWrite(logDefaultPath_);
+    } else {
+        rawParamFd_ = parameter->getClientCallback()->GetOutputFd();
+    }
     return DumpStatus::DUMP_OK;
 }
 

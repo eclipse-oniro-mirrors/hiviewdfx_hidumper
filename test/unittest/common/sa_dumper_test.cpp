@@ -158,5 +158,18 @@ HWTEST_F(SADumperTest, SADumperTest009, TestSize.Level3)
     ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistStrInFile(cmd, str, path));
     system("rm -rf /data/log/hidumper/RenderService.txt");
 }
+
+/**
+ * @tc.name: SADumperTest009
+ * @tc.desc: Test zip SA RenderService result not contain "Graphic".
+ * @tc.type: FUNC
+ * @tc.require: issueI5NWZQ
+ */
+HWTEST_F(SADumperTest, SADumperTest010, TestSize.Level3)
+{
+    std::string cmd = "hidumper -s 10 -a -h --zip";
+    std::string str = "Graphic";
+    ASSERT_FALSE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+}
 } // namespace HiviewDFX
 } // namespace OHOS
