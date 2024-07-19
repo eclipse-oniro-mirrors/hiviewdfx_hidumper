@@ -176,6 +176,21 @@ ohos_unittest("MemoryDumperTest") {
   ]
 }
 
+ohos_unittest("SADumperTest") {
+  module_out_path = module_output_path
+  sources = [
+    "hidumper_test_utils.cpp",
+    "sa_dumper_test.cpp",
+  ]
+  configs = [ ":module_private_config" ]
+  deps = []
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+}
+
 ohos_unittest("HidumperPrivacyTest") {
   module_out_path = module_output_path
 
@@ -323,6 +338,7 @@ group("unittest") {
     ":HidumperPrivacyTest",
     ":HidumperServiceTest",
     ":MemoryDumperTest",
+    ":SADumperTest",
   ]
 }
 ###############################################################################
