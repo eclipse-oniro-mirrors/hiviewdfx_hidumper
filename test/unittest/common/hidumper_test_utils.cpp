@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <fstream>
 #include "hidumper_test_utils.h"
 
 using namespace std;
@@ -39,6 +40,27 @@ bool HidumperTestUtils::IsExistInCmdResult(const std::string &cmd, const std::st
         }
     }
     pclose(fp);
+    return res;
+}
+
+bool HidumperTestUtils::IsExistStrInFile(const std::string &cmd, const std::string &str, const std::string &filePath)
+{
+    bool res = false;
+    FILE *fp = popen(cmd.c_str(), "r");
+    pclose(fp);
+
+    std::ifstream file(filePath);
+    if (!file.is_open()) {
+        return res;
+    }
+    std::string line;
+    while (std::getline(file, line)) {
+        if (line.find(str) != string::npos) {
+            res = true;
+            break;
+        }
+    }
+    file.close();
     return res;
 }
 } // namespace HiviewDFX

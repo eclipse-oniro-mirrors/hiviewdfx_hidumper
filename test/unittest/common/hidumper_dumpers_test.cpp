@@ -51,6 +51,7 @@ public:
     static void HandleTrafficDumperTest(int pid);
     static void GetDumperVariable();
     static void HandleIpcStatDumperTest(void);
+    static DumpStatus SetIpcStatCmdTest(const DumperOpts &opts);
 
 protected:
     static constexpr auto& FILE_CPUINFO = "/proc/cpuinfo";
@@ -221,6 +222,30 @@ void HidumperDumpersTest::HandleIpcStatDumperTest(void)
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
     ret = ipcStatDumper->AfterExecute();
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+DumpStatus HidumperDumpersTest::SetIpcStatCmdTest(const DumperOpts &opts)
+{
+    auto parameter = std::make_shared<DumperParameter>();
+    std::vector<std::u16string> args;
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    auto ipcStatDumper = std::make_shared<IPCStatDumper>();
+
+    int fd = open("/dev/null", O_RDWR | O_CREAT | O_TRUNC, 0664);
+    if (fd <= 0) {
+        fd = STDERR_FILENO;
+    }
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, fd);
+    parameter->SetOpts(opts);
+    parameter->setClientCallback(rawParam);
+
+    DumpStatus ret = DumpStatus::DUMP_FAIL;
+    ret = ipcStatDumper->PreExecute(parameter, dumpDatas);
+    if (ret != DumpStatus::DUMP_OK) {
+        return ret;
+    }
+    ret = ipcStatDumper->Execute();
+    return ret;
 }
 
 /**
@@ -472,6 +497,118 @@ HWTEST_F(HidumperDumpersTest, TrafficDumperTest002, TestSize.Level1)
 HWTEST_F(HidumperDumpersTest, IpcStatDumperTest001, TestSize.Level1)
 {
     HandleIpcStatDumperTest();
+}
+
+/**
+ * @tc.name: IpcStatDumperTest002
+ * @tc.desc: Test IpcDumper CheckPidIsSa failed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, IpcStatDumperTest002, TestSize.Level1)
+{
+    auto parameter = std::make_shared<DumperParameter>();
+    std::vector<std::string> args;
+    DumperOpts opts;
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    auto ipcStatDumper = std::make_shared<IPCStatDumper>();
+
+    sptr<ISystemAbilityManager> sam = nullptr;
+    sptr<IRemoteObject> sa = nullptr;
+    bool ret = ipcStatDumper->CheckPidIsSa(sam, args, sa);
+    ASSERT_EQ(ret, false);
+}
+
+/**
+ * @tc.name: IpcStatDumperTest004
+ * @tc.desc: Test IpcDumper dump with invaid pid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, IpcStatDumperTest004, TestSize.Level1)
+{
+    DumperOpts opts;
+    opts.isDumpIpc_ = true;
+    opts.isDumpAllIpc_ = false;
+    opts.ipcStatPid_ = DEFAULT_PID;
+    opts.isDumpIpcStartStat_ = true;
+    DumpStatus ret = SetIpcStatCmdTest(opts);
+    ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
+}
+
+/**
+ * @tc.name: IpcStatDumperTest005
+ * @tc.desc: Test IpcDumper with invalid cmd;
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, IpcStatDumperTest005, TestSize.Level1)
+{
+    DumperOpts opts;
+    opts.isDumpIpc_ = true;
+    opts.isDumpAllIpc_ = true;
+    opts.isDumpIpcStartStat_ = false;
+    opts.isDumpIpcStopStat_ = false;
+    opts.isDumpIpcStat_ = false;
+    DumpStatus ret = SetIpcStatCmdTest(opts);
+    ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
+}
+
+/**
+ * @tc.name: IpcStatDumperTest006
+ * @tc.desc: Test IpcDumper CheckPidIsApp.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, IpcStatDumperTest006, TestSize.Level1)
+{
+    std::vector<std::string> args;
+    auto ipcStatDumper = std::make_shared<IPCStatDumper>();
+    sptr<ISystemAbilityManager> sam = nullptr;
+    sptr<IRemoteObject> sa = nullptr;
+    bool ret = ipcStatDumper->CheckPidIsApp(sam, args, sa);
+    ASSERT_EQ(ret, false);
+}
+
+/**
+ * @tc.name: IpcStatDumperTest007
+ * @tc.desc: Test IpcDumper DumpIpcStat.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, IpcStatDumperTest007, TestSize.Level1)
+{
+    auto ipcStatDumper = std::make_shared<IPCStatDumper>();
+    sptr<ISystemAbilityManager> sam = nullptr;
+    sptr<IRemoteObject> sa = nullptr;
+    DumpStatus ret = ipcStatDumper->DumpIpcStat(sam, sa);
+    ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
+}
+
+/**
+ * @tc.name: IpcStatDumperTest008
+ * @tc.desc: Test IpcDumper ptrReqCtl_ is nullptr.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, IpcStatDumperTest008, TestSize.Level1)
+{
+    auto parameter = std::make_shared<DumperParameter>();
+    std::vector<std::u16string> args;
+    DumperOpts opts;
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    auto ipcStatDumper = std::make_shared<IPCStatDumper>();
+
+    int fd = open("/dev/null", O_RDWR | O_CREAT | O_TRUNC, 0664);
+    if (fd <= 0) {
+        fd = STDERR_FILENO;
+    }
+
+    opts.isDumpIpc_ = true;
+    opts.isDumpAllIpc_ = true;
+    opts.isDumpIpcStartStat_ = true;
+    parameter->SetOpts(opts);
+    parameter->setClientCallback(nullptr);
+
+    DumpStatus ret = DumpStatus::DUMP_FAIL;
+    ret = ipcStatDumper->PreExecute(parameter, dumpDatas);
+    ret = ipcStatDumper->Execute();
+    ipcStatDumper->SendErrorMessage("ptrReqCtl_ test");
+    ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
 }
 } // namespace HiviewDFX
 } // namespace OHOS

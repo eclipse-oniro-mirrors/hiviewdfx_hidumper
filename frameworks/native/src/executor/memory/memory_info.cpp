@@ -34,6 +34,7 @@
 #include "executor/memory/parse/parse_meminfo.h"
 #include "executor/memory/parse/parse_smaps_rollup_info.h"
 #include "executor/memory/parse/parse_smaps_info.h"
+#include "file_ex.h"
 #include "hdf_base.h"
 #include "hilog_wrapper.h"
 #include "securec.h"
@@ -319,12 +320,9 @@ bool MemoryInfo::GetHardWareUsage(StringMatrix result)
     uint64_t value;
     unique_ptr<GetHardwareInfo> getHardwareInfo = make_unique<GetHardwareInfo>();
     if (getHardwareInfo->GetHardwareUsage(value)) {
-        vector<string> hardware;
         string title = "Hardware Usage:";
         StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, title);
-        hardware.push_back(title);
-        hardware.push_back(AddKbUnit(value));
-        result->push_back(hardware);
+        SaveStringToFd(rawParamFd_, title + AddKbUnit(value) + "\n");
         return true;
     }
     return false;
@@ -336,12 +334,9 @@ bool MemoryInfo::GetCMAUsage(StringMatrix result)
     unique_ptr<GetCMAInfo> getCMAInfo = make_unique<GetCMAInfo>();
     bool success = getCMAInfo->GetUsed(value);
     if (success) {
-        vector<string> cma;
         string title = "CMA Usage:";
         StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, title);
-        cma.push_back(title);
-        cma.push_back(AddKbUnit(value));
-        result->push_back(cma);
+        SaveStringToFd(rawParamFd_, title + AddKbUnit(value) + "\n");
     }
     return success;
 }
@@ -352,12 +347,9 @@ bool MemoryInfo::GetKernelUsage(const ValueMap &infos, StringMatrix result)
     unique_ptr<GetKernelInfo> getGetKernelInfo = make_unique<GetKernelInfo>();
     bool success = getGetKernelInfo->GetKernel(infos, value);
     if (success) {
-        vector<string> kernel;
         string title = "Kernel Usage:";
         StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, title);
-        kernel.push_back(title);
-        kernel.push_back(AddKbUnit(value));
-        result->push_back(kernel);
+        SaveStringToFd(rawParamFd_, title + AddKbUnit(value) + "\n");
     }
     return success;
 }
@@ -369,20 +361,14 @@ void MemoryInfo::GetProcesses(const GroupMap &infos, StringMatrix result)
     unique_ptr<GetProcessInfo> getProcessInfo = make_unique<GetProcessInfo>();
     value = getProcessInfo->GetProcess(infos);
 
-    vector<string> process;
     string title = "Processes Usage:";
     StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, title);
-    process.push_back(title);
-    process.push_back(AddKbUnit(value));
-    result->push_back(process);
+    SaveStringToFd(rawParamFd_, title + AddKbUnit(value) + "\n");
 }
 
 void MemoryInfo::GetPssTotal(const GroupMap &infos, StringMatrix result)
 {
-    vector<string> title;
-    title.push_back("Total Pss by Category:");
-    result->push_back(title);
-
+    SaveStringToFd(rawParamFd_, "Total Pss by Category:\n");
     vector<pair<string, uint64_t>> filePage;
     vector<pair<string, uint64_t>> anonPage;
     for (const auto &info : infos) {
@@ -425,20 +411,16 @@ void MemoryInfo::PairToStringMatrix(const string &titleStr, vector<pair<string, 
     uint64_t totalPss = accumulate(vec.begin(), vec.end(), (uint64_t)0, [] (uint64_t a, pair<string, uint64_t> &b) {
         return a + b.second;
     });
-    vector<string> title;
-    title.push_back(titleStr + "(" + AddKbUnit(totalPss) + "):");
-    result->push_back(title);
+    SaveStringToFd(rawParamFd_, titleStr + "(" + AddKbUnit(totalPss) + "):\n");
 
     std::sort(vec.begin(), vec.end(),
         [] (pair<string, uint64_t> &left, pair<string, uint64_t> &right) {
         return right.second < left.second;
     });
     for (const auto &pair : vec) {
-        vector<string> line;
         string pssStr = AddKbUnit(pair.second);
         StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, pssStr);
-        line.push_back(pssStr + " : " + pair.first);
-        result->push_back(line);
+        SaveStringToFd(rawParamFd_, pssStr + " : " + pair.first + "\n");
     }
 }
 
@@ -447,60 +429,43 @@ void MemoryInfo::GetRamUsage(const GroupMap &smapsinfos, const ValueMap &meminfo
     unique_ptr<GetRamInfo> getRamInfo = make_unique<GetRamInfo>();
     GetRamInfo::Ram ram = getRamInfo->GetRam(smapsinfos, meminfo);
 
-    vector<string> total;
     string totalTitle = "Total RAM:";
     StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, totalTitle);
-    total.push_back(totalTitle);
-    total.push_back(AddKbUnit(ram.total));
-    result->push_back(total);
+    SaveStringToFd(rawParamFd_, totalTitle + AddKbUnit(ram.total) + "\n");
 
-    vector<string> free;
     string freeTitle = "Free RAM:";
     StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, freeTitle);
-    free.push_back(freeTitle);
-    free.push_back(AddKbUnit(ram.free));
-    free.push_back(" (" + to_string(ram.cachedInfo) + " cached + " + to_string(ram.freeInfo) + " free)");
-    result->push_back(free);
+    SaveStringToFd(rawParamFd_, freeTitle + AddKbUnit(ram.free) +
+        " (" + to_string(ram.cachedInfo) + " cached + " + to_string(ram.freeInfo) + " free)\n");
 
-    vector<string> used;
     string usedTitle = "Used RAM:";
     StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, usedTitle);
-    used.push_back(usedTitle);
-    used.push_back(AddKbUnit(ram.used));
-    used.push_back(" (" + to_string(ram.totalPss) + " total pss + " + to_string(ram.kernelUsed) + " kernel)");
-    result->push_back(used);
+    SaveStringToFd(rawParamFd_, usedTitle + AddKbUnit(ram.used) +
+        " (" + to_string(ram.totalPss) + " total pss + " + to_string(ram.kernelUsed) + " kernel)\n");
 
-    vector<string> lost;
     string lostTitle = "Lost RAM:";
     StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, lostTitle);
     lost.push_back(lostTitle);
     lost.push_back(to_string(ram.lost) + MemoryUtil::GetInstance().KB_UNIT_);
     result->push_back(lost);
+    SaveStringToFd(rawParamFd_, lostTitle + to_string(ram.lost) + MemoryUtil::GetInstance().KB_UNIT_ + "\n");
 }
 
 void MemoryInfo::GetPurgTotal(const ValueMap &meminfo, StringMatrix result)
 {
-    vector<string> title;
-    title.push_back("Total Purgeable:");
-    result->push_back(title);
+    SaveStringToFd(rawParamFd_, "Total Purgeable:\n");
 
     uint64_t purgSumTotal = meminfo.find(MemoryFilter::GetInstance().PURG_SUM[0])->second +
                             meminfo.find(MemoryFilter::GetInstance().PURG_SUM[1])->second;
     uint64_t purgPinTotal = meminfo.find(MemoryFilter::GetInstance().PURG_PIN[0])->second;
 
-    vector<string> purgSum;
     string totalPurgSumTitle = "Total PurgSum:";
     StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, totalPurgSumTitle);
-    purgSum.push_back(totalPurgSumTitle);
-    purgSum.push_back(AddKbUnit(purgSumTotal));
-    result->push_back(purgSum);
+    SaveStringToFd(rawParamFd_, totalPurgSumTitle + AddKbUnit(purgSumTotal) + "\n");
 
-    vector<string> purgPin;
     string totalPurgPinTitle = "Total PurgPin:";
     StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, totalPurgPinTitle);
-    purgPin.push_back(totalPurgPinTitle);
-    purgPin.push_back(AddKbUnit(purgPinTotal));
-    result->push_back(purgPin);
+    SaveStringToFd(rawParamFd_, totalPurgPinTitle + AddKbUnit(purgPinTotal) + "\n");
 }
 
 void MemoryInfo::GetPurgByPid(const int32_t &pid, StringMatrix result)
@@ -614,9 +579,7 @@ void MemoryInfo::GetHiaiServerIon(const int32_t &pid, StringMatrix result)
 
 void MemoryInfo::GetRamCategory(const GroupMap &smapsInfos, const ValueMap &meminfos, StringMatrix result)
 {
-    vector<string> title;
-    title.push_back("Total RAM by Category:");
-    result->push_back(title);
+    SaveStringToFd(rawParamFd_, "Total RAM by Category:\n");
 
     bool hardWareSuccess = GetHardWareUsage(result);
     if (!hardWareSuccess) {
@@ -985,20 +948,20 @@ DumpStatus MemoryInfo::DealResult(StringMatrix result)
     }
 
     GetSortedMemoryInfoNoPid(result);
-    AddBlankLine(result);
+    SaveStringToFd(rawParamFd_, "\n");
     GetMemoryByAdj(result);
-    AddBlankLine(result);
+    SaveStringToFd(rawParamFd_, "\n");
 
     GroupMap smapsResult = fut_.get();
 
     GetPssTotal(smapsResult, result);
-    AddBlankLine(result);
+    SaveStringToFd(rawParamFd_, "\n");
 
     GetRamUsage(smapsResult, meminfoResult, result);
-    AddBlankLine(result);
+    SaveStringToFd(rawParamFd_, "\n");
 
     GetRamCategory(smapsResult, meminfoResult, result);
-    AddBlankLine(result);
+    SaveStringToFd(rawParamFd_, "\n");
 
     GetPurgTotal(meminfoResult, result);
 
@@ -1011,7 +974,7 @@ DumpStatus MemoryInfo::DealResult(StringMatrix result)
 
 void MemoryInfo::GetSortedMemoryInfoNoPid(StringMatrix result)
 {
-    AddBlankLine(result);
+    SaveStringToFd(rawParamFd_, "\n");
     AddMemByProcessTitle(result, "Size");
 
     std::sort(memUsages_.begin(), memUsages_.end(),
@@ -1038,9 +1001,7 @@ void MemoryInfo::GetSortedMemoryInfoNoPid(StringMatrix result)
 
 void MemoryInfo::GetMemoryByAdj(StringMatrix result)
 {
-    vector<string> title;
-    title.push_back("Total Pss by OOM adjustment:");
-    result->push_back(title);
+    SaveStringToFd(rawParamFd_, "Total Pss by OOM adjustment:\n");
 
     vector<string> reclaimPriority_;
     for (auto reclaim : ReclaimPriorityMapping) {
@@ -1052,30 +1013,27 @@ void MemoryInfo::GetMemoryByAdj(StringMatrix result)
         vector<MemInfoData::MemUsage> memUsages = adjMemResult_[adjLabel];
         vector<string> label;
         if (memUsages.size() == 0) {
-            label.push_back(adjLabel + ": " + AddKbUnit(0));
-            result->push_back(label);
+            SaveStringToFd(rawParamFd_, adjLabel + ": " + AddKbUnit(0) + "\n");
             continue;
         }
         uint64_t totalPss = accumulate(memUsages.begin(), memUsages.end(), (uint64_t)0,
         [] (uint64_t a, MemInfoData::MemUsage &b) {
             return a + b.pss + b.swapPss;
         });
-        label.push_back(adjLabel + ": " + AddKbUnit(totalPss));
-        result->push_back(label);
+        SaveStringToFd(rawParamFd_, adjLabel + ": " + AddKbUnit(totalPss) + "\n");
 
         std::sort(memUsages.begin(), memUsages.end(),
             [] (MemInfoData::MemUsage &left, MemInfoData::MemUsage &right) {
             return right.pss + right.swapPss < left.pss + left.swapPss;
         });
         for (const auto &memUsage : memUsages) {
-            vector<string> line;
             string name = PRE_BLANK + memUsage.name + "(pid=" + to_string(memUsage.pid) + "): ";
             StringUtils::GetInstance().SetWidth(NAME_AND_PID_WIDTH, BLANK_, true, name);
-            line.push_back(name + AddKbUnit(memUsage.pss + memUsage.swapPss));
+            name += AddKbUnit(memUsage.pss + memUsage.swapPss);
             if (memUsage.swapPss > 0) {
-                line.push_back(" (" + to_string(memUsage.swapPss) + " kB in SwapPss)");
+                name += " (" + to_string(memUsage.swapPss) + " kB in SwapPss)";
             }
-            result->push_back(line);
+            SaveStringToFd(rawParamFd_, name + "\n");
         }
     }
 }

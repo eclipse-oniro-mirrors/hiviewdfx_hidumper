@@ -95,6 +95,9 @@ DumpStatus ZipFolderOutput::Execute()
         outstr.append(line);
         line.clear();
     }
+    if (lseek(fd_, 0, SEEK_END) == -1) {
+        DUMPER_HILOGE(MODULE_COMMON, "lseek fail fd:%{public}d, errno:%{public}d", fd_, errno);
+    }
     if (!outstr.empty()) {
         SaveStringToFd(fd_, outstr);
     }
