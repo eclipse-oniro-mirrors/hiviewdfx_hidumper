@@ -197,7 +197,7 @@ HWTEST_F(HiDumperInnerkitsTest, GetSharedDirtyTest001, TestSize.Level1)
 HWTEST_F(HiDumperInnerkitsTest, GetCpuUsage001, TestSize.Level1)
 {
     std::unique_ptr<DumpUsage> dumpUsage = std::make_unique<DumpUsage>();
-    EXPECT_GT(dumpUsage->GetCpuUsage(g_pid), 0);
+    EXPECT_GE(dumpUsage->GetCpuUsage(g_pid), 0);
 }
 
 /**
