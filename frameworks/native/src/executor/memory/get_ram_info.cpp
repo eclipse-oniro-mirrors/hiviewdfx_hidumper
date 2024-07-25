@@ -144,6 +144,12 @@ int64_t GetRamInfo::GetLostRam(const GroupMap &smapsInfo, const ValueMap &meminf
                          static_cast<int64_t>((GetTotalPss(smapsInfo) - GetTotalSwapPss(smapsInfo)) +
                                               GetFreeInfo(meminfo) + GetCachedInfo(meminfo) +
                                               GetKernelUsedInfo(meminfo) + GetZramTotalInfo(meminfo));
+    DUMPER_HILOGE(MODULE_COMMON, "TotalRam:%{public}d, totalPss:%{public}d, totalSwapPss:%{public}d, \
+        freeInfo:%{public}d, cachedInfo:%{public}d, kernelUsedInfo:%{public}d, zramTotalInfo:%{public}d",
+        static_cast<int>(GetTotalRam(meminfo)), static_cast<int>(GetTotalPss(smapsInfo)),
+        static_cast<int>(GetTotalSwapPss(smapsInfo)), static_cast<int>(GetFreeInfo(meminfo)),
+        static_cast<int>(GetCachedInfo(meminfo)), static_cast<int>(GetKernelUsedInfo(meminfo)),
+        static_cast<int>(GetZramTotalInfo(meminfo)));
     return totalValue;
 }
 
