@@ -29,11 +29,11 @@ public:
         uint64_t total {0};
         uint64_t free {0};
         uint64_t used {0};
-        uint64_t lost {0};
         uint64_t totalPss {0};
         uint64_t kernelUsed {0};
         uint64_t cachedInfo {0};
         uint64_t freeInfo {0};
+        int64_t lost {0};
     };
 
     using ValueMap = std::map<std::string, uint64_t>;
@@ -56,7 +56,7 @@ private:
     uint64_t GetZramTotalInfo(const ValueMap &infos) const;
     uint64_t GetUsedRam(const GroupMap &smapsInfo, const ValueMap &meminfo, Ram &ram) const;
     uint64_t GetFreeRam(const ValueMap &meminfo, Ram &ram) const;
-    uint64_t GetLostRam(const GroupMap &smapsInfo, const ValueMap &meminfo) const;
+    int64_t GetLostRam(const GroupMap &smapsInfo, const ValueMap &meminfo) const;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

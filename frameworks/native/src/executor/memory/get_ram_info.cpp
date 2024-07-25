@@ -15,9 +15,7 @@
 #include "executor/memory/get_ram_info.h"
 #include "executor/memory/memory_util.h"
 #include "executor/memory/memory_filter.h"
-#include "hilog_wrapper.h"
 #include "util/string_utils.h"
-
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
@@ -140,25 +138,13 @@ uint64_t GetRamInfo::GetFreeRam(const ValueMap &meminfo, Ram &ram) const
     return totalValue;
 }
 
-uint64_t GetRamInfo::GetLostRam(const GroupMap &smapsInfo, const ValueMap &meminfo) const
+int64_t GetRamInfo::GetLostRam(const GroupMap &smapsInfo, const ValueMap &meminfo) const
 {
-    uint64_t totalRam = GetTotalRam(meminfo);
-    uint64_t usedAndFreeRam =
-        ((GetTotalPss(smapsInfo) > GetTotalSwapPss(smapsInfo)) ?
-        GetTotalPss(smapsInfo) - GetTotalSwapPss(smapsInfo) : 0) +
-        GetFreeInfo(meminfo) + GetCachedInfo(meminfo) + GetKernelUsedInfo(meminfo) + GetZramTotalInfo(meminfo);
-    if (totalRam > usedAndFreeRam) {
-        return totalRam - usedAndFreeRam;
-    } else {
-        DUMPER_HILOGE(MODULE_COMMON, "GetLostRam failed: totalRam:%{public}d, usedAndFreeRam:%{public}d, \
-            totalPss:%{public}d, totalSwapPss:%{public}d, freeInfo:%{public}d, cachedInfo:%{public}d, \
-            kernelUsedInfo:%{public}d, zramTotalInfo:%{public}d",
-            static_cast<int>(totalRam), static_cast<int>(usedAndFreeRam), static_cast<int>(GetTotalPss(smapsInfo)),
-            static_cast<int>(GetTotalSwapPss(smapsInfo)), static_cast<int>(GetFreeInfo(meminfo)),
-            static_cast<int>(GetCachedInfo(meminfo)), static_cast<int>(GetKernelUsedInfo(meminfo)),
-            static_cast<int>(GetZramTotalInfo(meminfo)));
-        return 0;
-    }
+    int64_t totalValue = static_cast<int64_t>(GetTotalRam(meminfo)) -
+                         static_cast<int64_t>((GetTotalPss(smapsInfo) - GetTotalSwapPss(smapsInfo)) +
+                                              GetFreeInfo(meminfo) + GetCachedInfo(meminfo) +
+                                              GetKernelUsedInfo(meminfo) + GetZramTotalInfo(meminfo));
+    return totalValue;
 }
 
 GetRamInfo::Ram GetRamInfo::GetRam(const GroupMap &smapsInfo, const ValueMap &meminfo) const

@@ -474,7 +474,7 @@ void MemoryInfo::GetRamUsage(const GroupMap &smapsinfos, const ValueMap &meminfo
     string lostTitle = "Lost RAM:";
     StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, lostTitle);
     lost.push_back(lostTitle);
-    lost.push_back(AddKbUnit(ram.lost));
+    lost.push_back(to_string(ram.lost) + MemoryUtil::GetInstance().KB_UNIT_);
     result->push_back(lost);
 }
 
