@@ -339,7 +339,6 @@ std::string DumpImplement::GetTime()
 bool DumpImplement::ParseSubLongCmdOption(int argc, DumperOpts &opts_, const struct option longOptions[],
                                           const int &optionIndex, char *argv[])
 {
-    path_ = "";
     if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "cpufreq")) {
         opts_.isDumpCpuFreq_ = true;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "cpuusage")) {

@@ -141,6 +141,19 @@ HWTEST_F(MemoryDumperTest, MemoryDumperTest006, TestSize.Level3)
 }
 
 /**
+ * @tc.name: MemoryDumperTest007
+ * @tc.desc: Test zip memory not contain "Total Memory Usage by PID".
+ * @tc.type: FUNC
+ * @tc.require: issueI5NWZQ
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest007, TestSize.Level3)
+{
+    std::string cmd = "hidumper --mem --zip";
+    std::string str = "Total Memory Usage by PID";
+    ASSERT_FALSE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+}
+
+/**
  * @tc.name: MemoryUtilTest001
  * @tc.desc: Test IsNameLine has correct ret.
  * @tc.type: FUNC
