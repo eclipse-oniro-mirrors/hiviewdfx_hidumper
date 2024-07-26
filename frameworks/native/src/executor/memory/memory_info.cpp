@@ -456,6 +456,7 @@ void MemoryInfo::GetPurgTotal(const ValueMap &meminfo, StringMatrix result)
     auto purgSumInactive = meminfo.find(MemoryFilter::GetInstance().PURG_SUM[1]);
     auto purgPinPined = meminfo.find(MemoryFilter::GetInstance().PURG_PIN[0]);
     if (purgSumActive == meminfo.end() || purgSumInactive == meminfo.end() || purgPinPined == meminfo.end()) {
+        DUMPER_HILOGE(MODULE_SERVICE, "fail to get purg info \n");
         return;
     }
     uint64_t purgSumTotal = purgSumActive->second + purgSumInactive->second;
