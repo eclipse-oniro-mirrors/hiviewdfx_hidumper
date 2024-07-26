@@ -75,7 +75,7 @@ public:
     const std::vector<std::string> MEMINFO_TAG_ = {
         "MemTotal", "MemFree",       "Cached",       "SwapTotal", "KernelStack", "SUnreclaim", "PageTables",
         "Shmem",    "IonTotalCache", "IonTotalUsed", "Buffers",   "Mapped",      "Slab",       "VmallocUsed",
-        "Active(purg)", "Inactive(purg)",   "Pined(purg)",
+        "Active(purg)", "Inactive(purg)",   "Pined(purg)", "KReclaimable", "SReclaimable",
     };
 
     // The fields used to calculate kernel data

@@ -445,7 +445,7 @@ void MemoryInfo::GetRamUsage(const GroupMap &smapsinfos, const ValueMap &meminfo
 
     string lostTitle = "Lost RAM:";
     StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, lostTitle);
-    SaveStringToFd(rawParamFd_, lostTitle + AddKbUnit(ram.lost) + "\n");
+    SaveStringToFd(rawParamFd_, lostTitle + to_string(ram.lost) + MemoryUtil::GetInstance().KB_UNIT_ + "\n");
 }
 
 void MemoryInfo::GetPurgTotal(const ValueMap &meminfo, StringMatrix result)

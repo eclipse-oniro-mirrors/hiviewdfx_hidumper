@@ -15,6 +15,7 @@
 #include "executor/memory/get_ram_info.h"
 #include "executor/memory/memory_util.h"
 #include "executor/memory/memory_filter.h"
+#include "hilog_wrapper.h"
 #include "util/string_utils.h"
 using namespace std;
 namespace OHOS {
@@ -138,11 +139,23 @@ uint64_t GetRamInfo::GetFreeRam(const ValueMap &meminfo, Ram &ram) const
     return totalValue;
 }
 
-uint64_t GetRamInfo::GetLostRam(const GroupMap &smapsInfo, const ValueMap &meminfo) const
+int64_t GetRamInfo::GetLostRam(const GroupMap &smapsInfo, const ValueMap &meminfo) const
 {
-    uint64_t totalValue = GetTotalRam(meminfo) - (GetTotalPss(smapsInfo) - GetTotalSwapPss(smapsInfo))
-                      - GetFreeInfo(meminfo) - GetCachedInfo(meminfo) - GetKernelUsedInfo(meminfo)
-                      - GetZramTotalInfo(meminfo);
+    uint64_t totalRam = GetTotalRam(meminfo);
+    uint64_t totalPss = GetTotalPss(smapsInfo);
+    uint64_t totalSwapPss = GetTotalSwapPss(smapsInfo);
+    uint64_t freeInfo = GetFreeInfo(meminfo);
+    uint64_t cachedInfo = GetCachedInfo(meminfo);
+    uint64_t kernelUsedInfo = GetKernelUsedInfo(meminfo);
+    uint64_t zramTotalInfo = GetZramTotalInfo(meminfo);
+    int64_t totalValue = static_cast<int64_t>(totalRam) -
+                         static_cast<int64_t>((totalPss - totalSwapPss) + freeInfo + cachedInfo +
+                                              kernelUsedInfo + zramTotalInfo);
+    DUMPER_HILOGD(MODULE_COMMON, "TotalRam:%{public}d, totalPss:%{public}d, totalSwapPss:%{public}d, \
+        freeInfo:%{public}d, cachedInfo:%{public}d, kernelUsedInfo:%{public}d, zramTotalInfo:%{public}d",
+        static_cast<int>(totalRam), static_cast<int>(totalPss), static_cast<int>(totalSwapPss),
+        static_cast<int>(freeInfo), static_cast<int>(cachedInfo), static_cast<int>(kernelUsedInfo),
+        static_cast<int>(zramTotalInfo));
     return totalValue;
 }
 
