@@ -18,11 +18,7 @@
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
-#if defined(__LP64__)
-static const std::string MEM_LIB_PATH = "/system/lib64/libhidumpermemory.z.so";
-#else
-static const std::string MEM_LIB_PATH = "/system/lib/libhidumpermemory.z.so";
-#endif
+static const std::string MEM_LIB = "libhidumpermemory.z.so";
 
 MemoryDumper::MemoryDumper()
 {
@@ -63,9 +59,9 @@ DumpStatus MemoryDumper::Execute()
 
 void MemoryDumper::GetMemByPid()
 {
-    void *handle = dlopen(MEM_LIB_PATH.c_str(), RTLD_LAZY | RTLD_NODELETE);
+    void *handle = dlopen(MEM_LIB.c_str(), RTLD_LAZY | RTLD_NODELETE);
     if (handle == nullptr) {
-        DUMPER_HILOGE(MODULE_SERVICE, "fail to open %{public}s. errno:%{public}s", MEM_LIB_PATH.c_str(), dlerror());
+        DUMPER_HILOGE(MODULE_SERVICE, "fail to open %{public}s. errno:%{public}s", MEM_LIB.c_str(), dlerror());
         return;
     }
     GetMemByPidFunc pfn = reinterpret_cast<GetMemByPidFunc>(dlsym(handle, "GetMemoryInfoByPid"));
@@ -85,9 +81,9 @@ void MemoryDumper::GetMemByPid()
 
 void MemoryDumper::GetMemNoPid()
 {
-    void* handle = dlopen(MEM_LIB_PATH.c_str(), RTLD_LAZY | RTLD_NODELETE);
+    void* handle = dlopen(MEM_LIB.c_str(), RTLD_LAZY | RTLD_NODELETE);
     if (handle == nullptr) {
-        DUMPER_HILOGE(MODULE_SERVICE, "fail to open %{public}s. errno:%{public}s", MEM_LIB_PATH.c_str(), dlerror());
+        DUMPER_HILOGE(MODULE_SERVICE, "fail to open %{public}s. errno:%{public}s", MEM_LIB.c_str(), dlerror());
         return;
     }
     GetMemNoPidFunc getMemNoPidFunc = reinterpret_cast<GetMemNoPidFunc>(dlsym(handle, "GetMemoryInfoNoPid"));
@@ -103,9 +99,9 @@ void MemoryDumper::GetMemNoPid()
 
 void MemoryDumper::GetMemSmapsByPid()
 {
-    void *handle = dlopen(MEM_LIB_PATH.c_str(), RTLD_LAZY | RTLD_NODELETE);
+    void *handle = dlopen(MEM_LIB.c_str(), RTLD_LAZY | RTLD_NODELETE);
     if (handle == nullptr) {
-        DUMPER_HILOGE(MODULE_SERVICE, "fail to open %{public}s. errno:%{public}s", MEM_LIB_PATH.c_str(), dlerror());
+        DUMPER_HILOGE(MODULE_SERVICE, "fail to open %{public}s. errno:%{public}s", MEM_LIB.c_str(), dlerror());
         return;
     }
     GetMemSmapsByPidFunc pfn = reinterpret_cast<GetMemSmapsByPidFunc>(dlsym(handle, "ShowMemorySmapsByPid"));
