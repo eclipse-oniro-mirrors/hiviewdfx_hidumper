@@ -153,7 +153,7 @@ HWTEST_F(SADumperTest, SADumperTest008, TestSize.Level3)
 HWTEST_F(SADumperTest, SADumperTest009, TestSize.Level3)
 {
     std::string path = "/data/log/hidumper/RenderService.txt";
-    std::string cmd = "hidumper -s 10 -a -h > "+ path;
+    std::string cmd = "hidumper -s 10 -a -h > " + path;
     std::string str = "Graphic";
     ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistStrInFile(cmd, str, path));
     system("rm -rf /data/log/hidumper/RenderService.txt");
