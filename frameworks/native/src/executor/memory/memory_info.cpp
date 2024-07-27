@@ -51,11 +51,7 @@ using namespace OHOS::HDI::Memorytracker::V1_0;
 
 namespace OHOS {
 namespace HiviewDFX {
-#if defined(__LP64__)
-static const std::string LIB_PATH = "/vendor/lib64/chipsetsdk/libai_mnt_client.so";
-#else
-static const std::string LIB_PATH = "/vendor/lib/chipsetsdk/libai_mnt_client.so";
-#endif
+static const std::string LIB = "libai_mnt_client.so";
 
 static const std::string UNKNOWN_PROCESS = "unknown";
 static const std::string PRE_BLANK = "   ";
@@ -552,9 +548,9 @@ void MemoryInfo::GetHiaiServerIon(const int32_t &pid, StringMatrix result)
     if (GetProcName(pid) != "hiaiserver") {
         return;
     }
-    void *handle = dlopen(LIB_PATH.c_str(), RTLD_LAZY);
+    void *handle = dlopen(LIB.c_str(), RTLD_LAZY);
     if (handle == nullptr) {
-        DUMPER_HILOGE(MODULE_SERVICE, "fail to open %{public}s.", LIB_PATH.c_str());
+        DUMPER_HILOGE(MODULE_SERVICE, "fail to open %{public}s.", LIB.c_str());
         return;
     }
     HiaiFunc pfn = reinterpret_cast<HiaiFunc>(dlsym(handle, HIAI_MEM_INFO_FN));
