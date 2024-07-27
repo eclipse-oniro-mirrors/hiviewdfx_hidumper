@@ -99,6 +99,11 @@ bool MemoryUtil::RunCMD(const string &cmd, vector<string> &result)
         StringUtils::GetInstance().ReplaceAll(line, "\n", "");
         result.push_back(line);
     }
+    // free memory
+    if (buffer != nullptr) {
+        delete[] buffer;
+        buffer = nullptr;
+    }
     pclose(fp);
     return true;
 }
