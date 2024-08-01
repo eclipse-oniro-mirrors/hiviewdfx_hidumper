@@ -322,6 +322,21 @@ ohos_unittest("HidumperClientTest") {
   ]
 }
 
+ohos_unittest("HidumperZidlTest") {
+  module_out_path = module_output_path
+
+  sources = [ "hidumper_zidl_test.cpp" ]
+
+  configs = [
+    ":module_private_config",
+    "${hidumper_service_path}:zidl_config",
+  ]
+
+  deps = [ "${hidumper_service_path}:zidl_service" ]
+
+  external_deps = [ "ipc:ipc_core" ]
+}
+
 ###############################################################################
 group("unittest") {
   testonly = true
@@ -337,6 +352,7 @@ group("unittest") {
     ":HidumperOutputTest",
     ":HidumperPrivacyTest",
     ":HidumperServiceTest",
+    ":HidumperZidlTest",
     ":MemoryDumperTest",
     ":SADumperTest",
   ]
