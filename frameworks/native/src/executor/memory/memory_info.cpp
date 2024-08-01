@@ -758,55 +758,44 @@ bool MemoryInfo::GetMemByProcessPid(const int32_t &pid, const DmaInfo &dmaInfo, 
 
 void MemoryInfo::MemUsageToMatrix(const MemInfoData::MemUsage &memUsage, StringMatrix result)
 {
-    vector<string> strs;
     string pid = to_string(memUsage.pid);
     StringUtils::GetInstance().SetWidth(PID_WIDTH_, BLANK_, true, pid);
-    strs.push_back(pid);
 
     uint64_t pss = memUsage.pss + memUsage.swapPss;
     string totalPss = to_string(pss) + "(" + to_string(memUsage.swapPss) + " in SwapPss) kB";
     StringUtils::GetInstance().SetWidth(PSS_WIDTH_, BLANK_, false, totalPss);
-    strs.push_back(totalPss);
 
     uint64_t vss = memUsage.vss;
     string totalVss = AddKbUnit(vss);
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalVss);
-    strs.push_back(totalVss);
 
     uint64_t rss = memUsage.rss;
     string totalRss = AddKbUnit(rss);
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalRss);
-    strs.push_back(totalRss);
 
     uint64_t uss = memUsage.uss;
     string totalUss = AddKbUnit(uss);
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalUss);
-    strs.push_back(totalUss);
 
     uint64_t gl = memUsage.gl;
     string unMappedGL = AddKbUnit(gl);
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedGL);
-    strs.push_back(unMappedGL);
 
     uint64_t graph = memUsage.graph;
     string unMappedGraph = AddKbUnit(graph);
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedGraph);
-    strs.push_back(unMappedGraph);
 
     uint64_t dma = memUsage.dma;
     string unMappedDma = AddKbUnit(dma);
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedDma);
-    strs.push_back(unMappedDma);
 
     uint64_t purgSum = memUsage.purgSum;
     string unMappedPurgSum = AddKbUnit(purgSum);
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedPurgSum);
-    strs.push_back(unMappedPurgSum);
 
     uint64_t purgPin = memUsage.purgPin;
     string unMappedPurgPin = AddKbUnit(purgPin);
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedPurgPin);
-    strs.push_back(unMappedPurgPin);
 
     string name = "    " + memUsage.name;
     StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, name);
@@ -822,50 +811,38 @@ void MemoryInfo::AddMemByProcessTitle(StringMatrix result, string sortType)
     string processTitle = "Total Memory Usage by " + sortType + ":";
     (void)dprintf(rawParamFd_, "%s\n", processTitle.c_str());
 
-    vector<string> title;
     string pid = "PID";
     StringUtils::GetInstance().SetWidth(PID_WIDTH_, BLANK_, true, pid);
-    title.push_back(pid);
 
     string totalPss = "Total Pss(xxx in SwapPss)";
     StringUtils::GetInstance().SetWidth(PSS_WIDTH_, BLANK_, false, totalPss);
-    title.push_back(totalPss);
 
     string totalVss = "Total Vss";
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalVss);
-    title.push_back(totalVss);
 
     string totalRss = "Total Rss";
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalRss);
-    title.push_back(totalRss);
 
     string totalUss = "Total Uss";
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalUss);
-    title.push_back(totalUss);
 
     string unMappedGL = MemoryFilter::GetInstance().GL_OUT_LABEL;
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedGL);
-    title.push_back(unMappedGL);
 
     string unMappedGraph = MemoryFilter::GetInstance().GRAPH_OUT_LABEL;
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedGraph);
-    title.push_back(unMappedGraph);
 
     string unMappedDma = MemoryFilter::GetInstance().DMA_OUT_LABEL;
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedDma);
-    title.push_back(unMappedDma);
 
     string unMappedPurgSum = MemoryFilter::GetInstance().PURGSUM_OUT_LABEL;
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedPurgSum);
-    title.push_back(unMappedPurgSum);
 
     string unMappedPurgPin = MemoryFilter::GetInstance().PURGPIN_OUT_LABEL;
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedPurgPin);
-    title.push_back(unMappedPurgPin);
 
     string name = "    Name";
     StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, name);
-    title.push_back(name);
 
     (void)dprintf(rawParamFd_, "%s%s%s%s%s%s%s%s%s%s%s\n", pid.c_str(),
         totalPss.c_str(), totalVss.c_str(), totalRss.c_str(), totalUss.c_str(),
