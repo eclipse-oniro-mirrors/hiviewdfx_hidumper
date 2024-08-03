@@ -334,7 +334,10 @@ ohos_unittest("HidumperZidlTest") {
 
   deps = [ "${hidumper_service_path}:zidl_service" ]
 
-  external_deps = [ "ipc:ipc_core" ]
+  external_deps = [
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
 }
 
 ###############################################################################

@@ -660,6 +660,10 @@ string MemoryInfo::GetProcessAdjLabel(const int32_t pid)
     }
     int value = RECLAIM_PRIORITY_UNKNOWN;
     std::string label(buf);
+    if (label.empty()) {
+        DUMPER_HILOGE(MODULE_COMMON, "label is empty.");
+        return adjLabel;
+    }
     if (!StrToInt(label.substr(0, label.size() - 1), value)) {
         DUMPER_HILOGE(MODULE_COMMON, "StrToInt failed.");
         return adjLabel;
