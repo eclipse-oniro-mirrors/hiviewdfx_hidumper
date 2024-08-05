@@ -27,14 +27,12 @@ public:
     void operator=(StringUtils const &) = delete;
 
     void StringSplit(const std::string &str, const std::string &split, std::vector<std::string> &result);
-    void StringRegex(const std::string &str, const std::string &pattern, const int& idx, std::string &result);
     bool IsBegin(const std::string &content, const std::string &begin);
     bool IsEnd(const std::string &content, const std::string &end);
     bool IsContain(const std::string &content, const std::string &contain);
     bool IsSameStr(const std::string &first, const std::string &second);
     void ReplaceAll(std::string &str, const std::string &oldValue, const std::string &newValue);
     bool IsNum(std::string str);
-    bool Compare(const std::string &str, const std::vector<std::string> &strs);
     void HexToDec(const std::string &str, uint64_t &value);
     void SetWidth(const int &width, const char &fileStr, const bool &left, std::string &str);
     char GetBlank();
