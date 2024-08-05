@@ -34,14 +34,6 @@ void StringUtils::StringSplit(const string &content, const string &split, vector
     SplitStr(content, split, result, false, false);
 }
 
-void StringUtils::StringRegex(const string &str, const string &pattern, const int& idx, string &result)
-{
-    smatch match;
-    if (regex_search(str, match, regex(pattern)) && match.size() > static_cast<size_t>(idx)) {
-        result = match[idx].str();
-    }
-}
-
 bool StringUtils::IsBegin(const string &content, const string &begin)
 {
     if (content.find(begin) == 0) {
@@ -80,17 +72,6 @@ void StringUtils::ReplaceAll(string &str, const string &oldValue, const string &
 bool StringUtils::IsNum(string str)
 {
     return IsNumericStr(str);
-}
-
-bool StringUtils::Compare(const string &str, const vector<string> &strs)
-{
-    bool success = false;
-    for (const string &tempStr : strs) {
-        if (str == tempStr) {
-            success = true;
-        }
-    }
-    return success;
 }
 
 void StringUtils::HexToDec(const string &str, uint64_t &value)

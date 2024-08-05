@@ -145,6 +145,18 @@ HWTEST_F(HidumperClientTest, ClientMainTest005, TestSize.Level0)
 }
 
 /**
+ * @tc.name: ClientMainTest006
+ * @tc.desc: Test null argv.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperClientTest, ClientMainTest006, TestSize.Level0)
+{
+    int argc = ARG_MAX_COUNT;
+    int ret = DumpClientMain::GetInstance().Main(argc, nullptr, STDOUT_FILENO);
+    ASSERT_EQ(ret, DumpStatus::DUMP_INVALID_ARG);
+}
+
+/**
  * @tc.name: ManagerClientTest001
  * @tc.desc: Test emtpy argument list.
  * @tc.type: FUNC

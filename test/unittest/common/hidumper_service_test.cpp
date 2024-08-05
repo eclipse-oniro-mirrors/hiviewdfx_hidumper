@@ -105,6 +105,34 @@ HWTEST_F(HidumperServiceTest, DumpManagerService004, TestSize.Level3)
     std::vector<int32_t> pidList;
     int32_t ret = dumpManagerService->ScanPidOverLimit(requestType, LIMIT_SIZE, pidList);
     ASSERT_TRUE(ret == 0);
+
+    ret = dumpManagerService->ScanPidOverLimit(requestType, -1, pidList);
+    ASSERT_TRUE(ret != 0);
+}
+
+/**
+ * @tc.name: DumpManagerService005
+ * @tc.desc: Test DumpManagerService Request.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperServiceTest, DumpManagerService005, TestSize.Level3)
+{
+    auto dumpManagerService = std::make_shared<DumpManagerService>();
+    dumpManagerService->OnStart();
+    dumpManagerService->started_ = true;
+    dumpManagerService->OnStart();
+
+    std::vector<std::u16string> args;
+    dumpManagerService->blockRequest_ = true;
+    dumpManagerService->Request(args, -1);
+    dumpManagerService->blockRequest_ = false;
+    dumpManagerService->started_ = false;
+    dumpManagerService->Request(args, -1);
+
+    dumpManagerService->OnStop();
+    dumpManagerService->started_ = false;
+    dumpManagerService->OnStop();
+    ASSERT_TRUE(true);
 }
 } // namespace HiviewDFX
 } // namespace OHOS
