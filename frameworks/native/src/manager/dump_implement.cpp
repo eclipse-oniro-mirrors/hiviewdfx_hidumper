@@ -39,7 +39,7 @@
 #include "common/dumper_constant.h"
 #include "securec.h"
 #include "parameters.h"
-#include "parameter.h"//==
+#include "parameter.h"
 namespace OHOS {
 namespace HiviewDFX {
 
