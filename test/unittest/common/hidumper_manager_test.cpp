@@ -367,6 +367,7 @@ HWTEST_F(HiDumperManagerTest, DumpTest016, TestSize.Level0)
     int ret = GetDumpResult(argc, argv);
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
+#endif
 
 /**
  * @tc.name: MemoryDumperTest017
@@ -385,7 +386,6 @@ HWTEST_F(HiDumperManagerTest, DumpTest017, TestSize.Level0)
     int ret = GetDumpResult(argc, argv);
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
-#endif
 
 /**
  * @tc.name: MemoryDumperTest018
