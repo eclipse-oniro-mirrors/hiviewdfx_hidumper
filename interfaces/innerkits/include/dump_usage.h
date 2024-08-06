@@ -28,7 +28,9 @@ public:
     uint64_t GetPrivateDirty(const int &pid);
     uint64_t GetSharedDirty(const int &pid);
     uint64_t GetDma(const int& pid);
+#ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
     double GetCpuUsage(const int &pid);
+#endif
 };
 } // namespace HiviewDFX
 } // namespace OHOS

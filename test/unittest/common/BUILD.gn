@@ -280,7 +280,6 @@ group("unittest") {
   deps += [
     # deps file
     ":HidumperConfigUtilsTest",
-    ":HidumperCpuServiceTest",
     ":HidumperDumpersTest",
     ":HidumperInnerkitsTest",
     ":HidumperManagerTest",
@@ -289,5 +288,9 @@ group("unittest") {
     ":HidumperServiceTest",
     ":MemoryDumperTest",
   ]
+
+  if (hidumper_hiviewdfx_hiview_enable) {
+    deps += [ ":HidumperCpuServiceTest" ]
+  }
 }
 ###############################################################################

@@ -55,6 +55,7 @@ uint64_t DumpUsage::GetSharedDirty(const int &pid)
     return GetMemInfo(pid, info) ? info.sharedDirty : 0;
 }
 
+#ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
 double DumpUsage::GetCpuUsage(const int &pid)
 {
     double cpuUsage = 0.00;
@@ -63,6 +64,7 @@ double DumpUsage::GetCpuUsage(const int &pid)
     DUMPER_HILOGD(MODULE_CPU_SERVICE, "GetCpuUsage end, pid = %{public}d, cpuUsage = %{public}f", pid, cpuUsage);
     return cpuUsage;
 }
+#endif
 
 uint64_t DumpUsage::GetDma(const int& pid)
 {

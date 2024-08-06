@@ -55,7 +55,9 @@ DumpImplement::~DumpImplement()
 void DumpImplement::AddExecutorFactoryToMap()
 {
     ptrExecutorFactoryMap_ = std::make_shared<ExecutorFactoryMap>();
+#ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE   
     ptrExecutorFactoryMap_->insert(std::make_pair(DumperConstant::CPU_DUMPER, std::make_shared<CPUDumperFactory>()));
+#endif
     ptrExecutorFactoryMap_->insert(std::make_pair(DumperConstant::FILE_DUMPER, std::make_shared<FileDumperFactory>()));
     ptrExecutorFactoryMap_->insert(
         std::make_pair(DumperConstant::ENV_PARAM_DUMPER, std::make_shared<EnvParamDumperFactory>()));
@@ -154,9 +156,11 @@ DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<Dumpe
             opts.AddSelectAll();
             opts.isAppendix_ = true;
         } else {
+#ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
             opts.isDumpCpuFreq_ = true;
             opts.isDumpCpuUsage_ = true;
             opts.cpuUsagePid_ = clientPid;
+#endif
             opts.isDumpMem_ = true;
             opts.memPid_ = clientPid;
         }
@@ -187,15 +191,21 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
     bool loop = true;
     while (loop) {
         int optionIndex = 0;
-        static struct option longOptions[] = {{"cpufreq", no_argument, 0, 0},
-                                              {"cpuusage", optional_argument, 0, 0},
-                                              {"mem", optional_argument, 0, 0},
+        static struct option longOptions[] = {{"mem", optional_argument, 0, 0},
                                               {"net", no_argument, 0, 0},
                                               {"storage", no_argument, 0, 0},
                                               {"zip", no_argument, 0, 0},
                                               {"test", no_argument, 0, 0},
                                               {"mem-smaps", required_argument, 0, 0},
+                                              {0, 0, 0, 0},
+                                              {0, 0, 0, 0},
                                               {0, 0, 0, 0}};
+#ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
+        longOptions[6].name = "cpufreq";
+        longOptions[6].has_arg = no_argument;
+        longOptions[7].name = "cpuusage";
+        longOptions[7].has_arg = optional_argument;
+#endif
         int c = getopt_long(argc, argv, optStr, longOptions, &optionIndex);
         if (c == -1) {
             break;
@@ -263,7 +273,11 @@ DumpStatus DumpImplement::SetCmdParameter(int argc, char *argv[], DumperOpts &op
                   optind,
                   argc);
     if (optind > 1 && optind <= argc) {
-        if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "--cpuusage")) {
+         bool hiview_enable = false;
+ #ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
+        hiview_enable  = true;
+ #endif
+        if (hiview_enable && StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "--cpuusage")) {
             status = SetCmdIntegerParameter(argv[optind - 1], opts_.cpuUsagePid_);
         } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "--log")) {
             opts_.logArgs_.push_back(argv[optind - 1]);
@@ -312,9 +326,14 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts_, const 
                                              const int &optionIndex, char *argv[])
 {
     path_ = "";
-    if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "cpufreq")) {
+    bool hiview_enable = false;
+ #ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
+        hiview_enable  = true;
+ #endif
+
+    if (hiview_enable && StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "cpufreq")) {
         opts_.isDumpCpuFreq_ = true;
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "cpuusage")) {
+    } else if (hiview_enable && StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "cpuusage")) {
         opts_.isDumpCpuUsage_ = true;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "log")) {
         opts_.isDumpLog_ = true;
@@ -408,6 +427,7 @@ DumpStatus DumpImplement::SetCmdIntegerParameter(const std::string &str, int &va
 
 void DumpImplement::CmdHelp()
 {
+#ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
     const char *str =
         "usage:\n"
         "  -h                          |help text for the tool\n"
@@ -433,6 +453,31 @@ void DumpImplement::CmdHelp()
         " pid if pid was specified\n"
         "  --zip                       |compress output to /data/log/hidumper\n"
         "  --mem-smaps pid [-v]        |display statistic in /proc/pid/smaps, use -v specify more details\n";
+#else
+    const char *str =
+        "usage:\n"
+        "  -h                          |help text for the tool\n"
+        "  -lc                         |a list of system information clusters\n"
+        "  -ls                         |a list of system abilities\n"
+        "  -c                          |all system information clusters\n"
+        "  -c [base system]            |system information clusters labeled \"base\" and \"system\"\n"
+        "  -s                          |all system abilities\n"
+        "  -s [SA0 SA1]                |system abilities labeled \"SA0\" and \"SA1\"\n"
+        "  -s [SA] -a ['-h']           |system ability labeled \"SA\" with arguments \"-h\" specified\n"
+        "  -e                          |faultlogs of crash history\n"
+        "  --net [pid]                 |dump network information; if pid is specified,"
+        " dump traffic usage of specified pid\n"
+        "  --storage [pid]             |dump storage information; if pid is specified, dump /proc/pid/io\n"
+        "  -p                          |processes information, include list and infromation of processes"
+        " and threads\n"
+        "  -p [pid]                    |dump threads under pid, includes smap, block channel,"
+        " execute time, mountinfo\n"
+        "  --mem [pid]                 |dump memory usage of total; dump memory usage of specified"
+        " pid if pid was specified\n"
+        "  --zip                       |compress output to /data/log/hidumper\n"
+        "  --mem-smaps pid [-v]        |display statistic in /proc/pid/smaps, use -v specify more details\n";
+#endif
+
     if (ptrReqCtl_ == nullptr) {
         return;
     }
