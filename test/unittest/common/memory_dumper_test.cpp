@@ -199,5 +199,53 @@ HWTEST_F(MemoryDumperTest, MemoryUtilTest003, TestSize.Level1)
     ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
     ASSERT_GT(vec.size(), 0);
 }
+
+/**
+ * @tc.name: MemoryUtilTest004
+ * @tc.desc: Test hidumper some cmd.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryUtilTest004, TestSize.Level1)
+{
+    std::string cmd = "hidumper --mem-smaps 1";
+    std::vector<std::string> vec;
+    ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
+    cmd = "hidumper --mem-smaps 1 -v";
+    ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
+    cmd = "hidumper --net 1";
+    ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
+    cmd = "hidumper --storage 1";
+    ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
+}
+
+/**
+ * @tc.name: MemoryUtilTest005
+ * @tc.desc: Test no such pid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryUtilTest005, TestSize.Level1)
+{
+    std::string cmd = "hidumper --mem-smaps 100000";
+    std::vector<std::string> vec;
+    ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
+    cmd = "hidumper --mem-smaps 100000 -v";
+    ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
+    cmd = "hidumper --cpuusage 100000";
+    ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
+    cmd = "hidumper --mem 100000";
+    ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
+    cmd = "hidumper -p 100000";
+    ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
+    cmd = "hidumper --storage 100000";
+    ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
+    cmd = "hidumper --net 100000";
+    ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
+    cmd = "hidumper --mem-jsheap 100000";
+    ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
+    cmd = "hidumper --mem-jsheap 0";
+    ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
+    cmd = "hidumper --ipc --stat 100000";
+    ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
+}
 } // namespace HiviewDFX
 } // namespace OHOS

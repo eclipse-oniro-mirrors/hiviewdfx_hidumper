@@ -327,16 +327,6 @@ int DumpUtils::FdToWrite(const std::string &file)
     return -1;
 }
 
-bool DumpUtils::FileWriteable(const std::string &file)
-{
-    int fd = FdToWrite(file);
-    if (fd >= 0) {
-        close(fd);
-        return true;
-    }
-    return false;
-}
-
 bool DumpUtils::CheckProcessAlive(uint32_t pid)
 {
     char path[PATH_MAX] = {0};
