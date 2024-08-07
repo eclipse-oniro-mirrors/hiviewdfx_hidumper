@@ -42,7 +42,6 @@
 #include "util/string_utils.h"
 #include "util/file_utils.h"
 #ifdef HIDUMPER_GRAPHIC_ENABLE
-#include "transaction/rs_interfaces.h"
 using namespace OHOS::Rosen;
 #endif
 
@@ -51,6 +50,7 @@ using namespace OHOS::HDI::Memorytracker::V1_0;
 
 namespace OHOS {
 namespace HiviewDFX {
+static uint64_t g_sumPidsMemGL = 0;
 static const std::string LIB = "libai_mnt_client.so";
 
 static const std::string UNKNOWN_PROCESS = "unknown";
@@ -89,11 +89,6 @@ MemoryInfo::MemoryInfo()
 MemoryInfo::~MemoryInfo()
 {
 }
-
-static uint64_t g_sumPidsMemGL = 0;
-#ifdef HIDUMPER_GRAPHIC_ENABLE
-std::vector<MemoryGraphic> memGraphicVec_;
-#endif
 
 void MemoryInfo::insertMemoryTitle(StringMatrix result)
 {
@@ -250,6 +245,7 @@ bool MemoryInfo::IsRenderService(int32_t pid)
 
 bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     if (!dmaInfo_.ParseDmaInfo()) {
         DUMPER_HILOGE(MODULE_SERVICE, "Parse dma info error\n");
     }
@@ -870,6 +866,7 @@ void MemoryInfo::GetMemGraphics()
 
 DumpStatus MemoryInfo::GetMemoryInfoNoPid(int fd, StringMatrix result)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     rawParamFd_ = fd;
     (void)dprintf(rawParamFd_, "%s\n", MEMORY_LINE.c_str());
     if (!dmaInfo_.ParseDmaInfo()) {
