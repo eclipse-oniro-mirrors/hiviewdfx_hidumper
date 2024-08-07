@@ -22,10 +22,13 @@
 #include "dump_client_main.h"
 #include "dump_controller.h"
 #include "dump_manager_client.h"
+#include "app_mgr_client.h"
 
 using namespace testing::ext;
 using namespace std;
 using OHOS::HiviewDFX::DumpClientMain;
+using OHOS::AppExecFwk::AppMgrClient;
+using OHOS::AppExecFwk::RunningProcessInfo;
 namespace OHOS {
 namespace HiviewDFX {
 const std::string TOOL_NAME = "hidumper";
@@ -240,6 +243,7 @@ HWTEST_F(HidumperClientTest, ManagerClientTest006, TestSize.Level0)
         if (fgets(buffer, sizeof(buffer), file) != nullptr) {
             pid.assign(buffer);
         };
+        pid = pid.substr(0, pid.length() - 1);
         pclose(file);
     } else {
         std::cerr << "Failed to execute command" << std::endl;
@@ -312,6 +316,44 @@ HWTEST_F(HidumperClientTest, ManagerClientTest010, TestSize.Level0)
     vector<u16string> args{
         std::u16string(u"hidumper"),
         std::u16string(u"--cpufreq"),
+    };
+    int ret = DumpManagerClient::GetInstance().Request(args, STDOUT_FILENO);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: ManagerClientTest011
+ * @tc.desc: Test --mem-jsheap.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperClientTest, ManagerClientTest011, TestSize.Level0)
+{
+    vector<u16string> args{
+        std::u16string(u"hidumper"),
+        std::u16string(u"--mem-jsheap"),
+    };
+    int ret = DumpManagerClient::GetInstance().Request(args, STDOUT_FILENO);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: ManagerClientTest012
+ * @tc.desc: Test --mem-jsheap.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperClientTest, ManagerClientTest012, TestSize.Level0)
+{
+    string pid;
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    std::vector<RunningProcessInfo> runningProcessInfos;
+    appMgrClient->GetAllRunningProcesses(runningProcessInfos);
+    ASSERT_TRUE(runningProcessInfos.size() > 0);
+
+    pid = to_string(runningProcessInfos[0].pid_);
+    vector<u16string> args{
+        std::u16string(u"hidumper"),
+        std::u16string(u"--mem-jsheap"),
+        Str8ToStr16(pid)
     };
     int ret = DumpManagerClient::GetInstance().Request(args, STDOUT_FILENO);
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
