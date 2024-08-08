@@ -202,7 +202,6 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
                                               {"test", no_argument, 0, 0},
                                               {"mem-smaps", required_argument, 0, 0},
                                               {0, 0, 0, 0},
-                                              {0, 0, 0, 0},
                                               {0, 0, 0, 0}};
 #ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
         longOptions[OPTION_CPUUSAGE].name = "cpuusage";
