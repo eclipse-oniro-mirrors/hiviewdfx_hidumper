@@ -278,7 +278,7 @@ DumpStatus DumpImplement::SetCmdParameter(int argc, char *argv[], DumperOpts &op
 #ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
         hiview_enable = true;
 #endif
-        if (hiview_enable && 
+        if (hiview_enable &&
             StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "--cpuusage")) {
             status = SetCmdIntegerParameter(argv[optind - 1], opts_.cpuUsagePid_);
         } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "--log")) {
