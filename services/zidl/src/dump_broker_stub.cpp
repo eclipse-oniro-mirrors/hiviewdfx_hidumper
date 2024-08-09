@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 #include "dump_broker_stub.h"
-#include <fcntl.h>
 #include <message_parcel.h>
 #include <unistd.h>
 #include "dump_errors.h"
@@ -65,9 +64,6 @@ int32_t DumpBrokerStub::RequestFileFdStub(MessageParcel& data, MessageParcel& re
         return ERROR_READ_PARCEL;
     }
     int32_t res = Request(args, outfd);
-    if (fcntl(outfd, F_GETFL) != -1) {
-        close(outfd);
-    }
     if (!reply.WriteInt32(res)) {
         return ERROR_WRITE_PARCEL;
     }
