@@ -15,6 +15,8 @@
 #include <vector>
 #include "hidumper_configutils_test.h"
 #include "dump_common_utils.h"
+#include "dumper_opts.h"
+#include "raw_param.h"
 using namespace std;
 using namespace testing::ext;
 using namespace OHOS;
@@ -141,6 +143,190 @@ HWTEST_F(HidumperConfigUtilsTest, HidumperConfigUtils003, TestSize.Level3)
 
     ASSERT_TRUE(!result.empty());
     ASSERT_TRUE(result[0]->name_ == name);
+}
+
+/**
+ * @tc.name: HidumperConfigUtils004
+ * @tc.desc: Test configUtil HandleDumpLog.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperConfigUtilsTest, HidumperConfigUtils004, TestSize.Level3)
+{
+    std::vector<shared_ptr<DumpCfg>> dumpCfgs;
+    auto parameter = std::make_shared<DumperParameter>();
+    DumperOpts opts;
+    opts.isDumpLog_ = true;
+    opts.logArgs_.push_back("hidumper");
+    parameter->SetOpts(opts);
+    ConfigUtils configUtils(parameter);
+    bool ret = configUtils.HandleDumpLog(dumpCfgs);
+    ASSERT_TRUE(ret);
+}
+
+/**
+ * @tc.name: HidumperConfigUtils005
+ * @tc.desc: Test configUtil HandleDumpLog.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperConfigUtilsTest, HidumperConfigUtils005, TestSize.Level3)
+{
+    std::vector<shared_ptr<DumpCfg>> dumpCfgs;
+    auto parameter = std::make_shared<DumperParameter>();
+    DumperOpts opts;
+    opts.isDumpLog_ = true;
+    opts.logArgs_.push_back("hidumper");
+    parameter->SetOpts(opts);
+    ConfigUtils configUtils(parameter);
+    bool ret = configUtils.HandleDumpLog(dumpCfgs);
+    ASSERT_TRUE(ret);
+}
+
+/**
+ * @tc.name: HidumperConfigUtils006
+ * @tc.desc: Test configUtil isDumpSystemSystem.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperConfigUtilsTest, HidumperConfigUtils006, TestSize.Level3)
+{
+    std::vector<shared_ptr<DumpCfg>> dumpCfgs;
+    auto parameter = std::make_shared<DumperParameter>();
+    DumperOpts opts;
+    opts.isDumpSystem_ = true;
+    opts.isDumpService_ = true;
+    opts.isDumpList_ = false;
+    opts.isDumpCpuFreq_ = true;
+    opts.isDumpCpuUsage_ = true;
+    opts.isDumpMem_ = true;
+    opts.isShowSmaps_ = true;
+    opts.isDumpStorage_ = true;
+    opts.isDumpNet_ = true;
+    opts.isAppendix_ = true;
+    opts.logArgs_.push_back("hidumper");
+    parameter->SetOpts(opts);
+    ConfigUtils configUtils(parameter);
+    configUtils.HandleDumpSystem(dumpCfgs);
+    bool ret = true;
+    ret = configUtils.HandleDumpCpuFreq(dumpCfgs);
+    ASSERT_FALSE(ret);
+    ret = configUtils.HandleDumpCpuUsage(dumpCfgs);
+    ASSERT_FALSE(ret);
+    ret = configUtils.HandleDumpMem(dumpCfgs);
+    ASSERT_FALSE(ret);
+    ret = configUtils.HandleDumpMemShowMaps(dumpCfgs);
+    ASSERT_FALSE(ret);
+    ret = configUtils.HandleDumpStorage(dumpCfgs);
+    ASSERT_FALSE(ret);
+    ret = configUtils.HandleDumpNet(dumpCfgs);
+    ASSERT_FALSE(ret);
+    ret = configUtils.HandleDumpAppendix(dumpCfgs);
+    ASSERT_TRUE(ret);
+}
+
+/**
+ * @tc.name: HidumperConfigUtils007
+ * @tc.desc: Test configUtil HandleDumpService.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperConfigUtilsTest, HidumperConfigUtils007, TestSize.Level3)
+{
+    std::vector<shared_ptr<DumpCfg>> dumpCfgs;
+    auto parameter = std::make_shared<DumperParameter>();
+    DumperOpts opts;
+    opts.isDumpList_ = false;
+    opts.isDumpService_ = true;
+    opts.logArgs_.push_back("hidumper");
+    parameter->SetOpts(opts);
+    ConfigUtils configUtils(parameter);
+    bool ret = configUtils.HandleDumpService(dumpCfgs);
+    ASSERT_TRUE(ret);
+}
+
+/**
+ * @tc.name: HidumperConfigUtils008
+ * @tc.desc: Test configUtil HandleDumpList.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperConfigUtilsTest, HidumperConfigUtils008, TestSize.Level3)
+{
+    std::vector<shared_ptr<DumpCfg>> dumpCfgs;
+    auto parameter = std::make_shared<DumperParameter>();
+    DumperOpts opts;
+    opts.isDumpSystemAbility_ = false;
+    opts.isDumpList_ = true;
+    opts.isDumpService_ = true;
+    opts.logArgs_.push_back("hidumper");
+    parameter->SetOpts(opts);
+    ConfigUtils configUtils(parameter);
+    bool ret = configUtils.HandleDumpList(dumpCfgs);
+    ASSERT_TRUE(ret);
+}
+
+/**
+ * @tc.name: HidumperConfigUtils009
+ * @tc.desc: Test configUtil HandleDumpJsHeapMem.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperConfigUtilsTest, HidumperConfigUtils009, TestSize.Level3)
+{
+    std::vector<shared_ptr<DumpCfg>> dumpCfgs;
+    auto parameter = std::make_shared<DumperParameter>();
+    DumperOpts opts;
+    opts.isDumpJsHeapMem_ = true;
+    opts.dumpJsHeapMemPid_ = PID_EMPTY;
+    parameter->SetOpts(opts);
+    ConfigUtils configUtils(parameter);
+    bool ret = configUtils.HandleDumpJsHeapMem(dumpCfgs);
+    ASSERT_FALSE(ret);
+}
+
+/**
+ * @tc.name: HidumperConfigUtils010
+ * @tc.desc: Test configUtil HandleDumpStorage.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperConfigUtilsTest, HidumperConfigUtils010, TestSize.Level3)
+{
+    std::vector<shared_ptr<DumpCfg>> dumpCfgs;
+    auto parameter = std::make_shared<DumperParameter>();
+    DumperOpts opts;
+    opts.isDumpStorage_ = true;
+    opts.storagePid_ = PID_EMPTY;
+    parameter->SetOpts(opts);
+    ConfigUtils configUtils(parameter);
+    bool ret = configUtils.HandleDumpStorage(dumpCfgs);
+    ASSERT_TRUE(ret);
+}
+
+/**
+ * @tc.name: HidumperConfigUtils011
+ * @tc.desc: Test configUtil Nest overceed NEST_MAX.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperConfigUtilsTest, HidumperConfigUtils011, TestSize.Level3)
+{
+    std::string name = "configUtil test";
+    std::vector<shared_ptr<DumpCfg>> result;
+    std::shared_ptr<OptionArgs> args;
+    ConfigUtils configUtils(nullptr);
+    DumpStatus ret = configUtils.GetGroup(name, result, args, DumperConstant::LEVEL_HIGH, 11);
+    ASSERT_EQ(ret, DumpStatus::DUMP_INVALID_ARG);
+    ret = configUtils.GetGroup(0, result, args, DumperConstant::LEVEL_HIGH, 11);
+    ASSERT_EQ(ret, DumpStatus::DUMP_INVALID_ARG);
+}
+
+/**
+ * @tc.name: HidumperConfigUtils012
+ * @tc.desc: Test configUtil CopySmaps.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperConfigUtilsTest, HidumperConfigUtils012, TestSize.Level3)
+{
+    DumperOpts opts;
+    auto parameter = std::make_shared<DumperParameter>();
+    parameter->SetOpts(opts);
+    ConfigUtils configUtils(parameter);
+    bool ret = configUtils.CopySmaps();
+    ASSERT_TRUE(ret == false);
 }
 
 HWTEST_F(HidumperConfigUtilsTest, HidumperZipWriter001, TestSize.Level3)
