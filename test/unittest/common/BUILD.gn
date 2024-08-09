@@ -217,6 +217,11 @@ ohos_unittest("HidumperInnerkitsTest") {
     "hidumper_innerkits_test.cpp",
   ]
 
+  defines = []
+  if (hidumper_hiviewdfx_hiview_enable) {
+    defines += [ "HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE" ]
+  }
+
   configs = [ ":module_private_config" ]
 
   deps = [
@@ -253,6 +258,11 @@ ohos_unittest("HidumperManagerTest") {
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
+
+  defines = []
+  if (hidumper_hiviewdfx_hiview_enable) {
+    defines += [ "HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE" ]
+  }
 
   cflags = [
     "-Dprivate=public",  #allow test code access private members
@@ -348,7 +358,6 @@ group("unittest") {
     # deps file
     ":HidumperClientTest",
     ":HidumperConfigUtilsTest",
-    ":HidumperCpuServiceTest",
     ":HidumperDumpersTest",
     ":HidumperInnerkitsTest",
     ":HidumperManagerTest",
@@ -359,5 +368,9 @@ group("unittest") {
     ":MemoryDumperTest",
     ":SADumperTest",
   ]
+
+  if (hidumper_hiviewdfx_hiview_enable) {
+    deps += [ ":HidumperCpuServiceTest" ]
+  }
 }
 ###############################################################################

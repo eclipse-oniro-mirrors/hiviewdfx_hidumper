@@ -194,11 +194,13 @@ HWTEST_F(HiDumperInnerkitsTest, GetSharedDirtyTest001, TestSize.Level1)
  * @tc.type: FUNC
  * @tc.require: issueI5NWZQ
  */
+ #ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
 HWTEST_F(HiDumperInnerkitsTest, GetCpuUsage001, TestSize.Level1)
 {
     std::unique_ptr<DumpUsage> dumpUsage = std::make_unique<DumpUsage>();
     EXPECT_GE(dumpUsage->GetCpuUsage(g_pid), 0);
 }
+#endif
 
 /**
  * @tc.name: GetDma001
@@ -217,6 +219,7 @@ HWTEST_F(HiDumperInnerkitsTest, GetDma001, TestSize.Level1)
  * @tc.desc: Test GetProcCpuInfo when a new process appeared.
  * @tc.type: FUNC
  */
+#ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
 HWTEST_F(HiDumperInnerkitsTest, GetProcCpuInfo001, TestSize.Level1)
 {
     auto parameter = std::make_shared<DumperParameter>();
@@ -234,6 +237,7 @@ HWTEST_F(HiDumperInnerkitsTest, GetProcCpuInfo001, TestSize.Level1)
     ret = cpuDumper->AfterExecute();
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
+#endif
 
 /**
  * @tc.name: GetProcCpuInfo001

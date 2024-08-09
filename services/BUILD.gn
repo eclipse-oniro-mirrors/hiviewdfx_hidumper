@@ -375,14 +375,16 @@ ohos_shared_library("hidumpermemory") {
   part_name = "${hidumper_part_name}"
 }
 
-ohos_shared_library("hidumpercpuservice") {
-  deps = [ ":hidumperservice_cpu_source" ]
-  external_deps = [ "hilog:libhilog" ]
-  install_enable = true
-  version_script = "hidumper.map"
-  shlib_type = "sa"
-  subsystem_name = "${hidumper_subsystem_name}"
-  part_name = "${hidumper_part_name}"
+if (hidumper_hiviewdfx_hiview_enable) {
+  ohos_shared_library("hidumpercpuservice") {
+    deps = [ ":hidumperservice_cpu_source" ]
+    external_deps = [ "hilog:libhilog" ]
+    install_enable = true
+    version_script = "hidumper.map"
+    shlib_type = "sa"
+    subsystem_name = "${hidumper_subsystem_name}"
+    part_name = "${hidumper_part_name}"
+  }
 }
 
 ############################################################################

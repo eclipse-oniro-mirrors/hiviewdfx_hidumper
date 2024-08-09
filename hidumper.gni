@@ -44,6 +44,7 @@ declare_args() {
   hidumper_netmanager_base_enable = true
   hidumper_bundlemanager_framework_enable = true
   hidumper_hiviewdfx_hisysevent_enable = true
+  hidumper_hiviewdfx_hiview_enable = false
   if (!defined(global_parts_info.ability_ability_runtime)) {
     hidumper_ability_runtime_enable = false
   }
@@ -61,5 +62,8 @@ declare_args() {
   }
   if (!defined(global_parts_info.hiviewdfx_hisysevent)) {
     hidumper_hiviewdfx_hisysevent_enable = false
+  }
+  if (defined(global_parts_info.hiviewdfx_hiview)) {
+    hidumper_hiviewdfx_hiview_enable = true
   }
 }
