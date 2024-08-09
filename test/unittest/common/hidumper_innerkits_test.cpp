@@ -194,7 +194,7 @@ HWTEST_F(HiDumperInnerkitsTest, GetSharedDirtyTest001, TestSize.Level1)
  * @tc.type: FUNC
  * @tc.require: issueI5NWZQ
  */
- #ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
+#ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
 HWTEST_F(HiDumperInnerkitsTest, GetCpuUsage001, TestSize.Level1)
 {
     std::unique_ptr<DumpUsage> dumpUsage = std::make_unique<DumpUsage>();
