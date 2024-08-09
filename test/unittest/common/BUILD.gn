@@ -206,6 +206,11 @@ ohos_unittest("HidumperInnerkitsTest") {
     "//third_party/googletest:gtest_main",
   ]
 
+  defines = []
+  if (hidumper_hiviewdfx_hiview_enable) {
+    defines += [ "HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE" ]
+  }
+
   external_deps = [
     "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
     "hilog:libhilog",
@@ -226,6 +231,11 @@ ohos_unittest("HidumperManagerTest") {
     "${hidumper_service_path}:hidumperservice_source",
     "//third_party/googletest:gtest_main",
   ]
+
+  defines = []
+  if (hidumper_hiviewdfx_hiview_enable) {
+    defines += [ "HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE" ]
+  }
 
   external_deps = [
     "hilog:libhilog",
@@ -280,7 +290,6 @@ group("unittest") {
   deps += [
     # deps file
     ":HidumperConfigUtilsTest",
-    ":HidumperCpuServiceTest",
     ":HidumperDumpersTest",
     ":HidumperInnerkitsTest",
     ":HidumperManagerTest",
@@ -289,5 +298,9 @@ group("unittest") {
     ":HidumperServiceTest",
     ":MemoryDumperTest",
   ]
+
+  if (hidumper_hiviewdfx_hiview_enable) {
+    deps += [ ":HidumperCpuServiceTest" ]
+  }
 }
 ###############################################################################

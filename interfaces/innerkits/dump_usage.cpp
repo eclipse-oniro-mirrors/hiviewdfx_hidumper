@@ -55,14 +55,18 @@ uint64_t DumpUsage::GetSharedDirty(const int &pid)
     return GetMemInfo(pid, info) ? info.sharedDirty : 0;
 }
 
+
 double DumpUsage::GetCpuUsage(const int &pid)
 {
     double cpuUsage = 0.00;
+#ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
     auto& dumpManagerCpuClient = DumpManagerCpuClient::GetInstance();
     dumpManagerCpuClient.GetCpuUsageByPid(pid, cpuUsage);
     DUMPER_HILOGD(MODULE_CPU_SERVICE, "GetCpuUsage end, pid = %{public}d, cpuUsage = %{public}f", pid, cpuUsage);
+#endif
     return cpuUsage;
 }
+
 
 uint64_t DumpUsage::GetDma(const int& pid)
 {

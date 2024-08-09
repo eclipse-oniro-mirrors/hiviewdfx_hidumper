@@ -43,11 +43,13 @@ static bool GetMemInfo(const int &pid, OHOS::HiviewDFX::MemInfoData::MemInfo &da
     return dumpUsage->GetMemInfo(pid, data);
 }
 
+#ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
 static float GetCpuUsage(const int &pid)
 {
     unique_ptr<DumpUsage> dumpUsage = make_unique<DumpUsage>();
     return dumpUsage->GetCpuUsage(pid);
 }
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -64,8 +66,10 @@ int main(int argc, char *argv[])
     uint64_t shareDirty = GetSharedDirty(pid);
     std::cout << "shareDirty:" << shareDirty << std::endl;
 
+#ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
     float cpuUsage = GetCpuUsage(pid);
     printf("cpuUsage:%.1f\n", cpuUsage);
+#endif
 
     OHOS::HiviewDFX::MemInfoData::MemInfo info;
     bool success = GetMemInfo(pid, info);

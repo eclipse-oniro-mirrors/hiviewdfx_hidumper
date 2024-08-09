@@ -136,6 +136,10 @@ ohos_source_set("dump_main") {
     defines += [ "HIDUMPER_NETMANAGER_BASE_ENABLE" ]
   }
 
+  if (hidumper_hiviewdfx_hiview_enable) {
+    defines += [ "HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE" ]
+  }
+
   subsystem_name = "hiviewdfx"
 
   part_name = "hidumper"
