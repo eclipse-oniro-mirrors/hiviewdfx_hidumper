@@ -274,11 +274,11 @@ DumpStatus DumpImplement::SetCmdParameter(int argc, char *argv[], DumperOpts &op
                   optind,
                   argc);
     if (optind > 1 && optind <= argc) {
-        bool hiview_enable = false;
+        bool hiviewEnable = false;
 #ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
-        hiview_enable = true;
+        hiviewEnable = true;
 #endif
-        if (hiview_enable &&
+        if (hiviewEnable &&
             StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "--cpuusage")) {
             status = SetCmdIntegerParameter(argv[optind - 1], opts_.cpuUsagePid_);
         } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "--log")) {
@@ -328,14 +328,14 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts_, const 
                                              const int &optionIndex, char *argv[])
 {
     path_ = "";
-    bool hiview_enable = false;
+    bool hiviewEnable = false;
 #ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
-    hiview_enable = true;
+    hiviewEnable = true;
 #endif
 
     if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "cpufreq")) {
         opts_.isDumpCpuFreq_ = true;
-    } else if (hiview_enable && StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "cpuusage")) {
+    } else if (hiviewEnable && StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "cpuusage")) {
         opts_.isDumpCpuUsage_ = true;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "log")) {
         opts_.isDumpLog_ = true;
