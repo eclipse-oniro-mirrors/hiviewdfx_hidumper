@@ -174,6 +174,37 @@ ohos_unittest("MemoryDumperTest") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
   ]
+  cflags = [
+    "-Dprivate=public",  #allow test code access private members
+  ]
+}
+
+ohos_unittest("HidumperMemoryTest") {
+  module_out_path = module_output_path
+
+  sources = [
+    "hidumper_memory_test.cpp",
+    "hidumper_test_utils.cpp",
+  ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    #"${hidumper_service_path}:hidumperservice_source",
+    "${hidumper_service_path}:hidumpermemory_source",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
+    "hdf_core:libhdf_utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+  ]
+  cflags = [
+    "-Dprivate=public",  #allow test code access private members
+  ]
 }
 
 ohos_unittest("SADumperTest") {
@@ -338,6 +369,9 @@ ohos_unittest("HidumperZidlTest") {
     "hilog:libhilog",
     "ipc:ipc_core",
   ]
+  cflags = [
+    "-Dprivate=public",  #allow test code access private members
+  ]
 }
 
 ohos_unittest("HidumperCpuZidlTest") {
@@ -360,6 +394,9 @@ ohos_unittest("HidumperCpuZidlTest") {
     "hilog:libhilog",
     "ipc:ipc_core",
   ]
+  cflags = [
+    "-Dprivate=public",  #allow test code access private members
+  ]
 }
 
 ###############################################################################
@@ -374,6 +411,7 @@ group("unittest") {
     ":HidumperDumpersTest",
     ":HidumperInnerkitsTest",
     ":HidumperManagerTest",
+    ":HidumperMemoryTest",
     ":HidumperOutputTest",
     ":HidumperPrivacyTest",
     ":HidumperServiceTest",
