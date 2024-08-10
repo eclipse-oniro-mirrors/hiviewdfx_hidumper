@@ -76,6 +76,7 @@ HWTEST_F(HidumperCpuZidlTest, HidumperCpuZidlTest001, TestSize.Level3)
     ASSERT_TRUE(true);
     stub->OnRemoteRequest(static_cast<uint32_t>(HidumperCpuServiceInterfaceCode::DUMP_USAGE_ONLY),
         data, reply, option);
+    stub->DumpCpuUsageOnly(data, reply);
     ASSERT_TRUE(true);
 }
 } // namespace HiviewDFX
