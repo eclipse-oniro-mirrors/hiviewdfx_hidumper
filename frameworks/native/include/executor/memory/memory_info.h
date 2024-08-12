@@ -51,7 +51,7 @@ constexpr int RECLAIM_PRIORITY_KILLABLE_SYSTEM = -800;
 // foreground process priority
 constexpr int RECLAIM_PRIORITY_FOREGROUND = 0;
 // visible process priority
-constexpr int RECLAIM_PRIORITY_VISIBLE = 1;
+constexpr int RECLAIM_PRIORITY_VISIBLE = 50;
 // perceived suspend delay case
 constexpr int RECLAIM_PRIORITY_BG_SUSPEND_DELAY = 100;
 // perceived background process priority
