@@ -82,6 +82,9 @@ HWTEST_F(HidumperZidlTest, HidumperZidlTest001, TestSize.Level3)
     ASSERT_TRUE(true);
     stub->OnRemoteRequest(static_cast<uint32_t>(HidumperServiceInterfaceCode::COUNT_FD_NUMS), data, reply, option);
     ASSERT_TRUE(true);
+    stub->RequestFileFdStub(data, reply);
+    stub->ScanPidOverLimitStub(data, reply);
+    stub->CountFdNumsStub(data, reply);
 }
 } // namespace HiviewDFX
 } // namespace OHOS

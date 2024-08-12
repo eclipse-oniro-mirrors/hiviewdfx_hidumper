@@ -52,7 +52,6 @@ public:
     bool GetTypeAndValue(const std::string &str, std::string &type, uint64_t &value);
     void SetMemTotalValue(const std::string &value, std::vector<std::string> &lines, std::vector<std::string> &values,
         bool flag = false);
-    std::string PermToString(const uint64_t iPerm);
     uint64_t PermToInt(const std::string& perm);
 
 private:
