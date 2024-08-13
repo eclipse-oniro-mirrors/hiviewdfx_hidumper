@@ -21,6 +21,7 @@
 #include "executor/cpu_dumper.h"
 #include "executor/file_stream_dumper.h"
 #include "executor/ipc_stat_dumper.h"
+#include "executor/jsheap_memory_dumper.h"
 #include "executor/list_dumper.h"
 #include "executor/sa_dumper.h"
 #include "executor/version_dumper.h"
@@ -659,5 +660,45 @@ HWTEST_F(HidumperDumpersTest, IpcStatDumperTest010, TestSize.Level1)
     int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
+
+/**
+ * @tc.name: JsHeapDumperTest001
+ * @tc.desc: Test JsHeapDumper with init pid
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, JsHeapDumperTest001, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--mem-jsheap"),
+        const_cast<char *>("1"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: JsHeapDumperTest002
+ * @tc.desc: Test JsHeapDumper with init pid and trigger gc.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, JsHeapDumperTest002, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--mem-jsheap"),
+        const_cast<char *>("1"),
+        const_cast<char *>("--gc"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
 } // namespace HiviewDFX
 } // namespace OHOS
