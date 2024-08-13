@@ -20,6 +20,7 @@
 #include "dump_utils.h"
 #include "parameter.h"
 #include "common/dumper_constant.h"
+#include "parameters.h"
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
@@ -499,7 +500,6 @@ bool ConfigUtils::HandleDumpProcesses(std::vector<std::shared_ptr<DumpCfg>> &dum
         MergePidInfos(currentPidInfos_, dumperOpts.processPid_);
     }
 
-    std::string mode = GetBuildType();
     std::shared_ptr<OptionArgs> args;
     if (isUserMode) { // release mode
         if (dumperOpts.processPid_ < 0) {
