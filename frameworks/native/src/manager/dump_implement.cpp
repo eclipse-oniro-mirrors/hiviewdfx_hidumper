@@ -929,13 +929,13 @@ bool DumpImplement::CheckDumpPermission(DumperOpts &opt)
     if ((debugMode == "0") && (buildVersion.find("log") == std::string::npos)) {
         releaseVersion = true;
     }
-    if (!releaseVersion) {
-        return true;
-    }
-    if (opt.isShowSmaps_) {
+    if (opt.isShowSmapsInfo_ && debugMode == "0") {
         DUMPER_HILOGE(MODULE_COMMON, "ShowSmaps false debugMode %{public}s version %{public}s",
             debugMode.c_str(), buildVersion.c_str());
         return false;
+    }
+    if (!releaseVersion) {
+        return true;
     }
     if (opt.isDumpJsHeapMem_ && !CheckAppDebugVersion(opt.dumpJsHeapMemPid_)) {
         DUMPER_HILOGE(MODULE_COMMON, "DumpJsHeapMem false debugMode %{public}s version %{public}s",
