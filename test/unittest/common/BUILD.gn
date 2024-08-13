@@ -96,6 +96,12 @@ ohos_unittest("HidumperDumpersTest") {
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
+
+  defines = []
+  if (hidumper_ability_runtime_enable) {
+    external_deps += [ "ability_runtime:app_manager" ]
+    defines += [ "HIDUMPER_ABILITY_RUNTIME_ENABLE" ]
+  }
 }
 
 ohos_unittest("HidumperOutputTest") {
