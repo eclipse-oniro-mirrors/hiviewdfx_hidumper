@@ -85,10 +85,13 @@ ohos_unittest("HidumperDumpersTest") {
     ":module_private_config",
   ]
 
-  deps = [
-    "${hidumper_service_path}:hidumperservice_cpu_source_test",
-    "${hidumper_service_path}:hidumperservice_source",
-  ]
+  deps = [ "${hidumper_service_path}:hidumperservice_source" ]
+
+  defines = []
+  if (hidumper_hiviewdfx_hiview_enable) {
+    deps += [ "${hidumper_service_path}:hidumperservice_cpu_source_test" ]
+    defines += [ "HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE" ]
+  }
 
   external_deps = [
     "c_utils:utils",
@@ -189,6 +192,11 @@ ohos_unittest("SADumperTest") {
     "hilog:libhilog",
     "ipc:ipc_core",
   ]
+
+  defines = []
+  if (hidumper_hiviewdfx_hiview_enable) {
+    defines += [ "HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE" ]
+  }
 }
 
 ohos_unittest("HidumperPrivacyTest") {
