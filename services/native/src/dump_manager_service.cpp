@@ -45,7 +45,8 @@ static const int32_t STOP_WAIT = 3;
 static const int32_t REQUEST_MAX = 5;
 static const uint32_t REQUESTID_MAX = 100000;
 const std::string TASK_ID = "unload";
-constexpr int32_t DYNAMIC_EXIT_DELAY_TIME = 120000;
+// constexpr int32_t DYNAMIC_EXIT_DELAY_TIME = 120000;
+constexpr int32_t DYNAMIC_EXIT_DELAY_TIME = 3000;
 constexpr int32_t UNLOAD_IMMEDIATELY = 0;
 } // namespace
 namespace {
@@ -393,6 +394,7 @@ int32_t DumpManagerService::StartRequest(const std::shared_ptr<RawParam> rawPara
 void DumpManagerService::RequestMain(const std::shared_ptr<RawParam> rawParam)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "enter|");
+    DumpStatus result = DumpStatus::DUMP_FAIL;
     int argC = rawParam->GetArgc();
     char **argV = rawParam->GetArgv();
     std::string folder = DumpLogManager::CreateTmpFolder(rawParam->GetRequestId());
@@ -402,7 +404,7 @@ void DumpManagerService::RequestMain(const std::shared_ptr<RawParam> rawParam)
         for (int i = 0; i < argC; i++) {
             DUMPER_HILOGD(MODULE_SERVICE, "debug|argV[%{public}d]=%{public}s", i, argV[i]);
         }
-        DumpImplement::GetInstance().Main(argC, argV, rawParam);
+        result = DumpImplement::GetInstance().Main(argC, argV, rawParam);
         DUMPER_HILOGD(MODULE_SERVICE, "debug|leave task");
     }
     DumpLogManager::EraseTmpFolder(rawParam->GetRequestId());
@@ -410,6 +412,12 @@ void DumpManagerService::RequestMain(const std::shared_ptr<RawParam> rawParam)
     rawParam->CloseOutputFd();
     EraseRequestRawParam(rawParam);
     DUMPER_HILOGD(MODULE_SERVICE, "leave|");
+
+    if (result == DumpStatus::DUMP_OK)
+    {
+        DUMPER_HILOGD(MODULE_SERVICE, "do task completed, upload the task");
+        UnloadTask();
+    }
 }
 
 void DumpManagerService::DelayUnloadTask()
@@ -430,6 +438,27 @@ void DumpManagerService::DelayUnloadTask()
     };
     handler_->RemoveTask(TASK_ID);
     handler_->PostTask(task, TASK_ID, DYNAMIC_EXIT_DELAY_TIME);
+}
+
+
+void DumpManagerService::UnloadTask()
+{
+    DUMPER_HILOGI(MODULE_SERVICE, "unload task begin");
+    auto task = [this]() {
+        DUMPER_HILOGI(MODULE_SERVICE, "do unload task");
+        auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        if (samgrProxy == nullptr) {
+            DUMPER_HILOGE(MODULE_SERVICE, "get samgr failed");
+            return;
+        }
+        int32_t ret = samgrProxy->UnloadSystemAbility(DFX_SYS_HIDUMPER_ABILITY_ID);
+        if (ret != ERR_OK) {
+            DUMPER_HILOGE(MODULE_SERVICE, "remove system ability failed");
+            return;
+        }
+    };
+    handler_->RemoveTask(TASK_ID);
+    handler_->PostTask(task, TASK_ID, 0);
 }
 } // namespace HiviewDFX
 } // namespace OHOS
