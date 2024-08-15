@@ -68,6 +68,7 @@ void DumperOpts::Reset()
     isShowSmapsInfo_ = false;
     isDumpJsHeapMem_ = false;
     isDumpJsHeapMemGC_ = false;
+    isDumpJsHeapLeakobj_ = false;
     dumpJsHeapMemPid_ = 0;
     threadId_ = 0;
     ipcStatPid_ = -1;
@@ -111,6 +112,7 @@ DumperOpts& DumperOpts::operator = (const DumperOpts& opts)
     isShowSmapsInfo_ = opts.isShowSmapsInfo_;
     isDumpJsHeapMem_ = opts.isDumpJsHeapMem_;
     isDumpJsHeapMemGC_ = opts.isDumpJsHeapMemGC_;
+    isDumpJsHeapLeakobj_ = opts.isDumpJsHeapLeakobj_;
     dumpJsHeapMemPid_ = opts.dumpJsHeapMemPid_;
     threadId_ = opts.threadId_;
     ipcStatPid_ = opts.ipcStatPid_;
