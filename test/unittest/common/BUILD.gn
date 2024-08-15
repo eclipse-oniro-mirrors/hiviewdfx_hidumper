@@ -121,28 +121,14 @@ ohos_unittest("HidumperOutputTest") {
 ohos_unittest("HidumperConfigUtilsTest") {
   module_out_path = module_output_path
 
-  sources = [
-    "${hidumper_service_path}/native/src/dump_common_utils.cpp",
-    "${hidumper_service_path}/native/src/raw_param.cpp",
-    "${source_path}/dump_utils.cpp",
-    "${source_path}/src/common/dump_cfg.cpp",
-    "${source_path}/src/common/dumper_opts.cpp",
-    "${source_path}/src/common/dumper_parameter.cpp",
-    "${source_path}/src/common/option_args.cpp",
-    "${source_path}/src/util/config_data.cpp",
-    "${source_path}/src/util/config_utils.cpp",
-    "${source_path}/src/util/file_utils.cpp",
-    "${source_path}/src/util/string_utils.cpp",
-    "${source_path}/src/util/zip/zip_writer.cpp",
-    "hidumper_configutils_test.cpp",
-  ]
+  sources = [ "hidumper_configutils_test.cpp" ]
 
   configs = [
     "${hidumper_utils_path}:utils_config",
     ":module_private_config",
   ]
 
-  deps = []
+  deps = [ "${hidumper_service_path}:hidumperservice_source" ]
 
   external_deps = [
     "c_utils:utils",
