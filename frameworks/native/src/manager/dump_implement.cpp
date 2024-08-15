@@ -141,6 +141,23 @@ DumpStatus DumpImplement::Main(int argc, char *argv[], const std::shared_ptr<Raw
     return DumpStatus::DUMP_OK;
 }
 
+void DumpImplement::ProcessDumpOptions(int clientPid, std::shared_ptr<DumperParameter> &dumpParameter, DumperOpts &opts)
+{
+    if (IsHidumperClientProcess(clientPid)) {
+        opts.AddSelectAll();
+        opts.isAppendix_ = true;
+    } else {
+        opts.isDumpCpuFreq_ = true;
+#ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
+        opts.isDumpCpuUsage_ = true;
+        opts.cpuUsagePid_ = clientPid;
+#endif
+        opts.isDumpMem_ = true;
+        opts.memPid_ = clientPid;
+    }
+    dumpParameter->SetPid(clientPid);
+}
+
 DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<DumperParameter> &dumpParameter)
 {
 #ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
@@ -174,19 +191,7 @@ DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<Dumpe
         return status;
     if (!opts.IsSelectAny()) { // 注：hidumper不添加任何参数时，dump全部内容；IPC方式dump时，仅dump 当前进程的CPU和memory情况
         int clientPid = dumpParameter->GetPid(); // to be set value
-        if (IsHidumperClientProcess(clientPid)) {
-            opts.AddSelectAll();
-            opts.isAppendix_ = true;
-        } else {
-            opts.isDumpCpuFreq_ = true;
-#ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
-            opts.isDumpCpuUsage_ = true;
-            opts.cpuUsagePid_ = clientPid;
-#endif
-            opts.isDumpMem_ = true;
-            opts.memPid_ = clientPid;
-        }
-        dumpParameter->SetPid(clientPid);
+        ProcessDumpOptions(clientPid, dumpParameter, opts);
     }
 #ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
     if (dumpCmdSs.str().length() > 0) {

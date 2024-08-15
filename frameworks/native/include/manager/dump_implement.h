@@ -91,6 +91,7 @@ private:
     bool CheckDumpPermission(DumperOpts &opt);
     bool SetIpcStatParam(DumperOpts &opt, const std::string& param);
     DumpStatus ParseCmdOptionForA(DumperOpts &opt, char *argv[]);
+    void ProcessDumpOptions(int clientPid, std::shared_ptr<DumperParameter> &dumpParameter, DumperOpts &opts);
 
 private:
     using ExecutorFactoryMap = std::map<int, std::shared_ptr<ExecutorFactory>>;
