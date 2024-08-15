@@ -52,7 +52,7 @@
 #include "system_ability_definition.h"
 #include "file_ex.h"
 
-#define OPTION_CPUUSAGE 7
+#define OPTION_CPUUSAGE 13
 
 namespace OHOS {
 namespace HiviewDFX {
