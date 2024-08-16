@@ -45,8 +45,7 @@ static const int32_t STOP_WAIT = 3;
 static const int32_t REQUEST_MAX = 5;
 static const uint32_t REQUESTID_MAX = 100000;
 const std::string TASK_ID = "unload";
-// constexpr int32_t DYNAMIC_EXIT_DELAY_TIME = 120000;
-constexpr int32_t DYNAMIC_EXIT_DELAY_TIME = 3000;
+constexpr int32_t DYNAMIC_EXIT_DELAY_TIME = 120000;
 constexpr int32_t UNLOAD_IMMEDIATELY = 0;
 } // namespace
 namespace {
@@ -413,8 +412,7 @@ void DumpManagerService::RequestMain(const std::shared_ptr<RawParam> rawParam)
     EraseRequestRawParam(rawParam);
     DUMPER_HILOGD(MODULE_SERVICE, "leave|");
 
-    if (result == DumpStatus::DUMP_OK)
-    {
+    if (result == DumpStatus::DUMP_OK) {
         DUMPER_HILOGD(MODULE_SERVICE, "do task completed, upload the task");
         UnloadTask();
     }
