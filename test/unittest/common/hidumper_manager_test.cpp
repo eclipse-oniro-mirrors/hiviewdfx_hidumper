@@ -331,6 +331,7 @@ HWTEST_F(HiDumperManagerTest, DumpTest014, TestSize.Level0)
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
 
+#ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
 /**
  * @tc.name: MemoryDumperTest015
  * @tc.desc: Test dump all process cpu usage has correct ret.
@@ -367,6 +368,7 @@ HWTEST_F(HiDumperManagerTest, DumpTest016, TestSize.Level0)
     int ret = GetDumpResult(argc, argv);
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
+#endif
 
 /**
  * @tc.name: MemoryDumperTest017

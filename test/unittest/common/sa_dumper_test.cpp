@@ -45,12 +45,14 @@ void SADumperTest::TearDown(void)
  * @tc.type: FUNC
  * @tc.require: issueI5NWZQ
  */
+#ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
 HWTEST_F(SADumperTest, SADumperTest001, TestSize.Level3)
 {
     std::string cmd = "hidumper -s 1201 -a '-p Faultlogger'";
     std::string str = "log";
     ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
 }
+#endif
 
 /**
  * @tc.name: SADumperTest002

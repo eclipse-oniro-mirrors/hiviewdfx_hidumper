@@ -200,51 +200,53 @@ ohos_source_set("hidumperservice_source") {
 }
 
 ohos_shared_library("hidumperservice_cpu_source") {
-  public_configs = [ ":dump_cpu_config" ]
-  sources = [ "native/src/dump_manager_cpu_service.cpp" ]
+  if (hidumper_hiviewdfx_hiview_enable) {
+    public_configs = [ ":dump_cpu_config" ]
+    sources = [ "native/src/dump_manager_cpu_service.cpp" ]
 
-  configs = [
-    "${hidumper_utils_path}:utils_config",
-    ":interface_include",
-    "${hidumper_frameworks_path}:hidumper_include",
-    "${hidumper_service_path}:service_config",
-    "${hidumper_service_path}:zidl_config",
-  ]
+    configs = [
+      "${hidumper_utils_path}:utils_config",
+      ":interface_include",
+      "${hidumper_frameworks_path}:hidumper_include",
+      "${hidumper_service_path}:service_config",
+      "${hidumper_service_path}:zidl_config",
+    ]
 
-  deps = [
-    "${hidumper_service_path}:hidumperservice_source",
-    "${hidumper_service_path}:zidl_cpu_service",
-  ]
+    deps = [
+      "${hidumper_service_path}:hidumperservice_source",
+      "${hidumper_service_path}:zidl_cpu_service",
+    ]
 
-  external_deps = [
-    "access_token:libaccesstoken_sdk",
-    "access_token:libtokensetproc_shared",
-    "c_utils:utils",
-    "eventhandler:libeventhandler",
-    "hilog:libhilog",
-    "hiview:libucollection_utility",
-    "ipc:ipc_core",
-    "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
-  ]
-  defines = []
-  if (hidumper_ablility_base_enable) {
-    external_deps += [ "ability_base:want" ]
-    external_deps += [ "ability_runtime:app_manager" ]
-    defines += [ "HIDUMPER_ABILITY_BASE_ENABLE" ]
+    external_deps = [
+      "access_token:libaccesstoken_sdk",
+      "access_token:libtokensetproc_shared",
+      "c_utils:utils",
+      "eventhandler:libeventhandler",
+      "hilog:libhilog",
+      "hiview:libucollection_utility",
+      "ipc:ipc_core",
+      "safwk:system_ability_fwk",
+      "samgr:samgr_proxy",
+    ]
+    defines = []
+    if (hidumper_ablility_base_enable) {
+      external_deps += [ "ability_base:want" ]
+      external_deps += [ "ability_runtime:app_manager" ]
+      defines += [ "HIDUMPER_ABILITY_BASE_ENABLE" ]
+    }
+    sanitize = {
+      cfi = true
+      cfi_cross_dso = true
+      cfi_no_nvcall = true
+      cfi_vcall_icall_only = true
+      debug = false
+    }
+
+    version_script = "hidumper.map"
+    subsystem_name = "${hidumper_subsystem_name}"
+
+    part_name = "${hidumper_part_name}"
   }
-  sanitize = {
-    cfi = true
-    cfi_cross_dso = true
-    cfi_no_nvcall = true
-    cfi_vcall_icall_only = true
-    debug = false
-  }
-
-  version_script = "hidumper.map"
-  subsystem_name = "${hidumper_subsystem_name}"
-
-  part_name = "${hidumper_part_name}"
 }
 
 ohos_source_set("hidumperservice_cpu_source_test") {
@@ -375,14 +377,16 @@ ohos_shared_library("hidumpermemory") {
   part_name = "${hidumper_part_name}"
 }
 
-ohos_shared_library("hidumpercpuservice") {
-  deps = [ ":hidumperservice_cpu_source" ]
-  external_deps = [ "hilog:libhilog" ]
-  install_enable = true
-  version_script = "hidumper.map"
-  shlib_type = "sa"
-  subsystem_name = "${hidumper_subsystem_name}"
-  part_name = "${hidumper_part_name}"
+if (hidumper_hiviewdfx_hiview_enable) {
+  ohos_shared_library("hidumpercpuservice") {
+    deps = [ ":hidumperservice_cpu_source" ]
+    external_deps = [ "hilog:libhilog" ]
+    install_enable = true
+    version_script = "hidumper.map"
+    shlib_type = "sa"
+    subsystem_name = "${hidumper_subsystem_name}"
+    part_name = "${hidumper_part_name}"
+  }
 }
 
 ############################################################################

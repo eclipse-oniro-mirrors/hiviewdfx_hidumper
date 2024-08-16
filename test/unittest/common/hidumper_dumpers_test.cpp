@@ -128,6 +128,7 @@ void HidumperDumpersTest::HandleDumperExcute(std::string dumperType)
     }
 }
 
+#ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
 void HidumperDumpersTest::HandleCpuDumperTest(int pid)
 {
     auto parameter = std::make_shared<DumperParameter>();
@@ -149,6 +150,7 @@ void HidumperDumpersTest::HandleCpuDumperTest(int pid)
         ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
     }
 }
+#endif
 
 
 void HidumperDumpersTest::HandleMemoryDumperTest(int pid)
@@ -448,20 +450,24 @@ HWTEST_F(HidumperDumpersTest, SADumperTest002, TestSize.Level1)
  * @tc.desc: Test CpuDumper dump all process has correct ret.
  * @tc.type: FUNC
  */
+#ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
 HWTEST_F(HidumperDumpersTest, CpuDumperTest001, TestSize.Level1)
 {
     HandleCpuDumperTest(-1);
 }
+#endif
 
 /**
  * @tc.name: CpuDumperTest002
  * @tc.desc: Test CpuDumper has correct ret when opts is vaild.
  * @tc.type: FUNC
  */
+#ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
 HWTEST_F(HidumperDumpersTest, CpuDumperTest002, TestSize.Level1)
 {
     HandleCpuDumperTest(getpid());
 }
+#endif
 
 /**
  * @tc.name: ListDumperTest001
