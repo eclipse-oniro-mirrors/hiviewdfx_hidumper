@@ -444,15 +444,17 @@ void MemoryInfo::GetPurgTotal(const ValueMap &meminfo, StringMatrix result)
 {
     SaveStringToFd(rawParamFd_, "Total Purgeable:\n");
 
+    uint64_t purgSumTotal = 0;
+    uint64_t purgPinTotal = 0;
     auto purgSumActive = meminfo.find(MemoryFilter::GetInstance().PURG_SUM[0]);
     auto purgSumInactive = meminfo.find(MemoryFilter::GetInstance().PURG_SUM[1]);
     auto purgPinPined = meminfo.find(MemoryFilter::GetInstance().PURG_PIN[0]);
     if (purgSumActive == meminfo.end() || purgSumInactive == meminfo.end() || purgPinPined == meminfo.end()) {
         DUMPER_HILOGE(MODULE_SERVICE, "fail to get purg info \n");
-        return;
+    } else {
+        purgSumTotal = purgSumActive->second + purgSumInactive->second;
+        purgPinTotal = purgPinPined->second;
     }
-    uint64_t purgSumTotal = purgSumActive->second + purgSumInactive->second;
-    uint64_t purgPinTotal = purgPinPined->second;
 
     string totalPurgSumTitle = "Total PurgSum:";
     StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, totalPurgSumTitle);
