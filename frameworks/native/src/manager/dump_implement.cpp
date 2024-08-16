@@ -52,8 +52,6 @@
 #include "system_ability_definition.h"
 #include "file_ex.h"
 
-#define OPTION_CPUUSAGE 13
-
 namespace OHOS {
 namespace HiviewDFX {
 
@@ -223,6 +221,9 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
     while (loop) {
         int optionIndex = 0;
         static struct option longOptions[] = {{"cpufreq", no_argument, 0, 0},
+#ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
+                                              {"cpuusage", optional_argument, 0, 0},
+#endif
                                               {"mem", optional_argument, 0, 0},
                                               {"net", no_argument, 0, 0},
                                               {"storage", no_argument, 0, 0},
@@ -235,12 +236,8 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
                                               {"start-stat", no_argument, 0, 0},
                                               {"stop-stat", no_argument, 0, 0},
                                               {"stat", no_argument, 0, 0},
-                                              {0, 0, 0, 0},
                                               {0, 0, 0, 0}};
-#ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
-        longOptions[OPTION_CPUUSAGE].name = "cpuusage";
-        longOptions[OPTION_CPUUSAGE].has_arg = optional_argument;
-#endif
+
         int c = getopt_long(argc, argv, optStr, longOptions, &optionIndex);
         if (c == -1) {
             break;
