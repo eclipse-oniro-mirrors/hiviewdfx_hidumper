@@ -65,6 +65,7 @@ public:
         return started_;
     }
     void DelayUnloadTask() override;
+    void UnloadTask();
 #ifdef DUMP_TEST_MODE // for mock test
     void SetTestMainFunc(DumpManagerServiceTestMainFunc testMainFunc);
 #endif // for mock test
