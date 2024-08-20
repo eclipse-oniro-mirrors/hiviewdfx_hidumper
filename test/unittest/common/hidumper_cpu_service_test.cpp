@@ -103,8 +103,8 @@ HWTEST_F(HidumperCpuServiceTest, HidumperCpuServiceTest004, TestSize.Level3)
     dumpManagerCpuService->OnStart();
     dumpManagerCpuService->OnStart();
     dumpManagerCpuService->curCPUInfo_ = nullptr;
-    dumpManagerCpuService->DumpCpuUsageData();
-    ASSERT_TRUE(true);
+    int32_t ret = dumpManagerCpuService->DumpCpuUsageData();
+    ASSERT_TRUE(ret != 0) << "dump cpuusage failed.";
 }
 } // namespace HiviewDFX
 } // namespace OHOS

@@ -74,14 +74,15 @@ HWTEST_F(HidumperZidlTest, HidumperZidlTest001, TestSize.Level3)
     DumpBrokerStub* stub = new(std::nothrow) TestDumpBrokerStub();
     MessageParcel data, reply;
     MessageOption option;
-    stub->OnRemoteRequest(static_cast<uint32_t>(HidumperServiceInterfaceCode::DUMP_REQUEST_FILEFD),
+    int ret = stub->OnRemoteRequest(static_cast<uint32_t>(HidumperServiceInterfaceCode::DUMP_REQUEST_FILEFD),
         data, reply, option);
-    ASSERT_TRUE(true);
-    stub->OnRemoteRequest(static_cast<uint32_t>(HidumperServiceInterfaceCode::SCAN_PID_OVER_LIMIT),
+    ASSERT_TRUE(ret != 0);
+    ret = stub->OnRemoteRequest(static_cast<uint32_t>(HidumperServiceInterfaceCode::SCAN_PID_OVER_LIMIT),
         data, reply, option);
-    ASSERT_TRUE(true);
-    stub->OnRemoteRequest(static_cast<uint32_t>(HidumperServiceInterfaceCode::COUNT_FD_NUMS), data, reply, option);
-    ASSERT_TRUE(true);
+    ASSERT_TRUE(ret != 0);
+    ret = stub->OnRemoteRequest(static_cast<uint32_t>(HidumperServiceInterfaceCode::COUNT_FD_NUMS),
+        data, reply, option);
+    ASSERT_TRUE(ret != 0);
     stub->RequestFileFdStub(data, reply);
     stub->ScanPidOverLimitStub(data, reply);
     stub->CountFdNumsStub(data, reply);
