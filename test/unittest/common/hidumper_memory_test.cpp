@@ -71,6 +71,7 @@ HWTEST_F(HidumperMemoryTest, MemoryParse001, TestSize.Level1)
     unique_ptr<OHOS::HiviewDFX::ParseMeminfo> parseMeminfo = make_unique<OHOS::HiviewDFX::ParseMeminfo>();
     ValueMap result;
     parseMeminfo->SetData("", result);
+    ASSERT_EQ(result.size(), 0);
 }
 
 /**
@@ -109,7 +110,7 @@ HWTEST_F(HidumperMemoryTest, ParseSmapsRollupInfo001, TestSize.Level1)
     parseSmapsRollup->GetValue("RSS", memInfo);
     parseSmapsRollup->GetValue("PSS", memInfo);
     parseSmapsRollup->GetValue("Size", memInfo);
-    ASSERT_TRUE(true);
+    ASSERT_TRUE(memInfo.rss == 0);
 }
 
 /**
@@ -150,10 +151,11 @@ HWTEST_F(HidumperMemoryTest, GetHardwareInfo001, TestSize.Level1)
         make_unique<OHOS::HiviewDFX::GetHardwareInfo>();
     getHardwareInfo->GetResverRegPath(NULL_STR);
     vector<string> paths;
-    getHardwareInfo->CalcHardware(paths);
+    uint64_t value = getHardwareInfo->CalcHardware(paths);
+    ASSERT_TRUE(value == 0);
     size_t groupSize = 0;
     getHardwareInfo->GetGroupOfPaths(groupSize, groupSize, paths, paths);
-    ASSERT_TRUE(true);
+    ASSERT_TRUE(paths.size() == 0);
 }
 
 /**
@@ -163,8 +165,8 @@ HWTEST_F(HidumperMemoryTest, GetHardwareInfo001, TestSize.Level1)
  */
 HWTEST_F(HidumperMemoryTest, MemoryInfo001, TestSize.Level1)
 {
-    shared_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
-        make_shared<OHOS::HiviewDFX::MemoryInfo>();
+    unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
+        make_unique<OHOS::HiviewDFX::MemoryInfo>();
     int value = static_cast<int>(memoryInfo->GetProcValue(INVALID_PID, NULL_STR));
     ASSERT_EQ(value, 0);
     value = static_cast<int>(memoryInfo->GetVss(INVALID_PID));
@@ -184,12 +186,12 @@ HWTEST_F(HidumperMemoryTest, MemoryInfo001, TestSize.Level1)
  */
 HWTEST_F(HidumperMemoryTest, MemoryInfo002, TestSize.Level1)
 {
-    shared_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
-        make_shared<OHOS::HiviewDFX::MemoryInfo>();
+    unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
+        make_unique<OHOS::HiviewDFX::MemoryInfo>();
     shared_ptr<vector<vector<string>>> result = make_shared<vector<vector<string>>>();
     ValueMap memInfo;
     memoryInfo->GetPurgTotal(memInfo, result);
-    ASSERT_TRUE(true);
+    ASSERT_TRUE(memInfo.size() == 0);
 }
 
 /**

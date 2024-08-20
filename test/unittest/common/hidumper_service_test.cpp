@@ -124,15 +124,15 @@ HWTEST_F(HidumperServiceTest, DumpManagerService005, TestSize.Level3)
 
     std::vector<std::u16string> args;
     dumpManagerService->blockRequest_ = true;
-    dumpManagerService->Request(args, -1);
+    int32_t ret = dumpManagerService->Request(args, -1);
+    ASSERT_TRUE(ret != 0);
     dumpManagerService->blockRequest_ = false;
     dumpManagerService->started_ = false;
-    dumpManagerService->Request(args, -1);
-
+    ret = dumpManagerService->Request(args, -1);
+    ASSERT_TRUE(ret != 0);
     dumpManagerService->OnStop();
     dumpManagerService->started_ = false;
     dumpManagerService->OnStop();
-    ASSERT_TRUE(true);
 }
 } // namespace HiviewDFX
 } // namespace OHOS

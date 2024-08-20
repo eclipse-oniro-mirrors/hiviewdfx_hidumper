@@ -71,13 +71,13 @@ HWTEST_F(HidumperCpuZidlTest, HidumperCpuZidlTest001, TestSize.Level3)
     DumpBrokerCpuStub* stub = new(std::nothrow) TestDumpBrokerCpuStub();
     MessageParcel data, reply;
     MessageOption option;
-    stub->OnRemoteRequest(static_cast<uint32_t>(HidumperCpuServiceInterfaceCode::DUMP_REQUEST_CPUINFO),
+    int ret = stub->OnRemoteRequest(static_cast<uint32_t>(HidumperCpuServiceInterfaceCode::DUMP_REQUEST_CPUINFO),
         data, reply, option);
-    ASSERT_TRUE(true);
+    ASSERT_TRUE(ret != 0);
     stub->OnRemoteRequest(static_cast<uint32_t>(HidumperCpuServiceInterfaceCode::DUMP_USAGE_ONLY),
         data, reply, option);
-    stub->DumpCpuUsageOnly(data, reply);
-    ASSERT_TRUE(true);
+    ret = stub->DumpCpuUsageOnly(data, reply);
+    ASSERT_TRUE(ret != 0);
 }
 } // namespace HiviewDFX
 } // namespace OHOS
