@@ -703,8 +703,8 @@ HWTEST_F(HiDumperManagerTest, DumpTest034, TestSize.Level0)
 HWTEST_F(HiDumperManagerTest, DumpTest035, TestSize.Level0)
 {
     DumpUtils::SetAdj(SCORE_ADJ);
-    DumpUtils::ConvertSaIdToSaName(SCORE_ADJ_STR);
-    ASSERT_TRUE(true);
+    std::string name = DumpUtils::ConvertSaIdToSaName(SCORE_ADJ_STR);
+    ASSERT_TRUE(name == SCORE_ADJ_STR);
 }
 
 /**
