@@ -88,6 +88,7 @@ void MemoryUtil::CalcGroup(const string &group, const string &type, const uint64
 
 bool MemoryUtil::RunCMD(const string &cmd, vector<string> &result)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     FILE* fp = popen(("/system/bin/" + cmd).c_str(), "r");
     if (fp == nullptr) {
         return false;

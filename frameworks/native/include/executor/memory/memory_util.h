@@ -16,6 +16,7 @@
 #define MEMORY_UTIL_H
 #include <map>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 #include "singleton.h"
@@ -55,6 +56,7 @@ public:
     uint64_t PermToInt(const std::string& perm);
 
 private:
+    std::mutex mutex_;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
