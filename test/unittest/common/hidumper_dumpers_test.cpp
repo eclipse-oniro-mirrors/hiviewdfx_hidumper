@@ -706,5 +706,17 @@ HWTEST_F(HidumperDumpersTest, JsHeapDumperTest002, TestSize.Level1)
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
 
+/**
+ * @tc.name: JsHeapDumperTest003
+ * @tc.desc: Test JsHeapDumper with nullptr parameter.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, JsHeapDumperTest003, TestSize.Level1)
+{
+    auto jsHeapDumper = std::make_unique<JsHeapMemoryDumper>();
+    DumpStatus ret = jsHeapDumper->PreExecute(nullptr, g_dump_datas);
+    ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
+}
+
 } // namespace HiviewDFX
 } // namespace OHOS
