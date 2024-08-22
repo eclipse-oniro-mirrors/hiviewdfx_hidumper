@@ -34,6 +34,7 @@ namespace OHOS {
 namespace HiviewDFX {
 const int INIT_PID = 1;
 const uint64_t INVALID_PID = 0;
+const int BUFFER_SIZE = 1024;
 string NULL_STR = "";
 
 using ValueMap = std::map<std::string, uint64_t>;
@@ -171,7 +172,7 @@ HWTEST_F(HidumperMemoryTest, MemoryInfo001, TestSize.Level1)
     ASSERT_EQ(value, 0);
     MemInfoData::MemUsage usage;
     OHOS::HiviewDFX::DmaInfo dmaInfo;
-    ASSERT_FALSE(memoryInfo->GetMemByProcessPid(INVALID_PID, dmaInfo, usage));
+    ASSERT_FALSE(memoryInfo->GetMemByProcessPid(INVALID_PID, usage));
     memoryInfo->GetProcessAdjLabel(INVALID_PID);
     memoryInfo->GetReclaimPriorityString(RECLAIM_PRIORITY_UNKNOWN + 1);
     memoryInfo->GetReclaimPriorityString(RECLAIM_PRIORITY_BACKGROUND - 1);
@@ -220,6 +221,30 @@ HWTEST_F(HidumperMemoryTest, GetKernelInfo001, TestSize.Level1)
     ValueMap memInfo;
     uint64_t value = 0;
     ASSERT_TRUE(getGetKernelInfo->GetKernel(memInfo, value));
+}
+
+
+/**
+ * @tc.name: GraphicMemory001
+ * @tc.desc: Test GetGraphicMemory.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperMemoryTest, GraphicMemory001, TestSize.Level1)
+{
+    shared_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
+        make_shared<OHOS::HiviewDFX::MemoryInfo>();
+    MemInfoData::GraphicsMemory graphicsMemory;
+    FILE* file = popen("pidof render_service", "r");
+    char buffer[BUFFER_SIZE];
+    if (file) {
+        if (fgets(buffer, sizeof(buffer), file) != nullptr) {};
+        pclose(file);
+    }
+    int pid = strtol(buffer, nullptr, 10);
+    int ret = memoryInfo->GetGraphicsMemory(pid, graphicsMemory, GraphicType::GRAPH);
+    ASSERT_TRUE(ret);
+    memoryInfo->GetGraphicsMemory(pid, graphicsMemory, GraphicType::GL);
+    ASSERT_TRUE(ret);
 }
 } // namespace HiviewDFX
 } // namespace OHOS

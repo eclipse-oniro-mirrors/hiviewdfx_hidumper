@@ -203,18 +203,6 @@ HWTEST_F(HiDumperInnerkitsTest, GetCpuUsage001, TestSize.Level1)
 #endif
 
 /**
- * @tc.name: GetDma001
- * @tc.desc: Test GetDma.
- * @tc.type: FUNC
- * @tc.require: issueI5NWZQ
- */
-HWTEST_F(HiDumperInnerkitsTest, GetDma001, TestSize.Level1)
-{
-    std::unique_ptr<DumpUsage> dumpUsage = std::make_unique<DumpUsage>();
-    EXPECT_GE(dumpUsage->GetDma(g_pid), 0);
-}
-
-/**
  * @tc.name: GetProcCpuInfo001
  * @tc.desc: Test GetProcCpuInfo when a new process appeared.
  * @tc.type: FUNC

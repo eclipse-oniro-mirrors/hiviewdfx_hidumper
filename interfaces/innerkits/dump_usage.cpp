@@ -65,11 +65,5 @@ double DumpUsage::GetCpuUsage(const int &pid)
 #endif
     return cpuUsage;
 }
-
-uint64_t DumpUsage::GetDma(const int& pid)
-{
-    DmaInfo dmaInfo;
-    return dmaInfo.ParseDmaInfo() ? dmaInfo.GetDmaByPid(pid) : 0;
-}
 } // namespace HiviewDFX
 } // namespace OHOS
