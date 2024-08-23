@@ -31,6 +31,10 @@ JsHeapMemoryDumper::~JsHeapMemoryDumper()
 
 DumpStatus JsHeapMemoryDumper::PreExecute(const shared_ptr<DumperParameter> &parameter, StringMatrix dumpDatas)
 {
+    if (parameter == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "parameter is nullptr");
+        return DumpStatus::DUMP_FAIL;
+    }
     needGc_ = true;
     needSnapshot_ = true;
     needLeakobj_ = parameter->GetOpts().isDumpJsHeapLeakobj_;
