@@ -338,6 +338,7 @@ ohos_source_set("hidumpermemory_source") {
     "eventhandler:libeventhandler",
     "hdf_core:libhdf_utils",
     "hilog:libhilog",
+    "hiview:libucollection_utility",
     "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
