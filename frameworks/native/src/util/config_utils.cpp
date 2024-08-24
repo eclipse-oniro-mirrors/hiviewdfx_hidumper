@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <algorithm>
 #include "util/config_utils.h"
 #include "directory_ex.h"
 #include "hilog_wrapper.h"
@@ -25,8 +26,6 @@ namespace {
 constexpr int ROOT_UID = 0;
 constexpr int BMS_UID = 1000;
 constexpr int APP_FIRST_UID = 10000;
-constexpr int SMAPS = 35;
-constexpr int MAPS = 36;
 static const std::string SMAPS_PATH = "smaps/";
 static const std::string SMAPS_PATH_START = "/proc/";
 static const std::string SMAPS_PATH_END = "/smaps";
@@ -146,6 +145,31 @@ bool ConfigUtils::MergePidInfos(std::vector<DumpCommonUtils::PidInfo> &pidInfos,
     } else {
         if (DumpCommonUtils::GetProcessInfo(pid, currentPidInfo_)) {
             pidInfos.push_back(currentPidInfo_);
+        }
+    }
+    return true;
+}
+
+bool ConfigUtils::MergeDebugPidInfos(std::vector<DumpCommonUtils::PidInfo> &pidInfos, int pid)
+{
+    pidInfos.clear();
+    if (pid < 0) {
+        currentPidInfo_.pid_ = pid;
+        currentPidInfo_.uid_ = -1;
+        DumpCommonUtils::GetPidInfos(pidInfos_);
+        std::copy_if(pidInfos_.begin(), pidInfos_.end(), std::back_inserter(pidInfos),
+            [](auto &it) { return DumpUtils::CheckAppDebugVersion(it.pid_); });
+        if (pidInfos.size() == 0) {
+            DUMPER_HILOGE(MODULE_COMMON, "not find release version pid");
+            return false;
+        }
+        DUMPER_HILOGI(MODULE_COMMON, "info|pidInfos=%{public}zu", pidInfos.size());
+    } else {
+        if (DumpUtils::CheckAppDebugVersion(pid) && DumpCommonUtils::GetProcessInfo(pid, currentPidInfo_)) {
+            pidInfos.push_back(currentPidInfo_);
+        } else {
+            DUMPER_HILOGE(MODULE_COMMON, "pid:%{public}d is release version", pid);
+            return false;
         }
     }
     return true;
@@ -465,11 +489,19 @@ bool ConfigUtils::HandleDumpProcesses(std::vector<std::shared_ptr<DumpCfg>> &dum
     DUMPER_HILOGD(MODULE_COMMON, "debug|processes");
     currentPidInfo_.Reset();
     currentPidInfos_.clear();
-    MergePidInfos(currentPidInfos_, dumperOpts.processPid_);
+    bool isUserMode = DumpUtils::IsUserMode();
+    if (isUserMode) {
+        if (!MergeDebugPidInfos(currentPidInfos_, dumperOpts.processPid_)) {
+            DUMPER_HILOGE(MODULE_COMMON, "dump process failed");
+            return false;
+        }
+    } else {
+        MergePidInfos(currentPidInfos_, dumperOpts.processPid_);
+    }
 
     std::string mode = GetBuildType();
     std::shared_ptr<OptionArgs> args;
-    if (mode == RELEASE_MODE) { // release mode
+    if (isUserMode) { // release mode
         if (dumperOpts.processPid_ < 0) {
             GetConfig(CONFIG_GROUP_PROCESSES, dumpCfgs, args);
         } else {
@@ -594,10 +626,6 @@ DumpStatus ConfigUtils::GetDumper(int index, std::vector<std::shared_ptr<DumpCfg
 {
     if ((index < 0) || (index >= dumperSum_)) {
         return DumpStatus::DUMP_INVALID_ARG;
-    }
-    if ((index == SMAPS || index == MAPS) && DumpUtils::IsCommercialVersion()) {
-        DUMPER_HILOGE(MODULE_COMMON, "error|commercial version, index=%{public}d", index);
-        return DumpStatus::DUMP_NOPERMISSION;
     }
     auto itemlist = dumpers_[index].list_;
     auto itemsize = dumpers_[index].size_;
