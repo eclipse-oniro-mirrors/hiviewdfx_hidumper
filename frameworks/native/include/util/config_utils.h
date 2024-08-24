@@ -78,6 +78,7 @@ private:
     static void ConvertTreeToList(std::vector<std::shared_ptr<DumpCfg>> &tree,
         std::vector<std::shared_ptr<DumpCfg>> &list, int nest = 0);
     static void SetSection(std::vector<std::shared_ptr<DumpCfg>> &dumpCfgs, const std::string &section, int nest = 0);
+    bool MergeDebugPidInfos(std::vector<DumpCommonUtils::PidInfo> &pidInfos, int pid);
 private:
     const std::shared_ptr<DumperParameter> dumperParam_;
     std::vector<DumpCommonUtils::PidInfo> pidInfos_;

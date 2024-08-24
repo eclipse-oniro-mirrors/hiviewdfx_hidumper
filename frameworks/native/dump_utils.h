@@ -49,6 +49,8 @@ public:
     static bool PathIsValid(const std::string &path);
     static bool CopyFile(const std::string &src, const std::string &des);
     static bool IsCommercialVersion();
+    static bool IsUserMode();
+    static bool CheckAppDebugVersion(int pid);
 
     static constexpr int TOP_PRIORITY = -20;
     static constexpr int TOP_OOM_ADJ = -1000;

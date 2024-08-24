@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include "manager/dump_implement.h"
+#include <ipc_skeleton.h>
 #include "iservice_registry.h"
 #include "hilog_wrapper.h"
 #include "util/config_utils.h"
@@ -45,16 +46,10 @@
 #ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
 #include "hisysevent.h"
 #endif
-#ifdef HIDUMPER_BUNDLEMANAGER_FRAMEWORK_ENABLE
-#include "application_info.h"
-#include "bundlemgr/bundle_mgr_proxy.h"
-#endif
-#include "system_ability_definition.h"
-#include "file_ex.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-
+const int HIVIEW_UID = 1201;
 DumpImplement::DumpImplement()
 {
     AddExecutorFactoryToMap();
@@ -907,73 +902,27 @@ void DumpImplement::ReportCmdUsage(const DumperOpts &opts_, const std::string &c
 }
 #endif
 
-bool DumpImplement::CheckAppDebugVersion(int pid)
+bool DumpImplement::CheckDumpPermission(DumperOpts& opt)
 {
-    if (pid <= 0) {
-        DUMPER_HILOGE(MODULE_COMMON, "AppDebugVersion pid %{public}d false", pid);
-        return false;
-    }
-    std::string bundleName;
-    std::string filePath = "/proc/" + std::to_string(pid) + "/cmdline";
-    if (!OHOS::LoadStringFromFile(filePath, bundleName)) {
-        DUMPER_HILOGE(MODULE_COMMON, "Get process name by pid %{public}d failed!", pid);
-        return false;
-    }
-    if (bundleName.empty()) {
-        DUMPER_HILOGE(MODULE_COMMON, "Pid %{public}d or process name is illegal!", pid);
-        return false;
-    }
-    std::string appName = bundleName.substr(0, strlen(bundleName.c_str()));
-    sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (sam == nullptr) {
-        DUMPER_HILOGE(MODULE_COMMON, "Pid %{public}d GetSystemAbilityManager", pid);
-        return false;
-    }
-    sptr<IRemoteObject> remoteObject = sam->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    if (remoteObject == nullptr) {
-        DUMPER_HILOGE(MODULE_COMMON, "Pid %{public}d Get BundleMgr SA failed!", pid);
-        return false;
-    }
-#ifdef HIDUMPER_BUNDLEMANAGER_FRAMEWORK_ENABLE
-    sptr<AppExecFwk::BundleMgrProxy> proxy = iface_cast<AppExecFwk::BundleMgrProxy>(remoteObject);
-    AppExecFwk::ApplicationInfo appInfo;
-    bool ret = proxy->GetApplicationInfo(appName, AppExecFwk::GET_APPLICATION_INFO_WITH_DISABLE,
-                                         AppExecFwk::Constants::ANY_USERID, appInfo);
-    if (!ret) {
-        DUMPER_HILOGE(MODULE_COMMON, "Pid %{public}d %{public}s Get App info failed!", pid, appName.c_str());
-        return false;
-    }
-    DUMPER_HILOGD(MODULE_COMMON, "debug|pid %{public}d %{public}s DebugVersion %{public}d",
-        pid, appName.c_str(), appInfo.debug);
-    return appInfo.debug;
-#else
-    DUMPER_HILOGD(MODULE_COMMON, "debug|pid %{public}d %{public}s DebugVersion false", pid, appName.c_str());
-    return false;
-#endif
-}
-
-bool DumpImplement::CheckDumpPermission(DumperOpts &opt)
-{
-    std::string debugMode = "0";
-    debugMode = OHOS::system::GetParameter("const.debuggable", debugMode);
-    std::string buildVersion = GetDisplayVersion();
-    bool releaseVersion = false;
-    DUMPER_HILOGD(MODULE_COMMON, "debug|debugMode %{public}s version %{public}s",
-        debugMode.c_str(), buildVersion.c_str());
-    if ((debugMode == "0") && (buildVersion.find("log") == std::string::npos)) {
-        releaseVersion = true;
-    }
-    if (opt.isShowSmapsInfo_ && debugMode == "0") {
-        DUMPER_HILOGE(MODULE_COMMON, "ShowSmaps false debugMode %{public}s version %{public}s",
-            debugMode.c_str(), buildVersion.c_str());
-        return false;
-    }
-    if (!releaseVersion) {
+    bool isUserMode = DumpUtils::IsUserMode();
+    DUMPER_HILOGD(MODULE_COMMON, "debug|isUserMode %{public}d", isUserMode);
+    if (!isUserMode) {
         return true;
     }
-    if (opt.isDumpJsHeapMem_ && !CheckAppDebugVersion(opt.dumpJsHeapMemPid_)) {
-        DUMPER_HILOGE(MODULE_COMMON, "DumpJsHeapMem false debugMode %{public}s version %{public}s",
-            debugMode.c_str(), buildVersion.c_str());
+    // mem-smaps -v
+    if (opt.isShowSmapsInfo_) {
+        DUMPER_HILOGE(MODULE_COMMON, "ShowSmaps -v false isUserMode:%{public}d", isUserMode);
+        return false;
+    }
+    // mem-smaps + !hiview
+    int32_t calllingUid = IPCSkeleton::GetCallingUid();
+    if (opt.isShowSmaps_ && calllingUid != HIVIEW_UID) {
+        DUMPER_HILOGE(MODULE_COMMON, "ShowSmaps false isUserMode %{public}d uid %{public}d", isUserMode, calllingUid);
+        return false;
+    }
+    // mem-jsheap + releaseApp
+    if (opt.isDumpJsHeapMem_ && !DumpUtils::CheckAppDebugVersion(opt.dumpJsHeapMemPid_)) {
+        DUMPER_HILOGE(MODULE_COMMON, "DumpJsHeapMem false isUserMode %{public}d", isUserMode);
         return false;
     }
     return true;
