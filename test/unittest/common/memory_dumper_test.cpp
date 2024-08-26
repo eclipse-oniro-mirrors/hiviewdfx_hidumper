@@ -73,10 +73,6 @@ HWTEST_F(MemoryDumperTest, MemoryDumperTest001, TestSize.Level3)
  */
 HWTEST_F(MemoryDumperTest, MemoryDumperTest002, TestSize.Level3)
 {
-    sptr<IMemoryTrackerInterface> memtrack = IMemoryTrackerInterface::Get();
-    if (memtrack == nullptr) {
-        return;
-    }
     std::string cmd = "hidumper --mem";
     std::string str = "DMA";
     ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
