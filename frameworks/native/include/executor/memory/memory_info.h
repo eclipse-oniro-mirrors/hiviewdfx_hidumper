@@ -25,9 +25,6 @@
 #include "common.h"
 #include "time.h"
 #include "memory_collector.h"
-#ifdef HIDUMPER_GRAPHIC_ENABLE
-#include "transaction/rs_interfaces.h"
-#endif
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
@@ -123,9 +120,6 @@ private:
     std::vector<int32_t> pids_;
     std::vector<MemInfoData::MemUsage> memUsages_;
     std::vector<std::pair<std::string, MemFun>> methodVec_;
-#ifdef HIDUMPER_GRAPHIC_ENABLE
-    std::vector<OHOS::Rosen::MemoryGraphic> memGraphicVec_;
-#endif
     std::map<std::string, std::vector<MemInfoData::MemUsage>> adjMemResult_ = {
         {"System", {}}, {"Foreground", {}}, {"Suspend-delay", {}},
         {"Perceived", {}}, {"Background", {}}, {"Undefined", {}},
@@ -170,12 +164,7 @@ private:
     static void InitMemUsage(MemInfoData::MemUsage &usage);
     void CalcGroup(const GroupMap &infos, StringMatrix result);
     void GetSortedMemoryInfoNoPid(StringMatrix result);
-#ifdef HIDUMPER_GRAPHIC_ENABLE
-    void GetMemGraphics();
-#endif
     bool GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory, GraphicType graphicType);
-    bool GetRenderServiceGraphics(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory);
-    bool IsRenderService(int32_t pid);
     void GetMemoryByAdj(StringMatrix result);
     void SetPss(MemInfoData::MemInfo &meminfo, uint64_t value);
     void SetSharedClean(MemInfoData::MemInfo &meminfo, uint64_t value);

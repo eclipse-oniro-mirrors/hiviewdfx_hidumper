@@ -39,7 +39,6 @@ system_type = "default"
 
 declare_args() {
   hidumper_ability_runtime_enable = true
-  hidumper_graphic_enable = true
   hidumper_ablility_base_enable = false
   hidumper_netmanager_base_enable = true
   hidumper_bundlemanager_framework_enable = true
@@ -47,9 +46,6 @@ declare_args() {
   hidumper_hiviewdfx_hiview_enable = false
   if (!defined(global_parts_info.ability_ability_runtime)) {
     hidumper_ability_runtime_enable = false
-  }
-  if (!defined(global_parts_info.graphic_graphic_2d)) {
-    hidumper_graphic_enable = false
   }
   if (defined(global_parts_info.ability_ability_base)) {
     hidumper_ablility_base_enable = true

@@ -41,16 +41,12 @@
 #include "string_ex.h"
 #include "util/string_utils.h"
 #include "util/file_utils.h"
-#ifdef HIDUMPER_GRAPHIC_ENABLE
-using namespace OHOS::Rosen;
-#endif
 
 using namespace std;
 using namespace OHOS::HDI::Memorytracker::V1_0;
 
 namespace OHOS {
 namespace HiviewDFX {
-static uint64_t g_sumPidsMemGL = 0;
 static const std::string LIB = "libai_mnt_client.so";
 
 static const std::string UNKNOWN_PROCESS = "unknown";
@@ -205,42 +201,6 @@ void MemoryInfo::CalcGroup(const GroupMap &infos, StringMatrix result)
     result->push_back(values);
 }
 
-bool MemoryInfo::GetRenderServiceGraphics(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory)
-{
-    bool ret = false;
-    sptr<IMemoryTrackerInterface> memtrack = IMemoryTrackerInterface::Get(true);
-    if (memtrack == nullptr) {
-        DUMPER_HILOGE(MODULE_SERVICE, "memtrack service is null");
-        return ret;
-    }
-
-    std::vector<MemoryRecord> records;
-    if (memtrack->GetDevMem(pid, MEMORY_TRACKER_TYPE_GL, records) == HDF_SUCCESS) {
-        uint64_t value = 0;
-        for (const auto& record : records) {
-            if ((static_cast<uint32_t>(record.flags) & FLAG_UNMAPPED) == FLAG_UNMAPPED) {
-                value = static_cast<uint64_t>(record.size / BYTE_PER_KB);
-                break;
-            }
-        }
-        graphicsMemory.gl = value;
-        ret = true;
-    }
-    return ret;
-}
-
-bool MemoryInfo::IsRenderService(int32_t pid)
-{
-    std::string rsName = "render_service";
-    std::string processName = GetProcName(pid);
-    const char whitespace[] = " \n\t\v\r\f";
-    processName.erase(0, processName.find_first_not_of(whitespace));
-    processName.erase(processName.find_last_not_of(whitespace) + 1U);
-    if (processName == rsName) {
-        return true;
-    }
-    return false;
-}
 
 bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
 {
@@ -846,20 +806,6 @@ void MemoryInfo::AddMemByProcessTitle(StringMatrix result, string sortType)
         unMappedPurgPin.c_str(), name.c_str());
 }
 
-#ifdef HIDUMPER_GRAPHIC_ENABLE
-void MemoryInfo::GetMemGraphics()
-{
-    memGraphicVec_.clear();
-    auto& rsClient = Rosen::RSInterfaces::GetInstance();
-    memGraphicVec_ = rsClient.GetMemoryGraphics();
-    auto sumPidsMemGL = 0;
-    for (auto it = memGraphicVec_.begin(); it != memGraphicVec_.end(); it++) {
-        sumPidsMemGL += it->GetGpuMemorySize();
-    }
-    g_sumPidsMemGL = static_cast<uint64_t>(sumPidsMemGL / BYTE_PER_KB);
-}
-#endif
-
 DumpStatus MemoryInfo::GetMemoryInfoNoPid(int fd, StringMatrix result)
 {
     std::lock_guard<std::mutex> lock(mutex_);
@@ -874,9 +820,6 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(int fd, StringMatrix result)
         if (!GetPids()) {
             return DUMP_FAIL;
         }
-#ifdef HIDUMPER_GRAPHIC_ENABLE
-        GetMemGraphics();
-#endif
         isReady_ = true;
     }
 
