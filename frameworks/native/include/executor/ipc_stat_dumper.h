@@ -51,6 +51,8 @@ private:
                       sptr<IRemoteObject> &sa);
     bool CheckPidIsApp(const sptr<ISystemAbilityManager> &sam, std::vector<std::string> &args,
                        sptr<IRemoteObject> &sa);
+    bool CheckPidIsDriver(const sptr<ISystemAbilityManager> &sam, std::vector<std::string> &args,
+                          sptr<IRemoteObject> &sa);
 };
 }  // namespace HiviewDFX
 }  // namespace OHOS

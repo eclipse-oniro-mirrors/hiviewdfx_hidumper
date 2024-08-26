@@ -23,6 +23,7 @@
 #include "dump_common_utils.h"
 #include "dump_utils.h"
 #include "file_ex.h"
+#include "idevmgr_hdi.h"
 #include "running_process_info.h"
 #include "securec.h"
 #include "system_ability_definition.h"
@@ -131,6 +132,38 @@ bool IPCStatDumper::CheckPidIsApp(const sptr<ISystemAbilityManager> &sam, std::v
     return true;
 }
 
+bool IPCStatDumper::CheckPidIsDriver(const sptr<ISystemAbilityManager> &sam, std::vector<std::string> &args,
+                                     sptr<IRemoteObject> &sa)
+{
+    if (sam == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "get samgr fail!");
+        return false;
+    }
+
+    auto hdfDevMgr = OHOS::HDI::DeviceManager::V1_0::IDeviceManager::Get();
+    if (hdfDevMgr == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "get hdfDevMgr fail!");
+        return false;
+    }
+
+    std::vector<int> pidList;
+    int32_t ret = hdfDevMgr->ListAllHost(pidList);
+    if (ret != ERR_OK) {
+        DUMPER_HILOGE(MODULE_SERVICE, "get running host process fail! ret:%{public}d", ret);
+        return false;
+    }
+
+    const auto& iter = std::find(pidList.begin(), pidList.end(), pid_);
+    if (iter == pidList.end()) {
+        DUMPER_HILOGE(MODULE_SERVICE, "pid:%{public}d is not in hdf host runningProcessInfos!", pid_);
+        return false;
+    }
+
+    args.push_back(std::to_string(pid_));
+    sa = sam->CheckSystemAbility(DEVICE_SERVICE_MANAGER_SA_ID);
+    return true;
+}
+
 DumpStatus IPCStatDumper::SetIpcStatCmd(const sptr<ISystemAbilityManager> &sam, sptr<IRemoteObject> &sa)
 {
     if (sam == nullptr) {
@@ -143,7 +176,7 @@ DumpStatus IPCStatDumper::SetIpcStatCmd(const sptr<ISystemAbilityManager> &sam, 
     if (isDumpAllIpc_) {
         args.push_back("all");
     } else {
-        if (!CheckPidIsSa(sam, args, sa) && !CheckPidIsApp(sam, args, sa)) {
+        if (!CheckPidIsSa(sam, args, sa) && !CheckPidIsApp(sam, args, sa) && !CheckPidIsDriver(sam, args, sa)) {
             DUMPER_HILOGE(MODULE_SERVICE, "args get process id fail");
             SendErrorMessage("pid is not support ipc statistic.");
             return DumpStatus::DUMP_FAIL;
@@ -194,7 +227,7 @@ DumpStatus IPCStatDumper::DumpIpcStat(const sptr<ISystemAbilityManager> &sam, sp
         return DumpStatus::DUMP_FAIL;
     }
 
-    std::vector<int32_t> saIds = { SAMGR_SA_ID, APP_MGR_SERVICE_ID };
+    std::vector<int32_t> saIds = { SAMGR_SA_ID, APP_MGR_SERVICE_ID, DEVICE_SERVICE_MANAGER_SA_ID };
     sptr<IRemoteObject> tmpSa;
 
     if (isDumpAllIpc_) {

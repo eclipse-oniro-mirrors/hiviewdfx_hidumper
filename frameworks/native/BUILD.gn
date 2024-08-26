@@ -89,6 +89,7 @@ ohos_source_set("dump_main") {
   external_deps = [
     "ability_base:want",
     "c_utils:utils",
+    "hdf_core:libhdi",
     "hilog:libhilog",
     "hiview:libucollection_utility",
     "init:libbegetutil",
