@@ -14,7 +14,6 @@
  */
 #include "raw_param.h"
 #include <cinttypes>
-#include <fcntl.h>
 #include <thread>
 #include <securec.h>
 #include <string_ex.h>
@@ -77,7 +76,7 @@ int &RawParam::GetOutputFd()
 void RawParam::CloseOutputFd()
 {
     DUMPER_HILOGD(MODULE_SERVICE, "enter|outfd=%{public}d", outfd_);
-    if (outfd_ > -1 && fcntl(outfd_, F_GETFL) != -1) {
+    if (outfd_ > -1) {
         DUMPER_HILOGD(MODULE_SERVICE, "debug|outfd=%{public}d", outfd_);
         close(outfd_);
     }

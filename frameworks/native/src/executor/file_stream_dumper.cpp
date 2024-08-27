@@ -14,7 +14,6 @@
  */
 #include "executor/file_stream_dumper.h"
 #include <dirent.h>
-#include <fcntl.h>
 #include <unistd.h>
 #include "dump_utils.h"
 
@@ -238,9 +237,6 @@ void FileStreamDumper::CloseFd()
     if (fp_ != nullptr) {
         fclose(fp_);
         fp_ = nullptr;
-    }
-    if (fd_ >= 0 && fcntl(fd_, F_GETFL) != -1) {
-        close(fd_);
         fd_ = -1;
     }
 };
