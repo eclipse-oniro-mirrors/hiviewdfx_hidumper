@@ -664,9 +664,9 @@ bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &gra
         return false;
     }
     if (graphicType == GraphicType::GL) {
-        graphicsMemory.gl = data.data;
+        graphicsMemory.gl = static_cast<uint64_t>(data.data);
     } else if (graphicType == GraphicType::GRAPH) {
-        graphicsMemory.graph = data.data;
+        graphicsMemory.graph = static_cast<uint64_t>(data.data);
     } else {
         DUMPER_HILOGE(MODULE_SERVICE, "graphic type is not support.");
         return false;
