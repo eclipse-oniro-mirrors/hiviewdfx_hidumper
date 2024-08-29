@@ -345,20 +345,6 @@ ohos_source_set("hidumpermemory_source") {
     "samgr:samgr_proxy",
   ]
   defines = []
-  if (hidumper_graphic_enable) {
-    external_deps += [
-      "graphic_2d:2d_graphics_new",
-      "graphic_2d:libcomposer",
-      "graphic_2d:librender_service_base",
-      "graphic_2d:librender_service_client",
-      "skia:skia_canvaskit",
-    ]
-    defines += [
-      "HIDUMPER_GRAPHIC_ENABLE",
-      "NEW_SKIA",
-      "ROSEN_CROSS_PLATFORM",
-    ]
-  }
 
   if (hidumper_ability_runtime_enable) {
     external_deps += [ "ability_runtime:app_manager" ]

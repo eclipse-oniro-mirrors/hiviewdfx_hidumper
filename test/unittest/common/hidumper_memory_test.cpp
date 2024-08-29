@@ -16,7 +16,6 @@
 #include <map>
 #include <unistd.h>
 #include <vector>
-#include "executor/memory/dma_info.h"
 #include "executor/memory/get_hardware_info.h"
 #include "executor/memory/get_process_info.h"
 #include "executor/memory/get_kernel_info.h"
@@ -126,19 +125,6 @@ HWTEST_F(HidumperMemoryTest, SmapsMemoryInfo001, TestSize.Level1)
     shared_ptr<vector<vector<string>>> result = make_shared<vector<vector<string>>>();
     ASSERT_TRUE(smapsMemoryInfo->ShowMemorySmapsByPid(INIT_PID, result, true));
     ASSERT_FALSE(smapsMemoryInfo->ShowMemorySmapsByPid(INVALID_PID, result, true));
-}
-
-/**
- * @tc.name: DmaInfo001
- * @tc.desc: Test DmaInfo ret.
- * @tc.type: FUNC
- */
-HWTEST_F(HidumperMemoryTest, DmaInfo001, TestSize.Level1)
-{
-    unique_ptr<OHOS::HiviewDFX::DmaInfo> dmaInfo = make_unique<OHOS::HiviewDFX::DmaInfo>();
-    ASSERT_TRUE(dmaInfo->ParseDmaInfo());
-    dmaInfo->GetDmaByPid(INVALID_PID);
-    ASSERT_TRUE(dmaInfo->ParseDmaInfo());
 }
 
 /**
