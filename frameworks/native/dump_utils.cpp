@@ -477,9 +477,10 @@ bool DumpUtils::CheckAppDebugVersion(int pid)
         DUMPER_HILOGE(MODULE_COMMON, "Pid %{public}d %{public}s Get App info failed!", pid, appName.c_str());
         return false;
     }
+    bool isDebugApp = (appInfo.appProvisionType == AppExecFwk::Constants::APP_PROVISION_TYPE_DEBUG);
     DUMPER_HILOGD(MODULE_COMMON, "debug|pid %{public}d %{public}s DebugVersion %{public}d",
-        pid, appName.c_str(), appInfo.debug);
-    return appInfo.debug;
+        pid, appName.c_str(), isDebugApp);
+    return isDebugApp;
 #else
     DUMPER_HILOGD(MODULE_COMMON, "debug|pid %{public}d %{public}s DebugVersion false", pid, appName.c_str());
     return false;
