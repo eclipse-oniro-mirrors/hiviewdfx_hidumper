@@ -81,14 +81,25 @@ void FDOutput::OutMethod()
             if ((i < dumpDatas_->size()) && (j == (line.size() - 1))) {
                 NewLineMethod(str);
             }
-            int rawParamFd = ptrReqCtl_->GetOutputFd();
-            if (rawParamFd > -1) {
-                write(rawParamFd, str.c_str(), strlen(str.c_str()));
-                fsync(rawParamFd);
-            }
-            if (fd_ > -1) {
-                dprintf(fd_, "%s", str.c_str());
-            }
+            WriteToFd(str);
+        }
+    }
+}
+
+void FDOutput::WriteToFd(std::string &str)
+{
+    int rawParamFd = ptrReqCtl_->GetOutputFd();
+    if (rawParamFd > -1) {
+        if (write(rawParamFd, str.c_str(), strlen(str.c_str())) == -1) {
+            DUMPER_HILOGE(MODULE_COMMON, "write to rawParamFd failed, errno: %{public}d", errno);
+        }
+        if (fsync(rawParamFd) == -1) {
+            DUMPER_HILOGE(MODULE_COMMON, "fsync to rawParamFd failed, errno: %{public}d", errno);
+        }
+    }
+    if (fd_ > -1) {
+        if (dprintf(fd_, "%s", str.c_str()) == -1) {
+            DUMPER_HILOGE(MODULE_COMMON, "dprintf to fd_ failed, errno: %{public}d", errno);
         }
     }
 }
