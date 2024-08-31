@@ -56,6 +56,7 @@ private:
     std::shared_ptr<RawParam> ptrReqCtl_;
     static const mode_t OPEN_ARGV;
     std::mutex mutex_;
+    void WriteToFd(std::string &str);
 };
 } // namespace HiviewDFX
 } // namespace OHOS
