@@ -18,6 +18,7 @@
 #include "executor/memory/get_heap_info.h"
 #include "executor/memory/memory_info.h"
 #include "executor/memory/parse/parse_smaps_info.h"
+#include "hidumper_test_utils.h"
 #include "securec.h"
 
 #include <gtest/gtest.h>
@@ -30,6 +31,7 @@ static constexpr int MALLOC_SIZE = 1024;
 static constexpr int LAUNCHER_PID_BUFFER_SIZE = 6;
 static int g_pid = -1;
 static int g_appManagerPid = -1;
+const int HIDUMPER_SERVICE_RAM = 20480; //hidumper_service RAM:20MB
 class HiDumperInnerkitsTest : public testing::Test {
 public:
     using ValueMap = std::map<std::string, uint64_t>;
@@ -162,6 +164,24 @@ HWTEST_F(HiDumperInnerkitsTest, GetPssTest001, TestSize.Level1)
 {
     std::unique_ptr<DumpUsage> dumpUsage = std::make_unique<DumpUsage>();
     EXPECT_GT(dumpUsage->GetPss(g_pid), 0);
+}
+
+/**
+ * @tc.name: GetPssTest002
+ * @tc.desc: Test GetPss for hidumper_service.
+ * @tc.type: FUNC
+ * @tc.require: issueI5NWZQ
+ */
+HWTEST_F(HiDumperInnerkitsTest, GetPssTest002, TestSize.Level1)
+{
+    std::string cmd = "hidumper --mem 1";
+    std::string str = "memory";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+    std::unique_ptr<DumpUsage> dumpUsage = std::make_unique<DumpUsage>();
+    int hidumperServicePid = GetAppManagerPid("hidumper_service");
+    uint64_t pss = dumpUsage->GetPss(hidumperServicePid);
+    std::cout << "hidumper_service pss: " << pss << std::endl;
+    EXPECT_LE(pss, HIDUMPER_SERVICE_RAM);
 }
 
 /**

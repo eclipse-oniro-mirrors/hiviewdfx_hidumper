@@ -32,6 +32,24 @@ const std::string SCORE_ADJ_STR = "1000";
 const std::string TOOL_NAME = "hidumper";
 char g_fileName[] = "/tmp/test.XXXXXX";
 int g_fd = -1;
+
+const uint64_t BASELINE_SIZE = 1353 * 1024;
+#if defined(__LP64__)
+const std::string LIB_PATH = "lib64/";
+#else
+const std::string LIB_PATH = "lib/";
+#endif
+vector<string> OUTPUT_PATH = {
+    "/system/etc/init/hidumper_service.cfg",
+    "/system/etc/hidumper/infos_config.json",
+    "/system/bin/hidumper",
+    "/system/" + LIB_PATH + "libhidumperclient.z.so",
+    "/system/" + LIB_PATH + "libhidumper_client.z.so",
+    "/system/" + LIB_PATH + "libhidumpermemory.z.so",
+    "/system/" + LIB_PATH + "libhidumperservice.z.so",
+    "/system/" + LIB_PATH + "libhidumperservice_cpu_source.z.so",
+    "/system/" + LIB_PATH + "platformsdk/lib_dump_usage.z.so",
+};
 class HiDumperManagerTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -877,6 +895,24 @@ HWTEST_F(HiDumperManagerTest, IpcStatDumpTest010, TestSize.Level0)
     int argc = sizeof(argv) / sizeof(argv[0]);
     int ret = GetDumpResult(argc, argv);
     ASSERT_TRUE(ret != DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: HidumperRomTest001
+ * @tc.desc: test hidumper rom
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, HidumperRomTest001, TestSize.Level0)
+{
+    uint64_t realSize = 0;
+    for (int i = 0; i < OUTPUT_PATH.size(); i++) {
+        struct stat info = { 0 };
+        stat(OUTPUT_PATH[i].c_str(), &info);
+        std::cout << "path:" << OUTPUT_PATH[i].c_str() << " realSize: " << info.st_size << std::endl;
+        realSize += static_cast<uint64_t>(info.st_size);
+    }
+    std::cout << "total realSize = " << realSize << std::endl;
+    EXPECT_LT(realSize, BASELINE_SIZE * 1.05);
 }
 } // namespace HiviewDFX
 } // namespace OHOS

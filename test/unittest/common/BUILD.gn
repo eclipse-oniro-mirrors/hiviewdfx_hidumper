@@ -249,6 +249,7 @@ ohos_unittest("HidumperInnerkitsTest") {
     "${hidumper_frameworks_path}/src/executor/memory/memory_util.cpp",
     "${hidumper_frameworks_path}/src/executor/memory/parse/parse_smaps_info.cpp",
     "hidumper_innerkits_test.cpp",
+    "hidumper_test_utils.cpp",
   ]
 
   defines = []
