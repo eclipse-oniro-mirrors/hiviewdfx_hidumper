@@ -14,6 +14,7 @@
  */
 #ifndef HIDUMPER_SERVICES_DUMP_MANAGER_SERVICE_H
 #define HIDUMPER_SERVICES_DUMP_MANAGER_SERVICE_H
+#include <atomic>
 #include <map>
 #include <vector>
 #include <system_ability.h>
@@ -90,8 +91,8 @@ private:
     std::mutex mutex_;
     std::shared_ptr<AppExecFwk::EventRunner> eventRunner_;
     std::shared_ptr<AppExecFwk::EventHandler> handler_;
-    bool started_ {false};
-    bool blockRequest_ {false};
+    std::atomic<bool> started_ = false;
+    std::atomic<bool> blockRequest_ = false;
     uint32_t requestIndex_ {0};
     std::map<uint32_t, std::shared_ptr<RawParam>> requestRawParamMap_;
     std::vector<std::pair<std::string, int>> linkCnt_;
