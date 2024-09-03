@@ -308,6 +308,9 @@ int32_t DumpManagerService::CountFdNums(int32_t pid, uint32_t &fdNums,
     for (const auto &each : linkNameCnt) {
         linkCnt_.push_back(each);
     }
+    if (linkCnt_.empty()) {
+        return DumpStatus::DUMP_FAIL;
+    }
     std::sort(linkCnt_.begin(), linkCnt_.end(),
         [](const std::pair<std::string, int> &a, const std::pair<std::string, int> &b) { return a.second > b.second; });
     RecordDetailFdInfo(detailFdInfo, topLeakedType);
