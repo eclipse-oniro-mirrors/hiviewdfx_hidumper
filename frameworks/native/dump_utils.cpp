@@ -204,7 +204,7 @@ inline const std::map<int, std::string> saNameMap_ = {
     { COMM_MDNS_MANAGER_SYS_ABILITY_ID, "MDNSManager"},
     { COMM_NETSYS_EXT_SYS_ABILITY_ID, "NetsysExtService"},
     { COMM_DISTRIBUTED_NET_ABILITY_ID, "DistributedNet"},
-    { COMM_SA_WEARABLE_DISTRIBUTED_NET_SERVICE_ABILITY_ID, "SaWearableDistributedNetService"},
+    { COMM_WEARABLE_DISTRIBUTED_NET_SERVICE_ABILITY_ID, "WearableDistributedNetService"},
     { ENTERPRISE_DEVICE_MANAGER_SA_ID, "EnterpriseDeviceManagerService" },
     { I18N_SA_ID, "I18nService" },
     { PARAM_WATCHER_DISTRIBUTED_SERVICE_ID, "ParamWatcher" },
