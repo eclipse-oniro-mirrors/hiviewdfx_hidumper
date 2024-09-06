@@ -15,6 +15,7 @@
 #include <algorithm>
 #include "util/config_utils.h"
 #include "directory_ex.h"
+#include "file_ex.h"
 #include "hilog_wrapper.h"
 #include "dump_common_utils.h"
 #include "dump_utils.h"
@@ -494,6 +495,8 @@ bool ConfigUtils::HandleDumpProcesses(std::vector<std::shared_ptr<DumpCfg>> &dum
     if (isUserMode) {
         if (!MergeDebugPidInfos(currentPidInfos_, dumperOpts.processPid_)) {
             DUMPER_HILOGE(MODULE_COMMON, "dump process failed");
+            int outputFd = dumperParam_->getClientCallback()->GetOutputFd();
+            SaveStringToFd(outputFd, "-p option only support debug application\n");
             return false;
         }
     } else {
