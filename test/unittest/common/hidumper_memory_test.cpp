@@ -161,9 +161,9 @@ HWTEST_F(HidumperMemoryTest, MemoryInfo001, TestSize.Level1)
     MemInfoData::MemUsage usage;
     OHOS::HiviewDFX::DmaInfo dmaInfo;
     ASSERT_FALSE(memoryInfo->GetMemByProcessPid(INVALID_PID, usage));
+#ifdef HIDUMPER_MEMMGR_ENABLE
     memoryInfo->GetProcessAdjLabel(INVALID_PID);
-    memoryInfo->GetReclaimPriorityString(RECLAIM_PRIORITY_UNKNOWN + 1);
-    memoryInfo->GetReclaimPriorityString(RECLAIM_PRIORITY_BACKGROUND - 1);
+#endif
 }
 
 /**
