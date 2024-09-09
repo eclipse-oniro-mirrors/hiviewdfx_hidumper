@@ -26,6 +26,7 @@ config("dump_usage_config") {
 }
 
 ohos_shared_library("lib_dump_usage") {
+  branch_protector_ret = "pac_ret"
   public_configs = [ ":dump_usage_config" ]
 
   sources = [
