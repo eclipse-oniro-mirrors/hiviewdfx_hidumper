@@ -125,6 +125,7 @@ ohos_source_set("zidl_cpu_service") {
 }
 
 ohos_shared_library("hidumper_client") {
+  branch_protector_ret = "pac_ret"
   sources = [
     "native/src/dump_cpu_data.cpp",
     "native/src/dump_manager_client.cpp",
