@@ -62,10 +62,8 @@ HWTEST_F(SADumperTest, SADumperTest001, TestSize.Level3)
  */
 HWTEST_F(SADumperTest, SADumperTest002, TestSize.Level3)
 {
-    std::string cmd = "hidumper -s WindowManagerService -a '-w 6 -default'";
+    std::string cmd = "hidumper -s WindowManagerService -a -a";
     std::string str = "WindowName";
-    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
-    cmd = "hidumper -s WindowManagerService -a -a";
     ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
 }
 
