@@ -200,6 +200,10 @@ ohos_unittest("HidumperMemoryTest") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
   ]
+  defines = []
+  if (hidumper_report_memmgr) {
+    defines += [ "HIDUMPER_MEMMGR_ENABLE" ]
+  }
   cflags = [
     "-Dprivate=public",  #allow test code access private members
   ]
