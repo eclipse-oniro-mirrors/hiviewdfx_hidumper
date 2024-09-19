@@ -448,6 +448,10 @@ bool DumpUtils::CheckAppDebugVersion(int pid)
         DUMPER_HILOGE(MODULE_COMMON, "Pid %{public}d or process name is illegal!", pid);
         return false;
     }
+    auto pos = bundleName.find(":");
+    if (pos != std::string::npos) {
+        bundleName = bundleName.substr(0, pos);
+    }
     std::string appName = bundleName.substr(0, strlen(bundleName.c_str()));
     sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (sam == nullptr) {
