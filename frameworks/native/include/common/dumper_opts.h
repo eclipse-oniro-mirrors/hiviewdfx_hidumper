@@ -40,11 +40,8 @@ struct DumperOpts {
     bool isDumpProcesses_;
     int processPid_;
     bool isFaultLog_;
-    int timeout_;
-    int limitSize_;
     std::string path_; // for zip
     bool isAppendix_;
-    bool isTest_;
     bool isShowSmaps_;
     bool isShowSmapsInfo_;
     bool isDumpJsHeapMem_;

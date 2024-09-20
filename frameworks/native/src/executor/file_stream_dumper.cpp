@@ -159,14 +159,6 @@ DumpStatus FileStreamDumper::Execute()
 
 DumpStatus FileStreamDumper::AfterExecute()
 {
-    if (more_data_ && IsTimeout()) {
-        DUMPER_HILOGE(MODULE_COMMON, "error|file timeout");
-        std::vector<std::string> line_vector_timeout;
-        line_vector_timeout.push_back(GetTimeoutStr());
-        result_->push_back(line_vector_timeout);
-        more_data_ = false;
-    }
-
     if (!more_data_) {
         CloseFd();
         return DumpStatus::DUMP_OK;

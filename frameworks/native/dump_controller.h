@@ -21,8 +21,6 @@ const int ARG_MAX_COUNT = 64;
 const int SINGLE_ARG_MAXLEN = 256;
 const uint32_t SIZE_KB = 1024;
 const uint32_t LIMIT_SIZE = 32; // 32KB
-const uint32_t DEFAULT_LIMITSIZE = LIMIT_SIZE * SIZE_KB;
-const uint32_t DEFAULT_TIMEOUT = 30; // 30 seconds
 } // namespace HiviewDFX
 } // namespace OHOS
 #endif

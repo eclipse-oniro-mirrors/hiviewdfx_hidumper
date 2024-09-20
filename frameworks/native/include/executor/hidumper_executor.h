@@ -40,22 +40,13 @@ public:
     void SetDumpConfig(const std::shared_ptr<DumpCfg>& config);
     const std::shared_ptr<DumpCfg>& GetDumpConfig() const;
 
-    uint64_t GetTimeRemain() const;
-    bool IsTimeout() const;
     bool IsCanceled() const;
-    std::string GetTimeoutStr(std::string head = "") const;
 protected:
     std::shared_ptr<DumpCfg> ptrDumpCfg_;
 private:
-    static bool IsTimeout(uint64_t remain);
-    uint64_t GetHitTickCount(int nest = 0) const;
 private:
     std::shared_ptr<RawParam> rawParam_;
     std::shared_ptr<HidumperExecutor> ptrParent_;
-    bool hasOnce_ {false};
-    bool hasOnceTimeout_ {false};
-    uint64_t hitTickCount_ {0};
-    uint64_t timeOutMillSec_ {0};
     static const std::string TIME_OUT_STR;
 };
 } // namespace HiviewDFX

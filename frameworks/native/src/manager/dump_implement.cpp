@@ -211,7 +211,7 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
 {
     optind = 0; // reset getopt_long
     opterr = 0; // getopt not show error info
-    const char optStr[] = "-ht:lcsa:epvT:";
+    const char optStr[] = "-hlcsa:epvT:";
     bool loop = true;
     while (loop) {
         int optionIndex = 0;
@@ -223,7 +223,6 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
                                               {"net", no_argument, 0, 0},
                                               {"storage", no_argument, 0, 0},
                                               {"zip", no_argument, 0, 0},
-                                              {"test", no_argument, 0, 0},
                                               {"mem-smaps", required_argument, 0, 0},
                                               {"mem-jsheap", required_argument, 0, 0},
                                               {"gc", no_argument, 0, 0},
@@ -371,8 +370,6 @@ bool DumpImplement::ParseSubLongCmdOption(int argc, DumperOpts &opts_, const str
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "zip")) {
         path_ = ZIP_FOLDER + GetTime() + ".zip";
         opts_.path_ = path_;
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "test")) {
-        opts_.isTest_ = true;
     } else {
         return false;
     }
@@ -498,14 +495,6 @@ DumpStatus DumpImplement::ParseShortCmdOption(int c, DumperOpts &opts_, int argc
         case 'v':
             opts_.isShowSmapsInfo_ = true;
             break;
-        case 't': {
-            DumpStatus timeOutStatus = SetCmdIntegerParameter(optarg, opts_.timeout_);
-            if (timeOutStatus != DumpStatus::DUMP_OK) {
-                return timeOutStatus;
-            }
-            opts_.timeout_ = (opts_.timeout_ == 0) ? INT32_MAX : opts_.timeout_;
-            break;
-        }
         default: {
             DumpStatus status = SetCmdParameter(argc, argv, opts_);
             if (status != DumpStatus::DUMP_OK) {
@@ -878,11 +867,8 @@ void DumpImplement::ReportCmdUsage(const DumperOpts &opts_, const std::string &c
         "IS_DUMP_PROCESSES", opts_.isDumpProcesses_,
         "PROCESS_PID", opts_.processPid_,
         "IS_FAULT_LOG", opts_.isFaultLog_,
-        "TIME_OUT", opts_.timeout_,
-        "LIMIT_SIZE", opts_.limitSize_,
         "PATH", opts_.path_,
         "IS_APPENDIX", opts_.isAppendix_,
-        "IS_TEST", opts_.isTest_,
         "IS_SHOW_SMAPS", opts_.isShowSmaps_,
         "IS_SHOW_SMAPS_INFO", opts_.isShowSmapsInfo_,
         "CMD_USER_INPUT", cmdStr);
