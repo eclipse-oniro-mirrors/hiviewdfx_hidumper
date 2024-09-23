@@ -362,8 +362,8 @@ HWTEST_F(HidumperConfigUtilsTest, HidumperFileUtils001, TestSize.Level3)
 HWTEST_F(HidumperConfigUtilsTest, HidumpCommonUtils001, TestSize.Level3)
 {
     system("mkdir /data/log/hidumpertest/");
-    system("touch /data/log/hidumpertest/1.log");
-    system("touch /data/log/hidumpertest/a.log");
+    system("touch /data/log/hidumpertest/1");
+    system("touch /data/log/hidumpertest/a");
     const std::string path = "/data/log/hidumpertest";
     bool digit = true;
     std::vector<std::string> strs = DUMP_COMMON_UTILS.GetSubNodes(path, digit);

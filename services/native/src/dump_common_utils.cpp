@@ -48,7 +48,7 @@ std::vector<std::string> DumpCommonUtils::GetSubNodes(const std::string &path, b
         if (childNode == "." || childNode == "..") {
             continue;
         }
-        if (digit && !isdigit(childNode[0])) {
+        if (digit && !IsNumericStr(childNode)) {
             continue;
         }
         subNodes.push_back(childNode);
@@ -80,7 +80,7 @@ std::vector<std::string> DumpCommonUtils::GetSubDir(const std::string &path, boo
         if (childNode == "." || childNode == "..") {
             continue;
         }
-        if (digit && !isdigit(childNode[0])) {
+        if (digit && !IsNumericStr(childNode)) {
             continue;
         }
         if (!IsDirectory(path + "/" + childNode)) {
@@ -98,7 +98,7 @@ std::vector<int32_t> DumpCommonUtils::GetAllPids()
     std::vector<int32_t> pids;
     std::vector<std::string> allPids = GetSubDir(path, true);
     for (const auto &pid : allPids) {
-        if (!isdigit(pid[0])) {
+        if (!IsNumericStr(pid)) {
             continue;
         }
         pids.push_back(std::stoi(pid));
