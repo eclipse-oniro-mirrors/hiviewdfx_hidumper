@@ -93,14 +93,6 @@ DumpStatus CMDDumper::Execute()
 
 DumpStatus CMDDumper::AfterExecute()
 {
-    if (moreData_ && IsTimeout()) {
-        DUMPER_HILOGE(MODULE_COMMON, "error|cmd timeout");
-        std::vector<std::string> line_vector_timeout;
-        line_vector_timeout.push_back(GetTimeoutStr());
-        dumpDatas_->push_back(line_vector_timeout);
-        moreData_ = false;
-    }
-
     if (!moreData_) {
         if (fp_ != nullptr) {
             pclose(fp_);

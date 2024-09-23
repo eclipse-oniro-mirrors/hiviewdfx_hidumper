@@ -59,11 +59,8 @@ void DumperOpts::Reset()
     isDumpProcesses_ = false;
     processPid_ = -1;
     isFaultLog_ = false;
-    timeout_ = DEFAULT_TIMEOUT;
-    limitSize_ = DEFAULT_LIMITSIZE;
     path_.clear(); // for zip
     isAppendix_ = false;
-    isTest_ = false;
     isShowSmaps_ = false;
     isShowSmapsInfo_ = false;
     isDumpJsHeapMem_ = false;
@@ -103,11 +100,8 @@ DumperOpts& DumperOpts::operator = (const DumperOpts& opts)
     isDumpProcesses_ = opts.isDumpProcesses_;
     processPid_ = opts.processPid_;
     isFaultLog_ = opts.isFaultLog_;
-    timeout_ = opts.timeout_;
-    limitSize_ = opts.limitSize_;
     path_ = opts.path_;
     isAppendix_ = opts.isAppendix_;
-    isTest_ = opts.isTest_;
     isShowSmaps_ = opts.isShowSmaps_;
     isShowSmapsInfo_ = opts.isShowSmapsInfo_;
     isDumpJsHeapMem_ = opts.isDumpJsHeapMem_;
@@ -168,9 +162,6 @@ bool DumperOpts::IsSelectAny() const
     if (isDumpProcesses_) {
         return true;
     }
-    if (isTest_) {
-        return true;
-    }
     if (isShowSmaps_) {
         return true;
     }
@@ -219,14 +210,6 @@ bool DumperOpts::CheckOptions(std::string& errStr) const
     }
     if (processPid_ < -1) {
         errStr = std::to_string(processPid_);
-        return false;
-    }
-    if (timeout_ < 1) {
-        errStr = std::to_string(timeout_);
-        return false;
-    }
-    if (limitSize_ < 1) {
-        errStr = std::to_string(limitSize_);
         return false;
     }
     if (storagePid_ < -1) {
