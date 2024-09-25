@@ -457,7 +457,11 @@ void DumpManagerService::DelayUnloadTask()
     int32_t calllingPid = IPCSkeleton::GetCallingPid();
     DUMPER_HILOGI(MODULE_SERVICE, "recieve new request, delay unload task begin, calllingPid=%{public}d", calllingPid);
     auto task = [this]() {
-        DUMPER_HILOGI(MODULE_SERVICE, "do unload task");
+        DUMPER_HILOGI(MODULE_SERVICE, "do unload task, request sum=%{public}d", GetRequestSum());
+        if (GetRequestSum() != 0) {
+            GetIdleRequest();
+            return;
+        }
         auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         if (samgrProxy == nullptr) {
             DUMPER_HILOGE(MODULE_SERVICE, "get samgr failed");
