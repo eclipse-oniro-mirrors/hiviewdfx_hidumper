@@ -872,7 +872,7 @@ void DumpImplement::ReportCmdUsage(const DumperOpts &opts_, const std::string &c
 }
 #endif
 
-bool DumpImplement::CheckDumpPermission(DumperOpts& opt)
+bool DumpImplement::CheckDumpPermission(DumperOpts &opt)
 {
     bool isUserMode = DumpUtils::IsUserMode();
     DUMPER_HILOGD(MODULE_COMMON, "debug|isUserMode %{public}d", isUserMode);
@@ -897,5 +897,5 @@ bool DumpImplement::CheckDumpPermission(DumperOpts& opt)
     }
     return true;
 }
-} // namespace HiviewDFX
+}  // namespace HiviewDFX
 } // namespace OHOS

@@ -410,6 +410,7 @@ group("unittest") {
     ":HidumperOutputTest",
     ":HidumperPrivacyTest",
     ":HidumperServiceTest",
+    ":HidumperZidlTest",
     ":MemoryDumperTest",
     ":SADumperTest",
   ]
