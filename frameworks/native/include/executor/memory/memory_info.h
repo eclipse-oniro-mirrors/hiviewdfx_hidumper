@@ -24,7 +24,7 @@
 #include "executor/memory/parse/meminfo_data.h"
 #include "common.h"
 #include "time.h"
-#include "memory_collector.h"
+#include "graphic_memory_collector.h"
 namespace OHOS {
 namespace HiviewDFX {
 namespace {

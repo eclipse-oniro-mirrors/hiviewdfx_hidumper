@@ -663,7 +663,7 @@ uint64_t MemoryInfo::GetVss(const int32_t &pid)
 
 bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory, GraphicType graphicType)
 {
-    std::shared_ptr<UCollectUtil::MemoryCollector> collector = UCollectUtil::MemoryCollector::Create();
+    std::shared_ptr<UCollectUtil::GraphicMemoryCollector> collector = UCollectUtil::GraphicMemoryCollector::Create();
     CollectResult<int32_t> data;
     data = collector->GetGraphicUsage(pid, graphicType);
     if (data.retCode != UCollect::UcError::SUCCESS) {
