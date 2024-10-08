@@ -35,7 +35,6 @@ public:
     static void RemoveDuplicateString(std::vector<std::string> &vector);
 
     // file operations
-    static bool FileWriteable(const std::string &file);
     static int FdToRead(const std::string &file);
     static int FdToWrite(const std::string &file);
 

@@ -17,12 +17,16 @@
 #include <future>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 #include "executor/memory/dma_info.h"
 #include "executor/memory/parse/meminfo_data.h"
 #include "common.h"
 #include "time.h"
+#ifdef HIDUMPER_GRAPHIC_ENABLE
+#include "transaction/rs_interfaces.h"
+#endif
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
@@ -112,10 +116,14 @@ private:
     bool dumpSmapsOnStart_ = false;
     uint64_t totalGL_ = 0;
     uint64_t totalGraph_ = 0;
+    std::mutex mutex_;
     std::future<GroupMap> fut_;
     std::vector<int32_t> pids_;
     std::vector<MemInfoData::MemUsage> memUsages_;
     std::vector<std::pair<std::string, MemFun>> methodVec_;
+#ifdef HIDUMPER_GRAPHIC_ENABLE
+    std::vector<OHOS::Rosen::MemoryGraphic> memGraphicVec_;
+#endif
     std::map<std::string, std::vector<MemInfoData::MemUsage>> adjMemResult_ = {
         {"System", {}}, {"Foreground", {}}, {"Suspend-delay", {}},
         {"Perceived", {}}, {"Background", {}}, {"Undefined", {}},
@@ -161,11 +169,11 @@ private:
     void CalcGroup(const GroupMap &infos, StringMatrix result);
     void GetSortedMemoryInfoNoPid(StringMatrix result);
 #ifdef HIDUMPER_GRAPHIC_ENABLE
-    static void GetMemGraphics();
+    void GetMemGraphics();
 #endif
-    static bool GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory);
-    static bool GetRenderServiceGraphics(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory);
-    static bool IsRenderService(int32_t pid);
+    bool GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory);
+    bool GetRenderServiceGraphics(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory);
+    bool IsRenderService(int32_t pid);
     void GetMemoryByAdj(StringMatrix result);
     void SetPss(MemInfoData::MemInfo &meminfo, uint64_t value);
     void SetSharedClean(MemInfoData::MemInfo &meminfo, uint64_t value);

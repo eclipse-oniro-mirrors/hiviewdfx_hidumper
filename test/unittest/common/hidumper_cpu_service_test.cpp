@@ -91,5 +91,20 @@ HWTEST_F(HidumperCpuServiceTest, HidumperCpuServiceTest003, TestSize.Level3)
     int ret = dumpManagerCpuService->GetCpuUsageByPid(TEST_PID, cpuUsage);
     ASSERT_TRUE(ret == 0) << "dump cpuusage failed.";
 }
+
+/**
+ * @tc.name: HidumperCpuServiceTest004
+ * @tc.desc: Test error cpuservice.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperCpuServiceTest, HidumperCpuServiceTest004, TestSize.Level3)
+{
+    auto dumpManagerCpuService = std::make_shared<DumpManagerCpuService>();
+    dumpManagerCpuService->OnStart();
+    dumpManagerCpuService->OnStart();
+    dumpManagerCpuService->curCPUInfo_ = nullptr;
+    int32_t ret = dumpManagerCpuService->DumpCpuUsageData();
+    ASSERT_TRUE(ret != 0) << "dump cpuusage failed.";
+}
 } // namespace HiviewDFX
 } // namespace OHOS

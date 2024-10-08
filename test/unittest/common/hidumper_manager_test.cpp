@@ -27,7 +27,8 @@
 using namespace testing::ext;
 namespace OHOS {
 namespace HiviewDFX {
-
+const int SCORE_ADJ = 1000;
+const std::string SCORE_ADJ_STR = "1000";
 const std::string TOOL_NAME = "hidumper";
 char g_fileName[] = "/tmp/test.XXXXXX";
 int g_fd = -1;
@@ -690,6 +691,18 @@ HWTEST_F(HiDumperManagerTest, DumpTest034, TestSize.Level0)
     int argc = sizeof(argv) / sizeof(argv[0]);
     int ret = GetDumpResult(argc, argv);
     ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
+}
+
+/**
+ * @tc.name: DumpTest035
+ * @tc.desc: Test DumpUtils
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest035, TestSize.Level0)
+{
+    DumpUtils::SetAdj(SCORE_ADJ);
+    std::string name = DumpUtils::ConvertSaIdToSaName(SCORE_ADJ_STR);
+    ASSERT_TRUE(name == SCORE_ADJ_STR);
 }
 
 /**

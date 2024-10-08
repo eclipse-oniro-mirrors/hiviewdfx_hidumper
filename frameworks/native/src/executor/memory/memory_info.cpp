@@ -42,7 +42,6 @@
 #include "util/string_utils.h"
 #include "util/file_utils.h"
 #ifdef HIDUMPER_GRAPHIC_ENABLE
-#include "transaction/rs_interfaces.h"
 using namespace OHOS::Rosen;
 #endif
 
@@ -51,6 +50,7 @@ using namespace OHOS::HDI::Memorytracker::V1_0;
 
 namespace OHOS {
 namespace HiviewDFX {
+static uint64_t g_sumPidsMemGL = 0;
 static const std::string LIB = "libai_mnt_client.so";
 
 static const std::string UNKNOWN_PROCESS = "unknown";
@@ -89,11 +89,6 @@ MemoryInfo::MemoryInfo()
 MemoryInfo::~MemoryInfo()
 {
 }
-
-static uint64_t g_sumPidsMemGL = 0;
-#ifdef HIDUMPER_GRAPHIC_ENABLE
-std::vector<MemoryGraphic> memGraphicVec_;
-#endif
 
 void MemoryInfo::insertMemoryTitle(StringMatrix result)
 {
@@ -250,6 +245,7 @@ bool MemoryInfo::IsRenderService(int32_t pid)
 
 bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     if (!dmaInfo_.ParseDmaInfo()) {
         DUMPER_HILOGE(MODULE_SERVICE, "Parse dma info error\n");
     }
@@ -448,15 +444,17 @@ void MemoryInfo::GetPurgTotal(const ValueMap &meminfo, StringMatrix result)
 {
     SaveStringToFd(rawParamFd_, "Total Purgeable:\n");
 
+    uint64_t purgSumTotal = 0;
+    uint64_t purgPinTotal = 0;
     auto purgSumActive = meminfo.find(MemoryFilter::GetInstance().PURG_SUM[0]);
     auto purgSumInactive = meminfo.find(MemoryFilter::GetInstance().PURG_SUM[1]);
     auto purgPinPined = meminfo.find(MemoryFilter::GetInstance().PURG_PIN[0]);
     if (purgSumActive == meminfo.end() || purgSumInactive == meminfo.end() || purgPinPined == meminfo.end()) {
         DUMPER_HILOGE(MODULE_SERVICE, "fail to get purg info \n");
-        return;
+    } else {
+        purgSumTotal = purgSumActive->second + purgSumInactive->second;
+        purgPinTotal = purgPinPined->second;
     }
-    uint64_t purgSumTotal = purgSumActive->second + purgSumInactive->second;
-    uint64_t purgPinTotal = purgPinPined->second;
 
     string totalPurgSumTitle = "Total PurgSum:";
     StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, totalPurgSumTitle);
@@ -660,6 +658,10 @@ string MemoryInfo::GetProcessAdjLabel(const int32_t pid)
     }
     int value = RECLAIM_PRIORITY_UNKNOWN;
     std::string label(buf);
+    if (label.empty()) {
+        DUMPER_HILOGE(MODULE_COMMON, "label is empty.");
+        return adjLabel;
+    }
     if (!StrToInt(label.substr(0, label.size() - 1), value)) {
         DUMPER_HILOGE(MODULE_COMMON, "StrToInt failed.");
         return adjLabel;
@@ -758,55 +760,44 @@ bool MemoryInfo::GetMemByProcessPid(const int32_t &pid, const DmaInfo &dmaInfo, 
 
 void MemoryInfo::MemUsageToMatrix(const MemInfoData::MemUsage &memUsage, StringMatrix result)
 {
-    vector<string> strs;
     string pid = to_string(memUsage.pid);
     StringUtils::GetInstance().SetWidth(PID_WIDTH_, BLANK_, true, pid);
-    strs.push_back(pid);
 
     uint64_t pss = memUsage.pss + memUsage.swapPss;
     string totalPss = to_string(pss) + "(" + to_string(memUsage.swapPss) + " in SwapPss) kB";
     StringUtils::GetInstance().SetWidth(PSS_WIDTH_, BLANK_, false, totalPss);
-    strs.push_back(totalPss);
 
     uint64_t vss = memUsage.vss;
     string totalVss = AddKbUnit(vss);
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalVss);
-    strs.push_back(totalVss);
 
     uint64_t rss = memUsage.rss;
     string totalRss = AddKbUnit(rss);
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalRss);
-    strs.push_back(totalRss);
 
     uint64_t uss = memUsage.uss;
     string totalUss = AddKbUnit(uss);
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalUss);
-    strs.push_back(totalUss);
 
     uint64_t gl = memUsage.gl;
     string unMappedGL = AddKbUnit(gl);
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedGL);
-    strs.push_back(unMappedGL);
 
     uint64_t graph = memUsage.graph;
     string unMappedGraph = AddKbUnit(graph);
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedGraph);
-    strs.push_back(unMappedGraph);
 
     uint64_t dma = memUsage.dma;
     string unMappedDma = AddKbUnit(dma);
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedDma);
-    strs.push_back(unMappedDma);
 
     uint64_t purgSum = memUsage.purgSum;
     string unMappedPurgSum = AddKbUnit(purgSum);
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedPurgSum);
-    strs.push_back(unMappedPurgSum);
 
     uint64_t purgPin = memUsage.purgPin;
     string unMappedPurgPin = AddKbUnit(purgPin);
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedPurgPin);
-    strs.push_back(unMappedPurgPin);
 
     string name = "    " + memUsage.name;
     StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, name);
@@ -822,50 +813,38 @@ void MemoryInfo::AddMemByProcessTitle(StringMatrix result, string sortType)
     string processTitle = "Total Memory Usage by " + sortType + ":";
     (void)dprintf(rawParamFd_, "%s\n", processTitle.c_str());
 
-    vector<string> title;
     string pid = "PID";
     StringUtils::GetInstance().SetWidth(PID_WIDTH_, BLANK_, true, pid);
-    title.push_back(pid);
 
     string totalPss = "Total Pss(xxx in SwapPss)";
     StringUtils::GetInstance().SetWidth(PSS_WIDTH_, BLANK_, false, totalPss);
-    title.push_back(totalPss);
 
     string totalVss = "Total Vss";
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalVss);
-    title.push_back(totalVss);
 
     string totalRss = "Total Rss";
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalRss);
-    title.push_back(totalRss);
 
     string totalUss = "Total Uss";
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalUss);
-    title.push_back(totalUss);
 
     string unMappedGL = MemoryFilter::GetInstance().GL_OUT_LABEL;
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedGL);
-    title.push_back(unMappedGL);
 
     string unMappedGraph = MemoryFilter::GetInstance().GRAPH_OUT_LABEL;
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedGraph);
-    title.push_back(unMappedGraph);
 
     string unMappedDma = MemoryFilter::GetInstance().DMA_OUT_LABEL;
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedDma);
-    title.push_back(unMappedDma);
 
     string unMappedPurgSum = MemoryFilter::GetInstance().PURGSUM_OUT_LABEL;
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedPurgSum);
-    title.push_back(unMappedPurgSum);
 
     string unMappedPurgPin = MemoryFilter::GetInstance().PURGPIN_OUT_LABEL;
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedPurgPin);
-    title.push_back(unMappedPurgPin);
 
     string name = "    Name";
     StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, name);
-    title.push_back(name);
 
     (void)dprintf(rawParamFd_, "%s%s%s%s%s%s%s%s%s%s%s\n", pid.c_str(),
         totalPss.c_str(), totalVss.c_str(), totalRss.c_str(), totalUss.c_str(),
@@ -889,6 +868,7 @@ void MemoryInfo::GetMemGraphics()
 
 DumpStatus MemoryInfo::GetMemoryInfoNoPid(int fd, StringMatrix result)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     rawParamFd_ = fd;
     (void)dprintf(rawParamFd_, "%s\n", MEMORY_LINE.c_str());
     if (!dmaInfo_.ParseDmaInfo()) {

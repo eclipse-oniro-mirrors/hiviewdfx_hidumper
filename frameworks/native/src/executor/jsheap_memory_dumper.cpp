@@ -33,8 +33,11 @@ DumpStatus JsHeapMemoryDumper::PreExecute(const shared_ptr<DumperParameter> &par
 {
     needGc_ = true;
     needSnapshot_ = true;
+    needLeakobj_ = parameter->GetOpts().isDumpJsHeapLeakobj_;
     if (parameter->GetOpts().isDumpJsHeapMemGC_) {
         needSnapshot_ = false;
+        needLeakobj_ = false;
+        DUMPER_HILOGD(MODULE_SERVICE, "trigger gc, set needSnapshot_ false, needLeakobj_ false");
     }
     pid_ = static_cast<uint32_t>(parameter->GetOpts().dumpJsHeapMemPid_);
     tid_ = static_cast<uint32_t>(parameter->GetOpts().threadId_);
@@ -49,14 +52,11 @@ DumpStatus JsHeapMemoryDumper::Execute()
     info.tid = tid_;
     info.needGc = needGc_;
     info.needSnapshot = needSnapshot_;
+    info.needLeakobj = needLeakobj_;
 
     if (dumpDatas_ != nullptr && jsHeapInfo_ != nullptr) {
         bool ret = jsHeapInfo_->DumpJsHeapMemory(info);
-        if (ret) {
-            status_ = DumpStatus::DUMP_OK;
-        } else {
-            status_ = DumpStatus::DUMP_FAIL;
-        }
+        ret ? status_ = DumpStatus::DUMP_OK : status_ = DumpStatus::DUMP_FAIL;
     } else {
         DUMPER_HILOGE(MODULE_SERVICE, "JsHeapMemoryDumper Execute nullptr");
         status_ = DumpStatus::DUMP_FAIL;

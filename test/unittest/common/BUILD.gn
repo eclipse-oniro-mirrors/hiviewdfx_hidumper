@@ -96,6 +96,12 @@ ohos_unittest("HidumperDumpersTest") {
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
+
+  defines = []
+  if (hidumper_ability_runtime_enable) {
+    external_deps += [ "ability_runtime:app_manager" ]
+    defines += [ "HIDUMPER_ABILITY_RUNTIME_ENABLE" ]
+  }
 }
 
 ohos_unittest("HidumperOutputTest") {
@@ -121,26 +127,14 @@ ohos_unittest("HidumperOutputTest") {
 ohos_unittest("HidumperConfigUtilsTest") {
   module_out_path = module_output_path
 
-  sources = [
-    "${hidumper_service_path}/native/src/dump_common_utils.cpp",
-    "${source_path}/dump_utils.cpp",
-    "${source_path}/src/common/dump_cfg.cpp",
-    "${source_path}/src/common/dumper_parameter.cpp",
-    "${source_path}/src/common/option_args.cpp",
-    "${source_path}/src/util/config_data.cpp",
-    "${source_path}/src/util/config_utils.cpp",
-    "${source_path}/src/util/file_utils.cpp",
-    "${source_path}/src/util/string_utils.cpp",
-    "${source_path}/src/util/zip/zip_writer.cpp",
-    "hidumper_configutils_test.cpp",
-  ]
+  sources = [ "hidumper_configutils_test.cpp" ]
 
   configs = [
     "${hidumper_utils_path}:utils_config",
     ":module_private_config",
   ]
 
-  deps = []
+  deps = [ "${hidumper_service_path}:hidumperservice_source" ]
 
   external_deps = [
     "c_utils:utils",
@@ -173,6 +167,37 @@ ohos_unittest("MemoryDumperTest") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
+  ]
+  cflags = [
+    "-Dprivate=public",  #allow test code access private members
+  ]
+}
+
+ohos_unittest("HidumperMemoryTest") {
+  module_out_path = module_output_path
+
+  sources = [
+    "hidumper_memory_test.cpp",
+    "hidumper_test_utils.cpp",
+  ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    #"${hidumper_service_path}:hidumperservice_source",
+    "${hidumper_service_path}:hidumpermemory_source",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
+    "hdf_core:libhdf_utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+  ]
+  cflags = [
+    "-Dprivate=public",  #allow test code access private members
   ]
 }
 
@@ -310,6 +335,7 @@ ohos_unittest("HidumperClientTest") {
   ]
 
   external_deps = [
+    "ability_runtime:app_manager",
     "c_utils:utils",
     "hilog:libhilog",
     "init:libbegetutil",
@@ -317,6 +343,52 @@ ohos_unittest("HidumperClientTest") {
     "samgr:samgr_proxy",
   ]
 
+  cflags = [
+    "-Dprivate=public",  #allow test code access private members
+  ]
+}
+
+ohos_unittest("HidumperZidlTest") {
+  module_out_path = module_output_path
+
+  sources = [ "hidumper_zidl_test.cpp" ]
+
+  configs = [
+    ":module_private_config",
+    "${hidumper_service_path}:zidl_config",
+  ]
+
+  deps = [ "${hidumper_service_path}:zidl_service" ]
+
+  external_deps = [
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+  cflags = [
+    "-Dprivate=public",  #allow test code access private members
+  ]
+}
+
+ohos_unittest("HidumperCpuZidlTest") {
+  module_out_path = module_output_path
+
+  sources = [
+    "${hidumper_service_path}/native/src/dump_cpu_data.cpp",
+    "hidumper_cpu_zidl_test.cpp",
+  ]
+
+  configs = [
+    ":module_private_config",
+    "${hidumper_service_path}:dump_cpu_config",
+    "${hidumper_service_path}:zidl_config",
+  ]
+
+  deps = [ "${hidumper_service_path}:zidl_cpu_service" ]
+
+  external_deps = [
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
   cflags = [
     "-Dprivate=public",  #allow test code access private members
   ]
@@ -334,9 +406,11 @@ group("unittest") {
     ":HidumperDumpersTest",
     ":HidumperInnerkitsTest",
     ":HidumperManagerTest",
+    ":HidumperMemoryTest",
     ":HidumperOutputTest",
     ":HidumperPrivacyTest",
     ":HidumperServiceTest",
+    ":HidumperZidlTest",
     ":MemoryDumperTest",
     ":SADumperTest",
   ]

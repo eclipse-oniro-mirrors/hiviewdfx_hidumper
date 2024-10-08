@@ -21,12 +21,14 @@
 #include "executor/cpu_dumper.h"
 #include "executor/file_stream_dumper.h"
 #include "executor/ipc_stat_dumper.h"
+#include "executor/jsheap_memory_dumper.h"
 #include "executor/list_dumper.h"
 #include "executor/sa_dumper.h"
 #include "executor/version_dumper.h"
 #include "executor/traffic_dumper.h"
 #include "util/config_utils.h"
 #include "util/string_utils.h"
+#include "manager/dump_implement.h"
 #undef private
 
 using namespace std;
@@ -383,6 +385,20 @@ HWTEST_F(HidumperDumpersTest, CMDDumperTest002, TestSize.Level3)
 }
 
 /**
+ * @tc.name: CMDDumperTest003
+ * @tc.desc: CMD Dumper GetCmdInterface.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, CMDDumperTest003, TestSize.Level3)
+{
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    auto cmdDumper = std::make_shared<CMDDumper>();
+
+    int ret = cmdDumper->GetCmdInterface("hidumper --mem 1", dumpDatas);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
  * @tc.name: MemoryDumperTest001
  * @tc.desc: Test MemoryDumper one process has correct ret.
  * @tc.type: FUNC
@@ -610,5 +626,79 @@ HWTEST_F(HidumperDumpersTest, IpcStatDumperTest008, TestSize.Level1)
     ipcStatDumper->SendErrorMessage("ptrReqCtl_ test");
     ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
 }
+
+/**
+ * @tc.name: IpcStatDumperTest009
+ * @tc.desc: Test IpcDumper DoDumpIpcStat with sa nullptr.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, IpcStatDumperTest009, TestSize.Level1)
+{
+    auto ipcStatDumper = std::make_shared<IPCStatDumper>();
+    sptr<IRemoteObject> sa = nullptr;
+    DumpStatus ret = ipcStatDumper->DoDumpIpcStat(sa);
+    ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
+}
+
+
+/**
+ * @tc.name: IpcStatDumperTest009
+ * @tc.desc: Test IpcDumper with invalid rawParamFd.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, IpcStatDumperTest010, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--ipc"),
+        const_cast<char *>("1"),
+        const_cast<char *>("--start-stat"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: JsHeapDumperTest001
+ * @tc.desc: Test JsHeapDumper with init pid
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, JsHeapDumperTest001, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--mem-jsheap"),
+        const_cast<char *>("1"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: JsHeapDumperTest002
+ * @tc.desc: Test JsHeapDumper with init pid and trigger gc.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, JsHeapDumperTest002, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--mem-jsheap"),
+        const_cast<char *>("1"),
+        const_cast<char *>("--gc"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
 } // namespace HiviewDFX
 } // namespace OHOS
