@@ -116,6 +116,7 @@ int32_t DumpManagerService::OnIdle(const SystemAbilityOnDemandReason& idleReason
 
     if (idleReason.GetId() == OnDemandReasonId::INTERFACE_CALL) {
         if (GetRequestSum() == 0) {
+            started_ = false;
             return UNLOAD_IMMEDIATELY;
         } else {
             GetIdleRequest();
@@ -156,6 +157,7 @@ int32_t DumpManagerService::Request(std::vector<std::u16string> &args, int outfd
         return DumpStatus::DUMP_FAIL;
     }
     if (!started_) {
+        DUMPER_HILOGE(MODULE_SERVICE, "hidumper_service has stopped.");
         return DumpStatus::DUMP_FAIL;
     }
     int32_t uid = IPCSkeleton::GetCallingUid();
