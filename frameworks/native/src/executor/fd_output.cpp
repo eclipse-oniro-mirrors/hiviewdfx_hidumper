@@ -94,7 +94,7 @@ void FDOutput::WriteToFd(std::string &str)
             DUMPER_HILOGE(MODULE_COMMON, "write to rawParamFd failed, errno: %{public}d", errno);
         }
         if (fsync(rawParamFd) == -1) {
-            DUMPER_HILOGE(MODULE_COMMON, "fsync to rawParamFd failed, errno: %{public}d", errno);
+            DUMPER_HILOGD(MODULE_COMMON, "fsync to rawParamFd failed, errno: %{public}d", errno);
         }
     }
     if (fd_ > -1) {
