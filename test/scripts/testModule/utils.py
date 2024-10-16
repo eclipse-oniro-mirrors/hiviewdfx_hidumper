@@ -16,39 +16,34 @@
 import os
 import zipfile
 import subprocess
+import re
 
-def check_output(output, check_function):
-    """
-    description: 检查输出是否符合要求
-    output: str, the output of the program to be checked
-    check_function: 校验函数，校验output输出是否符合要求，是则返回True，否则返回False
-    """
-    return check_function(output)
+OUTPUT_PATH = "testModule/output"
 
-def check_file(file_path, check_function):
+def checkFile(filePath, checkFunction):
     """
     description: 首先检查文件是否存在，然后检查文件内容是否符合要求
     file_path: str, the path of the file to be checked
     check_function: 校验函数，校验file_path文件内容是否符合要求，是则返回True，否则返回False
     """
-    assert os.path.exists(file_path), f"The file {file_path} does not exist."
-    with open(file_path, "r", encoding="utf-8") as f:
+    assert os.path.exists(filePath), f"The file {filePath} does not exist."
+    with open(filePath, "r", encoding="utf-8") as f:
         output = f.read()
-    return check_output(output, check_function)
+    return checkFunction(output)
 
-def check_zip_file(zip_file_path, check_function):
+def checkZipFile(zipFilePath, checkFunction):
     """
     description: 首先检查zip文件是否存在，然后解压文件，并检查解压后的log.txt文件内容是否符合要求
     check_function: 校验函数，校验解压后的log.txt文件内容是否符合要求，是则返回True，否则返回False
     """
-    assert os.path.exists(zip_file_path), f"The file {zip_file_path} does not exist."
-    with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
+    assert os.path.exists(zipFilePath), f"The file {zipFilePath} does not exist."
+    with zipfile.ZipFile(zipFilePath, 'r') as zip_ref:
         # 解压所有文件到指定目录
-        dirname = os.path.dirname(zip_file_path)
+        dirname = os.path.dirname(zipFilePath)
         zip_ref.extractall(dirname)
         with open(f"{dirname}/log.txt", "r", encoding="utf-8") as f:
             output = f.read()
-    return check_output(output, check_function)
+    return checkFunction(output)
 
 def print_check_result(func):
     def wrapper(*args, **kwargs):
@@ -60,9 +55,9 @@ def print_check_result(func):
         return ret
     return wrapper
 
-def get_pid_by_process_name(process_name):
+def GetPidByProcessName(processName):
     pid = None
-    cmd = f"hdc shell \"pidof {process_name}\""
+    cmd = f"hdc shell \"pidof {processName}\""
     try:
         pid = subprocess.check_output(cmd, shell=True, encoding="utf-8", text=True)
         pid = int(pid.strip())
@@ -89,3 +84,19 @@ def convert_string_to_matrix(data : str) -> list:
         row = [int(col.strip()) for col in line.split()]
         matrix.append(row)
     return matrix
+
+def CheckCmd(command, checkFunction):
+    output = subprocess.check_output(f"hdc shell \"{command}\"", shell=True, text=True, encoding="utf-8")
+    assert checkFunction(output)
+
+def CheckCmdRedirect(command, checkFunction, filePath = None):
+    filePath = f"{OUTPUT_PATH}/hidumper_redirect.txt" if filePath is None else filePath
+    subprocess.check_output(f"hdc shell \"{command}\" > {filePath}", shell=True, text=True, encoding="utf-8")
+    assert checkFile(filePath, checkFunction = checkFunction)
+
+def CheckCmdZip(command, checkFunction):
+    output = subprocess.check_output(f"hdc shell \"{command} --zip\"", shell=True, text=True, encoding="utf-8")
+    zipSourceFile = re.search("The result is:(.+)", output).group(1).strip()
+    zipTargetFile = f"{OUTPUT_PATH}/" + os.path.basename(zipSourceFile)
+    subprocess.check_output(f"hdc file recv {zipSourceFile} {zipTargetFile}", shell=True, text=True, encoding="utf-8")
+    assert checkZipFile(zipTargetFile, checkFunction = checkFunction)

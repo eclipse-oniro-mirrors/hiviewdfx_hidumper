@@ -14,13 +14,8 @@
 # limitations under the License.
 
 import pytest
-import csv
-import subprocess
 import re
-import os
 from utils import *
-
-OUTPUT_PATH = "testModule/output"
 
 @print_check_result
 def CheckBuildId(output) -> bool:
@@ -87,53 +82,51 @@ def CheckVmallocinfo(output) -> bool:
     ret = re.search("/proc/vmallocinfo\n\n([^\n]+)\n", output)
     return ret is not None
 
-def check_hidumper_c_output(output):
-    results = [check(output) for check in [CheckBuildId, CheckOsVersion, CheckProcVersion, CheckCmdline, CheckWakeUpSource, 
-                                      CheckUpTime, CheckPrintEnv, CheckLsmod, CheckSlabinfo, CheckZoneinfo, CheckVmstat, CheckVmallocinfo]]
-    return all(results)
+
+def CheckHidumperHelpOutput(output):
+    return "usage:" in output
 
 class TestBaseCommand:
-    @classmethod
-    def setup_class(cls):
-        cls.commands = []
-        cls.re_patterns = []
-        with open('./testModule/resource/testdata.csv', encoding="utf-8", newline='') as csvfile:
-                reader = csv.DictReader(csvfile)
-                for row in reader:
-                    cls.commands.append(row["command"].strip())
-                    cls.re_patterns.append(row["re_pattern"].strip())
-        
+
     @pytest.mark.L0
-    def test_base_command(self):
-        for cmd,pattern in zip(self.commands,self.re_patterns):
-            try:
-                # 执行命令并捕获输出
-                output = subprocess.check_output(cmd, shell=True, text=True, encoding="utf-8")
-                # 检查输出是否包含断言字符串
-                if output and re.search(pattern, output):
-                    print(f"Test passed for command: {cmd}")
-                else:
-                    raise AssertionError(f"Test failed for command: {cmd}")
-            except subprocess.CalledProcessError as e:
-                print(f"Command failed: {cmd}\nError: {e}")
-            except AssertionError as e:
-                print(e)
+    def test_hidumper_help(self):
+        # 校验命令行输出
+        CheckCmd("hidumper -h", lambda output : "usage:" in output)
+        # 校验命令行重定向输出
+        CheckCmdRedirect("hidumper -h", lambda output : "usage:" in output)
 
     @pytest.mark.L0
     def test_hidumper_c_all(self):
+        CheckFunc = lambda output : all([check(output) for check in [CheckBuildId, CheckOsVersion, CheckProcVersion,
+                                                                    CheckCmdline, CheckUpTime, CheckPrintEnv, CheckLsmod,
+                                                                    CheckSlabinfo, CheckZoneinfo, CheckVmstat, CheckVmallocinfo]])
         # 校验命令行输出
-        output = subprocess.check_output(f"hdc shell \"hidumper -c\"", shell=True, text=True, encoding="utf-8")
-        assert check_output(output, check_function = check_hidumper_c_output)
-
+        CheckCmd("hidumper -c", CheckFunc)
         # 校验命令行重定向输出
-        redirect_file = f"{OUTPUT_PATH}/hidumper_c_redirect.txt"
-        subprocess.check_output(f"hdc shell \"hidumper -c\" > {redirect_file}", shell=True, text=True, encoding="utf-8")
-        assert check_file(redirect_file, check_function = check_hidumper_c_output)
-
+        CheckCmdRedirect("hidumper -c", CheckFunc)
         # 校验命令行输出到zip文件
-        output = subprocess.check_output(f"hdc shell \"hidumper -c --zip\"", shell=True, text=True, encoding="utf-8")
-        zip_source_file = re.search("The result is:(.+)", output).group(1)
-        zip_target_file = f"{OUTPUT_PATH}/" + os.path.basename(zip_source_file)
-        subprocess.check_output(f"hdc file recv {zip_source_file} {zip_target_file}", shell=True, text=True, encoding="utf-8")
-        assert check_zip_file(zip_target_file, check_function = check_hidumper_c_output)
+        CheckCmdZip("hidumper -c", CheckFunc)
+
+    @pytest.mark.L0
+    def test_hidumper_c_base(self):
+        command = "hidumper -c base"
+        CheckFunc = lambda output : all([check(output) for check in [CheckBuildId, CheckOsVersion, CheckProcVersion, CheckCmdline, CheckUpTime]])
+        # 校验命令行输出
+        CheckCmd(command, CheckFunc)
+        # 校验命令行重定向输出
+        CheckCmdRedirect(command, CheckFunc)
+        # 校验命令行输出到zip文件
+        CheckCmdZip(command, CheckFunc)
+
+    @pytest.mark.L0
+    def test_hidumper_c_system(self):
+        command = "hidumper -c system"
+        CheckFunc = lambda output : all([check(output) for check in [CheckPrintEnv, CheckLsmod, CheckSlabinfo, CheckZoneinfo, CheckVmstat, CheckVmallocinfo]])
+        # 校验命令行输出
+        CheckCmd(command, CheckFunc)
+        # 校验命令行重定向输出
+        CheckCmdRedirect(command, CheckFunc)
+        # 校验命令行输出到zip文件
+        CheckCmdZip(command, CheckFunc)
+
 

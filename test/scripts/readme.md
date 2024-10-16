@@ -23,10 +23,7 @@
 ```
 
 # 测试用例编写
-## 简单校验
-将命令和校验正则表达式写入csv文件
-## 复杂校验
-### 1. 新建测试文件
+### 1. 新建测试套（py文件）
 ```
 # test_base_command.py
 class TestBaseCommand:
@@ -47,7 +44,7 @@ class TestBaseCommand:
         subprocess.check_output(f"hdc file recv {hidumper_c_zip_source_file} {hidumper_c_zip_target_file}", shell=True, text=True, encoding="utf-8")
         assert check_zip_file(hidumper_c_zip_target_file, check_function = check_hidumper_c_output)
 ```
-### 2. 编写校验函数
+### 2. 编写测试用例
 ```
 # test_base_command.py
 # 自定义校验函数
@@ -65,7 +62,6 @@ def CheckWakeUpSource(output) -> bool:
 ......
 
 def check_hidumper_c_output(output):
-def check_hidumper_c_output(output):
     results = [check(output) for check in [CheckBuildId, CheckOsVersion, CheckProcVersion, CheckCmdline, CheckWakeUpSource, 
                                       CheckUpTime, CheckPrintEnv, CheckLsmod, CheckSlabinfo, CheckZoneinfo, CheckVmstat, CheckVmallocinfo]]
     return all(results)
@@ -82,22 +78,24 @@ windows环境下执行测试用例：
 执行参数在pytest.main中配置
 
 ### 方式二：
-执行所有用例
+- 执行所有用例
     ```
     pytest ./
     ```
-执行指定测试文件
+- 执行指定测试文件
     ```
     pytest ./testModule/test_base_command.py
     ```
-执行指定测试用例
+- 执行指定测试用例
     ```
     pytest  -k "test_hidumper_c_all"
     ```
-执行模糊匹配test_hidumper_c所有用例
+- 执行模糊匹配test_hidumper_c所有用例
     ```
     pytest  -k "test_hidumper_c"
     ```
+    
+> **user设备需要将预先准备好的测试hap包推入resource目录，会自动安装和启动**
 
 ## 测试报告
 执行python main.py后，会在reports目录下生成测试报告

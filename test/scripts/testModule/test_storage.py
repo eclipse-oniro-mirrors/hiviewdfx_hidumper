@@ -14,12 +14,8 @@
 # limitations under the License.
 
 import pytest
-import csv
-import subprocess
 import re
 from utils import *
-
-OUTPUT_PATH = "testModule/output"
 
 @print_check_result
 def check_df_k(output):
@@ -41,25 +37,32 @@ def check_proc_mount(output):
     result = re.search("/proc/mounts\n\n([^\n]+\n){4,}", output)
     return result is not None
 
-def check_storage_all(output):
-    results = [check(output) for check in [check_df_k, check_lsof, check_iotop, check_proc_mount]]
-    return all(results)
+def CheckStorageWithoutPid(output):
+    ret = all(check(output) for check in [check_df_k, check_lsof, check_iotop, check_proc_mount])
+    return ret
+
+def CheckStorageWithPid(output):
+    result = re.search("/proc/\d+/io\n\n([^\n]+\n){2,}", output)
+    return result is not None
 
 class TestHidumperStorage:
     @pytest.mark.L0
     def test_storage_all(self):
+        command = "hidumper --storage"
         # 校验命令行输出
-        output = subprocess.check_output(f"hdc shell \"hidumper --storage\"", shell=True, text=True, encoding="utf-8")
-        assert check_output(output, check_function = check_storage_all)
-
+        CheckCmd(command, CheckStorageWithoutPid)
         # 校验命令行重定向输出
-        redirect_file = f"{OUTPUT_PATH}/redirect.txt"
-        subprocess.check_call(f"hdc shell \"hidumper --storage\" > {redirect_file}", shell=True, text=True, encoding="utf-8")
-        assert check_file(redirect_file, check_function = check_storage_all)
-
+        CheckCmdRedirect(command, CheckStorageWithoutPid)
         # 校验命令行输出到zip文件
-        output = subprocess.check_output(f"hdc shell \"hidumper --storage --zip\"", shell=True, text=True, encoding="utf-8")
-        zip_source_file = re.search("The result is:(.+)", output).group(1)
-        zip_target_file = f"{OUTPUT_PATH}/" + os.path.basename(zip_source_file)
-        subprocess.check_output(f"hdc file recv {zip_source_file} {zip_target_file}", shell=True, text=True, encoding="utf-8")
-        assert check_zip_file(zip_target_file, check_function = check_storage_all)
+        CheckCmdZip(command, CheckStorageWithoutPid)
+
+    @pytest.mark.L0
+    @pytest.mark.skip("to be fixed")
+    def test_storage_pid(self):
+        command = f"hidumper --storage 1"
+        # 校验命令行输出
+        CheckCmd(command, CheckStorageWithPid)
+        # 校验命令行重定向输出
+        CheckCmdRedirect(command, CheckStorageWithPid)
+        # 校验命令行输出到zip文件
+        CheckCmdZip(command, CheckStorageWithPid)

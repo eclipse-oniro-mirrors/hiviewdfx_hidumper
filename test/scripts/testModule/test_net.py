@@ -12,48 +12,52 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import pytest
-import subprocess
 import re
 from utils import *
 
-OUTPUT_PATH = "testModule/output"
+@print_check_result
+def CheckNetTraffic(output):
+    result = re.search("Received Bytes:\d+\nSent Bytes:\d+\n", output)
+    return result is not None
 
 @print_check_result
-def check_netstat(output):
+def CheckNetstat(output):
     result = re.search("Proto RefCnt Flags\s+Type\s+State\s+I-Node Path\n([^\n]+\n){4,}", output)
     return result is not None
 
 @print_check_result
-def check_net_dev(output):
+def CheckNetDev(output):
     result = re.search("face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compresse\n([^\n]+\n){4,}", output)
     return result is not None
 
 @print_check_result
-def check_ifconfig(output):
-    result = re.search("\s*eth0\s*Link encap", output)
+def CheckIfconfig(output):
+    result = re.search("cmd is: ifconfig -a\n\n([^\n]+){4,}\n", output)
     return result is not None
 
-def check_net_all_output(output):
-    ret = all([check_netstat(output), check_net_dev(output), check_ifconfig(output)])
+def CheckNetAllOutput(output):
+    ret = all([CheckNetTraffic(output), CheckNetstat(output), CheckNetDev(output), CheckIfconfig(output)])
     return ret
 
 class TestHidumperNet:
 
     @pytest.mark.L0
     def test_net_all(self):
-        output = subprocess.check_output(f"hdc shell \"hidumper --net\"", shell=True, text=True, encoding="utf-8")
-        assert check_output(output, check_function = check_net_all_output)
-
+        command = f"hidumper --net"
+        # 校验命令行输出
+        CheckCmd(command, CheckNetAllOutput)
         # 校验命令行重定向输出
-        redirect_file = f"{OUTPUT_PATH}/redirect.txt"
-        subprocess.check_output(f"hdc shell \"hidumper --net\" > {redirect_file}", shell=True, text=True, encoding="utf-8")
-        assert check_file(redirect_file, check_function = check_net_all_output)
-
+        CheckCmdRedirect(command, CheckNetAllOutput)
         # 校验命令行输出到zip文件
-        output = subprocess.check_output(f"hdc shell \"hidumper --net --zip\"", shell=True, text=True, encoding="utf-8")
-        zip_source_file = re.search("The result is:(.+)", output).group(1)
-        zip_target_file = f"{OUTPUT_PATH}/" + os.path.basename(zip_source_file)
-        subprocess.check_output(f"hdc file recv {zip_source_file} {zip_target_file}", shell=True, text=True, encoding="utf-8")
-        assert check_zip_file(zip_target_file, check_function = check_net_all_output)
+        CheckCmdZip(command, CheckNetAllOutput)
+
+    @pytest.mark.L0
+    def test_net_pid(self):
+        command = f"hidumper --net `pidof samgr`"
+        # 校验命令行输出
+        CheckCmd(command, CheckNetTraffic)
+        # 校验命令行重定向输出
+        CheckCmdRedirect(command, CheckNetTraffic)
+        # 校验命令行输出到zip文件
+        CheckCmdZip(command, CheckNetTraffic)

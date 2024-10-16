@@ -12,28 +12,30 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import pytest
 import subprocess
 import re
 from utils import *
 
-def check_ipc_stat(output):
+def CheckIpcStat(output):
     result = re.search("CurrentPid:\d+\nTotalCount:\d+\nTotalTimeCost:\d+", output)
     return result is not None
+
+def CheckIpcStartAll(output):
+    pass
 
 class TestHidumperIpc:
 
     @pytest.mark.L0
-    def test_ipc_start_pid(self):
+    def test_ipc_stat(self):
         # 校验命令行输出
-        pid = get_pid_by_process_name("samgr")
+        pid = GetPidByProcessName("samgr")
         output = subprocess.check_output(f"hdc shell hidumper --ipc {pid} --start-stat", shell=True, text=True, encoding="utf-8")
         assert "success" in output
 
-        output = subprocess.check_output(f"hdc shell hidumper --ipc {pid} --stat", shell=True, text=True, encoding="utf-8")
-        assert check_output(output, check_function = check_ipc_stat)
+        command = f"hidumper --ipc {pid} --stat"
+        CheckCmd(command, CheckIpcStat)
+        CheckCmdRedirect(command, CheckIpcStat)
 
         output = subprocess.check_output(f"hdc shell hidumper --ipc {pid} --stop-stat", shell=True, text=True, encoding="utf-8")
         assert "success" in output
-
