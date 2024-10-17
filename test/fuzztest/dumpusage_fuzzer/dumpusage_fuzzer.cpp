@@ -85,6 +85,9 @@ namespace OHOS {
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
+    if (data == nullptr || size == 0) {
+        return 0;
+    }
     /* Run your code on data */
     OHOS::GetCpuUsageFuzzTest(data, size);
     OHOS::GetPssFuzzTest(data, size);
