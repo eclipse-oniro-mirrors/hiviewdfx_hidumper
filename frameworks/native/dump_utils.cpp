@@ -21,6 +21,7 @@
 #include <set>
 #include <map>
 #include <sys/stat.h>
+#include <sys/utsname.h>
 #include <unistd.h>
 #include <fstream>
 #include <iostream>
@@ -480,6 +481,17 @@ bool DumpUtils::CheckAppDebugVersion(int pid)
     DUMPER_HILOGD(MODULE_COMMON, "debug|pid %{public}d %{public}s DebugVersion false", pid, appName.c_str());
     return false;
 #endif
+}
+
+bool DumpUtils::IsHmKernel()
+{
+    bool isHM = false;
+    utsname unameBuf;
+    if ((uname(&unameBuf)) == 0) {
+        std::string osRelease = unameBuf.release;
+        isHM = osRelease.find("HongMeng") != std::string::npos;
+    }
+    return isHM;
 }
 } // namespace HiviewDFX
 } // namespace OHOS

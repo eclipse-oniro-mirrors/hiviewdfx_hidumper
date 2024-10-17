@@ -171,5 +171,18 @@ HWTEST_F(SADumperTest, SADumperTest010, TestSize.Level3)
     std::string str = "Graphic";
     ASSERT_FALSE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
 }
+
+/**
+ * @tc.name: SADumperTest011
+ * @tc.desc: Test SA AbilityManagerService result contain "AppRunningRecord".
+ * @tc.type: FUNC
+ * @tc.require: issueI5NWZQ
+ */
+HWTEST_F(SADumperTest, SADumperTest011, TestSize.Level3)
+{
+    std::string cmd = "hidumper -s AbilityManagerService -a '-a'";
+    std::string str = "AppRunningRecord";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+}
 } // namespace HiviewDFX
 } // namespace OHOS

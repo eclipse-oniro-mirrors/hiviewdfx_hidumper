@@ -51,6 +51,7 @@ public:
     static bool IsCommercialVersion();
     static bool IsUserMode();
     static bool CheckAppDebugVersion(int pid);
+    static bool IsHmKernel();
 
     static constexpr int TOP_PRIORITY = -20;
     static constexpr int TOP_OOM_ADJ = -1000;

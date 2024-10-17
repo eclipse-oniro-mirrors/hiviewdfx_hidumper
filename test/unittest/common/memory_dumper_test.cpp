@@ -22,10 +22,12 @@
 #include "executor/memory_dumper.h"
 #undef private
 #include "dump_client_main.h"
+#include "dump_utils.h"
 #include "hdf_base.h"
 #include "executor/memory/memory_filter.h"
 #include "executor/memory/memory_util.h"
 #include "hidumper_test_utils.h"
+#include "util/string_utils.h"
 
 using namespace testing::ext;
 using namespace OHOS::HDI::Memorytracker::V1_0;
@@ -121,6 +123,10 @@ HWTEST_F(MemoryDumperTest, MemoryDumperTest005, TestSize.Level3)
     std::string cmd = "hidumper --mem";
     std::string str = "Total Purgeable";
     ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+    str = "Total PurgSum";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+    str = "Total PurgPin";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
 }
 
 /**
@@ -147,6 +153,84 @@ HWTEST_F(MemoryDumperTest, MemoryDumperTest007, TestSize.Level3)
     std::string cmd = "hidumper --mem --zip";
     std::string str = "Total Memory Usage by PID";
     ASSERT_FALSE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+}
+
+/**
+ * @tc.name: MemoryDumperTest008
+ * @tc.desc: Test dma is equal graph.
+ * @tc.type: FUNC
+ * @tc.require: issueI5NWZQ
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest008, TestSize.Level3)
+{
+    auto rsPid = static_cast<int32_t>(HidumperTestUtils::GetInstance().GetPidByName("render_service"));
+    int pid = rsPid > 0 ? rsPid : 1;
+    ASSERT_GT(pid, 0);
+    std::string cmd = "hidumper --mem " + std::to_string(pid);
+    std::string str = "Graph";
+    std::string result = "";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().GetSpecialLine(cmd, str, result));
+    std::string graphPss = HidumperTestUtils::GetInstance().GetValueInLine(result, 1);
+    ASSERT_TRUE(IsNumericStr(graphPss));
+    str = "Dma";
+    result = "";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().GetSpecialLine(cmd, str, result));
+    vector<string> values;
+    StringUtils::GetInstance().StringSplit(result, ":", values); // Dma:0 kB
+    std::string dmaStr = "";
+    if (!values.empty() && values.size() >= 2) { // 2: Dma, 0 kB
+        dmaStr = values[1];
+        if (dmaStr.size() >= 3) {
+            dmaStr = dmaStr.substr(0, dmaStr.size() - 4);  // 4: ' kB' + 1(index from to 0,1,2...)
+            ASSERT_TRUE(IsNumericStr(dmaStr));
+        }
+    }
+    ASSERT_TRUE(graphPss == dmaStr);
+}
+
+/**
+ * @tc.name: MemoryDumperTest009
+ * @tc.desc: Test GL not out of bounds.
+ * @tc.type: FUNC
+ * @tc.require: issueI5NWZQ
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest009, TestSize.Level3)
+{
+    auto rsPid = static_cast<int32_t>(HidumperTestUtils::GetInstance().GetPidByName("render_service"));
+    int pid = rsPid > 0 ? rsPid : 1;
+    ASSERT_GT(pid, 0);
+    std::string cmd = "hidumper --mem " + std::to_string(pid);
+    std::string str = "GL";
+    std::string result = "";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().GetSpecialLine(cmd, str, result));
+    std::string glPss = HidumperTestUtils::GetInstance().GetValueInLine(result, 1);
+    ASSERT_TRUE(IsNumericStr(glPss));
+    uint64_t gl = static_cast<uint64_t>(std::stoi(glPss));
+    ASSERT_FALSE(gl < 0 || gl > UINT64_MAX);
+}
+
+/**
+ * @tc.name: MemoryDumperTest010
+ * @tc.desc: Test HeapSize for "hidumper --mem `pidof com.ohos.sceneboard`"".
+ * @tc.type: FUNC
+ * @tc.require: issueI5NWZQ
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest010, TestSize.Level3)
+{
+    auto sceneboardPid = static_cast<int32_t>(HidumperTestUtils::GetInstance().GetPidByName("com.ohos.sceneboard"));
+    int pid = sceneboardPid > 0 ? sceneboardPid : 1;
+    ASSERT_GT(pid, 0);
+    std::string cmd = "hidumper --mem " + std::to_string(pid);
+    std::string str = "native heap";
+    std::string result = "";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().GetSpecialLine(cmd, str, result));
+    // 9: HeapSize index
+    std::string nativeHeapSizeStr = HidumperTestUtils::GetInstance().GetValueInLine(result, 9);
+    ASSERT_TRUE(IsNumericStr(nativeHeapSizeStr));
+    if (DumpUtils::IsHmKernel()) {
+        uint64_t nativeHeapSize = static_cast<uint64_t>(std::stoi(nativeHeapSizeStr));
+        ASSERT_TRUE(nativeHeapSize > 0);
+    }
 }
 
 /**
