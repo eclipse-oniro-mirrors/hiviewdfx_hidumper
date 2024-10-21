@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include <fstream>
+#include <sstream>
 #include "hidumper_test_utils.h"
 
 using namespace std;
@@ -28,19 +29,8 @@ HidumperTestUtils::~HidumperTestUtils()
 
 bool HidumperTestUtils::IsExistInCmdResult(const std::string &cmd, const std::string &str)
 {
-    bool res = false;
-    size_t len = 0;
-    FILE *fp = popen(cmd.c_str(), "r");
-    char* buffer = nullptr;
-    while (getline(&buffer, &len, fp) != -1) {
-        std::string line = buffer;
-        if (line.find(str) != string::npos) {
-            res = true;
-            break;
-        }
-    }
-    pclose(fp);
-    return res;
+    std::string line = "";
+    return GetSpecialLine(cmd, str, line);
 }
 
 bool HidumperTestUtils::IsExistStrInFile(const std::string &cmd, const std::string &str, const std::string &filePath)
@@ -62,6 +52,53 @@ bool HidumperTestUtils::IsExistStrInFile(const std::string &cmd, const std::stri
     }
     file.close();
     return res;
+}
+
+pid_t HidumperTestUtils::GetPidByName(const std::string& processName)
+{
+    FILE *fp = nullptr;
+    char buf[100]; // 100: buf size
+    pid_t pid = -1;
+    std::string cmd = "pidof " + processName;
+    if ((fp = popen(cmd.c_str(), "r")) != nullptr) {
+        if (fgets(buf, sizeof(buf), fp) != nullptr) {
+            pid = std::atoi(buf);
+        }
+        pclose(fp);
+    }
+    return pid;
+}
+
+bool HidumperTestUtils::GetSpecialLine(const std::string &cmd, const std::string &str, std::string &specialLine)
+{
+    bool res = false;
+    size_t len = 0;
+    FILE *fp = popen(cmd.c_str(), "r");
+    char* buffer = nullptr;
+    while (getline(&buffer, &len, fp) != -1) {
+        std::string line = buffer;
+        if (line.find(str) != string::npos) {
+            res = true;
+            specialLine = line;
+            break;
+        }
+    }
+    pclose(fp);
+    return res;
+}
+
+std::string HidumperTestUtils::GetValueInLine(const std::string &line, int index)
+{
+    std::istringstream iss(line);
+    std::vector<std::string> tokens;
+    std::string token;
+    while (iss >> token) {
+        tokens.push_back(token);
+    }
+    if (index < tokens.size()) {
+        return tokens[index];
+    }
+    return "";
 }
 } // namespace HiviewDFX
 } // namespace OHOS

@@ -54,10 +54,12 @@ bool FileUtils::LoadStringFromProcCb(const std::string& path, bool oneLine, bool
 {
     char canonicalPath[PATH_MAX] = {0};
     if (realpath(path.c_str(), canonicalPath) == nullptr) {
+        DUMPER_HILOGE(MODULE_COMMON, "realpath failed, errno=%{public}d, path=%{public}s", errno, path.c_str());
         return false;
     }
     auto fp = std::unique_ptr<FILE, decltype(&fclose)>{fopen(canonicalPath, "re"), fclose};
     if (fp == nullptr) {
+        DUMPER_HILOGE(MODULE_COMMON, "fopen failed, errno=%{public}d, path=%{public}s", errno, path.c_str());
         return false;
     }
     char *lineBuf = nullptr;

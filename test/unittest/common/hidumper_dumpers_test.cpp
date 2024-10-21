@@ -718,5 +718,24 @@ HWTEST_F(HidumperDumpersTest, JsHeapDumperTest003, TestSize.Level1)
     ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
 }
 
+/**
+ * @tc.name: JsHeapDumperTest004
+ * @tc.desc: Test JsHeapDumper with init pid and dump jsleaklist
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, JsHeapDumperTest004, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--mem-jsheap"),
+        const_cast<char *>("1"),
+        const_cast<char *>("--leakobj"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
 } // namespace HiviewDFX
 } // namespace OHOS
