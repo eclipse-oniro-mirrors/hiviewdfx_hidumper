@@ -17,10 +17,19 @@ import pytest
 import re
 from utils import *
 
-OUTPUT_PATH = "testModule/output"
 PSS_TOTAL_INDEX = 0
 SWAP_PSS_INDEX = 6
 COLUMN_NUM = 10
+
+def WaitUntillOutputAppear(command, targetStr, second):
+    time.sleep(1)
+    command = None
+    if IsRootVersion():
+        command = "hdc shell \"ls -l /data/log/faultlog/temp |grep jsheap\""
+    else:
+        command = "hdc shell \"ls -l /data/log/reliability/resource_leak/memory_leak |grep jsheap\""
+    output = subprocess.check_output(command, shell=True, text=True, encoding="utf-8").strip()
+    return output != ""
 
 def ParseMemoryOutput(output):
     memory_data = {}
@@ -96,4 +105,92 @@ class TestHidumperMemory:
         CheckCmdRedirect(command, CheckHidumperMemoryWithPidOutput)
         # 校验命令行输出到zip文件
         CheckCmdZip(command, CheckHidumperMemoryWithPidOutput)
+
+
+class TestHidumperMemoryJsheap:
+    @classmethod
+    def setup_class(cls):
+        if not IsRootVersion():
+            subprocess.check_call("hdc shell aa start -a EntryAbility -b com.example.myapplication", shell=True)
+
+    @classmethod
+    def teardown_class(cls):
+        if not IsRootVersion():
+            subprocess.check_call("hdc shell aa force-stop -b com.example.myapplication", shell=True)
+    
+    def teardown_method(self):
+        if not IsRootVersion():
+            subprocess.check_call("hdc shell \"rm -rf /data/log/reliability/resource_leak/memory_leak/*\"", shell=True)
+        else:
+            subprocess.check_call("hdc shell \"rm -rf /data/log/faultlog/temp/*\"", shell=True)
+
+    @pytest.mark.L0
+    def test_mem_jsheap(self):
+        pid = None
+        if IsOpenHarmonyVersion():
+            pid = GetPidByProcessName("com.ohos.launcher")
+        elif IsRootVersion():
+            pid = GetPidByProcessName("com.ohos.sceneboard")
+        else:
+            pid = GetPidByProcessName("com.example.myapplication")
+            if pid == "":
+                pytest.skip("test application not found")
+        command = f"hdc shell \"hidumper --mem-jsheap {pid}\""
+        # 校验命令行输出
+        subprocess.check_call(command, shell=True)
+        if IsRootVersion():
+            assert WaitUntillOutputAppear("hdc shell \"ls -l /data/log/faultlog/temp |grep jsheap\"", "jsheap", 10)
+        else:
+            assert WaitUntillOutputAppear("hdc shell \"ls -l /data/log/reliability/resource_leak/memory_leak |grep jsheap\"", "jsheap", 10)
+
+    @pytest.mark.L0
+    def test_mem_jsheap_T(self):
+        pid = None
+        if IsOpenHarmonyVersion():
+            pid = GetPidByProcessName("com.ohos.launcher")
+        elif IsRootVersion():
+            pid = GetPidByProcessName("com.ohos.sceneboard")
+        else:
+            pid = GetPidByProcessName("com.example.myapplication")
+            if pid == "":
+                pytest.skip("test application not found")
+        command = f"hdc shell \"hidumper --mem-jsheap {pid} -T {pid}\""
+        # 校验命令行输出
+        subprocess.check_call(command, shell=True)
+        if IsRootVersion():
+            assert WaitUntillOutputAppear("hdc shell \"ls -l /data/log/faultlog/temp |grep jsheap\"", "jsheap", 10)
+        else:
+            assert WaitUntillOutputAppear("hdc shell \"ls -l /data/log/reliability/resource_leak/memory_leak |grep jsheap\"", "jsheap", 10)
+
+    @pytest.mark.L0
+    def test_mem_jsheap_gc(self):
+        pid = None
+        if IsOpenHarmonyVersion():
+            pid = GetPidByProcessName("com.ohos.launcher")
+        elif IsRootVersion():
+            pid = GetPidByProcessName("com.ohos.sceneboard")
+        else:
+            pid = GetPidByProcessName("com.example.myapplication")
+            if pid == "":
+                pytest.skip("test application not found")
+        command = f"hdc shell \"hidumper --mem-jsheap {pid} --gc\""
+        # 校验命令行输出
+        subprocess.check_call(command, shell=True)
+        assert WaitUntillLogAppear("hdc shell \"hilog | grep ArkCompiler\"", f"TriggerGC tid 0 curTid {pid}", 10)
+
+    @pytest.mark.L0
+    def test_mem_jsheap_T_gc(self):
+        pid = None
+        if IsOpenHarmonyVersion():
+            pid = GetPidByProcessName("com.ohos.launcher")
+        elif IsRootVersion():
+            pid = GetPidByProcessName("com.ohos.sceneboard")
+        else:
+            pid = GetPidByProcessName("com.example.myapplication")
+            if pid == "":
+                pytest.skip("test application not found")
+        command = f"hdc shell \"hidumper --mem-jsheap {pid} -T {pid} --gc\""
+        # 校验命令行输出
+        subprocess.check_call(command, shell=True)
+        assert WaitUntillLogAppear("hdc shell \"hilog | grep ArkCompiler\"", f"TriggerGC tid 0 curTid {pid}", 10)
 

@@ -17,6 +17,7 @@ import os
 import zipfile
 import subprocess
 import re
+import time
 
 OUTPUT_PATH = "testModule/output"
 
@@ -60,7 +61,7 @@ def GetPidByProcessName(processName):
     cmd = f"hdc shell \"pidof {processName}\""
     try:
         pid = subprocess.check_output(cmd, shell=True, encoding="utf-8", text=True)
-        pid = int(pid.strip())
+        pid = int(pid.strip().split()[0])
     except subprocess.CalledProcessError as e:
         print(f"Command failed: {cmd}\nError: {e}")
     except Exception as e:
@@ -100,3 +101,34 @@ def CheckCmdZip(command, checkFunction):
     zipTargetFile = f"{OUTPUT_PATH}/" + os.path.basename(zipSourceFile)
     subprocess.check_output(f"hdc file recv {zipSourceFile} {zipTargetFile}", shell=True, text=True, encoding="utf-8")
     assert checkZipFile(zipTargetFile, checkFunction = checkFunction)
+
+def IsLogVersion():
+    output = subprocess.check_output("hdc shell param get const.product.software.version", shell=True, text=True, encoding="utf-8").strip()
+    return "log" in output
+
+def IsRootVersion():
+    output = subprocess.check_output("hdc shell param get const.debuggable", shell=True, text=True, encoding="utf-8").strip()
+    return output == "1"
+
+def IsOpenHarmonyVersion():
+    output = subprocess.check_output("hdc shell param get const.product.software.version", shell=True, text=True, encoding="utf-8").strip()
+    return "OpenHarmony" in output
+
+def WaitUntillLogAppear(command,targetLog, second):
+    process = subprocess.Popen(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        shell=True,
+        text=True
+    )
+    start = time.time()
+    while True:
+        output = process.stdout.readline()
+        if targetLog in output:
+            process.kill()
+            return True
+        now = time.time()
+        if now - start > second:
+            process.kill()
+            return False

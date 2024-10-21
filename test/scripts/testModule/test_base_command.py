@@ -15,6 +15,7 @@
 
 import pytest
 import re
+import subprocess
 from utils import *
 
 @print_check_result
@@ -129,4 +130,26 @@ class TestBaseCommand:
         # 校验命令行输出到zip文件
         CheckCmdZip(command, CheckFunc)
 
+    @pytest.mark.L0
+    def test_hidumper_e(self):
+        command = "hidumper -e"
+        CheckFunc = lambda output : "faultlog" in output
+        # 校验命令行输出
+        CheckCmd(command, CheckFunc)
+        # 校验命令行重定向输出
+        CheckCmdRedirect(command, CheckFunc)
+        # 校验命令行输出到zip文件
+        CheckCmdZip(command, CheckFunc)
+
+    @pytest.mark.L0
+    def test_hidumper_error_option(self):
+        command = "hdc shell \"hidumper -D -h\""
+        output = subprocess.check_output(command, shell=True, encoding="utf-8", text=True)
+        assert "option pid missed." in output
+
+        command = "hdc shell \"hidumper -h -D\""
+        output = subprocess.check_output(command, shell=True, encoding="utf-8", text=True)
+        assert "usage:" in output
+    
+    
 

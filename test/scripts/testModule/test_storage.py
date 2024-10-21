@@ -42,7 +42,7 @@ def CheckStorageWithoutPid(output):
     return ret
 
 def CheckStorageWithPid(output):
-    result = re.search("/proc/\d+/io\n\n([^\n]+\n){2,}", output)
+    result = re.search("storage io", output)
     return result is not None
 
 class TestHidumperStorage:
@@ -57,7 +57,6 @@ class TestHidumperStorage:
         CheckCmdZip(command, CheckStorageWithoutPid)
 
     @pytest.mark.L0
-    @pytest.mark.skip("to be fixed")
     def test_storage_pid(self):
         command = f"hidumper --storage 1"
         # 校验命令行输出

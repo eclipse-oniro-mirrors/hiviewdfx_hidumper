@@ -95,7 +95,7 @@ windows环境下执行测试用例：
     pytest  -k "test_hidumper_c"
     ```
     
-> **user设备需要将预先准备好的测试hap包推入resource目录，会自动安装和启动**
+> **user设备需要将预先准备好的测试hap包推入resource目录，且需要手动跳过开机阶段**
 
 ## 测试报告
 执行python main.py后，会在reports目录下生成测试报告

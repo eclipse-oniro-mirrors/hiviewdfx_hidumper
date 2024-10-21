@@ -32,18 +32,6 @@ def ParseSmapsOutput(output):
         memory_data[key] = [int(val) for val in re.findall(r'\d+', line)]
     return memory_data
 
-def IsLogVersion():
-    output = subprocess.check_output("hdc shell param get const.product.software.version", shell=True, text=True, encoding="utf-8").strip()
-    return "log" in output
-
-def IsRootVersion():
-    output = subprocess.check_output("hdc shell param get const.debuggable", shell=True, text=True, encoding="utf-8").strip()
-    return output == "1"
-
-def IsOpenHarmonyVersion():
-    output = subprocess.check_output("hdc shell param get const.product.software.version", shell=True, text=True, encoding="utf-8").strip()
-    return "OpenHarmony" in output
-
 @print_check_result
 def CheckSmapsTotalPss(memory_data):
     PSS_SUMMARY = memory_data["Summary"][PSS_INDEX]
@@ -81,27 +69,23 @@ def CheckMemSmapsVWithRoot(output):
 def CheckHelpOutput(output):
     return "usage:" in output
 
-def CheckMemJsheap(output):
-    command = None
-    if IsRootVersion():
-        command = "hdc shell \"ls -l /data/log/faultlog/temp |grep jsheap\""
-    else:
-        command = "hdc shell \"ls -l /data/log/reliability/resource_leak/memory_leak |grep jsheap\""
-    output = subprocess.check_output(command, shell=True, text=True, encoding="utf-8").strip()
-    return output != ""
+def CheckNetCmd(output):
+    cmds = ["iptables -L -nvx", "ip6tables -L -nvx", "iptables -t nat -L -nvx", "iptables -t mangle -L -nvx", 
+            "ip6tables -t mangle -L -nvx", "iptables -t raw -L -nvx", "ip6tables -t raw -L -nvx",
+            "ip link", "ip -4 addr show", "ip -6 addr show", "ip rule show", "ip -6 rule show"]
+    ret = all([item in output for item in cmds])
+    return ret
 
 class TestHidumperPermission:
     @classmethod
     def setup_class(cls):
         if not IsRootVersion():
-            subprocess.check_call("hdc install testModule/resource/entry-default-signed.hap", shell=True)
-            time.sleep(1)
             subprocess.check_call("hdc shell aa start -a EntryAbility -b com.example.myapplication", shell=True)
-    
+
     @classmethod
     def teardown_class(cls):
         if not IsRootVersion():
-            subprocess.check_call("hdc uninstall com.example.myapplication", shell=True)
+            subprocess.check_call("hdc shell aa force-stop -b com.example.myapplication", shell=True)
 
     @pytest.mark.L0
     def test_mem_smaps(self):
@@ -174,20 +158,35 @@ class TestHidumperPermission:
         CheckCmdZip(command, CheckFunc)
 
     @pytest.mark.L0
-    def test_mem_jsheap(self):
-        pid = None
-        if IsOpenHarmonyVersion():
-            pid = GetPidByProcessName("com.ohos.launcher")
-        elif IsRootVersion():
-            pid = GetPidByProcessName("com.ohos.sceneboard")
+    def test_hidumper_help(self):
+        if not IsRootVersion():
+            output = subprocess.check_output("hdc shell \"hidumper -h |grep mem\"", shell=True, text=True, encoding="utf-8")
+            assert "--mem [pid]" in output
+    
+    @pytest.mark.L0
+    def test_process_with_non_debug_pid(self):
+        if not IsRootVersion():
+            output = subprocess.check_output("hdc shell \"hidumper -p 1\"", shell=True, text=True, encoding="utf-8")
+            assert "only support debug application" in output
+
+    @pytest.mark.L0
+    def test_output_append(self):
+        if IsRootVersion():
+            command = "hdc shell \"hidumper --mem 1 >> /data/log/hidumper.log\""
+            # 校验命令行输出到zip文件
+            subprocess.check_call(command, shell=True)
+            output = subprocess.check_output("hdc shell ls -l /data/log/hidumper.log", shell=True).decode()
+            assert int(output.strip().split()[4]) > 0
         else:
-            pid = GetPidByProcessName("com.example.myapplication")
-            if pid == "":
-                pytest.skip("test application not found")
-        command = f"hidumper --mem-jsheap {pid}"
-        # 校验命令行输出
-        CheckCmd(command, CheckMemJsheap)
-        # 校验命令行重定向输出
-        CheckCmdRedirect(command, CheckMemJsheap)
-        # 校验命令行输出到zip文件
-        CheckCmdZip(command, CheckMemJsheap)
+            pytest.skip("test only in root mode")
+    
+    @pytest.mark.L0
+    def test_net(self):
+        if IsRootVersion():
+            command = "hdc shell \"hidumper --net\""
+            subprocess.check_call(command, shell=True)
+            output = subprocess.check_output("hdc shell ls -l /data/log/hidumper.log", shell=True).decode()
+            assert int(output.strip().split()[4]) > 0
+        else:
+            pytest.skip("test only in root mode")
+    
