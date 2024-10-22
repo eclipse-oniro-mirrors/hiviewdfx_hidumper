@@ -139,6 +139,7 @@ bool ConfigUtils::MergePidInfos(std::vector<DumpCommonUtils::PidInfo> &pidInfos,
 {
     pidInfos.clear();
     if (pid < 0) {
+        pidInfos_.clear();
         currentPidInfo_.pid_ = pid;
         currentPidInfo_.uid_ = -1;
         DumpCommonUtils::GetPidInfos(pidInfos_);
