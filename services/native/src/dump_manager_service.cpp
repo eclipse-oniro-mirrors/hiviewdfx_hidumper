@@ -128,12 +128,13 @@ int32_t DumpManagerService::OnIdle(const SystemAbilityOnDemandReason& idleReason
 
 void DumpManagerService::SetCpuSchedAffinity()
 {
+    pid_t hidumperServicePid = getprocpid();
     cpu_set_t mask;
     CPU_ZERO(&mask);
     for (int i = 0; i < SMALL_CPU_SIZE; i++) {
         CPU_SET(i, &mask);
     }
-    if (sched_setaffinity(0, sizeof(mask), &mask) < 0) {
+    if (sched_setaffinity(hidumperServicePid, sizeof(mask), &mask) < 0) {
         DUMPER_HILOGE(MODULE_SERVICE, "error|sched_setaffinity failed");
     }
 }
