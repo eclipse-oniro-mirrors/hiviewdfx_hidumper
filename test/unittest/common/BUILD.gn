@@ -52,7 +52,10 @@ config("module_private_config") {
 ohos_unittest("HidumperServiceTest") {
   module_out_path = module_output_path
 
-  sources = [ "hidumper_service_test.cpp" ]
+  sources = [
+    "${hidumper_frameworks_path}/src/executor/memory/memory_util.cpp",
+    "hidumper_service_test.cpp",
+  ]
 
   configs = [
     "${hidumper_utils_path}:utils_config",

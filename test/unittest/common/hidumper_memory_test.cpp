@@ -182,6 +182,23 @@ HWTEST_F(HidumperMemoryTest, MemoryInfo002, TestSize.Level1)
 }
 
 /**
+ * @tc.name: MemoryInfo003
+ * @tc.desc: Test MemoryInfo BuildResult for error pageTag.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperMemoryTest, MemoryInfo003, TestSize.Level1)
+{
+    unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
+        make_unique<OHOS::HiviewDFX::MemoryInfo>();
+    shared_ptr<vector<vector<string>>> result = make_shared<vector<vector<string>>>();
+    GroupMap infos;
+    ValueMap memInfo;
+    infos.insert(pair<string, ValueMap>("test", memInfo));
+    memoryInfo->BuildResult(infos, result);
+    ASSERT_TRUE(result->size() != 0);
+}
+
+/**
  * @tc.name: GetProcessInfo001
  * @tc.desc: Test GetProcessInfo ret.
  * @tc.type: FUNC

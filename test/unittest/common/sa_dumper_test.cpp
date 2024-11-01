@@ -13,11 +13,14 @@
  * limitations under the License.
  */
 #include <gtest/gtest.h>
+#include <thread>
+#include <unistd.h>
 #include "hidumper_test_utils.h"
 
 using namespace testing::ext;
 namespace OHOS {
 namespace HiviewDFX {
+const int THREAD_EXECUTE_NUM = 2;
 class SADumperTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -160,7 +163,7 @@ HWTEST_F(SADumperTest, SADumperTest009, TestSize.Level3)
 }
 
 /**
- * @tc.name: SADumperTest009
+ * @tc.name: SADumperTest010
  * @tc.desc: Test zip SA RenderService result not contain "Graphic".
  * @tc.type: FUNC
  * @tc.require: issueI5NWZQ
@@ -183,6 +186,27 @@ HWTEST_F(SADumperTest, SADumperTest011, TestSize.Level3)
     std::string cmd = "hidumper -s AbilityManagerService -a '-a'";
     std::string str = "AppRunningRecord";
     ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+}
+
+/**
+ * @tc.name: SADumperTest012
+ * @tc.desc: Test mutilthread for class member variable.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SADumperTest, SADumperTest012, TestSize.Level3)
+{
+    for (int i = 0; i < THREAD_EXECUTE_NUM; i++) {
+        std::thread([&]() mutable {
+            std::string cmd = "hidumper --cpuusage 1";
+            std::string str = "Pss";
+            ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+        }).detach();
+        std::thread([&]() mutable {
+            std::string cmd = "hidumper -s 1201";
+            std::string str = "Plugins";
+            ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+        }).detach();
+    }
 }
 } // namespace HiviewDFX
 } // namespace OHOS

@@ -160,6 +160,30 @@ HWTEST_F(HidumperClientTest, ClientMainTest006, TestSize.Level0)
 }
 
 /**
+ * @tc.name: ClientMainTest007
+ * @tc.desc: Test null fd from hiview.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperClientTest, ClientMainTest007, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("-s"),
+        const_cast<char *>("1213"),
+        const_cast<char *>("-a"),
+        const_cast<char *>("--Logbackup"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    int fd = open("/dev/null",  O_CREAT | O_TRUNC, 0664);
+    if (fd <= 0) {
+        fd = STDERR_FILENO;
+    }
+    setuid(1201); //hiview uid
+    int ret = DumpClientMain::GetInstance().Main(argc, argv, fd);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
  * @tc.name: ManagerClientTest001
  * @tc.desc: Test emtpy argument list.
  * @tc.type: FUNC

@@ -18,6 +18,8 @@
 #include "dump_manager_service.h"
 #include "inner/dump_service_id.h"
 #include "dump_on_demand_load.h"
+#include "executor/memory/memory_util.h"
+
 using namespace std;
 using namespace testing::ext;
 using namespace OHOS;
@@ -133,6 +135,30 @@ HWTEST_F(HidumperServiceTest, DumpManagerService005, TestSize.Level3)
     dumpManagerService->OnStop();
     dumpManagerService->started_ = false;
     dumpManagerService->OnStop();
+}
+
+/**
+ * @tc.name: DumpManagerService006
+ * @tc.desc: Test hidumper_service run in small cpu.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperServiceTest, DumpManagerService006, TestSize.Level3)
+{
+    std::string cmd = "hidumper -h";
+    std::vector<std::string> vec;
+    ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
+    ASSERT_GT(vec.size(), 0);
+    cmd = "taskset -p `pidof hidumper_service`";
+    vec.clear();
+    ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
+    ASSERT_TRUE(vec.size() > 0);
+    ASSERT_TRUE(vec[0].find(":") != std::string::npos);
+    std::string str = vec[0];
+    string::size_type typePos = str.find(":");
+    if (typePos != str.npos) {
+        string valueStr = str.substr(typePos + 2); // pid ***'s current affinity mask: f
+        ASSERT_TRUE(valueStr == "f");
+    }
 }
 } // namespace HiviewDFX
 } // namespace OHOS

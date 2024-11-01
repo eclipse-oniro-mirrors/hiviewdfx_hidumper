@@ -327,5 +327,22 @@ HWTEST_F(MemoryDumperTest, MemoryUtilTest005, TestSize.Level1)
     cmd = "hidumper --ipc --stat 100000";
     ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
 }
+
+/**
+ * @tc.name: MemoryUtilTest006
+ * @tc.desc: Test hidumper process exit success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryUtilTest006, TestSize.Level1)
+{
+    std::vector<std::string> vec;
+    std::string cmd = "hidumper -h";
+    ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
+    ASSERT_GT(vec.size(), 0);
+    vec.clear();
+    cmd = "pidof hidumper";
+    ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
+    ASSERT_EQ(vec.size(), 0);
+}
 } // namespace HiviewDFX
 } // namespace OHOS

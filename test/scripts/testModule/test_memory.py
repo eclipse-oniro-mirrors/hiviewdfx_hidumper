@@ -15,7 +15,15 @@
 
 import pytest
 import re
+import time
+import json
 from utils import *
+
+if not IsOpenHarmonyVersion():
+    from hypium import UiDriver
+    from hypium import BY
+    from hypium import Point
+    from hypium.model import UiParam
 
 PSS_TOTAL_INDEX = 0
 SWAP_PSS_INDEX = 6
@@ -39,6 +47,43 @@ def ParseMemoryOutput(output):
         key = re.search(r'\s*([a-zA-Z.]+(?:\s+[a-zA-Z.]+)*)\s*', line).group(1).strip();
         memory_data[key] = [int(val) for val in re.findall(r'\d+', line)]
     return memory_data
+
+def PreOperationHap():
+    driver = UiDriver.connect()
+    # 安装hap
+    subprocess.check_call("hdc install testModule/resource/jsleakwatcher.hap", shell=True)
+    time.sleep(3)
+    subprocess.check_call("hdc shell aa start -a EntryAbility -b com.example.jsleakwatcher", shell=True)
+    time.sleep(3)
+    # 单击【Enable】按钮
+    driver.touch(BY.text("Enable").type("Button"), mode=UiParam.NORMAL)
+    time.sleep(3)
+    # 单击【2_全局变量未使用造成js内存泄露】按钮
+    driver.touch(BY.text("2_全局变量未使用造成js内存泄露").type("Button"), mode=UiParam.NORMAL)
+    time.sleep(3)
+    command = "rm -rf /data/log/reliability/resource_leak/memory_leak/hidumper-*"
+    output = subprocess.check_output(f"hdc shell \"{command}\"", shell=True, text=True, encoding="utf-8")
+
+def ParseJsLeakListOutput():
+    command = "ls /data/log/reliability/resource_leak/memory_leak |grep -e leaklist"
+    output = subprocess.check_output(f"hdc shell \"{command}\"", shell=True, text=True, encoding="utf-8")
+    assert "leaklist" in output
+    filename = output.strip('\n')
+    print(f"leaklist filename:{filename} \n")
+    command = "cat /data/log/reliability/resource_leak/memory_leak/" + filename
+    output = subprocess.check_output(f"hdc shell \"{command}\"", shell=True, text=True, encoding="utf-8")
+    output = output.strip('\n')
+    return output
+
+def ParseJsHeapOutput(hash_val, name, msg):
+    command = "ls /data/log/reliability/resource_leak/memory_leak |grep -e jsheap"
+    output = subprocess.check_output(f"hdc shell \"{command}\"", shell=True, text=True, encoding="utf-8")
+    assert "jsheap" in output
+    filename = output.strip('\n')
+    print(f"jsheap filename:{filename} \n")
+    command = "cat /data/log/reliability/resource_leak/memory_leak/" + filename + " |grep -e " + str(hash_val) + " -e " + name + " -e " + msg
+    output = subprocess.check_output(f"hdc shell \"{command}\"", shell=True, text=True, encoding="utf-8")
+    return output
 
 @print_check_result
 def CheckTotalPss(memory_data):
@@ -105,6 +150,39 @@ class TestHidumperMemory:
         CheckCmdRedirect(command, CheckHidumperMemoryWithPidOutput)
         # 校验命令行输出到zip文件
         CheckCmdZip(command, CheckHidumperMemoryWithPidOutput)
+
+    @pytest.mark.L1
+    def test_memory_note(self):
+        if not IsOpenHarmonyVersion():
+            pytest.skip("this testcase is only support in OH")
+        else:
+            # 唤醒屏幕
+            subprocess.check_call("hdc shell power-shell wakeup", shell=True)
+            # 设置屏幕常亮
+            subprocess.check_call("hdc shell power-shell setmode 602", shell=True)
+            time.sleep(3)
+            # 解锁屏幕
+            subprocess.check_call("hdc shell uinput -T -g 100 100 500 500", shell=True)
+            time.sleep(3)
+            # 启动备忘录应用
+            subprocess.check_call("hdc shell aa start -a MainAbility -b com.ohos.note", shell=True)
+            time.sleep(3)
+            output = subprocess.check_output(f"hdc shell pidof com.ohos.note", shell=True, text=True, encoding="utf-8")
+            note_pid = output.strip('\n')
+            assert len(note_pid) != 0
+            # 新建备忘录
+            subprocess.check_call("hdc shell uinput -S -c 620 100", shell=True)
+            time.sleep(3)
+            output = subprocess.check_output(f"hdc shell pidof com.ohos.note:render", shell=True, text=True, encoding="utf-8")
+            note_render_pid = output.strip('\n')
+            assert len(note_render_pid) != 0
+            command = f"hidumper --mem {note_render_pid}"
+            # 校验命令行输出
+            CheckCmd(command, CheckHidumperMemoryWithPidOutput)
+            # 校验命令行重定向输出
+            CheckCmdRedirect(command, CheckHidumperMemoryWithPidOutput)
+            # 校验命令行输出到zip文件
+            CheckCmdZip(command, CheckHidumperMemoryWithPidOutput)
 
 
 class TestHidumperMemoryJsheap:
@@ -193,4 +271,32 @@ class TestHidumperMemoryJsheap:
         # 校验命令行输出
         subprocess.check_call(command, shell=True)
         assert WaitUntillLogAppear("hdc shell \"hilog | grep ArkCompiler\"", f"TriggerGC tid 0 curTid {pid}", 10)
+
+    @pytest.mark.L0
+    def test_mem_jsheap_leakobj(self):
+        pid = None
+        if IsOpenHarmonyVersion():
+            pytest.skip("this testcase not support OH")
+        else:
+            PreOperationHap()
+            pid = GetPidByProcessName("com.example.jsleakwatcher")
+            if pid == "":
+                pytest.skip("com.example.jsleakwatcher not found")
+        command = f"hdc shell \"hidumper --mem-jsheap {pid} --leakobj\""
+        subprocess.check_call(command, shell=True)
+        time.sleep(3)
+        # 解析leaklist文件
+        output = ParseJsLeakListOutput()
+        json_data = json.loads(output)
+        hash_val = json_data[0]['hash']
+        name = json_data[0]['name']
+        msg = json_data[0]['msg']
+        # 解析heapsnapshot文件，判断heapsnapshot中是否包含leaklist对象
+        output = ParseJsHeapOutput(hash_val, name, msg)
+        print(f"output:{output}\n")
+        assert str(hash_val) in output
+        assert "Int:" + str(hash_val) in output
+        assert name in output
+        assert msg in output
+        subprocess.check_call("hdc uninstall com.example.jsleakwatcher", shell=True)
 
