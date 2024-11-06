@@ -164,7 +164,7 @@ HWTEST_F(HiDumperManagerTest, DumpTest004, TestSize.Level0)
 }
 
 /**
- * @tc.name: MemoryDumperTest005
+ * @tc.name: DumpTest005
  * @tc.desc: Test dump system information has correct ret.
  * @tc.type: FUNC
  * @tc.require: issueI5NWZQ
@@ -238,7 +238,7 @@ HWTEST_F(HiDumperManagerTest, DumpTest008, TestSize.Level0)
 }
 
 /**
- * @tc.name: MemoryDumperTest009
+ * @tc.name: DumpTest009
  * @tc.desc: Test dump one ability with arg has correct ret.
  * @tc.type: FUNC
  * @tc.require: issueI5NWZQ
@@ -259,7 +259,7 @@ HWTEST_F(HiDumperManagerTest, DumpTest009, TestSize.Level0)
 }
 
 /**
- * @tc.name: MemoryDumperTest010
+ * @tc.name: DumpTest010
  * @tc.desc: Test dump faultlogs of crash history has correct ret.
  * @tc.type: FUNC
  * @tc.require: issueI5NWZQ

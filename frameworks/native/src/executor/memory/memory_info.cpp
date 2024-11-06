@@ -145,7 +145,7 @@ void MemoryInfo::BuildResult(const GroupMap &infos, StringMatrix result)
         StringUtils::GetInstance().StringSplit(info.first, "#", pageTag);
         string group;
         if (pageTag.size() < PAGETAG_MIN_LEN) {
-            DUMPER_HILOGE(MODULE_COMMON, "Infos are invalid, info.first: %s", info.first.c_str());
+            DUMPER_HILOGE(MODULE_COMMON, "Infos are invalid, info.first: %{public}s", info.first.c_str());
             return;
         }
         if (pageTag[1] == "other") {
