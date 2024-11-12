@@ -15,6 +15,7 @@
 
 import pytest
 import re
+import threading
 import time
 import json
 from utils import *
@@ -128,6 +129,27 @@ def CheckHidumperMemoryWithoutPidOutput(output):
     dma = re.search(r"DMA\((\d+) kB\)", output).group(1)
     return int(graph) == int(dma)
 
+# 要并发执行的任务函数
+def ThreadTask(thread_name, delay):
+    print(f"Thread {thread_name} starting")
+    command = "hidumper --mem > /data/log/hidumper/" + thread_name
+    output = subprocess.check_output(f"hdc shell \"{command}\"", shell=True, text=True, encoding="utf-8")
+    print(f"Thread {thread_name} finished")
+
+def IsRequestErrorInOutput():
+    flag = 0
+    for i in range(6):
+        command = "cat /data/log/hidumper/Thread-" + str(i)
+        output = subprocess.check_output(f"hdc shell \"{command}\"", shell=True, text=True, encoding="utf-8")
+        if "request error" in output:
+            command = "lsof |grep Thread-" + str(i)
+            output = subprocess.check_output(f"hdc shell \"{command}\"", shell=True, text=True, encoding="utf-8")
+            print(f"output:{output}\n")
+            assert "Thread-" + str(i) not in output
+            flag = 1
+            break
+    return flag
+
 class TestHidumperMemory:
     @pytest.mark.L0
     def test_memory_all(self):
@@ -183,6 +205,21 @@ class TestHidumperMemory:
             CheckCmdRedirect(command, CheckHidumperMemoryWithPidOutput)
             # 校验命令行输出到zip文件
             CheckCmdZip(command, CheckHidumperMemoryWithPidOutput)
+
+    @pytest.mark.L1
+    def test_memory_mutilthread(self):
+        # 创建线程列表
+        threads = []
+        # 创建线程并启动
+        for i in range(6):
+            t = threading.Thread(target=ThreadTask, args=("Thread-{}".format(i), i))
+            threads.append(t)
+            t.start()
+        # 等待所有线程完成
+        for t in threads:
+            t.join()
+        # 校验超过请求数5的命令对应的fd中包含request error信息
+        assert IsRequestErrorInOutput()
 
 
 class TestHidumperMemoryJsheap:
