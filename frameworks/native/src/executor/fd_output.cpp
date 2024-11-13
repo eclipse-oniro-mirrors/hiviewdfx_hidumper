@@ -36,6 +36,7 @@ FDOutput::~FDOutput()
 DumpStatus FDOutput::PreExecute(const std::shared_ptr<DumperParameter>& parameter,
     StringMatrix dumpDatas)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     if (dumpDatas.get()) {
         dumpDatas_ = dumpDatas;
     } else {
