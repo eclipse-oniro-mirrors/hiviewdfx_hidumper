@@ -48,10 +48,12 @@ public:
     DumpStatus Compress(CompressBuffer*& srcBuffer, CompressBuffer*& destBuffer);
 
 private:
-    DumpStatus FillBuffer(int& flush, CompressBuffer*& srcBuffer, char*& buffIn,
+    DumpStatus Init(CompressBuffer*& srcBuffer);
+    DumpStatus FillBuffer(int& flush, CompressBuffer*& srcBuffer, char* buffIn,
         size_t const toRead, size_t& src_pos, size_t srcBufferOffset);
-    DumpStatus DeflateBuffer(int flush, char*& buffOut, size_t& dst_pos);
+    DumpStatus DeflateBuffer(int flush, char* buffOut, size_t& dst_pos);
     void DeleteZData();
+    void DeleteZBuff(char* buffIn, char* buffOut);
 
 private:
     z_stream zStream_ = {0};
