@@ -24,6 +24,8 @@ group("service") {
     "services:hidumper_service.rc",
     "services:hidumpermemory",
     "services:hidumperservice",
-    "services:infos_config",
   ]
+  if (build_variant == "root") {
+    deps += [ "services:infos_config" ]
+  }
 }
