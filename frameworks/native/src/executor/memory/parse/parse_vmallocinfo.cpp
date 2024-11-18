@@ -23,6 +23,8 @@
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
+const int VMALLOC_VALUE_SIZE = 1;
+const int BASE = 10;
 ParseVmallocinfo::ParseVmallocinfo()
 {
 }
@@ -40,8 +42,9 @@ void ParseVmallocinfo::CaclVmalloclValue(const string &str, uint64_t &totalValue
     while (ss >> word) {
         words.push_back(word);
     }
-    const int base = 10;
-    value = strtoull(words.at(1).c_str(), nullptr, base);
+    if (words.size() > VMALLOC_VALUE_SIZE) {
+        value = strtoull(words.at(VMALLOC_VALUE_SIZE).c_str(), nullptr, BASE);
+    }
     totalValue += value;
 }
 

@@ -35,7 +35,7 @@ DumpStatus ZipOutput::PreExecute(const std::shared_ptr<DumperParameter>& paramet
     StringMatrix dumpDatas)
 {
     mDumpDatas_ = dumpDatas;
-    if (mDumpDatas_.get() == nullptr) {
+    if (mDumpDatas_ == nullptr) {
         return DumpStatus::DUMP_FAIL;
     }
 
@@ -57,7 +57,7 @@ DumpStatus ZipOutput::PreExecute(const std::shared_ptr<DumperParameter>& paramet
 DumpStatus ZipOutput::Execute()
 {
     DUMPER_HILOGI(MODULE_COMMON, "info|ZipOutput Execute");
-    if (!mDumpDatas_.get() || (fd_ < 0)) {
+    if (mDumpDatas_ == nullptr || (fd_ < 0)) {
         return DumpStatus::DUMP_FAIL;
     }
     CompressBuffer* srcBuffer = srcBuffer_.get();
