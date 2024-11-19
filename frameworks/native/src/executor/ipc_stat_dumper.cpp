@@ -208,15 +208,14 @@ DumpStatus IPCStatDumper::DoDumpIpcStat(sptr<IRemoteObject> &sa)
     }
 
     int rawParamFd = ptrReqCtl_->GetOutputFd();
-    int ret = sa->Dump(rawParamFd, ipcDumpCmd_);
-    if (ret != ERR_OK) {
-        DUMPER_HILOGE(MODULE_SERVICE, "system ability dump fail! ret:%{public}d\n", ret);
-    }
     if (rawParamFd < 0) {
         DUMPER_HILOGE(MODULE_SERVICE, "sa dump failed\n");
         return DumpStatus::DUMP_FAIL;
     }
-
+    int ret = sa->Dump(rawParamFd, ipcDumpCmd_);
+    if (ret != ERR_OK) {
+        DUMPER_HILOGE(MODULE_SERVICE, "system ability dump fail! ret:%{public}d\n", ret);
+    }
     return DumpStatus::DUMP_OK;
 }
 

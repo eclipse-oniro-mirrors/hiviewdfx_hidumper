@@ -30,7 +30,7 @@ APIDumper::~APIDumper()
 DumpStatus APIDumper::PreExecute(const std::shared_ptr<DumperParameter>& parameter,
     StringMatrix dumpDatas)
 {
-    if (dumpDatas.get()) {
+    if (dumpDatas != nullptr) {
         result_ = dumpDatas;
         return DumpStatus::DUMP_OK;
     }

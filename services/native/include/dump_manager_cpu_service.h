@@ -15,6 +15,7 @@
 #ifndef HIDUMPER_SERVICES_CPU_MANAGER_SERVICE_H
 #define HIDUMPER_SERVICES_CPU_MANAGER_SERVICE_H
 #include <map>
+#include <mutex>
 #include <vector>
 #include <system_ability.h>
 #include "system_ability_status_change_stub.h"
@@ -85,6 +86,7 @@ private:
     bool registered_{false};
     uint64_t startTime_{0};
     uint64_t endTime_{0};
+    std::mutex mutex_;
     std::shared_ptr<CPUInfo> curCPUInfo_{nullptr};
     std::shared_ptr<ProcInfo> curSpecProc_{nullptr};
     std::vector<std::shared_ptr<ProcInfo>> curProcs_;

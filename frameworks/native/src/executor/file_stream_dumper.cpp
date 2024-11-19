@@ -36,7 +36,7 @@ FileStreamDumper::~FileStreamDumper()
 DumpStatus FileStreamDumper::PreExecute(const std::shared_ptr<DumperParameter>& parameter,
     StringMatrix dumpDatas)
 {
-    if (dumpDatas.get()) {
+    if (dumpDatas != nullptr) {
         result_ = dumpDatas;
     }
 

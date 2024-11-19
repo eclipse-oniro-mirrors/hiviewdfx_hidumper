@@ -73,8 +73,7 @@ void DumpManagerCpuService::OnStart()
 int32_t DumpManagerCpuService::Request(DumpCpuData &dumpCpuData)
 {
     DUMPER_HILOGI(MODULE_CPU_SERVICE, "enter");
-    static std::mutex mutex_;
-    unique_lock<mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     InitParam(dumpCpuData);
     if (!HasDumpPermission()) {
         DUMPER_HILOGE(MODULE_SERVICE,
@@ -145,8 +144,7 @@ int DumpManagerCpuService::DumpCpuUsageData()
 
 int DumpManagerCpuService::GetCpuUsageByPid(int32_t pid, double &cpuUsage)
 {
-    static std::mutex mutex_;
-    unique_lock<mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     if (g_collector == nullptr) {
         g_collector = OHOS::HiviewDFX::UCollectUtil::CpuCollector::Create();
     }

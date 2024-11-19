@@ -35,7 +35,7 @@ DumpStatus ListDumper::PreExecute(const std::shared_ptr<DumperParameter>& parame
     StringMatrix dumpDatas)
 {
     target_ = ptrDumpCfg_->target_;
-    if (dumpDatas.get()) {
+    if (dumpDatas != nullptr) {
         result_ = dumpDatas;
         return DumpStatus::DUMP_OK;
     }
