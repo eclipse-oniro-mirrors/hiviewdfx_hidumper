@@ -99,8 +99,11 @@ void DumpManagerService::OnStop()
     blockRequest_ = true;
     CancelAllRequest();
     for (int i = 0; i < STOP_WAIT; i++) {
-        if (requestRawParamMap_.empty()) {
-            break;
+        {
+            unique_lock<mutex> lock(mutex_);
+            if (requestRawParamMap_.empty()) {
+                break;
+            }
         }
         sleep(1);
     }
@@ -407,6 +410,7 @@ uint32_t DumpManagerService::GetRequestId()
 
 void DumpManagerService::GetIdleRequest()
 {
+    unique_lock<mutex> lock(mutex_);
     for (auto &requestIt : requestRawParamMap_) {
         if (requestIt.second == nullptr) {
             continue;
