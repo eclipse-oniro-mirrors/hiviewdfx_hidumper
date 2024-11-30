@@ -85,5 +85,36 @@ bool GetHeapInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int &pi
     DUMPER_HILOGI(MODULE_SERVICE, "GetHeapInfo: GetInfo memType:%{public}d pid:%{public}d end, success!", memType, pid);
     return true;
 }
+
+bool GetHeapInfo::GetMallocInfo(const int &pid, std::unique_ptr<MallHeapInfo> &info)
+{
+    DUMPER_HILOGI(MODULE_SERVICE, "GetMallocInfo pid:%{public}d begin.", pid);
+    if (!info) {
+        DUMPER_HILOGE(MODULE_SERVICE, "MallHeapInfo is nullptr.");
+        return false;
+    }
+    info->size = 0;
+    info->alloc = 0;
+    info->free = 0;
+#ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
+    OHOS::sptr<OHOS::AppExecFwk::IAppMgr> appManager = GetAppManagerInstance();
+    if (appManager == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "GetHeapInfo: Get the appManager is nullptr.");
+        return false;
+    }
+    OHOS::AppExecFwk::MallocInfo mallocInfo;
+    int ret = appManager->DumpHeapMemory(pid, mallocInfo);
+    if (ret != ERR_OK) {
+        DUMPER_HILOGE(MODULE_SERVICE, "DumpHeapMemory return failed, ret is:%{public}d", ret);
+    } else {
+        info->size = mallocInfo.hblkhd / numberSys;
+        info->alloc = mallocInfo.uordblks / numberSys;
+        info->free = mallocInfo.fordblks / numberSys;
+    }
+    DUMPER_HILOGD(MODULE_SERVICE, "GetMallocInfo DumpHeapMemory result: %{public}i, hblkhd: %{public}i, uordblks:"
+        "%{public}i, fordblks: %{public}i", ret, mallocInfo.hblkhd, mallocInfo.uordblks, mallocInfo.fordblks);
+#endif
+    return true;
+}
 } // namespace HiviewDFX
 } // namespace OHOS

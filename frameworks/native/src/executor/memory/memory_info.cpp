@@ -24,7 +24,6 @@
 #include "dump_common_utils.h"
 #include "dump_utils.h"
 #include "executor/memory/get_cma_info.h"
-#include "executor/memory/get_heap_info.h"
 #include "executor/memory/get_hardware_info.h"
 #include "executor/memory/get_kernel_info.h"
 #include "executor/memory/get_process_info.h"
@@ -148,11 +147,13 @@ void MemoryInfo::BuildResult(const GroupMap &infos, StringMatrix result)
             DUMPER_HILOGE(MODULE_COMMON, "Infos are invalid, info.first: %{public}s", info.first.c_str());
             return;
         }
+        string tempGroup;
         if (pageTag[1] == "other") {
             group = pageTag[0] == MemoryFilter::GetInstance().FILE_PAGE_TAG ? "FilePage other" : "AnonPage other";
         } else {
             group = pageTag[1];
         }
+        tempGroup = group;
         StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, group);
         tempResult.push_back(group);
 
@@ -163,6 +164,7 @@ void MemoryInfo::BuildResult(const GroupMap &infos, StringMatrix result)
             if (it != valueMap.end()) {
                 value = to_string(it->second);
             }
+            GetMallHeapValueByTag(tag, tempGroup, value);
             StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, value);
             tempResult.push_back(value);
         }
@@ -170,6 +172,19 @@ void MemoryInfo::BuildResult(const GroupMap &infos, StringMatrix result)
     }
 }
 
+void MemoryInfo::GetMallHeapValueByTag(const std::string& tag, const std::string& tempGroup, std::string& value)
+{
+    if (tempGroup != MemoryFilter::GetInstance().NATIVE_HEAP_LABEL) {
+        return;
+    }
+    if (tag == MEMINFO_HEAP_SIZE) {
+        value = to_string(mallHeapInfo_->size);
+    } else if (tag == MEMINFO_HEAP_ALLOC) {
+        value = to_string(mallHeapInfo_->alloc);
+    } else if (tag == MEMINFO_HEAP_FREE) {
+        value = to_string(mallHeapInfo_->free);
+    }
+}
 
 void MemoryInfo::CalcGroup(const GroupMap &infos, StringMatrix result)
 {
@@ -217,7 +232,8 @@ bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
     }
 
     unique_ptr<GetHeapInfo> getHeapInfo = make_unique<GetHeapInfo>();
-    if (!getHeapInfo->GetInfo(MemoryFilter::APPOINT_PID, pid, groupMap)) {
+    mallHeapInfo_ = make_unique<MallHeapInfo>();
+    if (!getHeapInfo->GetMallocInfo(pid, mallHeapInfo_)) {
         DUMPER_HILOGE(MODULE_SERVICE, "get heap info fail");
         return false;
     }
