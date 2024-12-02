@@ -21,6 +21,7 @@
 #include <string>
 #include <vector>
 #include "executor/memory/dma_info.h"
+#include "executor/memory/get_heap_info.h"
 #include "executor/memory/parse/meminfo_data.h"
 #include "common.h"
 #include "time.h"
@@ -92,6 +93,7 @@ private:
     std::vector<std::string> NATIVE_HEAP_TAG_ = {"heap", "jemalloc meta", "jemalloc heap",
                                                  "brk heap", "musl heap", "mmap heap"};
     DmaInfo dmaInfo_;
+    std::unique_ptr<MallHeapInfo> mallHeapInfo_ = { nullptr };
     void insertMemoryTitle(StringMatrix result);
     void BuildResult(const GroupMap &infos, StringMatrix result);
 
@@ -112,6 +114,7 @@ private:
     void GetHiaiServerIon(const int32_t &pid, StringMatrix result);
     void GetNativeHeap(const GroupMap& nativeGroupMap, StringMatrix result);
     void GetNativeValue(const std::string& tag, const GroupMap& nativeGroupMap, StringMatrix result);
+    void GetMallHeapValueByTag(const std::string& tag, const std::string& tempGroup, std::string& value);
     void GetRamCategory(const GroupMap &smapsinfos, const ValueMap &meminfos, StringMatrix result);
     void SetGraphGroupMap(GroupMap& groupMap, MemInfoData::GraphicsMemory &graphicsMemory);
     void AddBlankLine(StringMatrix result);

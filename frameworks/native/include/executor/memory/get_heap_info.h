@@ -24,6 +24,11 @@
 #include "system_ability_definition.h"
 namespace OHOS {
 namespace HiviewDFX {
+struct MallHeapInfo {
+    int size;
+    int alloc;
+    int free;
+};
 class GetHeapInfo {
 public:
     GetHeapInfo();
@@ -32,14 +37,9 @@ public:
     using ValueMap = std::map<std::string, uint64_t>;
     using GroupMap = std::map<std::string, ValueMap>;
     bool GetInfo(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &infos);
+    bool GetMallocInfo(const int &pid, std::unique_ptr<MallHeapInfo> &info);
 
 private:
-    struct MallHeapInfo {
-        int size;
-        int alloc;
-        int free;
-    };
-
     const std::string groupNative = "native heap";
 #ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
     const int numberSys = 1024;
