@@ -255,17 +255,15 @@ HWTEST_F(HiDumperInnerkitsTest, GetProcCpuInfo001, TestSize.Level1)
 HWTEST_F(HiDumperInnerkitsTest, GetHeapInfo001, TestSize.Level1)
 {
     int testPid = g_pid;
-    GroupMap groupMap;
-    std::map<std::string, uint64_t> value = {};
-    value["test"] = 1;
-    groupMap["test"] = value;
+    std::unique_ptr<MallHeapInfo> mallocHeapInfo = std::make_unique<MallHeapInfo>();
     std::unique_ptr<GetHeapInfo> getHeapInfo = std::make_unique<GetHeapInfo>();
-    ASSERT_TRUE(getHeapInfo->GetInfo(MemoryFilter::APPOINT_PID, testPid, groupMap));
+    getHeapInfo->GetMallocHeapInfo(testPid, mallocHeapInfo);
 
     if (g_appManagerPid != -1) {
         testPid = g_appManagerPid;
-        ASSERT_TRUE(getHeapInfo->GetInfo(MemoryFilter::APPOINT_PID, testPid, groupMap));
+        getHeapInfo->GetMallocHeapInfo(testPid, mallocHeapInfo);
     }
+    ASSERT_TRUE(mallocHeapInfo);
 }
 
 /**

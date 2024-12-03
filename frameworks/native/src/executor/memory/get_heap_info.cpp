@@ -38,52 +38,31 @@ OHOS::sptr<OHOS::AppExecFwk::IAppMgr> GetHeapInfo::GetAppManagerInstance()
 }
 #endif
 
-bool GetHeapInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &infos)
+void GetHeapInfo::GetMallocHeapInfo(const int& pid, std::unique_ptr<MallHeapInfo>& mallocHeapInfo)
 {
-    DUMPER_HILOGI(MODULE_SERVICE, "GetHeapInfo: GetInfo memType:%{public}d pid:%{public}d begin.", memType, pid);
-    struct MallHeapInfo heapInfo = {0};
+    DUMPER_HILOGI(MODULE_SERVICE, "GetMallocHeapInfo pid:%{public}d begin.", pid);
+    mallocHeapInfo->size = 0;
+    mallocHeapInfo->alloc = 0;
+    mallocHeapInfo->free = 0;
 #ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
     OHOS::sptr<OHOS::AppExecFwk::IAppMgr> appManager = GetAppManagerInstance();
     if (appManager == nullptr) {
         DUMPER_HILOGE(MODULE_SERVICE, "GetHeapInfo: Get the appManager is nullptr.");
-        return false;
     }
     OHOS::AppExecFwk::MallocInfo mallocInfo;
     int ret = appManager->DumpHeapMemory(pid, mallocInfo);
     if (ret != ERR_OK) {
         DUMPER_HILOGE(MODULE_SERVICE, "DumpHeapMemory return failed, ret is:%{public}d", ret);
+        return;
     } else {
-        heapInfo.size = mallocInfo.hblkhd / numberSys;
-        heapInfo.alloc = mallocInfo.uordblks / numberSys;
-        heapInfo.free = mallocInfo.fordblks / numberSys;
+        mallocHeapInfo->size = mallocInfo.hblkhd / numberSys;
+        mallocHeapInfo->alloc = mallocInfo.uordblks / numberSys;
+        mallocHeapInfo->free = mallocInfo.fordblks / numberSys;
     }
-    DUMPER_HILOGD(MODULE_SERVICE, "Dumper GetInfo DumpHeapMemory result: %{public}i, hblkhd: %{public}i, uordblks: \
+    DUMPER_HILOGD(MODULE_SERVICE, "DumpHeapMemory result: %{public}i, hblkhd: %{public}i, uordblks: \
         %{public}i, fordblks: %{public}i", ret, mallocInfo.hblkhd, mallocInfo.uordblks, mallocInfo.fordblks);
 #endif
-    for (const auto &info : infos) {
-        vector<string> pageTag;
-        StringUtils::GetInstance().StringSplit(info.first, "#", pageTag);
-        if (pageTag.size() <= 1) {
-            continue;
-        }
-
-        string group;
-        if (pageTag[1] == "other") {
-            group = pageTag[0] == MemoryFilter::GetInstance().FILE_PAGE_TAG ? "FilePage other" : "AnonPage other";
-        } else {
-            group = pageTag[1];
-        }
-
-        if (groupNative == group) {
-            infos[info.first].insert(pair<string, uint64_t>(MEMINFO_HEAP_SIZE, heapInfo.size));
-            infos[info.first].insert(pair<string, uint64_t>(MEMINFO_HEAP_ALLOC, heapInfo.alloc));
-            infos[info.first].insert(pair<string, uint64_t>(MEMINFO_HEAP_FREE, heapInfo.free));
-            break;
-        }
-    }
-
-    DUMPER_HILOGI(MODULE_SERVICE, "GetHeapInfo: GetInfo memType:%{public}d pid:%{public}d end, success!", memType, pid);
-    return true;
+    DUMPER_HILOGI(MODULE_SERVICE, "GetMallocHeapInfo pid:%{public}d end, success!", pid);
 }
 } // namespace HiviewDFX
 } // namespace OHOS

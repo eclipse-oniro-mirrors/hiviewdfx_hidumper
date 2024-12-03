@@ -26,6 +26,7 @@
 #include "executor/memory/parse/parse_smaps_info.h"
 #include "executor/memory/parse/parse_smaps_rollup_info.h"
 #include "executor/memory/smaps_memory_info.h"
+#include "memory_collector.h"
 
 using namespace std;
 using namespace testing::ext;
@@ -159,7 +160,6 @@ HWTEST_F(HidumperMemoryTest, MemoryInfo001, TestSize.Level1)
     value = static_cast<int>(memoryInfo->GetVss(INVALID_PID));
     ASSERT_EQ(value, 0);
     MemInfoData::MemUsage usage;
-    OHOS::HiviewDFX::DmaInfo dmaInfo;
     ASSERT_FALSE(memoryInfo->GetMemByProcessPid(INVALID_PID, usage));
 #ifdef HIDUMPER_MEMMGR_ENABLE
     memoryInfo->GetProcessAdjLabel(INVALID_PID);
@@ -183,7 +183,7 @@ HWTEST_F(HidumperMemoryTest, MemoryInfo002, TestSize.Level1)
 
 /**
  * @tc.name: MemoryInfo003
- * @tc.desc: Test MemoryInfo BuildResult for error pageTag.
+ * @tc.desc: Test empty unique_ptr.
  * @tc.type: FUNC
  */
 HWTEST_F(HidumperMemoryTest, MemoryInfo003, TestSize.Level1)
@@ -191,11 +191,24 @@ HWTEST_F(HidumperMemoryTest, MemoryInfo003, TestSize.Level1)
     unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
         make_unique<OHOS::HiviewDFX::MemoryInfo>();
     shared_ptr<vector<vector<string>>> result = make_shared<vector<vector<string>>>();
-    GroupMap infos;
-    ValueMap memInfo;
-    infos.insert(pair<string, ValueMap>("test", memInfo));
-    memoryInfo->BuildResult(infos, result);
-    ASSERT_TRUE(result->size() != 0);
+    unique_ptr<MemoryDetail> nativeHeapDetail = nullptr;
+    memoryInfo->GetNativeHeap(nativeHeapDetail, result);
+    ASSERT_TRUE(result->size() == 0);
+
+    unique_ptr<MemoryDetail> anonPageDetail = make_unique<MemoryDetail>();
+    unique_ptr<MemoryDetail> filePageDetail = make_unique<MemoryDetail>();
+    unique_ptr<MemoryDetail> tempDetail = nullptr;
+    memoryInfo->UpdatePageDetail(anonPageDetail, filePageDetail, tempDetail);
+    ASSERT_TRUE(anonPageDetail);
+    ASSERT_TRUE(filePageDetail);
+
+    std::unique_ptr<MallHeapInfo> mallocHeapInfo = std::make_unique<MallHeapInfo>();
+    unique_ptr<MemoryDetail> detail = nullptr;
+    memoryInfo->SetDetailRet(MEMINFO_FILEPAGE_OTHER, detail, mallocHeapInfo, result);
+    ASSERT_TRUE(result->size() == 0);
+    unique_ptr<ProcessMemoryDetail> processMemoryDetail = nullptr;
+    memoryInfo->UpdateTotalDetail(processMemoryDetail, mallocHeapInfo, result);
+    ASSERT_TRUE(result->size() == 0);
 }
 
 /**
