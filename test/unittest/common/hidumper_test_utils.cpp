@@ -83,6 +83,11 @@ bool HidumperTestUtils::GetSpecialLine(const std::string &cmd, const std::string
             break;
         }
     }
+    // free memory
+    if (buffer != nullptr) {
+        free(buffer);
+        buffer = nullptr;
+    }
     pclose(fp);
     return res;
 }
