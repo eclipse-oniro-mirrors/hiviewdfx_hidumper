@@ -35,14 +35,14 @@ public:
 
 private:
     struct MallHeapInfo {
-        int size;
-        int alloc;
-        int free;
+        uint64_t size;
+        uint64_t alloc;
+        uint64_t free;
     };
 
     const std::string groupNative = "native heap";
 #ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
-    const int numberSys = 1024;
+    const uint64_t numberSys = 1024;
     OHOS::sptr<OHOS::AppExecFwk::IAppMgr> GetAppManagerInstance();
 #endif
 };
