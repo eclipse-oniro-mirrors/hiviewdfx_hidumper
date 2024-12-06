@@ -138,7 +138,7 @@ HWTEST_F(MemoryDumperTest, MemoryDumperTest005, TestSize.Level3)
 HWTEST_F(MemoryDumperTest, MemoryDumperTest006, TestSize.Level3)
 {
     std::string cmd = "hidumper --mem";
-    std::string str = "Dma     PurgSum     PurgPin";
+    std::string str = "Dma      PurgSum      PurgPin";
     ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
 }
 

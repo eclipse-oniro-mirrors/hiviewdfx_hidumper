@@ -200,7 +200,7 @@ void MemoryUtil::SetMemTotalValue(const string &value, vector<string> &lines, ve
         string space = " ";
         StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, space);
         StringUtils::GetInstance().SetWidth(LINE_WIDTH_, SEPARATOR_, false, separator);
-        lines.push_back(separator);
+        lines.push_back(separator + SEPARATOR_);
     }
     string tempValue = value;
     if (flag) {
@@ -212,6 +212,7 @@ void MemoryUtil::SetMemTotalValue(const string &value, vector<string> &lines, ve
         }
     } else {
         StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, tempValue);
+        tempValue += BLANK_;
     }
     values.push_back(tempValue);
 }
