@@ -97,6 +97,7 @@ inline const std::map<int, std::string> saNameMap_ = {
     { AUDIO_DISTRIBUTED_SERVICE_ID, "AudioDistributed" },
     { COMMON_EVENT_SERVICE_ABILITY_ID, "CommonEventService" },
     { ADVANCED_NOTIFICATION_SERVICE_ABILITY_ID, "DistributedNotificationService" },
+    { REMINDER_AGENT_SERVICE_ABILITY_ID, "ReminderAgentService" },
     { COMMON_EVENT_SERVICE_ID, "CommonEventService" },
     { POWER_MANAGER_SERVICE_ID, "PowerManagerService" },
     { POWER_MANAGER_BATT_SERVICE_ID, "BatteryService" },
