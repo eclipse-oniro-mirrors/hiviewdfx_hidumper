@@ -112,9 +112,9 @@ void MemoryInfo::insertMemoryTitle(StringMatrix result)
     StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, unit);
 
     // Add  spaces at the beginning of the line
-    line1.push_back(space);
-    line2.push_back(space);
-    line3.push_back(space);
+    line1.push_back(space + BLANK_);
+    line2.push_back(space + BLANK_);
+    line3.push_back(space + BLANK_);
     line4.push_back(space);
 
     for (string str : MemoryFilter::GetInstance().TITLE_HAS_PID_) {
@@ -123,13 +123,13 @@ void MemoryInfo::insertMemoryTitle(StringMatrix result)
         if (types.size() == TYPE_SIZE) {
             string title1 = types.at(0);
             StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, title1);
-            line1.push_back(title1);
+            line1.push_back(title1 + BLANK_);
 
             string title2 = types.at(1);
             StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, title2);
-            line2.push_back(title2);
-            line3.push_back(unit);
-            line4.push_back(separator);
+            line2.push_back(title2 + BLANK_);
+            line3.push_back(unit + BLANK_);
+            line4.push_back(separator + SEPARATOR_);
         }
     }
     result->push_back(line1);
@@ -156,7 +156,7 @@ void MemoryInfo::BuildResult(const GroupMap &infos, StringMatrix result)
             group = pageTag[1];
         }
         StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, group);
-        tempResult.push_back(group);
+        tempResult.push_back(group + BLANK_);
 
         auto &valueMap = info.second;
         for (const auto &tag : MemoryFilter::GetInstance().VALUE_WITH_PID) {
@@ -166,7 +166,7 @@ void MemoryInfo::BuildResult(const GroupMap &infos, StringMatrix result)
                 value = to_string(it->second);
             }
             StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, value);
-            tempResult.push_back(value);
+            tempResult.push_back(value + BLANK_);
         }
         result->push_back(tempResult);
     }
@@ -201,7 +201,13 @@ void MemoryInfo::CalcGroup(const GroupMap &infos, StringMatrix result)
     MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.heapSize), lines, values);
     MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.heapAlloc), lines, values);
     MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.heapFree), lines, values);
-
+    // delete the last separator
+    if (!lines.empty()) {
+        lines.pop_back();
+        string separator = "-";
+        StringUtils::GetInstance().SetWidth(LINE_WIDTH_, SEPARATOR_, false, separator);
+        lines.push_back(separator);
+    }
     result->push_back(lines);
     result->push_back(values);
 }
@@ -508,7 +514,7 @@ void MemoryInfo::GetNativeValue(const string& tag, const GroupMap& nativeGroupMa
             value = to_string(it->second);
         }
         StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, value);
-        nativeValue += value;
+        nativeValue += value + BLANK_;
     }
 
     heap.push_back(nativeValue);
@@ -802,7 +808,7 @@ void MemoryInfo::MemUsageToMatrix(const MemInfoData::MemUsage &memUsage, StringM
     string name = "    " + memUsage.name;
     StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, name);
 
-    (void)dprintf(rawParamFd_, "%s%s%s%s%s%s%s%s%s%s%s\n", pid.c_str(),
+    (void)dprintf(rawParamFd_, "%s %s %s %s %s %s %s %s %s %s %s\n", pid.c_str(),
         totalPss.c_str(), totalVss.c_str(), totalRss.c_str(), totalUss.c_str(),
         unMappedGL.c_str(), unMappedGraph.c_str(), unMappedDma.c_str(), unMappedPurgSum.c_str(),
         unMappedPurgPin.c_str(), name.c_str());
@@ -846,7 +852,7 @@ void MemoryInfo::AddMemByProcessTitle(StringMatrix result, string sortType)
     string name = "    Name";
     StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, name);
 
-    (void)dprintf(rawParamFd_, "%s%s%s%s%s%s%s%s%s%s%s\n", pid.c_str(),
+    (void)dprintf(rawParamFd_, "%s %s %s %s %s %s %s %s %s %s %s\n", pid.c_str(),
         totalPss.c_str(), totalVss.c_str(), totalRss.c_str(), totalUss.c_str(),
         unMappedGL.c_str(), unMappedGraph.c_str(), unMappedDma.c_str(), unMappedPurgSum.c_str(),
         unMappedPurgPin.c_str(), name.c_str());

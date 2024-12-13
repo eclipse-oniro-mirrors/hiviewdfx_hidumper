@@ -57,8 +57,9 @@ bool GetHeapInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int &pi
         heapInfo.alloc = mallocInfo.uordblks / numberSys;
         heapInfo.free = mallocInfo.fordblks / numberSys;
     }
-    DUMPER_HILOGD(MODULE_SERVICE, "Dumper GetInfo DumpHeapMemory result: %{public}i, hblkhd: %{public}i, uordblks: \
-        %{public}i, fordblks: %{public}i", ret, mallocInfo.hblkhd, mallocInfo.uordblks, mallocInfo.fordblks);
+    DUMPER_HILOGD(MODULE_SERVICE, "DumpHeapMemory result: %{public}i, uordblks: %{public}llu, fordblks: %{public}llu,"
+        "hblkhd: %{public}llu", ret, static_cast<unsigned long long>(mallocInfo.fordblks),
+        static_cast<unsigned long long>(mallocInfo.uordblks), static_cast<unsigned long long>(mallocInfo.hblkhd));
 #endif
     for (const auto &info : infos) {
         vector<string> pageTag;
