@@ -41,22 +41,17 @@
 #include "string_ex.h"
 #include "util/string_utils.h"
 #include "util/file_utils.h"
-#ifdef HIDUMPER_GRAPHIC_ENABLE
-using namespace OHOS::Rosen;
-#endif
 
 using namespace std;
 using namespace OHOS::HDI::Memorytracker::V1_0;
 
 namespace OHOS {
 namespace HiviewDFX {
-static uint64_t g_sumPidsMemGL = 0;
 static const std::string LIB = "libai_mnt_client.so";
 
 static const std::string UNKNOWN_PROCESS = "unknown";
 static const std::string PRE_BLANK = "   ";
 static const std::string MEMORY_LINE = "-------------------------------[memory]-------------------------------";
-constexpr int HIAI_MAX_QUERIED_USER_MEMINFO_LIMIT = 256;
 constexpr char HIAI_MEM_INFO_FN[] = "HIAI_Memory_QueryAllUserAllocatedMemInfo";
 constexpr int PAGETAG_MIN_LEN = 2;
 using HiaiFunc = int (*)(MemInfoData::HiaiUserAllocatedMemInfo*, int, int*);
@@ -212,49 +207,10 @@ void MemoryInfo::CalcGroup(const GroupMap &infos, StringMatrix result)
     result->push_back(values);
 }
 
-bool MemoryInfo::GetRenderServiceGraphics(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory)
-{
-    bool ret = false;
-    sptr<IMemoryTrackerInterface> memtrack = IMemoryTrackerInterface::Get(true);
-    if (memtrack == nullptr) {
-        DUMPER_HILOGE(MODULE_SERVICE, "memtrack service is null");
-        return ret;
-    }
-
-    std::vector<MemoryRecord> records;
-    if (memtrack->GetDevMem(pid, MEMORY_TRACKER_TYPE_GL, records) == HDF_SUCCESS) {
-        uint64_t value = 0;
-        for (const auto& record : records) {
-            if ((static_cast<uint32_t>(record.flags) & FLAG_UNMAPPED) == FLAG_UNMAPPED) {
-                value = static_cast<uint64_t>(record.size / BYTE_PER_KB);
-                break;
-            }
-        }
-        graphicsMemory.gl = value;
-        ret = true;
-    }
-    return ret;
-}
-
-bool MemoryInfo::IsRenderService(int32_t pid)
-{
-    std::string rsName = "render_service";
-    std::string processName = GetProcName(pid);
-    const char whitespace[] = " \n\t\v\r\f";
-    processName.erase(0, processName.find_first_not_of(whitespace));
-    processName.erase(processName.find_last_not_of(whitespace) + 1U);
-    if (processName == rsName) {
-        return true;
-    }
-    return false;
-}
 
 bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    if (!dmaInfo_.ParseDmaInfo()) {
-        DUMPER_HILOGE(MODULE_SERVICE, "Parse dma info error\n");
-    }
     GroupMap groupMap;
     GroupMap nativeGroupMap;
     unique_ptr<ParseSmapsInfo> parseSmapsInfo = make_unique<ParseSmapsInfo>();
@@ -271,14 +227,14 @@ bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
 
     MemInfoData::GraphicsMemory graphicsMemory;
     MemoryUtil::GetInstance().InitGraphicsMemory(graphicsMemory);
-    graphicsMemory.graph = dmaInfo_.GetDmaByPid(pid);
-    GetGraphicsMemory(pid, graphicsMemory);
+    GetGraphicsMemory(pid, graphicsMemory, GraphicType::GL);
+    GetGraphicsMemory(pid, graphicsMemory, GraphicType::GRAPH);
     SetGraphGroupMap(groupMap, graphicsMemory);
     BuildResult(groupMap, result);
     CalcGroup(groupMap, result);
     GetNativeHeap(nativeGroupMap, result);
     GetPurgByPid(pid, result);
-    GetDmaByPid(pid, result);
+    GetDmaByPid(graphicsMemory, result);
     GetHiaiServerIon(pid, result);
     return true;
 }
@@ -400,7 +356,7 @@ void MemoryInfo::GetPssTotal(const GroupMap &infos, StringMatrix result)
     PairToStringMatrix(MemoryFilter::GetInstance().GRAPH_OUT_LABEL, graphValue, result);
 
     vector<pair<string, uint64_t>> dmaValue;
-    dmaValue.push_back(make_pair(MemoryFilter::GetInstance().DMA_OUT_LABEL, dmaInfo_.GetTotalDma()));
+    dmaValue.push_back(make_pair(MemoryFilter::GetInstance().DMA_OUT_LABEL, totalDma_));
     PairToStringMatrix(MemoryFilter::GetInstance().DMA_TAG, dmaValue, result);
 }
 
@@ -532,7 +488,7 @@ void MemoryInfo::GetNativeHeap(const GroupMap& nativeGroupMap, StringMatrix resu
     }
 }
 
-void MemoryInfo::GetDmaByPid(const int32_t &pid, StringMatrix result)
+void MemoryInfo::GetDmaByPid(MemInfoData::GraphicsMemory& graphicsMemory, StringMatrix result)
 {
     AddBlankLine(result);
     vector<string> title;
@@ -543,7 +499,7 @@ void MemoryInfo::GetDmaByPid(const int32_t &pid, StringMatrix result)
     string dmaTitle = MemoryFilter::GetInstance().DMA_OUT_LABEL + ":";
     StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, dmaTitle);
     dma.push_back(dmaTitle);
-    dma.push_back(AddKbUnit(dmaInfo_.GetDmaByPid(pid)));
+    dma.push_back(to_string(graphicsMemory.graph) + MemoryUtil::GetInstance().KB_UNIT_);
     result->push_back(dma);
 }
 
@@ -706,31 +662,27 @@ uint64_t MemoryInfo::GetVss(const int32_t &pid)
     return res;
 }
 
-bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory)
+bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory& graphicsMemory, GraphicType graphicType)
 {
-    if ((IsRenderService(pid))) {
-#ifdef HIDUMPER_GRAPHIC_ENABLE
-        GetMemGraphics();
-#endif
-        GetRenderServiceGraphics(pid, graphicsMemory);
-        if (graphicsMemory.gl > g_sumPidsMemGL) {
-            graphicsMemory.gl -= g_sumPidsMemGL;
-        } else {
-            DUMPER_HILOGE(MODULE_SERVICE, "GL: %{public}d, sum pid GL: %{public}d",
-                static_cast<int>(graphicsMemory.gl), static_cast<int>(g_sumPidsMemGL));
-        }
+    std::shared_ptr<UCollectUtil::GraphicMemoryCollector> collector = UCollectUtil::GraphicMemoryCollector::Create();
+    CollectResult<int32_t> data;
+    data = collector->GetGraphicUsage(pid, graphicType);
+    if (data.retCode != UCollect::UcError::SUCCESS) {
+        DUMPER_HILOGE(MODULE_SERVICE, "collect progress GL or Graph error, ret:%{public}d", data.retCode);
+        return false;
+    }
+    if (graphicType == GraphicType::GL) {
+        graphicsMemory.gl = static_cast<uint64_t>(data.data);
+    } else if (graphicType == GraphicType::GRAPH) {
+        graphicsMemory.graph = static_cast<uint64_t>(data.data);
     } else {
-        GetRenderServiceGraphics(pid, graphicsMemory);
-#ifdef HIDUMPER_GRAPHIC_ENABLE
-        auto& rsClient = Rosen::RSInterfaces::GetInstance();
-        unique_ptr<MemoryGraphic> memGraphic = make_unique<MemoryGraphic>(rsClient.GetMemoryGraphic(pid));
-        graphicsMemory.gl += memGraphic-> GetGpuMemorySize() / BYTE_PER_KB;
-#endif
+        DUMPER_HILOGE(MODULE_SERVICE, "graphic type is not support.");
+        return false;
     }
     return true;
 }
 
-bool MemoryInfo::GetMemByProcessPid(const int32_t &pid, const DmaInfo &dmaInfo, MemInfoData::MemUsage &usage)
+bool MemoryInfo::GetMemByProcessPid(const int32_t& pid, MemInfoData::MemUsage& usage)
 {
     bool success = false;
     MemInfoData::MemInfo memInfo;
@@ -741,7 +693,6 @@ bool MemoryInfo::GetMemByProcessPid(const int32_t &pid, const DmaInfo &dmaInfo, 
         usage.rss = memInfo.rss;
         usage.pss = memInfo.pss;
         usage.swapPss = memInfo.swapPss;
-        usage.dma = dmaInfo.GetDmaByPid(pid);
         usage.name = GetProcName(pid);
         usage.pid = pid;
         usage.adjLabel = GetProcessAdjLabel(pid);
@@ -750,13 +701,18 @@ bool MemoryInfo::GetMemByProcessPid(const int32_t &pid, const DmaInfo &dmaInfo, 
 
     MemInfoData::GraphicsMemory graphicsMemory;
     MemoryUtil::GetInstance().InitGraphicsMemory(graphicsMemory);
-    graphicsMemory.graph = dmaInfo_.GetDmaByPid(pid);
-    if (GetGraphicsMemory(pid, graphicsMemory)) {
+    if (GetGraphicsMemory(pid, graphicsMemory, GraphicType::GL)) {
         usage.gl = graphicsMemory.gl;
+        usage.uss = usage.uss + graphicsMemory.gl;
+        usage.pss = usage.pss + graphicsMemory.gl;
+        usage.rss = usage.rss + graphicsMemory.gl;
+    }
+    if (GetGraphicsMemory(pid, graphicsMemory, GraphicType::GRAPH)) {
         usage.graph = graphicsMemory.graph;
-        usage.uss = usage.uss + graphicsMemory.gl + graphicsMemory.graph;
-        usage.pss = usage.pss + graphicsMemory.gl + graphicsMemory.graph;
-        usage.rss = usage.rss + graphicsMemory.gl + graphicsMemory.graph;
+        usage.dma = graphicsMemory.graph;
+        usage.uss = usage.uss + graphicsMemory.graph;
+        usage.pss = usage.pss + graphicsMemory.graph;
+        usage.rss = usage.rss + graphicsMemory.graph;
         DUMPER_HILOGD(MODULE_SERVICE, "uss:%{public}d pss:%{public}d rss:%{public}d gl:%{public}d graph:%{public}d",
                       static_cast<int>(usage.uss), static_cast<int>(usage.pss), static_cast<int>(usage.rss),
                       static_cast<int>(graphicsMemory.gl), static_cast<int>(graphicsMemory.graph));
@@ -858,28 +814,11 @@ void MemoryInfo::AddMemByProcessTitle(StringMatrix result, string sortType)
         unMappedPurgPin.c_str(), name.c_str());
 }
 
-#ifdef HIDUMPER_GRAPHIC_ENABLE
-void MemoryInfo::GetMemGraphics()
-{
-    memGraphicVec_.clear();
-    auto& rsClient = Rosen::RSInterfaces::GetInstance();
-    memGraphicVec_ = rsClient.GetMemoryGraphics();
-    auto sumPidsMemGL = 0;
-    for (auto it = memGraphicVec_.begin(); it != memGraphicVec_.end(); it++) {
-        sumPidsMemGL += it->GetGpuMemorySize();
-    }
-    g_sumPidsMemGL = static_cast<uint64_t>(sumPidsMemGL / BYTE_PER_KB);
-}
-#endif
-
 DumpStatus MemoryInfo::GetMemoryInfoNoPid(int fd, StringMatrix result)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     rawParamFd_ = fd;
     (void)dprintf(rawParamFd_, "%s\n", MEMORY_LINE.c_str());
-    if (!dmaInfo_.ParseDmaInfo()) {
-        DUMPER_HILOGE(MODULE_SERVICE, "Parse dma info error\n");
-    }
     if (!isReady_) {
         memUsages_.clear();
         pids_.clear();
@@ -889,9 +828,6 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(int fd, StringMatrix result)
         if (!GetPids()) {
             return DUMP_FAIL;
         }
-#ifdef HIDUMPER_GRAPHIC_ENABLE
-        GetMemGraphics();
-#endif
         isReady_ = true;
     }
 
@@ -911,11 +847,12 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(int fd, StringMatrix result)
     MemInfoData::MemUsage usage;
     MemoryUtil::GetInstance().InitMemUsage(usage);
     for (auto pid : pids_) {
-        if (GetMemByProcessPid(pid, dmaInfo_, usage)) {
+        if (GetMemByProcessPid(pid, usage)) {
             memUsages_.push_back(usage);
             adjMemResult_[usage.adjLabel].push_back(usage);
             totalGL_ += usage.gl;
             totalGraph_ += usage.graph;
+            totalDma_ += usage.dma;
             MemUsageToMatrix(usage, result);
         } else {
             DUMPER_HILOGE(MODULE_SERVICE, "Get smaps_rollup error! pid = %{public}d\n", static_cast<int>(pid));

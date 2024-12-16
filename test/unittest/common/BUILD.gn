@@ -193,6 +193,7 @@ ohos_unittest("HidumperMemoryTest") {
     "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
     "hdf_core:libhdf_utils",
     "hilog:libhilog",
+    "hiview:libucollection_utility",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
   ]
@@ -254,6 +255,7 @@ ohos_unittest("HidumperInnerkitsTest") {
     "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
     "hdf_core:libhdf_utils",
     "hilog:libhilog",
+    "hiview:libucollection_utility",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]

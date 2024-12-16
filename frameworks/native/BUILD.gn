@@ -90,6 +90,7 @@ ohos_source_set("dump_main") {
     "ability_base:want",
     "c_utils:utils",
     "hilog:libhilog",
+    "hiview:libucollection_utility",
     "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
