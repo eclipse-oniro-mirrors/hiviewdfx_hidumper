@@ -27,7 +27,6 @@ public:
     uint64_t GetPss(const int &pid);
     uint64_t GetPrivateDirty(const int &pid);
     uint64_t GetSharedDirty(const int &pid);
-    uint64_t GetDma(const int& pid);
     double GetCpuUsage(const int &pid);
 };
 } // namespace HiviewDFX

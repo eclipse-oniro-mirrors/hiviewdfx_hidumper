@@ -24,9 +24,7 @@
 #include "executor/memory/parse/meminfo_data.h"
 #include "common.h"
 #include "time.h"
-#ifdef HIDUMPER_GRAPHIC_ENABLE
-#include "transaction/rs_interfaces.h"
-#endif
+#include "graphic_memory_collector.h"
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
@@ -116,14 +114,12 @@ private:
     bool dumpSmapsOnStart_ = false;
     uint64_t totalGL_ = 0;
     uint64_t totalGraph_ = 0;
+    uint64_t totalDma_ = 0;
     std::mutex mutex_;
     std::future<GroupMap> fut_;
     std::vector<int32_t> pids_;
     std::vector<MemInfoData::MemUsage> memUsages_;
     std::vector<std::pair<std::string, MemFun>> methodVec_;
-#ifdef HIDUMPER_GRAPHIC_ENABLE
-    std::vector<OHOS::Rosen::MemoryGraphic> memGraphicVec_;
-#endif
     std::map<std::string, std::vector<MemInfoData::MemUsage>> adjMemResult_ = {
         {"System", {}}, {"Foreground", {}}, {"Suspend-delay", {}},
         {"Perceived", {}}, {"Background", {}}, {"Undefined", {}},
@@ -135,7 +131,7 @@ private:
     void BuildResult(const GroupMap &infos, StringMatrix result);
 
     std::string AddKbUnit(const uint64_t &value) const;
-    bool GetMemByProcessPid(const int32_t &pid, const DmaInfo &dmaInfo, MemInfoData::MemUsage &usage);
+    bool GetMemByProcessPid(const int32_t& pid, MemInfoData::MemUsage& usage);
     static bool GetSmapsInfoNoPid(const int32_t &pid, GroupMap &result);
     bool GetMeminfo(ValueMap &result);
     bool GetHardWareUsage(StringMatrix result);
@@ -147,7 +143,7 @@ private:
     void GetRamUsage(const GroupMap &smapsinfos, const ValueMap &meminfo, StringMatrix result);
     void GetPurgTotal(const ValueMap &meminfo, StringMatrix result);
     void GetPurgByPid(const int32_t &pid, StringMatrix result);
-    void GetDmaByPid(const int32_t &pid, StringMatrix result);
+    void GetDmaByPid(MemInfoData::GraphicsMemory& graphicsMemory, StringMatrix result);
     void GetHiaiServerIon(const int32_t &pid, StringMatrix result);
     void GetNativeHeap(const GroupMap& nativeGroupMap, StringMatrix result);
     void GetNativeValue(const std::string& tag, const GroupMap& nativeGroupMap, StringMatrix result);
@@ -168,12 +164,7 @@ private:
     static void InitMemUsage(MemInfoData::MemUsage &usage);
     void CalcGroup(const GroupMap &infos, StringMatrix result);
     void GetSortedMemoryInfoNoPid(StringMatrix result);
-#ifdef HIDUMPER_GRAPHIC_ENABLE
-    void GetMemGraphics();
-#endif
-    bool GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory);
-    bool GetRenderServiceGraphics(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory);
-    bool IsRenderService(int32_t pid);
+    bool GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory& graphicsMemory, GraphicType graphicType);
     void GetMemoryByAdj(StringMatrix result);
     void SetPss(MemInfoData::MemInfo &meminfo, uint64_t value);
     void SetSharedClean(MemInfoData::MemInfo &meminfo, uint64_t value);
