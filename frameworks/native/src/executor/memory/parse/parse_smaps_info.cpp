@@ -23,6 +23,7 @@
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
+constexpr int DATAS_MIN_LEN = 2;
 ParseSmapsInfo::ParseSmapsInfo()
 {
 }
@@ -126,12 +127,29 @@ void ParseSmapsInfo::SetMapByNameLine(const string &group, const string &content
     vector<string> datas;
     StringUtils::GetInstance().StringSplit(content, " ", datas);
     vector<string> startAndEnd;
+    if (datas.size() < DATAS_MIN_LEN) {
+        DUMPER_HILOGE(MODULE_COMMON, "datas are invalid, content: %{public}s", content.c_str());
+        return;
+    }
     StringUtils::GetInstance().StringSplit(datas.at(0), "-", startAndEnd);
     string startVal = startAndEnd.front();
     string endVal = startAndEnd.back();
     memMap_.insert(pair<string, string>("Start", startVal));
     memMap_.insert(pair<string, string>("End", endVal));
     memMap_.insert(pair<string, string>("Perm", datas.at(1)));
+}
+
+void ParseSmapsInfo::SetLineToResult(GroupMap &result, const std::string &line)
+{
+    vector<string> datas;
+    StringUtils::GetInstance().StringSplit(line, " ", datas);
+    if (datas.size() < DATAS_MIN_LEN) {
+        DUMPER_HILOGE(MODULE_COMMON, "datas are invalid, line: %{public}s", line.c_str());
+        return;
+    }
+    result[memGroup_].insert(pair<string, uint64_t>("Perm", MemoryUtil::GetInstance().PermToInt(datas.at(1))));
+    result[memGroup_].insert(pair<string, uint64_t>("Counts", 1));
+    result[memGroup_].insert(pair<string, uint64_t>("Name", 0));
 }
 
 bool ParseSmapsInfo::ShowSmapsData(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &result,
@@ -157,12 +175,7 @@ bool ParseSmapsInfo::ShowSmapsData(const MemoryFilter::MemoryType &memType, cons
             if (result.find(memGroup_) != result.end()) {
                 result[memGroup_]["Counts"]++;
             } else {
-                vector<string> datas;
-                StringUtils::GetInstance().StringSplit(line, " ", datas);
-                result[memGroup_].insert(pair<string, uint64_t>("Perm",
-                                                                MemoryUtil::GetInstance().PermToInt(datas.at(1))));
-                result[memGroup_].insert(pair<string, uint64_t>("Counts", 1));
-                result[memGroup_].insert(pair<string, uint64_t>("Name", 0));
+                SetLineToResult(result, line);
             }
             if (isShowSmapsInfo) {
                 SetMapByNameLine(memGroup_, line);

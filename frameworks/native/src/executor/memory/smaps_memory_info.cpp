@@ -47,6 +47,7 @@ static constexpr int LINE_NAME_VAL_WIDTH = 60;
 static constexpr int LINE_START_VAL_WIDTH = 18;
 static constexpr int LINE_NAME_V_WIDTH = 16;
 static constexpr size_t TYPE_SIZE = 2;
+static constexpr size_t TYPE_MIN_SIZE = 1;
 static constexpr char BLANK = ' ';
 SmapsMemoryInfo::SmapsMemoryInfo()
 {
@@ -93,7 +94,7 @@ void SmapsMemoryInfo::InsertSmapsTitle(StringMatrix result, bool isShowSmapsInfo
             string title2 = types.at(1);
             StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, true, title2);
             line2.push_back(title2);
-        } else {
+        } else if (types.size() == TYPE_MIN_SIZE) {
             string title = types.at(0);
             string space = " ";
             StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, true, space);
@@ -107,7 +108,7 @@ void SmapsMemoryInfo::InsertSmapsTitle(StringMatrix result, bool isShowSmapsInfo
                     LINE_START_VAL_WIDTH : LINE_WIDTH, BLANK, true, title);
             }
             line2.push_back(title);
-    }
+        }
     }
     result->push_back(line1);
     result->push_back(line2);

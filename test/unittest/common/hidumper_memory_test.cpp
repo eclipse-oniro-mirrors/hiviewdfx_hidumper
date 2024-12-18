@@ -95,6 +95,9 @@ HWTEST_F(HidumperMemoryTest, ParseSmapsInfo001, TestSize.Level1)
         0, groupMapResult, false, vectMap));
     ASSERT_TRUE(parseSmapsInfo->ShowSmapsData(OHOS::HiviewDFX::MemoryFilter::MemoryType::NOT_SPECIFIED_PID,
         INIT_PID, groupMapResult, true, vectMap));
+    parseSmapsInfo->memMap_.clear();
+    parseSmapsInfo->SetMapByNameLine("", "");
+    ASSERT_TRUE(parseSmapsInfo->memMap_.size() == 1);
 }
 
 /**
