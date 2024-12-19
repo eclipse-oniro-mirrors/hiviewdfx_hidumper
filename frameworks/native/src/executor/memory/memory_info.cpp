@@ -24,13 +24,11 @@
 #include "dump_common_utils.h"
 #include "dump_utils.h"
 #include "executor/memory/get_cma_info.h"
-#include "executor/memory/get_heap_info.h"
 #include "executor/memory/get_hardware_info.h"
 #include "executor/memory/get_kernel_info.h"
 #include "executor/memory/get_process_info.h"
 #include "executor/memory/get_ram_info.h"
 #include "executor/memory/memory_util.h"
-#include "executor/memory/parse/meminfo_data.h"
 #include "executor/memory/parse/parse_meminfo.h"
 #include "executor/memory/parse/parse_smaps_rollup_info.h"
 #include "executor/memory/parse/parse_smaps_info.h"
@@ -56,7 +54,6 @@ static const std::string UNKNOWN_PROCESS = "unknown";
 static const std::string PRE_BLANK = "   ";
 static const std::string MEMORY_LINE = "-------------------------------[memory]-------------------------------";
 constexpr char HIAI_MEM_INFO_FN[] = "HIAI_Memory_QueryAllUserAllocatedMemInfo";
-constexpr int PAGETAG_MIN_LEN = 2;
 using HiaiFunc = int (*)(MemInfoData::HiaiUserAllocatedMemInfo*, int, int*);
 
 MemoryInfo::MemoryInfo()
@@ -88,7 +85,7 @@ MemoryInfo::~MemoryInfo()
 {
 }
 
-void MemoryInfo::insertMemoryTitle(StringMatrix result)
+void MemoryInfo::InsertMemoryTitle(StringMatrix result)
 {
     // Pss        Shared   ---- this line is line1
     // Total      Clean    ---- this line is line2
@@ -136,68 +133,137 @@ void MemoryInfo::insertMemoryTitle(StringMatrix result)
     result->push_back(line4);
 }
 
-void MemoryInfo::BuildResult(const GroupMap &infos, StringMatrix result)
+void MemoryInfo::UpdateResult(const int32_t& pid, const unique_ptr<ProcessMemoryDetail>& processMemoryDetail,
+    unique_ptr<MemoryDetail>& nativeHeapDetail, StringMatrix result)
 {
-    insertMemoryTitle(result);
-    for (const auto &info : infos) {
-        vector<string> tempResult;
-        vector<string> pageTag;
-        StringUtils::GetInstance().StringSplit(info.first, "#", pageTag);
-        string group;
-        if (pageTag.size() < PAGETAG_MIN_LEN) {
-            DUMPER_HILOGE(MODULE_COMMON, "Infos are invalid, info.first: %{public}s", info.first.c_str());
-            return;
+    unique_ptr<MallHeapInfo> mallocHeapInfo = make_unique<MallHeapInfo>();
+    unique_ptr<GetHeapInfo> getHeapInfo = make_unique<GetHeapInfo>();
+    getHeapInfo->GetMallocHeapInfo(pid, mallocHeapInfo);
+    unique_ptr<MemoryDetail> anonPageDetail = make_unique<MemoryDetail>();
+    unique_ptr<MemoryDetail> filePageDetail = make_unique<MemoryDetail>();
+    vector<MemoryDetail> memoryDetails = processMemoryDetail->details;
+    map<string, unique_ptr<MemoryDetail>> allDetailMap;
+    for (const auto& memoryDetail : memoryDetails) {
+        MemoryClass memoryClass = memoryDetail.memoryClass;
+        if (static_cast<int>(memoryClass) < 0 || static_cast<size_t>(memoryClass) > MEMORY_CLASS_VEC.size()) {
+            DUMPER_HILOGE(MODULE_SERVICE, "memoryClass:%{public}d is not exist", memoryClass);
+            continue;
         }
-        if (pageTag[1] == "other") {
-            group = pageTag[0] == MemoryFilter::GetInstance().FILE_PAGE_TAG ? "FilePage other" : "AnonPage other";
-        } else {
-            group = pageTag[1];
+        string memoryClassStr = MEMORY_CLASS_VEC[static_cast<int>(memoryClass)];
+        unique_ptr<MemoryDetail> tempDetail = make_unique<MemoryDetail>(memoryDetail);
+        if (memoryClassStr == "graph") {
+            GetGraphicsMemoryByDetail(tempDetail, result);
+        } else if (memoryClassStr == MemoryFilter::GetInstance().NATIVE_HEAP_LABEL) {
+            nativeHeapDetail = make_unique<MemoryDetail>(memoryDetail);
+        } else if (memoryClassStr == MEMINFO_OTHER) {
+            UpdatePageDetail(anonPageDetail, filePageDetail, tempDetail);
+            tempDetail = std::move(anonPageDetail);
+            memoryClassStr = MEMINFO_ANONPAGE_OTHER;
         }
-        StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, group);
-        tempResult.push_back(group + BLANK_);
+        auto it = std::find(MEMORY_PRINT_ORDER_VEC.begin(), MEMORY_PRINT_ORDER_VEC.end(), memoryClassStr);
+        if (it!= MEMORY_PRINT_ORDER_VEC.end()) {
+            allDetailMap[memoryClassStr] = std::move(tempDetail);
+        }
+    }
+    for (const auto &classStr : MEMORY_PRINT_ORDER_VEC) {
+        auto it = allDetailMap.find(classStr);
+        if (it != allDetailMap.end()) {
+            SetDetailRet(classStr, it->second, mallocHeapInfo, result);
+        }
+    }
+    SetDetailRet(MEMINFO_FILEPAGE_OTHER, filePageDetail, mallocHeapInfo, result);
+    UpdateTotalDetail(processMemoryDetail, mallocHeapInfo, result);
+}
 
-        auto &valueMap = info.second;
-        for (const auto &tag : MemoryFilter::GetInstance().VALUE_WITH_PID) {
-            auto it = valueMap.find(tag);
-            string value = "0";
-            if (it != valueMap.end()) {
-                value = to_string(it->second);
-            }
-            StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, value);
-            tempResult.push_back(value + BLANK_);
+void MemoryInfo::UpdatePageDetail(std::unique_ptr<MemoryDetail>& anonPageDetail,
+                                  std::unique_ptr<MemoryDetail>& filePageDetail,
+                                  const std::unique_ptr<MemoryDetail>& tempDetail)
+{
+    if (!tempDetail) {
+        DUMPER_HILOGE(MODULE_SERVICE, "detail is nullptr");
+        return;
+    }
+    vector<MemoryItem> memoryItems = tempDetail->items;
+    for (const auto& memoryItem : memoryItems) {
+        int32_t iNode = memoryItem.iNode;
+        if (iNode == 0) {
+            anonPageDetail->totalPss += memoryItem.pss;
+            anonPageDetail->totalSharedClean += memoryItem.sharedClean;
+            anonPageDetail->totalSharedDirty += memoryItem.sharedDirty;
+            anonPageDetail->totalPrivateClean += memoryItem.privateClean;
+            anonPageDetail->totalPrivateDirty += memoryItem.privateDirty;
+            anonPageDetail->totalSwap += memoryItem.swap;
+            anonPageDetail->totalSwapPss += memoryItem.swapPss;
+        } else {
+            filePageDetail->totalPss += memoryItem.pss;
+            filePageDetail->totalSharedClean += memoryItem.sharedClean;
+            filePageDetail->totalSharedDirty += memoryItem.sharedDirty;
+            filePageDetail->totalPrivateClean += memoryItem.privateClean;
+            filePageDetail->totalPrivateDirty += memoryItem.privateDirty;
+            filePageDetail->totalSwap += memoryItem.swap;
+            filePageDetail->totalSwapPss += memoryItem.swapPss;
         }
-        result->push_back(tempResult);
     }
 }
 
-void MemoryInfo::CalcGroup(const GroupMap &infos, StringMatrix result)
+void MemoryInfo::SetDetailRet(const std::string& memoryClassStr, const std::unique_ptr<MemoryDetail>& detail,
+                              const std::unique_ptr<MallHeapInfo>& heapInfo, StringMatrix result)
 {
-    MemInfoData::MemInfo meminfo;
-    MemoryUtil::GetInstance().InitMemInfo(meminfo);
-    for (const auto &info : infos) {
-        auto &valueMap = info.second;
-        for (const auto &method : methodVec_) {
-            auto it = valueMap.find(method.first);
-            if (it != valueMap.end()) {
-                method.second(meminfo, it->second);
-            }
+    if (!detail) {
+        DUMPER_HILOGE(MODULE_SERVICE, "detail is nullptr");
+        return;
+    }
+    vector<string> tempResult;
+    SetValueForRet(memoryClassStr, tempResult);
+    SetValueForRet(to_string(detail->totalPss), tempResult);
+    SetValueForRet(to_string(detail->totalSharedClean), tempResult);
+    SetValueForRet(to_string(detail->totalSharedDirty), tempResult);
+    SetValueForRet(to_string(detail->totalPrivateClean), tempResult);
+    SetValueForRet(to_string(detail->totalPrivateDirty), tempResult);
+    SetValueForRet(to_string(detail->totalSwap), tempResult);
+    SetValueForRet(to_string(detail->totalSwapPss), tempResult);
+    if (memoryClassStr == MemoryFilter::GetInstance().NATIVE_HEAP_LABEL) {
+        SetValueForRet(to_string(heapInfo->size), tempResult);
+        SetValueForRet(to_string(heapInfo->alloc), tempResult);
+        SetValueForRet(to_string(heapInfo->free), tempResult);
+    } else {
+        for (int i = 0; i < MALLOC_HEAP_TYPES; i++) {
+            SetValueForRet(ZERO, tempResult);
         }
     }
+    result->push_back(tempResult);
+}
 
+void MemoryInfo::SetValueForRet(const std::string& value, std::vector<std::string>& tempResult)
+{
+    std::string tempStr = value;
+    StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, tempStr);
+    tempResult.push_back(tempStr + BLANK_);
+}
+
+void MemoryInfo::UpdateTotalDetail(const std::unique_ptr<ProcessMemoryDetail>& detail,
+                                   const std::unique_ptr<MallHeapInfo>& heapInfo, StringMatrix result)
+{
+    if (!detail) {
+        DUMPER_HILOGE(MODULE_SERVICE, "detail is nullptr");
+        return;
+    }
     vector<string> lines;
     vector<string> values;
+    uint64_t totalPrivateDirty = static_cast<uint64_t>(detail->totalPrivateDirty) + graphicsMemory_.gl +
+        graphicsMemory_.graph;
+    MemoryUtil::GetInstance().SetMemTotalValue(MEMINFO_TOTAL, lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(detail->totalAllPss), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(detail->totalSharedClean), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(detail->totalSharedDirty), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(detail->totalPrivateClean), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(totalPrivateDirty), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(detail->totalSwap), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(detail->totalSwapPss), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(heapInfo->size), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(heapInfo->alloc), lines, values);
+    MemoryUtil::GetInstance().SetMemTotalValue(to_string(heapInfo->free), lines, values);
 
-    MemoryUtil::GetInstance().SetMemTotalValue("Total", lines, values);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.pss + meminfo.swapPss), lines, values);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.sharedClean), lines, values);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.sharedDirty), lines, values);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.privateClean), lines, values);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.privateDirty), lines, values);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.swap), lines, values);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.swapPss), lines, values);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.heapSize), lines, values);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.heapAlloc), lines, values);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(meminfo.heapFree), lines, values);
     // delete the last separator
     if (!lines.empty()) {
         lines.pop_back();
@@ -209,48 +275,82 @@ void MemoryInfo::CalcGroup(const GroupMap &infos, StringMatrix result)
     result->push_back(values);
 }
 
-
 bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    GroupMap groupMap;
-    GroupMap nativeGroupMap;
-    unique_ptr<ParseSmapsInfo> parseSmapsInfo = make_unique<ParseSmapsInfo>();
-    if (!parseSmapsInfo->GetInfo(MemoryFilter::APPOINT_PID, pid, nativeGroupMap, groupMap)) {
-        DUMPER_HILOGE(MODULE_SERVICE, "parse smaps info fail, pid:%{public}d", pid);
-        return false;
-    }
-
-    unique_ptr<GetHeapInfo> getHeapInfo = make_unique<GetHeapInfo>();
-    if (!getHeapInfo->GetInfo(MemoryFilter::APPOINT_PID, pid, groupMap)) {
-        DUMPER_HILOGE(MODULE_SERVICE, "get heap info fail");
-        return false;
-    }
-
-    MemInfoData::GraphicsMemory graphicsMemory;
-    MemoryUtil::GetInstance().InitGraphicsMemory(graphicsMemory);
-    GetGraphicsMemory(pid, graphicsMemory, GraphicType::GL);
-    GetGraphicsMemory(pid, graphicsMemory, GraphicType::GRAPH);
-    SetGraphGroupMap(groupMap, graphicsMemory);
-    BuildResult(groupMap, result);
-    CalcGroup(groupMap, result);
-    GetNativeHeap(nativeGroupMap, result);
+    InsertMemoryTitle(result);
+    GetResult(pid, result);
     GetPurgByPid(pid, result);
-    GetDmaByPid(graphicsMemory, result);
+    GetDma(graphicsMemory_.graph, result);
     GetHiaiServerIon(pid, result);
     return true;
 }
 
-void MemoryInfo::SetGraphGroupMap(GroupMap& groupMap, MemInfoData::GraphicsMemory &graphicsMemory)
+void MemoryInfo::GetResult(const int32_t& pid, StringMatrix result)
+{
+    DUMPER_HILOGD(MODULE_SERVICE, "CollectProcessMemoryDetail pid:%{public}d start", pid);
+    std::shared_ptr<UCollectUtil::MemoryCollector> collector = UCollectUtil::MemoryCollector::Create();
+    CollectResult<ProcessMemoryDetail> collectRet;
+    collectRet = collector->CollectProcessMemoryDetail(pid, true);
+    if (collectRet.retCode != UCollect::UcError::SUCCESS) {
+        DUMPER_HILOGE(MODULE_SERVICE, "collect process memory error, ret:%{public}d", collectRet.retCode);
+        return;
+    }
+    unique_ptr<ProcessMemoryDetail> processMemoryDetail = make_unique<ProcessMemoryDetail>(collectRet.data);
+    if (!processMemoryDetail) {
+        DUMPER_HILOGE(MODULE_SERVICE, "processMemoryDetail is nullptr");
+        return;
+    }
+    DUMPER_HILOGD(MODULE_SERVICE, "CollectProcessMemoryDetail pid:%{public}d end", pid);
+    unique_ptr<MemoryDetail> nativeHeapDetail = {nullptr};
+    UpdateResult(pid, processMemoryDetail, nativeHeapDetail, result);
+    GetNativeHeap(nativeHeapDetail, result);
+}
+
+void MemoryInfo::GetGraphicsMemoryByDetail(const std::unique_ptr<MemoryDetail>& detail, StringMatrix result)
+{
+    if (!detail) {
+        DUMPER_HILOGE(MODULE_SERVICE, "detail is nullptr");
+        return;
+    }
+    vector<MemoryItem> memoryItems = detail->items;
+    for (const auto& memoryItem : memoryItems) {
+        MemoryItemType memoryItemType = memoryItem.type;
+        auto info = GRAPHIC_MAP.find(memoryItemType);
+        if (info == GRAPHIC_MAP.end()) {
+            DUMPER_HILOGE(MODULE_SERVICE, "memoryItemType = %{public}d is not exist", memoryItemType);
+            continue;
+        }
+        string type = info->second;
+        if (type == MemoryFilter::GetInstance().GL_OUT_LABEL) {
+            graphicsMemory_.gl = memoryItem.pss;
+        } else if (type == MemoryFilter::GetInstance().GRAPH_OUT_LABEL) {
+            graphicsMemory_.graph = memoryItem.pss;
+        }
+    }
+    UpdateGraphicsMemoryRet(MemoryFilter::GetInstance().GL_OUT_LABEL, graphicsMemory_.gl, result);
+    UpdateGraphicsMemoryRet(MemoryFilter::GetInstance().GRAPH_OUT_LABEL, graphicsMemory_.graph, result);
+}
+
+void MemoryInfo::UpdateGraphicsMemoryRet(const string& title, const uint64_t& value, StringMatrix result)
 {
     map<string, uint64_t> valueMap;
-    valueMap.insert(pair<string, uint64_t>("Pss", graphicsMemory.gl));
-    valueMap.insert(pair<string, uint64_t>("Private_Dirty", graphicsMemory.gl));
-    groupMap.insert(pair<string, map<string, uint64_t>>("AnonPage # GL", valueMap));
-    valueMap.clear();
-    valueMap.insert(pair<string, uint64_t>("Pss", graphicsMemory.graph));
-    valueMap.insert(pair<string, uint64_t>("Private_Dirty", graphicsMemory.graph));
-    groupMap.insert(pair<string, map<string, uint64_t>>("AnonPage # Graph", valueMap));
+    valueMap.insert(pair<string, uint64_t>(MEMINFO_PSS, value));
+    valueMap.insert(pair<string, uint64_t>(MEMINFO_PRIVATE_DIRTY, value));
+    vector<string> tempResult;
+    string tempTitle = title;
+    StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, tempTitle);
+    tempResult.push_back(tempTitle + BLANK_);
+    for (const auto &tag : MemoryFilter::GetInstance().VALUE_WITH_PID) {
+        auto it = valueMap.find(tag);
+        string value = ZERO;
+        if (it != valueMap.end()) {
+            value = to_string(it->second);
+        }
+        StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, value);
+        tempResult.push_back(value + BLANK_);
+    }
+    result->push_back(tempResult);
 }
 
 string MemoryInfo::AddKbUnit(const uint64_t &value) const
@@ -330,10 +430,6 @@ void MemoryInfo::GetPssTotal(const GroupMap &infos, StringMatrix result)
     for (const auto &info : infos) {
         vector<string> pageTag;
         StringUtils::GetInstance().StringSplit(info.first, "#", pageTag);
-        if (pageTag.size() < PAGETAG_MIN_LEN) {
-            DUMPER_HILOGE(MODULE_COMMON, "Infos are invalid, info.first: %{public}s", info.first.c_str());
-            continue;
-        }
         string group = pageTag[1];
         auto &valueMap = info.second;
         uint64_t pssValue = 0;
@@ -455,46 +551,71 @@ void MemoryInfo::GetPurgByPid(const int32_t &pid, StringMatrix result)
     result->push_back(purgPin);
 }
 
-void MemoryInfo::GetNativeValue(const string& tag, const GroupMap& nativeGroupMap, StringMatrix result)
+void MemoryInfo::GetNativeHeap(const std::unique_ptr<MemoryDetail>& detail, StringMatrix result)
 {
-    vector<string> heap;
-    string heapTitle = tag + ":";
-    StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, heapTitle);
-    heap.push_back(heapTitle);
-
-    auto info = nativeGroupMap.find(tag);
-    if (info == nativeGroupMap.end()) {
-        DUMPER_HILOGE(MODULE_SERVICE, "GetNativeValue fail! tag = %{public}s", tag.c_str());
+    if (!detail) {
+        DUMPER_HILOGE(MODULE_SERVICE, "detail is nullptr");
         return;
     }
-    string nativeValue;
-    auto &valueMap = info->second;
-    for (const auto &key : MemoryFilter::GetInstance().VALUE_WITH_PID) {
-        auto it = valueMap.find(key);
-        string value = "0";
-        if (it != valueMap.end()) {
-            value = to_string(it->second);
-        }
-        StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, value);
-        nativeValue += value + BLANK_;
-    }
-
-    heap.push_back(nativeValue);
-    result->push_back(heap);
-}
-
-void MemoryInfo::GetNativeHeap(const GroupMap& nativeGroupMap, StringMatrix result)
-{
     AddBlankLine(result);
     vector<string> title;
     title.push_back(MemoryFilter::GetInstance().NATIVE_HEAP_LABEL + ":");
     result->push_back(title);
-    for (const auto &it: NATIVE_HEAP_TAG_) {
-        GetNativeValue(it, nativeGroupMap, result);
+
+    vector<MemoryItem> memoryItems = detail->items;
+    for (const auto& memoryItem : memoryItems) {
+        MemoryItemType memoryItemType = memoryItem.type;
+        auto info = NATIVE_HEAP_MAP.find(memoryItemType);
+        if (info == NATIVE_HEAP_MAP.end()) {
+            DUMPER_HILOGE(MODULE_SERVICE, "memoryItemType = %{public}d is not exist", memoryItemType);
+            continue;
+        }
+        string type = info->second;
+        auto it = memoryItemMap_.find(type);
+        if (it == memoryItemMap_.end()) {
+            memoryItemMap_.insert(pair<string, MemoryItem>(type, memoryItem));
+        } else {
+            it->second.pss += memoryItem.pss;
+            it->second.sharedClean += memoryItem.sharedClean;
+            it->second.sharedDirty += memoryItem.sharedDirty;
+            it->second.privateClean += memoryItem.privateClean;
+            it->second.privateDirty += memoryItem.privateDirty;
+            it->second.swap += memoryItem.swap;
+            it->second.swapPss += memoryItem.swapPss;
+        }
+    }
+    for (const auto& type: NATIVE_HEAP_TAG) {
+        auto it = memoryItemMap_.find(type);
+        if (it == memoryItemMap_.end()) {
+            continue;
+        }
+        string heapTitle = it->first;
+        unique_ptr<MemoryItem> item = make_unique<MemoryItem>(it->second);
+        SetNativeDetailRet(type, item, result);
     }
 }
 
-void MemoryInfo::GetDmaByPid(MemInfoData::GraphicsMemory &graphicsMemory, StringMatrix result)
+void MemoryInfo::SetNativeDetailRet(const std::string& nativeClassStr, const std::unique_ptr<MemoryItem>& item,
+                                    StringMatrix result)
+{
+    vector<string> heap;
+    string heapTitle = nativeClassStr + ":";
+    StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, heapTitle);
+    heap.push_back(heapTitle);
+    SetValueForRet(to_string(item->pss), heap);
+    SetValueForRet(to_string(item->sharedClean), heap);
+    SetValueForRet(to_string(item->sharedDirty), heap);
+    SetValueForRet(to_string(item->privateClean), heap);
+    SetValueForRet(to_string(item->privateDirty), heap);
+    SetValueForRet(to_string(item->swap), heap);
+    SetValueForRet(to_string(item->swapPss), heap);
+    for (int i = 0; i < MALLOC_HEAP_TYPES; i++) {
+        SetValueForRet(ZERO, heap);
+    }
+    result->push_back(heap);
+}
+
+void MemoryInfo::GetDma(const uint64_t& dmaValue, StringMatrix result)
 {
     AddBlankLine(result);
     vector<string> title;
@@ -505,7 +626,7 @@ void MemoryInfo::GetDmaByPid(MemInfoData::GraphicsMemory &graphicsMemory, String
     string dmaTitle = MemoryFilter::GetInstance().DMA_OUT_LABEL + ":";
     StringUtils::GetInstance().SetWidth(RAM_WIDTH_, BLANK_, false, dmaTitle);
     dma.push_back(dmaTitle);
-    dma.push_back(to_string(graphicsMemory.graph) + MemoryUtil::GetInstance().KB_UNIT_);
+    dma.push_back(to_string(dmaValue) + MemoryUtil::GetInstance().KB_UNIT_);
     result->push_back(dma);
 }
 
@@ -672,13 +793,15 @@ uint64_t MemoryInfo::GetVss(const int32_t &pid)
 
 bool MemoryInfo::GetGraphicsMemory(int32_t pid, MemInfoData::GraphicsMemory &graphicsMemory, GraphicType graphicType)
 {
+    DUMPER_HILOGD(MODULE_SERVICE, "GetGraphicUsage start, pid:%{public}d", pid);
     std::shared_ptr<UCollectUtil::GraphicMemoryCollector> collector = UCollectUtil::GraphicMemoryCollector::Create();
     CollectResult<int32_t> data;
-    data = collector->GetGraphicUsage(pid, graphicType);
+    data = collector->GetGraphicUsage(pid, graphicType, true);
     if (data.retCode != UCollect::UcError::SUCCESS) {
         DUMPER_HILOGE(MODULE_SERVICE, "collect progress GL or Graph error, ret:%{public}d", data.retCode);
         return false;
     }
+    DUMPER_HILOGD(MODULE_SERVICE, "GetGraphicUsage end, pid:%{public}d", pid);
     if (graphicType == GraphicType::GL) {
         graphicsMemory.gl = static_cast<uint64_t>(data.data);
     } else if (graphicType == GraphicType::GRAPH) {
