@@ -20,6 +20,7 @@ using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
 static const std::string UNKNOWN = "unknown";
+constexpr int VALUES_MIN_LEN = 1;
 FileUtils::FileUtils()
 {
 }
@@ -116,11 +117,11 @@ string FileUtils::GetProcValue(const int32_t &pid, const string& path, const str
     if (!content.empty()) {
         vector<string> values;
         StringUtils::GetInstance().StringSplit(content, ":", values);
-        if (values.empty()) {
-            DUMPER_HILOGE(MODULE_SERVICE, "values is empty");
+        if (values.size() <= VALUES_MIN_LEN || values[VALUES_MIN_LEN].size() <= VALUES_MIN_LEN) {
+            DUMPER_HILOGE(MODULE_SERVICE, "values is invalid");
             return UNKNOWN;
         } else {
-            return values[1].substr(1);
+            return values[VALUES_MIN_LEN].substr(VALUES_MIN_LEN);
         }
     } else {
         DUMPER_HILOGE(MODULE_SERVICE, "content is empty");

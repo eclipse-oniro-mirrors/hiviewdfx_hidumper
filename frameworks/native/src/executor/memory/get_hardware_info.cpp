@@ -25,6 +25,7 @@
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
+constexpr int DATAS_MIN_LEN = 1;
 GetHardwareInfo::GetHardwareInfo()
 {
 }
@@ -91,8 +92,8 @@ bool GetHardwareInfo::RegStrToRegValue(const vector<string> &infos, uint64_t &va
     vector<string> tempStrs;
     for (string str : infos) {
         StringUtils::GetInstance().StringSplit(str, ":", tempStrs);
-        if (tempStrs.size() > 0) {
-            tempValueStr = tempStrs[1];
+        if (tempStrs.size() > DATAS_MIN_LEN) {
+            tempValueStr = tempStrs[DATAS_MIN_LEN];
             uint64_t tempValue = 0;
             GetValue(tempValueStr, tempValue);
             value += tempValue;
