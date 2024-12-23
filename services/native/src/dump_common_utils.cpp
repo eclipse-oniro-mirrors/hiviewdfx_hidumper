@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include "dump_common_utils.h"
+#include <fcntl.h>
 #include <file_ex.h>
 #include <securec.h>
 #include <string_ex.h>
@@ -20,6 +21,9 @@
 #include <fstream>
 #include <iostream>
 #include "hilog_wrapper.h"
+#ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
+#include "hisysevent.h"
+#endif
 #include "sys/stat.h"
 #include "util/string_utils.h"
 #include "util/file_utils.h"
@@ -33,6 +37,7 @@ constexpr int LINE_KEY = 0;
 constexpr int LINE_VALUE = 1;
 constexpr int LINE_VALUE_0 = 0;
 constexpr int UNSET = -1;
+constexpr double ONE_DAY_TO_SECONDS = 24 * 60 * 60;
 static const std::string CPU_STR = "cpu";
 }
 
@@ -345,5 +350,72 @@ int DumpCommonUtils::FindDigitIndex(const std::string& fullFileName)
     }
     return static_cast<int>(fullFileName.size());
 }
+
+void DumpCommonUtils::ReportCmdUsage(const std::unique_ptr<DumperSysEventParams>& param)
+{
+    ClearHisyseventTmpFile();
+    int fd = -1;
+    fd = TEMP_FAILURE_RETRY(open(HISYSEVENT_TMP_FILE.c_str(), O_RDWR | O_CREAT | O_APPEND,
+        S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH));
+    if (fd < 0) {
+        DUMPER_HILOGE(MODULE_COMMON, "open hisysevent_tmp file error: %{public}d", errno);
+        return;
+    }
+    std::string content = "";
+    if (!OHOS::LoadStringFromFd(fd, content)) {
+        DUMPER_HILOGE(MODULE_COMMON, "LoadStringFromFd error! %{public}d", errno);
+        close(fd);
+        return;
+    }
+    std::string option = "";
+    param->errorCode == 0 ? option = "OPT:" + param->opt + " SUB_OPT:" + param->subOpt + "\n" :
+        option = "ERROR_MESSAGE:" + param->errorMsg + "\n";
+    if (content.find(option) != std::string::npos) {
+        DUMPER_HILOGE(MODULE_COMMON, "hisysevent data contain option, not report");
+        close(fd);
+        return;
+    }
+    std::string callerProcess = "unknown";
+    DumpCommonUtils::GetProcessNameByPid(param->callerPpid, callerProcess);
+#ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
+    int ret = HiSysEventWrite(HiSysEvent::Domain::HIDUMPER, "CMD_USAGE",
+        OHOS::HiviewDFX::HiSysEvent::EventType::STATISTIC,
+        "OPT", param->opt, "CALLER", callerProcess, "SUB_OPT", param->subOpt, "TARGET", param->target,
+        "ARGS", param->arguments, "ERROR_CODE", param->errorCode, "ERROR_MESSAGE", param->errorMsg);
+    if (ret != 0) {
+        DUMPER_HILOGE(MODULE_COMMON, "hisysevent report hidumper usage failed! ret %{public}d.", ret);
+        close(fd);
+        return;
+    }
+#endif
+    SaveStringToFd(fd, option.c_str());
+    close(fd);
+}
+
+void DumpCommonUtils::ClearHisyseventTmpFile()
+{
+    if (!OHOS::FileExists(HISYSEVENT_TMP_FILE)) {
+        DUMPER_HILOGE(MODULE_COMMON, "HISYSEVENT_TMP_FILE not exists");
+        return;
+    }
+    time_t lastWriteTime;
+    if (!FileUtils::GetInstance().GetLastWriteTime(HISYSEVENT_TMP_FILE, lastWriteTime)) {
+        DUMPER_HILOGE(MODULE_COMMON, "GetLastWriteTime failed");
+        return;
+    }
+    time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    struct tm currentTimeData = {0};
+    localtime_r(&currentTime, &currentTimeData);
+    struct tm lastTimeData = {0};
+    localtime_r(&lastWriteTime, &lastTimeData);
+    if (difftime(currentTime, lastWriteTime) > ONE_DAY_TO_SECONDS ||
+        (currentTimeData.tm_year == lastTimeData.tm_year && currentTimeData.tm_mon == lastTimeData.tm_mon &&
+        currentTimeData.tm_mday - lastTimeData.tm_mday >= 1)) {
+        DUMPER_HILOGI(MODULE_COMMON, "start clear data");
+        std::ofstream ofs(HISYSEVENT_TMP_FILE, std::ios::out | std::ios::trunc);
+        ofs.close();
+    }
+}
+
 } // namespace HiviewDFX
 } // namespace OHOS

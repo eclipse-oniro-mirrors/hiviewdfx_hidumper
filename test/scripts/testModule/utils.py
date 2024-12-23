@@ -86,14 +86,26 @@ def convert_string_to_matrix(data : str) -> list:
         matrix.append(row)
     return matrix
 
-def CheckCmd(command, checkFunction):
+def CheckCmd(command, checkFunction, hidumperTmpCmd = ""):
+    if len(hidumperTmpCmd) != 0:
+        hisyseventOutput = GetHisyseventTmpFile()
+        lastWriteDay = GetLastWriteDay()
+        currentTime = GetDate()
     output = subprocess.check_output(f"hdc shell \"{command}\"", shell=True, text=True, encoding="utf-8")
     assert checkFunction(output)
+    if len(hidumperTmpCmd) != 0 and not IsOpenHarmonyVersion():
+        JudgeHisyseventReport(command, hisyseventOutput, hidumperTmpCmd, currentTime, lastWriteDay)
 
-def CheckCmdRedirect(command, checkFunction, filePath = None):
+def CheckCmdRedirect(command, checkFunction, filePath = None, hidumperTmpCmd = ""):
+    if len(hidumperTmpCmd) != 0:
+        hisyseventOutput = GetHisyseventTmpFile()
+        lastWriteDay = GetLastWriteDay()
+        currentTime = GetDate()
     filePath = f"{OUTPUT_PATH}/hidumper_redirect.txt" if filePath is None else filePath
     subprocess.check_output(f"hdc shell \"{command}\" > {filePath}", shell=True, text=True, encoding="utf-8")
     assert checkFile(filePath, checkFunction = checkFunction)
+    if len(hidumperTmpCmd) != 0 and not IsOpenHarmonyVersion():
+        JudgeHisyseventReport(command, hisyseventOutput, hidumperTmpCmd, currentTime, lastWriteDay)
 
 def CheckCmdZip(command, checkFunction):
     output = subprocess.check_output(f"hdc shell \"{command} --zip\"", shell=True, text=True, encoding="utf-8")
@@ -132,3 +144,79 @@ def WaitUntillLogAppear(command,targetLog, second):
         if now - start > second:
             process.kill()
             return False
+
+def IsLogAppearInCmdOutput(command, targetLog, second):
+    process = subprocess.Popen(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        shell=True,
+        text=True
+    )
+    output = process.stdout.readline()
+
+    try:
+        process.wait(timeout=5)
+        process.kill()
+        return True
+    except subprocess.TimeoutExpired:
+        output = process.stdout
+        process.kill()
+        return False
+
+
+def GetHisyseventTmpFile():
+    # 获取/data/log/hidumper/hisysevent.tmp文件内容
+    get_hisysevent_tmp_txt = "cat /data/log/hidumper/hisysevent.tmp"
+    output = subprocess.check_output(f"hdc shell \"{get_hisysevent_tmp_txt}\"", shell=True, text=True, encoding="utf-8")
+    output = output.strip('\n')
+    return output
+
+def GetDate():
+    formatted_time = subprocess.check_output(f"hdc shell date +%Y-%m-%d\ %H:%M:%S", shell=True, text=True, encoding="utf-8")
+    formatted_time = formatted_time.strip('\n')
+    return formatted_time
+
+def GetDateArray(formatted_time):
+    date_part = formatted_time.split(' ')[0]  # 先获取日期部分，按空格分割取第一个元素
+    dateArray = date_part.split('-')  # 再按 - 分割日期部分
+    return dateArray
+
+def GetLastWriteDay():
+    lastWriteTime = subprocess.check_output(f"hdc shell stat -c %y /data/log/hidumper/hisysevent.tmp", shell=True, text=True, encoding="utf-8")
+    lastWriteTime = lastWriteTime.strip(' ')
+    lastWriteDay = GetDateArray(lastWriteTime)
+    return lastWriteDay
+
+def UpdateDay():
+    currentTime = GetDate()
+    year = GetDateArray(currentTime)[0]
+    month = GetDateArray(currentTime)[1]
+    day = GetDateArray(currentTime)[2]
+    newDay = str(int(day) + 1)
+    date = year + "-" + month + "-" + newDay
+    dateCmd = f"hdc shell date \"{date}\""
+    output = subprocess.check_output(dateCmd, shell=True, encoding="utf-8", text=True)
+    assert "00:00:00" in output
+
+# 校验是否上报hisysevent
+def JudgeHisyseventReport(command, output, hidumperTmpCmd, currentTime, lastWriteDay):
+    currentDay = GetDateArray(currentTime)[2]
+    # 执行hisysevent命令
+    hisyseventCmd = f"hisysevent -l -S \"{currentTime}\" |grep CMD_USAGE"
+    hisyseventOutput = subprocess.check_output(f"hdc shell \"{hisyseventCmd}\"", shell=True, text=True, encoding="utf-8")
+    outputArray = output.split('\n')
+    if (int(currentDay) - int(lastWriteDay)) >= 1 :
+        #会清空文件数据，此时的命令必然会上报hisysevent_tmp
+        assert command in hisyseventOutput
+        print(f"tmp file is cleard, hisysevent is reported\n")
+    else:
+        # 校验/data/log/hidumper/hisysevent.tmp文件中是否包含本次执行的命令
+        if hidumperTmpCmd in outputArray:
+            #若包含：则确认hisysevent -r 是否未上报对应数据
+            assert command not in hisyseventOutput
+            print(f"hisysevent is exist, no need report\n")
+        else:
+            #若不包含：则确认hisysevent -r 是否上报对应数据
+            assert command in hisyseventOutput
+            print(f"hisysevent is reported\n")

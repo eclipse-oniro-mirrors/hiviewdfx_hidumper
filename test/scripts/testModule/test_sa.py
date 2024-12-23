@@ -36,29 +36,33 @@ class TestHidumperSA:
     @pytest.mark.L0
     def test_sa_ls(self):
         command = "hidumper -ls"
+        # 设置hisysevent相关信息
+        hidumperTmpCmd = "OPT:ls SUB_OPT:"
         # 校验命令行输出
-        CheckCmd(command, CheckSAList)
+        CheckCmd(command, CheckSAList, hidumperTmpCmd)
         # 校验命令行重定向输出
-        CheckCmdRedirect(command, CheckSAList)
+        CheckCmdRedirect(command, CheckSAList, None, hidumperTmpCmd)
         # 校验命令行输出到zip文件
         CheckCmdZip(command, CheckSAList)
 
     @pytest.mark.L0
     def test_sa_help(self):
         command = "hidumper -s 1201 1212"
+        hidumperTmpCmd = "OPT:s SUB_OPT:"
         # 校验命令行输出
-        CheckCmd(command, CheckSAHelp)
+        CheckCmd(command, CheckSAHelp, hidumperTmpCmd)
         # 校验命令行重定向输出
-        CheckCmdRedirect(command, CheckSAHelp)
+        CheckCmdRedirect(command, CheckSAHelp, None, hidumperTmpCmd)
         # 校验命令行输出到zip文件
         CheckCmdZip(command, CheckSAHelp)
 
     @pytest.mark.L0
     def test_sa_interface(self):
         command = "hidumper -s WindowManagerService -a -h"
+        hidumperTmpCmd = "OPT:s SUB_OPT:a"
         # 校验命令行输出
-        CheckCmd(command, CheckSAInterface)
+        CheckCmd(command, CheckSAInterface, hidumperTmpCmd)
         # 校验命令行重定向输出
-        CheckCmdRedirect(command, CheckSAInterface)
+        CheckCmdRedirect(command, CheckSAInterface, None, hidumperTmpCmd)
         # 校验命令行输出到zip文件
         CheckCmdZip(command, CheckSAInterface)

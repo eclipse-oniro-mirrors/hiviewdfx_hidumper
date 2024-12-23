@@ -34,29 +34,32 @@ class TestHidumperCpu:
     @pytest.mark.L0
     def test_cpuusage_all(self):
         command = "hidumper --cpuusage"
+        hidumperTmpCmd = "OPT:cpuusage SUB_OPT:"
         # 校验命令行输出
-        CheckCmd(command, CheckCpuUsageOutput)
+        CheckCmd(command, CheckCpuUsageOutput, hidumperTmpCmd)
         # 校验命令行重定向输出
-        CheckCmdRedirect(command, CheckCpuUsageOutput)
+        CheckCmdRedirect(command, CheckCpuUsageOutput, None, hidumperTmpCmd)
         # 校验命令行输出到zip文件
         CheckCmdZip(command, CheckCpuUsageOutput)
 
     @pytest.mark.L0
     def test_cpuusage_pid(self):
         command = "hidumper --cpuusage 1"
+        hidumperTmpCmd = "OPT:cpuusage SUB_OPT:"
         # 校验命令行输出
-        CheckCmd(command, CheckCpuUsageWithPidOutput)
+        CheckCmd(command, CheckCpuUsageWithPidOutput, hidumperTmpCmd)
         # 校验命令行重定向输出
-        CheckCmdRedirect(command, CheckCpuUsageWithPidOutput)
+        CheckCmdRedirect(command, CheckCpuUsageWithPidOutput, None, hidumperTmpCmd)
         # 校验命令行输出到zip文件
         CheckCmdZip(command, CheckCpuUsageWithPidOutput)
 
     @pytest.mark.L0
     def test_cpufreq(self):
         command = "hidumper --cpufreq"
+        hidumperTmpCmd = "OPT:cpufreq SUB_OPT:"
         # 校验命令行输出
-        CheckCmd(command, CheckCpufreqOutput)
+        CheckCmd(command, CheckCpufreqOutput, hidumperTmpCmd)
         # 校验命令行重定向输出
-        CheckCmdRedirect(command, CheckCpufreqOutput)
+        CheckCmdRedirect(command, CheckCpufreqOutput, None, hidumperTmpCmd)
         # 校验命令行输出到zip文件
         CheckCmdZip(command, CheckCpufreqOutput)

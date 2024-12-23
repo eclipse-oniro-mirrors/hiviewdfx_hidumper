@@ -737,5 +737,97 @@ HWTEST_F(HidumperDumpersTest, JsHeapDumperTest004, TestSize.Level1)
     int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
+
+/**
+ * @tc.name: HelpDumperTest001
+ * @tc.desc: Test hidumper -h
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, HelpDumperTest001, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("-h"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_HELP);
+}
+
+/**
+ * @tc.name: InvalidArgTest001
+ * @tc.desc: Test invalid args
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, InvalidArgTest001, TestSize.Level1)
+{
+    int argc = ARG_MAX_COUNT + 1;
+    std::shared_ptr<DumperParameter> ptrDumperParameter = std::make_shared<DumperParameter>();
+    int ret = DumpImplement::GetInstance().CmdParse(argc, nullptr, ptrDumperParameter);
+    ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("-h"),
+        nullptr,
+    };
+    argc = sizeof(argv) / sizeof(argv[0]);
+    ret = DumpImplement::GetInstance().CmdParse(argc, argv, ptrDumperParameter);
+    ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
+}
+
+/**
+ * @tc.name: InvalidArgTest002
+ * @tc.desc: Test invalid args
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, InvalidArgTest002, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("-h"),
+        const_cast<char *>(""),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::shared_ptr<DumperParameter> ptrDumperParameter = std::make_shared<DumperParameter>();
+    int ret = DumpImplement::GetInstance().CmdParse(argc, argv, ptrDumperParameter);
+    ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
+}
+
+/**
+ * @tc.name: InvalidArgTest003
+ * @tc.desc: Test invalid args
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, InvalidArgTest003, TestSize.Level1)
+{
+    std::string largeStr(SINGLE_ARG_MAXLEN + 1, 'a');
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("-h"),
+        const_cast<char *>(largeStr.c_str()),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::shared_ptr<DumperParameter> ptrDumperParameter = std::make_shared<DumperParameter>();
+    int ret = DumpImplement::GetInstance().CmdParse(argc, argv, ptrDumperParameter);
+    ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
+}
+
+/**
+ * @tc.name: InvalidArgTest004
+ * @tc.desc: Test invalid args for RawParam
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, InvalidArgTest004, TestSize.Level1)
+{
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    rawParam->Init(args);
+    ASSERT_TRUE(args.size() == 0);
+    args.push_back(Str8ToStr16("test"));
+    rawParam->Init(args);
+    ASSERT_TRUE(args.size() == 0);
+}
 } // namespace HiviewDFX
 } // namespace OHOS

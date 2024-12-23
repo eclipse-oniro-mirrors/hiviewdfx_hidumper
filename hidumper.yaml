@@ -44,3 +44,11 @@ CMD_USAGE:
   IS_SHOW_SMAPS: {type: BOOL, desc: is user dump smaps}
   IS_SHOW_SMAPS_INFO: {type: BOOL, desc: is user dump smaps info}
   CMD_USER_INPUT: {type: STRING, desc: command that user input}
+  OPT: {type: STRING, desc: hidumper request type}
+  CALLER: {type: STRING, desc: hidumper caller}
+  SUB_OPT: {type: STRING, desc: hidumper sub request type}
+  TARGET: {type: STRING, desc: hidumper target}
+  ARGS: {type: STRING, desc: hidumper arguments}
+  ERROR_CODE: {type: INT32, desc: error code}
+  ERROR_MESSAGE: {type: STRING, desc: error message}
+  RECORD_COUNT: {type: UINT64, desc: record count}

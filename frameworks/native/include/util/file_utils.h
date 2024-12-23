@@ -31,6 +31,7 @@ public:
     using DataHandler = std::function<void(const std::string& content)>;
     bool LoadStringFromProcCb(const std::string& path, bool oneLine, bool lineEndWithN, const DataHandler& func);
     std::string GetProcValue(const int32_t &pid, const std::string& path, const std::string& key);
+    bool GetLastWriteTime(const std::string &path, time_t& lastWriteTime);
 private:
 };
 } // namespace HiviewDFX

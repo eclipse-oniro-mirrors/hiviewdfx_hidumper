@@ -16,6 +16,7 @@
 #define HIDUMPER_ZIDL_COMMON_UTILS_H
 #include <string>
 #include <vector>
+#include "common/dumper_constant.h"
 namespace OHOS {
 namespace HiviewDFX {
 class DumpCommonUtils {
@@ -56,6 +57,8 @@ public:
     static bool GetUserPids(std::vector<int> &pids);
     static bool IsUserPid(const std::string &pid);
     static int FindDigitIndex(const std::string& fullFileName);
+    static void ReportCmdUsage(const std::unique_ptr<DumperSysEventParams>& param);
+    static void ClearHisyseventTmpFile();
 private:
     static bool GetLinesInFile(const std::string& file, std::vector<std::string>& lines);
     static bool GetNamesInFolder(const std::string& folder, std::vector<std::string>& names);

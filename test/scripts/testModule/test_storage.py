@@ -49,19 +49,21 @@ class TestHidumperStorage:
     @pytest.mark.L0
     def test_storage_all(self):
         command = "hidumper --storage"
+        hidumperTmpCmd = "OPT:storage SUB_OPT:"
         # 校验命令行输出
-        CheckCmd(command, CheckStorageWithoutPid)
+        CheckCmd(command, CheckStorageWithoutPid, hidumperTmpCmd)
         # 校验命令行重定向输出
-        CheckCmdRedirect(command, CheckStorageWithoutPid)
+        CheckCmdRedirect(command, CheckStorageWithoutPid, None, hidumperTmpCmd)
         # 校验命令行输出到zip文件
         CheckCmdZip(command, CheckStorageWithoutPid)
 
     @pytest.mark.L0
     def test_storage_pid(self):
         command = f"hidumper --storage 1"
+        hidumperTmpCmd = "OPT:storage SUB_OPT:"
         # 校验命令行输出
-        CheckCmd(command, CheckStorageWithPid)
+        CheckCmd(command, CheckStorageWithPid, hidumperTmpCmd)
         # 校验命令行重定向输出
-        CheckCmdRedirect(command, CheckStorageWithPid)
+        CheckCmdRedirect(command, CheckStorageWithPid, None, hidumperTmpCmd)
         # 校验命令行输出到zip文件
         CheckCmdZip(command, CheckStorageWithPid)

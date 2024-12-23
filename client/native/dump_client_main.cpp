@@ -91,10 +91,12 @@ void DumpClientMain::SetCmdArgs(int argc, char* argv[], std::vector<std::u16stri
         args.push_back(Str8ToStr16(std::string(argv[i])));
         dumpCmdSs << std::string(argv[i]) << " ";
     }
+    std::string ppid = std::to_string(getppid());
+    args.push_back(Str8ToStr16(ppid));
     int32_t calllingUid = IPCSkeleton::GetCallingUid();
     int32_t calllingPid = IPCSkeleton::GetCallingPid();
-    DUMPER_HILOGI(MODULE_SERVICE, "hidumper cmd:%{public}s, calllingUid=%{public}d, calllingPid=%{public}d.",
-        dumpCmdSs.str().c_str(), calllingUid, calllingPid);
+    DUMPER_HILOGI(MODULE_SERVICE, "hidumper cmd:%{public}s, calllingUid=%{public}d, calllingPid=%{public}d,"
+        " ppid:%{public}s.", dumpCmdSs.str().c_str(), calllingUid, calllingPid, ppid.c_str());
 }
 } // namespace HiviewDFX
 } // namespace OHOS

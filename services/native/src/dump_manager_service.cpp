@@ -155,28 +155,52 @@ int32_t DumpManagerService::Dump(int32_t fd, const std::vector<std::u16string> &
     return ERR_OK;
 }
 
+void DumpManagerService::HandleRequestError(std::vector<std::u16string> &args, int outfd,
+    const int32_t& errorCode, const std::string& errorMsg)
+{
+    close(outfd);
+    int callerPpid = -1;
+    if (args.size() >= ARG_MIN_COUNT) {
+        StrToInt(Str16ToStr8(args[args.size() - 1]), callerPpid);
+        args.pop_back();
+    }
+    std::stringstream dumpCmdSs;
+    for (size_t i = 0; i < args.size(); i++) {
+        dumpCmdSs << Str16ToStr8(args[i]).c_str() << " ";
+    }
+    std::unique_ptr<DumperSysEventParams> param = std::make_unique<DumperSysEventParams>();
+    param->errorCode = errorCode;
+    param->callerPpid = callerPpid;
+    param->arguments = dumpCmdSs.str();
+    param->errorMsg = errorMsg;
+    param->opt = "";
+    param->subOpt = "";
+    param->target = "";
+    DumpCommonUtils::ReportCmdUsage(param);
+}
+
 int32_t DumpManagerService::Request(std::vector<std::u16string> &args, int outfd)
 {
     if (blockRequest_) {
-        close(outfd);
+        HandleRequestError(args, outfd, static_cast<int32_t>(DumpStatus::DUMP_FAIL), "request has blocked");
         return DumpStatus::DUMP_FAIL;
     }
     if (!started_) {
         DUMPER_HILOGE(MODULE_SERVICE, "hidumper_service has stopped.");
-        close(outfd);
+        HandleRequestError(args, outfd, static_cast<int32_t>(DumpStatus::DUMP_FAIL), "request has stopped");
         return DumpStatus::DUMP_FAIL;
     }
     int32_t uid = IPCSkeleton::GetCallingUid();
     if (!HasDumpPermission() && uid != HIPORFILER_UID) {
         DUMPER_HILOGE(MODULE_SERVICE, "No dump permission, please check!, uid:%{public}d.", uid);
-        close(outfd);
+        HandleRequestError(args, outfd, static_cast<int32_t>(DumpStatus::DUMP_FAIL), "no dump permission");
         return DumpStatus::DUMP_FAIL;
     }
     int sum = GetRequestSum();
     DUMPER_HILOGD(MODULE_SERVICE, "debug|sum=%{public}d", sum);
     if (sum >= REQUEST_MAX) {
         DUMPER_HILOGE(MODULE_SERVICE, "sum is greater than the request max, sum:%{public}d.", sum);
-        close(outfd);
+        HandleRequestError(args, outfd, static_cast<int32_t>(DumpStatus::DUMP_FAIL), "request sum reached max");
         return DumpStatus::DUMP_REQUEST_MAX;
     } else if (sum == 0) {
         DumpLogManager::Init();

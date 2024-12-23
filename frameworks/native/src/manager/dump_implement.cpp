@@ -94,16 +94,10 @@ void DumpImplement::AddExecutorFactoryToMap()
 DumpStatus DumpImplement::Main(int argc, char *argv[], const std::shared_ptr<RawParam> &reqCtl)
 {
     std::shared_ptr<DumperParameter> ptrDumperParameter = std::make_shared<DumperParameter>();
-    ptrDumperParameter->setClientCallback(reqCtl);
-    ptrDumperParameter->SetPid(reqCtl->GetPid());
-    ptrDumperParameter->SetUid(reqCtl->GetUid());
-    DumpStatus ret = CmdParse(argc, argv, ptrDumperParameter);
+    DumpStatus ret = InitHandle(argc, argv, reqCtl, ptrDumperParameter);
     if (ret != DumpStatus::DUMP_OK) {
-        DUMPER_HILOGE(MODULE_COMMON, "Parse cmd FAIL!!!");
         return ret;
     }
-
-    ConfigUtils::GetDumperConfigs(ptrDumperParameter);
     std::vector<std::shared_ptr<DumpCfg>> &configs = ptrDumperParameter->GetExecutorConfigList();
     DUMPER_HILOGD(MODULE_COMMON, "debug|Main configs size is %{public}zu", configs.size());
     if (configs.size() == 0) {
@@ -113,24 +107,46 @@ DumpStatus DumpImplement::Main(int argc, char *argv[], const std::shared_ptr<Raw
     bool isZip = ptrDumperParameter->GetOpts().IsDumpZip();
     std::vector<std::shared_ptr<HidumperExecutor>> hidumperExecutors;
     setExecutorList(hidumperExecutors, configs, isZip);
-
     if (hidumperExecutors.empty()) {
         DUMPER_HILOGE(MODULE_COMMON, "Executor list is empty, so dump fail.");
         return DumpStatus::DUMP_FAIL;
     }
 
     reqCtl->SetProgressEnabled(isZip);
-    if (isZip) {
-        reqCtl->SetTitle(",The result is:" + path_);
-    } else {
-        reqCtl->SetTitle("");
-    }
+    isZip ? reqCtl->SetTitle(",The result is:" + path_) : reqCtl->SetTitle("");
     HidumperExecutor::StringMatrix dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
     ret = DumpDatas(hidumperExecutors, ptrDumperParameter, dumpDatas);
+    std::lock_guard<std::mutex> lock(mutexCmdLock_); // lock for dumperSysEventParams_
     if (ret != DumpStatus::DUMP_OK) {
         DUMPER_HILOGE(MODULE_COMMON, "DUMP FAIL!!!");
+        dumperSysEventParams_->errorCode = static_cast<int32_t>(ret);
+        dumperSysEventParams_->errorMsg = "dump fail";
+        DumpCommonUtils::ReportCmdUsage(dumperSysEventParams_);
         return ret;
     }
+    DumpCommonUtils::ReportCmdUsage(dumperSysEventParams_);
+    return DumpStatus::DUMP_OK;
+}
+
+DumpStatus DumpImplement::InitHandle(int argc, char *argv[], const std::shared_ptr<RawParam> &reqCtl,
+    std::shared_ptr<DumperParameter>& ptrDumperParameter)
+{
+    ptrDumperParameter->setClientCallback(reqCtl);
+    ptrDumperParameter->SetPid(reqCtl->GetPid());
+    ptrDumperParameter->SetUid(reqCtl->GetUid());
+    std::lock_guard<std::mutex> lock(mutexCmdLock_); // lock for optind value safe
+    dumperSysEventParams_ = std::make_unique<DumperSysEventParams>();
+    dumperSysEventParams_->errorCode = 0;
+    dumperSysEventParams_->callerPpid = -1;
+    DumpStatus ret = CmdParse(argc, argv, ptrDumperParameter);
+    if (ret != DumpStatus::DUMP_OK) {
+        DUMPER_HILOGE(MODULE_COMMON, "Parse cmd FAIL!!!");
+        dumperSysEventParams_->errorCode = static_cast<int32_t>(ret);
+        dumperSysEventParams_->errorMsg = "parse cmd fail";
+        DumpCommonUtils::ReportCmdUsage(dumperSysEventParams_);
+        return ret;
+    }
+    ConfigUtils::GetDumperConfigs(ptrDumperParameter);
     return DumpStatus::DUMP_OK;
 }
 
@@ -151,33 +167,39 @@ void DumpImplement::ProcessDumpOptions(int clientPid, std::shared_ptr<DumperPara
     dumpParameter->SetPid(clientPid);
 }
 
-DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<DumperParameter> &dumpParameter)
+DumpStatus DumpImplement::CheckArgs(int argc, char* argv[])
 {
-#ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
     std::stringstream dumpCmdSs;
-#endif
     if (argc > ARG_MAX_COUNT) {
-        LOG_ERR("too many arguments(%d), limit size %d.\n", argc, ARG_MAX_COUNT);
+        DUMPER_HILOGE(MODULE_COMMON, "too many arguments(%{public}d), limit size %{public}d.", argc, ARG_MAX_COUNT);
         return DumpStatus::DUMP_FAIL;
     }
     for (int i = 0; i < argc; i++) {
         if (argv[i] == nullptr) {
-            LOG_ERR("argument(%d) is null.\n", i);
+            DUMPER_HILOGE(MODULE_COMMON, "argument(%{public}d) is null.", i);
             return DumpStatus::DUMP_FAIL;
         }
         size_t len = strlen(argv[i]);
         if (len == 0) {
-            LOG_ERR("argument(%d) is empty.\n", i);
+            DUMPER_HILOGE(MODULE_COMMON, "argument(%{public}d) is empty.", i);
             return DumpStatus::DUMP_FAIL;
         }
         if (len > SINGLE_ARG_MAXLEN) {
-            LOG_ERR("too long argument(%d), limit size %d.\n", i, SINGLE_ARG_MAXLEN);
+            DUMPER_HILOGE(MODULE_COMMON, "too long args:%{public}zu, limit size:%{public}d.", len, SINGLE_ARG_MAXLEN);
             return DumpStatus::DUMP_FAIL;
         }
-#ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
         dumpCmdSs << argv[i] << " ";
-#endif
     }
+    if (dumpCmdSs.str().length() > 0) {
+        dumperSysEventParams_->arguments = dumpCmdSs.str().substr(0, dumpCmdSs.str().length() - 1);
+    }
+    return DumpStatus::DUMP_OK;
+}
+
+DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<DumperParameter> &dumpParameter)
+{
+    if (CheckArgs(argc, argv) != DumpStatus::DUMP_OK)
+        return DumpStatus::DUMP_FAIL;
     DumperOpts opts;
     DumpStatus status = CmdParseWithParameter(dumpParameter, argc, argv, opts);
     if (status != DumpStatus::DUMP_OK)
@@ -186,11 +208,7 @@ DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<Dumpe
         int clientPid = dumpParameter->GetPid(); // to be set value
         ProcessDumpOptions(clientPid, dumpParameter, opts);
     }
-#ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
-    if (dumpCmdSs.str().length() > 0) {
-        ReportCmdUsage(opts, dumpCmdSs.str().substr(0, dumpCmdSs.str().length() - 1));
-    }
-#endif
+    ReportJsheap(opts);
     dumpParameter->SetOpts(opts);
     return DumpStatus::DUMP_OK;
 }
@@ -270,8 +288,8 @@ DumpStatus DumpImplement::CmdParseWithParameter(std::shared_ptr<DumperParameter>
                                                 DumperOpts &opts)
 {
     DUMPER_HILOGD(MODULE_COMMON, "enter|");
-    std::lock_guard<std::mutex> lock(mutexCmdLock_); // lock for optind value safe
     ptrReqCtl_ = dumpParameter->getClientCallback();
+    dumperSysEventParams_->callerPpid = ptrReqCtl_->GetCallerPpid();
     DumpStatus ret = CmdParseWithParameter(argc, argv, opts);
     if (ret == DumpStatus::DUMP_OK) {
         std::string errorStr;
@@ -301,8 +319,6 @@ DumpStatus DumpImplement::SetCmdParameter(int argc, char *argv[], DumperOpts &op
         if (hiviewEnable &&
             StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "--cpuusage")) {
             status = SetCmdIntegerParameter(argv[optind - 1], opts_.cpuUsagePid_);
-        } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "--log")) {
-            opts_.logArgs_.push_back(argv[optind - 1]);
         } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "--mem")) {
             status = SetCmdIntegerParameter(argv[optind - 1], opts_.memPid_);
         } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "--net")) {
@@ -311,12 +327,14 @@ DumpStatus DumpImplement::SetCmdParameter(int argc, char *argv[], DumperOpts &op
             status = SetCmdIntegerParameter(argv[optind - 1], opts_.storagePid_);
         } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "-c")) {
             opts_.systemArgs_.push_back(argv[optind - 1]);
+            dumperSysEventParams_->subOpt = argv[optind - 1];
         } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "-p")) {
             status = SetCmdIntegerParameter(argv[optind - 1], opts_.processPid_);
         } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "-T")) {
             status = SetCmdIntegerParameter(argv[optind - 1], opts_.threadId_);
         } else if (IsSADumperOption(argv)) {
             opts_.abilitieNames_.push_back(argv[optind - 1]);
+            dumperSysEventParams_->target += argv[optind - 1];
         } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "--ipc")) {
             status = SetCmdIntegerParameter(argv[optind - 1], opts_.ipcStatPid_);
         } else {
@@ -357,16 +375,19 @@ bool DumpImplement::ParseSubLongCmdOption(int argc, DumperOpts &opts_, const str
 #endif
     if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "cpufreq")) {
         opts_.isDumpCpuFreq_ = true;
+        dumperSysEventParams_->opt = "cpufreq";
     } else if (hiviewEnable && StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "cpuusage")) {
         opts_.isDumpCpuUsage_ = true;
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "log")) {
-        opts_.isDumpLog_ = true;
+        dumperSysEventParams_->opt = "cpuusage";
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem")) {
         opts_.isDumpMem_ = true;
+        dumperSysEventParams_->opt = "mem";
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "net")) {
         opts_.isDumpNet_ = true;
+        dumperSysEventParams_->opt = "net";
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "storage")) {
         opts_.isDumpStorage_ = true;
+        dumperSysEventParams_->opt = "storage";
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "zip")) {
         path_ = ZIP_FOLDER + GetTime() + ".zip";
         opts_.path_ = path_;
@@ -384,6 +405,7 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts_, const 
         return DumpStatus::DUMP_OK;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-smaps")) {
         opts_.isShowSmaps_ = true;
+        dumperSysEventParams_->opt = "mem-smaps";
         DumpStatus status;
         if (ARG_INDEX_OFFSET_LAST_OPTION < 0 || ARG_INDEX_OFFSET_LAST_OPTION >= argc) {
             status = DumpStatus::DUMP_FAIL;
@@ -394,19 +416,14 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts_, const 
             return status;
         }
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-jsheap")) {
-        opts_.isDumpJsHeapMem_ = true;
-        if (optarg != nullptr) {
-            return SetCmdIntegerParameter(optarg, opts_.dumpJsHeapMemPid_);
-        } else {
-            DUMPER_HILOGE(MODULE_COMMON, "mem-jsheap nullptr");
-            return DumpStatus::DUMP_FAIL;
-        }
+        return SetMemJsheapParam(opts_);
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "gc")) {
         opts_.isDumpJsHeapMemGC_ = true;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "leakobj")) {
         opts_.isDumpJsHeapLeakobj_ = true;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "ipc")) {
         opts_.isDumpIpc_ = true;
+        dumperSysEventParams_->opt = "ipc";
         if (IPC_STAT_ARG_NUMS != argc) {
             DUMPER_HILOGE(MODULE_COMMON, "ipc stat cmd args invalid");
             SendErrorMessage("ipc stat cmd args invalid\n");
@@ -426,14 +443,28 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts_, const 
     return DumpStatus::DUMP_OK;
 }
 
+DumpStatus DumpImplement::SetMemJsheapParam(DumperOpts &opt)
+{
+    opt.isDumpJsHeapMem_ = true;
+    dumperSysEventParams_->opt = "mem-jsheap";
+    if (optarg == nullptr) {
+        DUMPER_HILOGE(MODULE_COMMON, "mem-jsheap nullptr");
+        return DumpStatus::DUMP_FAIL;
+    }
+    return SetCmdIntegerParameter(optarg, opt.dumpJsHeapMemPid_);
+}
+
 bool DumpImplement::SetIpcStatParam(DumperOpts &opts_, const std::string& param)
 {
     if (StringUtils::GetInstance().IsSameStr(param, "start-stat")) {
         opts_.isDumpIpcStartStat_ = true;
+        dumperSysEventParams_->subOpt = "start-stat";
     } else if (StringUtils::GetInstance().IsSameStr(param, "stop-stat")) {
         opts_.isDumpIpcStopStat_ = true;
+        dumperSysEventParams_->subOpt = "stop-stat";
     } else if (StringUtils::GetInstance().IsSameStr(param, "stat")) {
         opts_.isDumpIpcStat_ = true;
+        dumperSysEventParams_->subOpt = "stat";
     } else {
         return false;
     }
@@ -444,8 +475,10 @@ DumpStatus DumpImplement::ParseCmdOptionForA(DumperOpts &opts_, char *argv[])
 {
     if (opts_.isDumpSystemAbility_) {
         SplitStr(optarg, " ", opts_.abilitieArgs_);
+        dumperSysEventParams_->subOpt = "a";
     } else if (opts_.isDumpIpc_) {
         opts_.isDumpAllIpc_ = true;
+        dumperSysEventParams_->target = "allPid";
         if (optarg != nullptr) {
             std::vector<std::string> ipcStatParams;
             SplitStr(optarg, "--", ipcStatParams);
@@ -479,21 +512,27 @@ DumpStatus DumpImplement::ParseShortCmdOption(int c, DumperOpts &opts_, int argc
         }
         case 'c':
             opts_.isDumpSystem_ = true;
+            dumperSysEventParams_->opt += "c";
             break;
         case 'e':
             opts_.isFaultLog_ = true;
+            dumperSysEventParams_->opt = "e";
             break;
         case 'l':
             opts_.isDumpList_ = true;
+            dumperSysEventParams_->opt += "l";
             break;
         case 's':
             opts_.isDumpSystemAbility_ = true;
+            dumperSysEventParams_->opt += "s";
             break;
         case 'p':
             opts_.isDumpProcesses_ = true;
+            dumperSysEventParams_->opt = "p";
             break;
         case 'v':
             opts_.isShowSmapsInfo_ = true;
+            dumperSysEventParams_->subOpt = "v";
             break;
         default: {
             DumpStatus status = SetCmdParameter(argc, argv, opts_);
@@ -514,7 +553,12 @@ DumpStatus DumpImplement::SetCmdIntegerParameter(const std::string &str, int &va
         SendErrorMessage(errorStr);
         return DumpStatus::DUMP_INVALID_ARG;
     }
-    return StrToInt(str, value) ? DumpStatus::DUMP_OK : DumpStatus::DUMP_FAIL;
+    if (!StrToInt(str, value)) {
+        DUMPER_HILOGE(MODULE_COMMON, "StrToInt error, str=%{public}s", str.c_str());
+        return DumpStatus::DUMP_FAIL;
+    }
+    dumperSysEventParams_->target = str;
+    return DumpStatus::DUMP_OK;
 }
 
 void DumpImplement::CmdHelp()
@@ -827,63 +871,17 @@ void DumpImplement::RemoveDuplicateString(DumperOpts &opts_)
 }
 
 #ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
-std::string DumpImplement::TransferVectorToString(const std::vector<std::string>& vs)
+void DumpImplement::ReportJsheap(const DumperOpts &opts)
 {
-    std::string outputStr;
-    std::stringstream ss;
-
-    for (const auto& i : vs) {
-        ss << i << " ";
+    if (!opts.isDumpJsHeapMem_) {
+        return;
     }
-    outputStr = ss.str();
-    if (outputStr.empty()) {
-        return "";
-    }
-    return outputStr.substr(0, outputStr.length() - 1);
-}
-
-void DumpImplement::ReportCmdUsage(const DumperOpts &opts_, const std::string &cmdStr)
-{
-    int ret = HiSysEventWrite(HiSysEvent::Domain::HIDUMPER, "CMD_USAGE",
-        OHOS::HiviewDFX::HiSysEvent::EventType::STATISTIC,
-        "IS_DUMP_CPU_FREQ", opts_.isDumpCpuFreq_,
-        "IS_DUMP_CPU_USAGE", opts_.isDumpCpuUsage_,
-        "CPU_USAGE_PID", opts_.cpuUsagePid_,
-        "IS_DUMP_LOG", opts_.isDumpLog_,
-        "LOG_ARGS", opts_.logArgs_,
-        "IS_DUMP_MEM", opts_.isDumpMem_,
-        "MEM_PID", opts_.memPid_,
-        "IS_DUMP_STORAGE", opts_.isDumpStorage_,
-        "STORAGE_PID", opts_.storagePid_,
-        "IS_DUMP_NET", opts_.isDumpNet_,
-        "NET_PID", opts_.netPid_,
-        "IS_DUMP_LIST", opts_.isDumpList_,
-        "IS_DUMP_SERVICE", opts_.isDumpService_,
-        "IS_DUMP_SYSTEM_ABILITY", opts_.isDumpSystemAbility_,
-        "ABILITIE_NAMES", TransferVectorToString(opts_.abilitieNames_),
-        "ABILITIE_ARGS", TransferVectorToString(opts_.abilitieArgs_),
-        "IS_DUMP_SYSTEM", opts_.isDumpSystem_,
-        "SYSTEM_ARGS", TransferVectorToString(opts_.systemArgs_),
-        "IS_DUMP_PROCESSES", opts_.isDumpProcesses_,
-        "PROCESS_PID", opts_.processPid_,
-        "IS_FAULT_LOG", opts_.isFaultLog_,
-        "PATH", opts_.path_,
-        "IS_APPENDIX", opts_.isAppendix_,
-        "IS_SHOW_SMAPS", opts_.isShowSmaps_,
-        "IS_SHOW_SMAPS_INFO", opts_.isShowSmapsInfo_,
-        "CMD_USER_INPUT", cmdStr);
-    if (ret != 0) {
-        DUMPER_HILOGE(MODULE_COMMON, "hisysevent report hidumper usage failed! ret %{public}d.", ret);
-    }
-    if (opts_.isDumpJsHeapMem_) {
-        int memJsheapRet = HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::FRAMEWORK,
-            "ARK_STATS_DUMP",
-            OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
-            "PID", std::to_string(opts_.dumpJsHeapMemPid_),
-            "TYPE", "hidumper");
-        if (memJsheapRet != 0) {
-            DUMPER_HILOGE(MODULE_COMMON, "hisysevent report mem jsheap failed! ret %{public}d.", memJsheapRet);
-        }
+    int memJsheapRet = HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::FRAMEWORK, "ARK_STATS_DUMP",
+        OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
+        "PID", std::to_string(opts.dumpJsHeapMemPid_),
+        "TYPE", "hidumper");
+    if (memJsheapRet != 0) {
+        DUMPER_HILOGE(MODULE_COMMON, "hisysevent report mem jsheap failed! ret %{public}d.", memJsheapRet);
     }
 }
 #endif

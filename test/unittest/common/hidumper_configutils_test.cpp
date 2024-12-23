@@ -354,6 +354,8 @@ HWTEST_F(HidumperConfigUtilsTest, HidumperFileUtils001, TestSize.Level3)
     testpath = "test";
     ASSERT_TRUE(!(fileutils->CreateFolder(testpath)));
     testpath = "/data/log/testhidumper";
+    time_t lastWriteTime = 0;
+    ASSERT_FALSE(fileutils->GetLastWriteTime(testpath, lastWriteTime));
     ASSERT_TRUE(fileutils->CreateFolder(testpath));
     ASSERT_TRUE(access(testpath.c_str(), F_OK) == 0);
     system("rm -rf /data/log/testhidumper");

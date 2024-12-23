@@ -40,6 +40,8 @@ public:
     const sptr<ISystemAbilityManager> GetSystemAbilityManager();
 
 private:
+    DumpStatus InitHandle(int argc, char *argv[], const std::shared_ptr<RawParam> &reqCtl,
+        std::shared_ptr<DumperParameter>& ptrDumperParameter);
     DumpStatus CmdParse(int argc, char* argv[], std::shared_ptr<DumperParameter>& dumpParameter);
     /**
      * Check client is hidumper.
@@ -84,14 +86,15 @@ private:
     DumpStatus CheckProcessAlive(const DumperOpts& opts_);
     void RemoveDuplicateString(DumperOpts& opts_);
 #ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
-    void ReportCmdUsage(const DumperOpts &opts_, const std::string& cmdStr);
-    std::string TransferVectorToString(const std::vector<std::string>& vs);
+    void ReportJsheap(const DumperOpts &opts_);
 #endif
     bool CheckAppDebugVersion(int pid);
     bool CheckDumpPermission(DumperOpts &opt);
     bool SetIpcStatParam(DumperOpts &opt, const std::string& param);
     DumpStatus ParseCmdOptionForA(DumperOpts &opt, char *argv[]);
     void ProcessDumpOptions(int clientPid, std::shared_ptr<DumperParameter> &dumpParameter, DumperOpts &opts);
+    DumpStatus SetMemJsheapParam(DumperOpts &opt);
+    DumpStatus CheckArgs(int argc, char* argv[]);
 
 private:
     using ExecutorFactoryMap = std::map<int, std::shared_ptr<ExecutorFactory>>;
@@ -107,6 +110,7 @@ private:
     std::string GetTime();
     std::string path_;
     static const int IPC_STAT_ARG_NUMS = 4;
+    std::unique_ptr<DumperSysEventParams> dumperSysEventParams_{nullptr};
 };
 } // namespace HiviewDFX
 } // namespace OHOS

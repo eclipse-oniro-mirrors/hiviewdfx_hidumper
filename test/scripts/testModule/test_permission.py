@@ -96,10 +96,11 @@ class TestHidumperPermission:
         else:
             CheckFunc = CheckHelpOutput
         command = f"hidumper --mem-smaps {pid}"
+        hidumperTmpCmd = "OPT:mem-smaps SUB_OPT:"
         # 校验命令行输出
-        CheckCmd(command, CheckFunc)
+        CheckCmd(command, CheckFunc, hidumperTmpCmd)
         # 校验命令行重定向输出
-        CheckCmdRedirect(command, CheckFunc)
+        CheckCmdRedirect(command, CheckFunc, None, hidumperTmpCmd)
         # 校验命令行输出到zip文件
         if IsRootVersion():
             CheckCmdZip(command, CheckFunc)
@@ -113,10 +114,11 @@ class TestHidumperPermission:
         else:
             CheckFunc = CheckHelpOutput
         command = f"hidumper --mem-smaps {pid} -v"
+        hidumperTmpCmd = "OPT:mem-smaps SUB_OPT:v"
         # 校验命令行输出
-        CheckCmd(command, CheckFunc)
+        CheckCmd(command, CheckFunc, hidumperTmpCmd)
         # 校验命令行重定向输出
-        CheckCmdRedirect(command, CheckFunc)
+        CheckCmdRedirect(command, CheckFunc, None, hidumperTmpCmd)
         # 校验命令行输出到zip文件
         if IsRootVersion():
             CheckCmdZip(command, CheckFunc)
@@ -131,10 +133,11 @@ class TestHidumperPermission:
             if pid == "":
                 pytest.skip("test application not found")
         command = f"hidumper -p"
+        hidumperTmpCmd = "OPT:p SUB_OPT:"
         # 校验命令行输出
-        CheckCmd(command, CheckFunc)
+        CheckCmd(command, CheckFunc, hidumperTmpCmd)
         # 校验命令行重定向输出
-        CheckCmdRedirect(command, CheckFunc)
+        CheckCmdRedirect(command, CheckFunc, None, hidumperTmpCmd)
         # 校验命令行输出到zip文件
         CheckCmdZip(command, CheckFunc)
 
@@ -150,10 +153,11 @@ class TestHidumperPermission:
             if pid == "":
                 pytest.skip("test application not found")
         command = f"hidumper -p {pid}"
+        hidumperTmpCmd = "OPT:p SUB_OPT:"
         # 校验命令行输出
-        CheckCmd(command, CheckFunc)
+        CheckCmd(command, CheckFunc, hidumperTmpCmd)
         # 校验命令行重定向输出
-        CheckCmdRedirect(command, CheckFunc)
+        CheckCmdRedirect(command, CheckFunc, None, hidumperTmpCmd)
         # 校验命令行输出到zip文件
         CheckCmdZip(command, CheckFunc)
 
