@@ -203,7 +203,10 @@ ohos_source_set("hidumperservice_source") {
 ohos_shared_library("hidumperservice_cpu_source") {
   if (hidumper_hiviewdfx_hiview_enable) {
     public_configs = [ ":dump_cpu_config" ]
-    sources = [ "native/src/dump_manager_cpu_service.cpp" ]
+    sources = [
+      "native/src/dump_cpu_data.cpp",
+      "native/src/dump_manager_cpu_service.cpp",
+    ]
 
     configs = [
       "${hidumper_utils_path}:utils_config",
@@ -213,10 +216,7 @@ ohos_shared_library("hidumperservice_cpu_source") {
       "${hidumper_service_path}:zidl_config",
     ]
 
-    deps = [
-      "${hidumper_service_path}:hidumperservice_source",
-      "${hidumper_service_path}:zidl_cpu_service",
-    ]
+    deps = [ "${hidumper_service_path}:zidl_cpu_service" ]
 
     external_deps = [
       "access_token:libaccesstoken_sdk",
