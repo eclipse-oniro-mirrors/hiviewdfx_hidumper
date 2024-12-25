@@ -89,6 +89,7 @@ private:
     void SetCpuSchedAffinity();
 private:
     std::mutex mutex_;
+    std::mutex linkCntMutex_;
     std::shared_ptr<AppExecFwk::EventRunner> eventRunner_;
     std::shared_ptr<AppExecFwk::EventHandler> handler_;
     std::atomic<bool> started_ = false;
