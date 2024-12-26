@@ -31,7 +31,6 @@
 #include "dump_utils.h"
 #include "hilog_wrapper.h"
 #include "inner/dump_service_id.h"
-#include "manager/dump_implement.h"
 #include "token_setproc.h"
 #include "util/string_utils.h"
 #include "util/file_utils.h"
