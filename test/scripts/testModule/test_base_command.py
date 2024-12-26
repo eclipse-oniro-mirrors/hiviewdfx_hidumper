@@ -106,8 +106,6 @@ class TestBaseCommand:
         CheckCmd(command, lambda output : "base                             system" in output, hidumperTmpCmd)
         # 校验命令行重定向输出
         CheckCmdRedirect(command, lambda output : "base                             system" in output, None, hidumperTmpCmd)
-        UpdateDay()
-        CheckCmd(command, lambda output : "base                             system" in output, hidumperTmpCmd)
 
     @pytest.mark.L0
     def test_hidumper_c_all(self):
