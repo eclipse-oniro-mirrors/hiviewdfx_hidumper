@@ -19,6 +19,7 @@
 #include "inner/dump_service_id.h"
 #include "dump_on_demand_load.h"
 #include "executor/memory/memory_util.h"
+#include "string_ex.h"
 
 using namespace std;
 using namespace testing::ext;
@@ -159,6 +160,23 @@ HWTEST_F(HidumperServiceTest, DumpManagerService006, TestSize.Level3)
         string valueStr = str.substr(typePos + 2); // pid ***'s current affinity mask: f
         ASSERT_TRUE(valueStr == "f");
     }
+}
+
+/**
+ * @tc.name: DumpManagerService007
+ * @tc.desc: Test DumpManagerService error request.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperServiceTest, DumpManagerService007, TestSize.Level3)
+{
+    auto dumpManagerService = std::make_shared<DumpManagerService>();
+    std::vector<std::u16string> args;
+    int outfd = -1;
+    dumpManagerService->HandleRequestError(args, outfd, -1, "test");
+    ASSERT_TRUE(args.size() == 0);
+    args.push_back(Str8ToStr16("test"));
+    dumpManagerService->HandleRequestError(args, outfd, -1, "test");
+    ASSERT_TRUE(args.size() == 0);
 }
 } // namespace HiviewDFX
 } // namespace OHOS

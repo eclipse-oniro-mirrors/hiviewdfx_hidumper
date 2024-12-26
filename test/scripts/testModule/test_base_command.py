@@ -91,53 +91,70 @@ class TestBaseCommand:
 
     @pytest.mark.L0
     def test_hidumper_help(self):
+        hidumperTmpCmd = "ERROR_MESSAGE:parse cmd fail"
         # 校验命令行输出
-        CheckCmd("hidumper -h", lambda output : "usage:" in output)
+        CheckCmd("hidumper -h", lambda output : "usage:" in output, hidumperTmpCmd)
         # 校验命令行重定向输出
-        CheckCmdRedirect("hidumper -h", lambda output : "usage:" in output)
+        CheckCmdRedirect("hidumper -h", lambda output : "usage:" in output, None, hidumperTmpCmd)
+
+    @pytest.mark.L0
+    def test_sa_lc(self):
+        command = "hidumper -lc"
+        # 设置hisysevent相关信息
+        hidumperTmpCmd = "OPT:lc SUB_OPT:"
+        # 校验命令行输出
+        CheckCmd(command, lambda output : "base                             system" in output, hidumperTmpCmd)
+        # 校验命令行重定向输出
+        CheckCmdRedirect(command, lambda output : "base                             system" in output, None, hidumperTmpCmd)
+        UpdateDay()
+        CheckCmd(command, lambda output : "base                             system" in output, hidumperTmpCmd)
 
     @pytest.mark.L0
     def test_hidumper_c_all(self):
+        hidumperTmpCmd = "OPT:c SUB_OPT:"
         CheckFunc = lambda output : all([check(output) for check in [CheckBuildId, CheckOsVersion, CheckProcVersion,
                                                                     CheckCmdline, CheckUpTime, CheckPrintEnv, CheckLsmod,
                                                                     CheckSlabinfo, CheckZoneinfo, CheckVmstat, CheckVmallocinfo]])
         # 校验命令行输出
-        CheckCmd("hidumper -c", CheckFunc)
+        CheckCmd("hidumper -c", CheckFunc, hidumperTmpCmd)
         # 校验命令行重定向输出
-        CheckCmdRedirect("hidumper -c", CheckFunc)
+        CheckCmdRedirect("hidumper -c", CheckFunc, None, hidumperTmpCmd)
         # 校验命令行输出到zip文件
         CheckCmdZip("hidumper -c", CheckFunc)
 
     @pytest.mark.L0
     def test_hidumper_c_base(self):
         command = "hidumper -c base"
+        hidumperTmpCmd = "OPT:c SUB_OPT:base"
         CheckFunc = lambda output : all([check(output) for check in [CheckBuildId, CheckOsVersion, CheckProcVersion, CheckCmdline, CheckUpTime]])
         # 校验命令行输出
-        CheckCmd(command, CheckFunc)
+        CheckCmd(command, CheckFunc, hidumperTmpCmd)
         # 校验命令行重定向输出
-        CheckCmdRedirect(command, CheckFunc)
+        CheckCmdRedirect(command, CheckFunc, None, hidumperTmpCmd)
         # 校验命令行输出到zip文件
         CheckCmdZip(command, CheckFunc)
 
     @pytest.mark.L0
     def test_hidumper_c_system(self):
         command = "hidumper -c system"
+        hidumperTmpCmd = "OPT:c SUB_OPT:system"
         CheckFunc = lambda output : all([check(output) for check in [CheckPrintEnv, CheckLsmod, CheckSlabinfo, CheckZoneinfo, CheckVmstat, CheckVmallocinfo]])
         # 校验命令行输出
-        CheckCmd(command, CheckFunc)
+        CheckCmd(command, CheckFunc, hidumperTmpCmd)
         # 校验命令行重定向输出
-        CheckCmdRedirect(command, CheckFunc)
+        CheckCmdRedirect(command, CheckFunc, None, hidumperTmpCmd)
         # 校验命令行输出到zip文件
         CheckCmdZip(command, CheckFunc)
 
     @pytest.mark.L0
     def test_hidumper_e(self):
         command = "hidumper -e"
+        hidumperTmpCmd = "OPT:e SUB_OPT:"
         CheckFunc = lambda output : "faultlog" in output
         # 校验命令行输出
-        CheckCmd(command, CheckFunc)
+        CheckCmd(command, CheckFunc, hidumperTmpCmd)
         # 校验命令行重定向输出
-        CheckCmdRedirect(command, CheckFunc)
+        CheckCmdRedirect(command, CheckFunc, None, hidumperTmpCmd)
         # 校验命令行输出到zip文件
         CheckCmdZip(command, CheckFunc)
 

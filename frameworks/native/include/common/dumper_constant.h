@@ -64,9 +64,21 @@ enum DumperConstant {
     LOOP,
 };
 
+struct DumperSysEventParams {
+    int32_t errorCode;
+    int32_t callerPpid;
+    std::string opt;
+    std::string subOpt;
+    std::string target;
+    std::string arguments;
+    std::string errorMsg;
+};
+
+
 const std::string LOG_DEFAULT = "log.txt";
 const std::string ZIP_FILEEXT = "zip";
 const std::string ZIP_FOLDER = "/data/log/hidumper/";
+const std::string HISYSEVENT_TMP_FILE = "/data/log/hidumper/hisysevent.tmp";
 
 const std::string RELEASE_MODE = "Release";
 } // namespace HiviewDFX

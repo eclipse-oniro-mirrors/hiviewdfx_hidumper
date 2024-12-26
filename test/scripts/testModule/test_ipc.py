@@ -34,8 +34,9 @@ class TestHidumperIpc:
         assert "success" in output
 
         command = f"hidumper --ipc {pid} --stat"
-        CheckCmd(command, CheckIpcStat)
-        CheckCmdRedirect(command, CheckIpcStat)
+        hidumperTmpCmd = "OPT:ipc SUB_OPT:stat"
+        CheckCmd(command, CheckIpcStat, hidumperTmpCmd)
+        CheckCmdRedirect(command, CheckIpcStat, None, hidumperTmpCmd)
 
         output = subprocess.check_output(f"hdc shell hidumper --ipc {pid} --stop-stat", shell=True, text=True, encoding="utf-8")
         assert "success" in output

@@ -194,6 +194,11 @@ ohos_source_set("hidumperservice_source") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
+  defines = []
+  if (hidumper_hiviewdfx_hisysevent_enable) {
+    external_deps += [ "hisysevent:libhisysevent" ]
+    defines += [ "HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE" ]
+  }
 
   subsystem_name = "${hidumper_subsystem_name}"
 

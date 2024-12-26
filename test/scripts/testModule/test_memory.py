@@ -154,10 +154,11 @@ class TestHidumperMemory:
     @pytest.mark.L0
     def test_memory_all(self):
         command = f"hidumper --mem"
+        hidumperTmpCmd = "OPT:mem SUB_OPT:"
         # 校验命令行输出
-        CheckCmd(command, CheckHidumperMemoryWithoutPidOutput)
+        CheckCmd(command, CheckHidumperMemoryWithoutPidOutput, hidumperTmpCmd)
         # 校验命令行重定向输出
-        CheckCmdRedirect(command, CheckHidumperMemoryWithoutPidOutput)
+        CheckCmdRedirect(command, CheckHidumperMemoryWithoutPidOutput, None, hidumperTmpCmd)
         # 校验命令行输出到zip文件
         CheckCmdZip(command, CheckHidumperMemoryWithoutPidOutput)
 
@@ -166,10 +167,11 @@ class TestHidumperMemory:
         processName = "render_service"
         pid = GetPidByProcessName(processName)
         command = f"hidumper --mem {pid}"
+        hidumperTmpCmd = "OPT:mem SUB_OPT:"
         # 校验命令行输出
-        CheckCmd(command, CheckHidumperMemoryWithPidOutput)
+        CheckCmd(command, CheckHidumperMemoryWithPidOutput, hidumperTmpCmd)
         # 校验命令行重定向输出
-        CheckCmdRedirect(command, CheckHidumperMemoryWithPidOutput)
+        CheckCmdRedirect(command, CheckHidumperMemoryWithPidOutput, None, hidumperTmpCmd)
         # 校验命令行输出到zip文件
         CheckCmdZip(command, CheckHidumperMemoryWithPidOutput)
 

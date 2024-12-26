@@ -87,6 +87,8 @@ private:
     void RecordDirFdInfo(std::string &detailFdInfo);
     std::string GetFdLinkNum(const std::string &linkPath) const;
     void SetCpuSchedAffinity();
+    void HandleRequestError(std::vector<std::u16string> &args, int outfd,
+        const int32_t& errorCode, const std::string& errorMsg);
 private:
     std::mutex mutex_;
     std::mutex linkCntMutex_;

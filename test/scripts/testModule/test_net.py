@@ -45,19 +45,21 @@ class TestHidumperNet:
     @pytest.mark.L0
     def test_net_all(self):
         command = f"hidumper --net"
+        hidumperTmpCmd = "OPT:net SUB_OPT:"
         # 校验命令行输出
-        CheckCmd(command, CheckNetAllOutput)
+        CheckCmd(command, CheckNetAllOutput, hidumperTmpCmd)
         # 校验命令行重定向输出
-        CheckCmdRedirect(command, CheckNetAllOutput)
+        CheckCmdRedirect(command, CheckNetAllOutput, None, hidumperTmpCmd)
         # 校验命令行输出到zip文件
         CheckCmdZip(command, CheckNetAllOutput)
 
     @pytest.mark.L0
     def test_net_pid(self):
         command = f"hidumper --net `pidof samgr`"
+        hidumperTmpCmd = "OPT:net SUB_OPT:"
         # 校验命令行输出
-        CheckCmd(command, CheckNetTraffic)
+        CheckCmd(command, CheckNetTraffic, hidumperTmpCmd)
         # 校验命令行重定向输出
-        CheckCmdRedirect(command, CheckNetTraffic)
+        CheckCmdRedirect(command, CheckNetTraffic, None, hidumperTmpCmd)
         # 校验命令行输出到zip文件
         CheckCmdZip(command, CheckNetTraffic)

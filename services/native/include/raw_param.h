@@ -35,6 +35,7 @@ public:
     bool IsCanceled();
     bool IsFinished();
     bool HasError();
+    int GetCallerPpid();
 public:
     void Cancel();
     void UpdateStatus(uint32_t status, bool force = false);
@@ -51,6 +52,7 @@ public:
     std::string GetFolder();
 private:
     void Dump() const;
+    void SetCallerPpid(const std::string &ppid);
     class ClientDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
         ClientDeathRecipient(uint32_t reqId, bool& deathed);
@@ -68,6 +70,7 @@ private:
     std::mutex mutex_;
     int uid_ {-1};
     int pid_ {-1};
+    int callerPpid_ {-1};
     bool canceled_ {false};
     bool finished_ {false};
     bool hasError_ {false};

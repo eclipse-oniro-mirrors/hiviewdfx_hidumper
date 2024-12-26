@@ -21,6 +21,10 @@ ohos_fuzztest("ClientFuzzTest") {
   module_out_path = hidumper_fuzz_output_path
   fuzz_config_file = "../../../test/fuzztest/client_fuzzer"
 
+  configs = [
+    "${hidumper_frameworks_path}:hidumper_include",
+    "${hidumper_service_path}:interface_include",
+  ]
   cflags = [
     "-g",
     "-O0",
@@ -38,8 +42,6 @@ ohos_fuzztest("ClientFuzzTest") {
   ]
 
   deps = [ "${hidumper_service_path}:hidumper_client" ]
-
-  include_dirs = [ "${hidumper_interface}/innerkits/include/" ]
 }
 
 ###############################################################################

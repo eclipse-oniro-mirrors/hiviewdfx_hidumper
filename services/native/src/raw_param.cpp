@@ -39,7 +39,7 @@ RawParam::RawParam(int calllingUid, int calllingPid, uint32_t reqId, std::vector
 
 RawParam::~RawParam()
 {
-DUMPER_HILOGD(MODULE_SERVICE, "release|pid=%{public}d, reqId=%{public}u", pid_, reqId_);
+    DUMPER_HILOGD(MODULE_SERVICE, "release|pid=%{public}d, reqId=%{public}u", pid_, reqId_);
     Uninit();
 }
 
@@ -50,6 +50,10 @@ bool RawParam::Init(std::vector<std::u16string> &args)
         deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new ClientDeathRecipient(reqId_, canceled_));
     }
     DUMPER_HILOGD(MODULE_SERVICE, "debug|argc=%{public}zu", args.size());
+    if (args.size() >= ARG_MIN_COUNT) {
+        SetCallerPpid(Str16ToStr8(args[args.size() - 1]));
+        args.pop_back();
+    }
     for (size_t i = 0; i < args.size() && i <= ARG_MAX_COUNT; i++) {
         argValues_[i] = std::make_unique<ArgValue>();
         if (sprintf_s(argValues_[i]->value, SINGLE_ARG_MAXLEN, "%s", Str16ToStr8(args[i]).c_str()) < 0) {
@@ -160,6 +164,16 @@ void RawParam::SetFolder(const std::string &folder)
 std::string RawParam::GetFolder()
 {
     return folder_;
+}
+
+void RawParam::SetCallerPpid(const std::string &ppid)
+{
+    StrToInt(ppid, callerPpid_);
+}
+
+int RawParam::GetCallerPpid()
+{
+    return callerPpid_;
 }
 
 void RawParam::UpdateProgress(uint32_t total, uint32_t current)
