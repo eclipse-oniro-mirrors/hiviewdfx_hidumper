@@ -18,6 +18,7 @@ import zipfile
 import subprocess
 import re
 import time
+import json
 
 OUTPUT_PATH = "testModule/output"
 
@@ -220,3 +221,44 @@ def JudgeHisyseventReport(command, output, hidumperTmpCmd, currentTime, lastWrit
             #若不包含：则确认hisysevent -r 是否上报对应数据
             assert command in hisyseventOutput
             print(f"hisysevent is reported\n")
+
+def GetPathByAttribute(tree, key, value):
+    attributes = tree['attributes']
+    if attributes is None:
+        print("tree contains no attributes")
+        return None
+    path = []
+    if attributes.get(key) == value:
+        return path
+    for index, child in enumerate(tree['children']):
+        child_path = path + [index]
+        result = GetPathByAttribute(child, key, value)
+        if result is not None:
+            return child_path + result
+    return None
+
+def GetElementByPath(tree, path):
+    if len(path) == 1:
+        return tree['children'][path[0]]
+    return GetElementByPath(tree['children'][path[0]], path[1:])
+
+def GetLocationByText(tree, text):
+    path = GetPathByAttribute(tree, "text", text)
+    if path is None or len(path) == 0:
+        print(f"text not find in layout file")
+    element = GetElementByPath(tree, path)
+    locations = element['attributes']['bounds'].replace('[', '').replace(']', ' ').replace(',',' ').strip().split()
+    return int((int(locations[0]) + int(locations[2])) / 2), int((int(locations[1]) + int(locations[3])) / 2)
+
+def GetLayoutTree():
+    output = subprocess.check_output("hdc shell uitest dumpLayout", text=True)
+    path = output.strip().split(":")[-1]
+    output = subprocess.check_output(f"hdc file recv {path} {OUTPUT_PATH}/layout.json")
+    with open(f"{OUTPUT_PATH}/layout.json", encoding="utf-8") as f:
+        tree = json.load(f)
+    return tree
+
+def TouchButtonByText(text):
+    layoutTree = GetLayoutTree()
+    location = GetLocationByText(layoutTree, text)
+    output = subprocess.check_output(f"hdc shell uitest uiInput click {location[0]} {location[1]}")
