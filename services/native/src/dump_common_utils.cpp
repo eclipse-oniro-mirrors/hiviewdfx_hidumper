@@ -371,7 +371,7 @@ void DumpCommonUtils::ReportCmdUsage(const std::unique_ptr<DumperSysEventParams>
     param->errorCode == 0 ? option = "OPT:" + param->opt + " SUB_OPT:" + param->subOpt + "\n" :
         option = "ERROR_MESSAGE:" + param->errorMsg + "\n";
     if (content.find(option) != std::string::npos) {
-        DUMPER_HILOGE(MODULE_COMMON, "hisysevent data contain option, not report");
+        DUMPER_HILOGD(MODULE_COMMON, "hisysevent data contain option, not report");
         close(fd);
         return;
     }

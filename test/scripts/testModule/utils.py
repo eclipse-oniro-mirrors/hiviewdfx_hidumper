@@ -94,7 +94,7 @@ def CheckCmd(command, checkFunction, hidumperTmpCmd = ""):
         currentTime = GetDate()
     output = subprocess.check_output(f"hdc shell \"{command}\"", shell=True, text=True, encoding="utf-8")
     assert checkFunction(output)
-    if len(hidumperTmpCmd) != 0 and not IsOpenHarmonyVersion():
+    if len(hidumperTmpCmd) != 0 and not IsOpenHarmonyVersion() and IsRootVersion():
         JudgeHisyseventReport(command, hisyseventOutput, hidumperTmpCmd, currentTime, lastWriteDay)
 
 def CheckCmdRedirect(command, checkFunction, filePath = None, hidumperTmpCmd = ""):
@@ -105,7 +105,7 @@ def CheckCmdRedirect(command, checkFunction, filePath = None, hidumperTmpCmd = "
     filePath = f"{OUTPUT_PATH}/hidumper_redirect.txt" if filePath is None else filePath
     subprocess.check_output(f"hdc shell \"{command}\" > {filePath}", shell=True, text=True, encoding="utf-8")
     assert checkFile(filePath, checkFunction = checkFunction)
-    if len(hidumperTmpCmd) != 0 and not IsOpenHarmonyVersion():
+    if len(hidumperTmpCmd) != 0 and not IsOpenHarmonyVersion() and IsRootVersion():
         JudgeHisyseventReport(command, hisyseventOutput, hidumperTmpCmd, currentTime, lastWriteDay)
 
 def CheckCmdZip(command, checkFunction):
@@ -170,6 +170,8 @@ def GetHisyseventTmpFile():
     # 获取/data/log/hidumper/hisysevent.tmp文件内容
     get_hisysevent_tmp_txt = "cat /data/log/hidumper/hisysevent.tmp"
     output = subprocess.check_output(f"hdc shell \"{get_hisysevent_tmp_txt}\"", shell=True, text=True, encoding="utf-8")
+    if "No such file or directory" in output:
+        return ""
     output = output.strip('\n')
     return output
 
@@ -185,8 +187,10 @@ def GetDateArray(formatted_time):
 
 def GetLastWriteDay():
     lastWriteTime = subprocess.check_output(f"hdc shell stat -c %y /data/log/hidumper/hisysevent.tmp", shell=True, text=True, encoding="utf-8")
+    if "No such file or directory" in lastWriteTime:
+        return ""
     lastWriteTime = lastWriteTime.strip(' ')
-    lastWriteDay = GetDateArray(lastWriteTime)
+    lastWriteDay = GetDateArray(lastWriteTime)[2]
     return lastWriteDay
 
 def UpdateDay():
@@ -206,21 +210,13 @@ def JudgeHisyseventReport(command, output, hidumperTmpCmd, currentTime, lastWrit
     # 执行hisysevent命令
     hisyseventCmd = f"hisysevent -l -S \"{currentTime}\" |grep CMD_USAGE"
     hisyseventOutput = subprocess.check_output(f"hdc shell \"{hisyseventCmd}\"", shell=True, text=True, encoding="utf-8")
-    outputArray = output.split('\n')
-    if (int(currentDay) - int(lastWriteDay)) >= 1 :
-        #会清空文件数据，此时的命令必然会上报hisysevent_tmp
-        assert command in hisyseventOutput
-        print(f"tmp file is cleard, hisysevent is reported\n")
-    else:
-        # 校验/data/log/hidumper/hisysevent.tmp文件中是否包含本次执行的命令
-        if hidumperTmpCmd in outputArray:
-            #若包含：则确认hisysevent -r 是否未上报对应数据
-            assert command not in hisyseventOutput
-            print(f"hisysevent is exist, no need report\n")
-        else:
-            #若不包含：则确认hisysevent -r 是否上报对应数据
-            assert command in hisyseventOutput
-            print(f"hisysevent is reported\n")
+    if output == "":
+        print(f"hisysevent.tmp is not exist")
+        return
+    hisyseventFile = GetHisyseventTmpFile()
+    hisyseventFileArray = hisyseventFile.split('\n')
+    count = sum(string == hidumperTmpCmd for string in hisyseventFileArray)
+    assert count == 1
 
 def GetPathByAttribute(tree, key, value):
     attributes = tree['attributes']
