@@ -20,12 +20,6 @@ import time
 import json
 from utils import *
 
-if not IsOpenHarmonyVersion():
-    from hypium import UiDriver
-    from hypium import BY
-    from hypium import Point
-    from hypium.model import UiParam
-
 PSS_TOTAL_INDEX = 0
 SWAP_PSS_INDEX = 6
 COLUMN_NUM = 10
@@ -50,39 +44,44 @@ def ParseMemoryOutput(output):
     return memory_data
 
 def PreOperationHap():
-    driver = UiDriver.connect()
     # 安装hap
     subprocess.check_call("hdc install testModule/resource/jsleakwatcher.hap", shell=True)
     time.sleep(3)
     subprocess.check_call("hdc shell aa start -a EntryAbility -b com.example.jsleakwatcher", shell=True)
     time.sleep(3)
     # 单击【Enable】按钮
-    driver.touch(BY.text("Enable").type("Button"), mode=UiParam.NORMAL)
+    TouchButtonByText("Enable")
     time.sleep(3)
     # 单击【2_全局变量未使用造成js内存泄露】按钮
-    driver.touch(BY.text("2_全局变量未使用造成js内存泄露").type("Button"), mode=UiParam.NORMAL)
+    TouchButtonByText("2_全局变量未使用造成js内存泄露")
     time.sleep(3)
     command = "rm -rf /data/log/reliability/resource_leak/memory_leak/hidumper-*"
     output = subprocess.check_output(f"hdc shell \"{command}\"", shell=True, text=True, encoding="utf-8")
 
 def ParseJsLeakListOutput():
-    command = "ls /data/log/reliability/resource_leak/memory_leak |grep -e leaklist"
+    jsleakDir = "/data/log/reliability/resource_leak/memory_leak"
+    if IsOpenHarmonyVersion() or not IsRootVersion():
+        jsleakDir = "/data/log/faultlog/temp"
+    command = f"ls {jsleakDir} |grep -e leaklist"
     output = subprocess.check_output(f"hdc shell \"{command}\"", shell=True, text=True, encoding="utf-8")
     assert "leaklist" in output
     filename = output.strip('\n')
     print(f"leaklist filename:{filename} \n")
-    command = "cat /data/log/reliability/resource_leak/memory_leak/" + filename
+    command = f"cat {jsleakDir}/" + filename
     output = subprocess.check_output(f"hdc shell \"{command}\"", shell=True, text=True, encoding="utf-8")
     output = output.strip('\n')
     return output
 
 def ParseJsHeapOutput(hash_val, name, msg):
-    command = "ls /data/log/reliability/resource_leak/memory_leak |grep -e jsheap"
+    jsleakDir = "/data/log/reliability/resource_leak/memory_leak"
+    if IsOpenHarmonyVersion() or not IsRootVersion():
+        jsleakDir = "/data/log/faultlog/temp"
+    command = f"ls {jsleakDir} |grep -e jsheap"
     output = subprocess.check_output(f"hdc shell \"{command}\"", shell=True, text=True, encoding="utf-8")
     assert "jsheap" in output
     filename = output.strip('\n')
     print(f"jsheap filename:{filename} \n")
-    command = "cat /data/log/reliability/resource_leak/memory_leak/" + filename + " |grep -e " + str(hash_val) + " -e " + name + " -e " + msg
+    command = f"cat {jsleakDir}/" + filename + " |grep -e " + str(hash_val) + " -e " + name + " -e " + msg
     output = subprocess.check_output(f"hdc shell \"{command}\"", shell=True, text=True, encoding="utf-8")
     return output
 
@@ -255,10 +254,10 @@ class TestHidumperMemoryJsheap:
         command = f"hdc shell \"hidumper --mem-jsheap {pid}\""
         # 校验命令行输出
         subprocess.check_call(command, shell=True)
-        if IsRootVersion():
-            assert WaitUntillOutputAppear("hdc shell \"ls -l /data/log/faultlog/temp |grep jsheap\"", "jsheap", 10)
-        else:
-            assert WaitUntillOutputAppear("hdc shell \"ls -l /data/log/reliability/resource_leak/memory_leak |grep jsheap\"", "jsheap", 10)
+        ret = WaitUntillOutputAppear("hdc shell \"ls -l /data/log/faultlog/temp |grep jsheap\"", "jsheap", 10)
+        if not ret:
+            ret = WaitUntillOutputAppear("hdc shell \"ls -l /data/log/reliability/resource_leak/memory_leak |grep jsheap\"", "jsheap", 10)
+        assert ret
 
     @pytest.mark.L0
     def test_mem_jsheap_T(self):
@@ -274,11 +273,10 @@ class TestHidumperMemoryJsheap:
         command = f"hdc shell \"hidumper --mem-jsheap {pid} -T {pid}\""
         # 校验命令行输出
         subprocess.check_call(command, shell=True)
-        if IsRootVersion():
-            assert WaitUntillOutputAppear("hdc shell \"ls -l /data/log/faultlog/temp |grep jsheap\"", "jsheap", 10)
-        else:
-            assert WaitUntillOutputAppear("hdc shell \"ls -l /data/log/reliability/resource_leak/memory_leak |grep jsheap\"", "jsheap", 10)
-
+        ret = WaitUntillOutputAppear("hdc shell \"ls -l /data/log/faultlog/temp |grep jsheap\"", "jsheap", 10)
+        if not ret:
+            ret = WaitUntillOutputAppear("hdc shell \"ls -l /data/log/reliability/resource_leak/memory_leak |grep jsheap\"", "jsheap", 10)
+        assert ret
     @pytest.mark.L0
     def test_mem_jsheap_gc(self):
         pid = None
@@ -313,14 +311,10 @@ class TestHidumperMemoryJsheap:
 
     @pytest.mark.L0
     def test_mem_jsheap_leakobj(self):
-        pid = None
-        if IsOpenHarmonyVersion():
-            pytest.skip("this testcase not support OH")
-        else:
-            PreOperationHap()
-            pid = GetPidByProcessName("com.example.jsleakwatcher")
-            if pid == "":
-                pytest.skip("com.example.jsleakwatcher not found")
+        PreOperationHap()
+        pid = GetPidByProcessName("com.example.jsleakwatcher")
+        if pid == "":
+            pytest.skip("com.example.jsleakwatcher not found")
         command = f"hdc shell \"hidumper --mem-jsheap {pid} --leakobj\""
         subprocess.check_call(command, shell=True)
         time.sleep(3)
