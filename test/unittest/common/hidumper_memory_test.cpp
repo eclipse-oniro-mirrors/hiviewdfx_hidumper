@@ -212,6 +212,23 @@ HWTEST_F(HidumperMemoryTest, MemoryInfo003, TestSize.Level1)
 }
 
 /**
+ * @tc.name: MemoryInfo004
+ * @tc.desc: Test error GroupMap.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperMemoryTest, MemoryInfo004, TestSize.Level1)
+{
+    unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
+        make_unique<OHOS::HiviewDFX::MemoryInfo>();
+    shared_ptr<vector<vector<string>>> result = make_shared<vector<vector<string>>>();
+    GroupMap groupMap;
+    ValueMap memInfo;
+    groupMap.insert(pair<string, ValueMap>("test", memInfo));
+    memoryInfo->GetPssTotal(groupMap, result);
+    ASSERT_TRUE(result->size() == 0);
+}
+
+/**
  * @tc.name: GetProcessInfo001
  * @tc.desc: Test GetProcessInfo ret.
  * @tc.type: FUNC

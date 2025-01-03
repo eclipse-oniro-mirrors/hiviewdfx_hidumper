@@ -48,6 +48,7 @@ using namespace OHOS::HDI::Memorytracker::V1_0;
 
 namespace OHOS {
 namespace HiviewDFX {
+static const int PAGETAG_MIN_LEN = 2; // page tag min length
 static const std::string LIB = "libai_mnt_client.so";
 
 static const std::string UNKNOWN_PROCESS = "unknown";
@@ -430,6 +431,10 @@ void MemoryInfo::GetPssTotal(const GroupMap &infos, StringMatrix result)
     for (const auto &info : infos) {
         vector<string> pageTag;
         StringUtils::GetInstance().StringSplit(info.first, "#", pageTag);
+        if (pageTag.size() < PAGETAG_MIN_LEN) {
+            DUMPER_HILOGE(MODULE_COMMON, "Infos are invalid, info.first: %{public}s", info.first.c_str());
+            continue;
+        }
         string group = pageTag[1];
         auto &valueMap = info.second;
         uint64_t pssValue = 0;
