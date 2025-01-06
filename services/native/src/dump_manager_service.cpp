@@ -243,6 +243,7 @@ std::string DumpManagerService::GetFdLinkNum(const std::string &linkPath) const
 
 void DumpManagerService::RecordDetailFdInfo(std::string &detailFdInfo, std::string &topLeakedType)
 {
+    lock_guard<mutex> lock(linkCntMutex_);
     if (linkCnt_.empty()) {
         DUMPER_HILOGE(MODULE_SERVICE, "linkCnt_ is empty!");
         return;
@@ -257,13 +258,16 @@ void DumpManagerService::RecordDirFdInfo(std::string &detailFdInfo)
 {
     std::unordered_map<std::string, int> fileTypeMap;
     std::vector<pair<std::string, int>> fileTypeList;
-    for (const auto &each : linkCnt_) {
-        if (g_fdLeakWp.find(each.first) == g_fdLeakWp.end()) {
-            std::string fileName(each.first, 0, DumpCommonUtils::FindDigitIndex(each.first));
-            if (fileTypeMap.find(fileName) == fileTypeMap.end()) {
-                fileTypeMap[fileName] = each.second;
-            } else {
-                fileTypeMap[fileName] += each.second;
+    {
+        lock_guard<mutex> lock(linkCntMutex_);
+        for (const auto &each : linkCnt_) {
+            if (g_fdLeakWp.find(each.first) == g_fdLeakWp.end()) {
+                std::string fileName(each.first, 0, DumpCommonUtils::FindDigitIndex(each.first));
+                if (fileTypeMap.find(fileName) == fileTypeMap.end()) {
+                    fileTypeMap[fileName] = each.second;
+                } else {
+                    fileTypeMap[fileName] += each.second;
+                }
             }
         }
     }
@@ -289,7 +293,12 @@ int32_t DumpManagerService::CountFdNums(int32_t pid, uint32_t &fdNums,
     // transfor to vector to sort by map value.
     int32_t ret = DumpStatus::DUMP_OK;
     std::map<std::string, int64_t> linkNameCnt;
-    linkCnt_.clear();
+    {
+        lock_guard<mutex> lock(linkCntMutex_);
+        if (!linkCnt_.empty()) {
+            linkCnt_.clear();
+        }
+    }
     std::string taskPath = "/proc/" + std::to_string(pid) + "/fd";
     std::vector<std::string> fdList = DumpCommonUtils::GetSubNodes(taskPath, true);
     fdNums = GetFileDescriptorNums(pid, "fd");
@@ -309,14 +318,19 @@ int32_t DumpManagerService::CountFdNums(int32_t pid, uint32_t &fdNums,
             linkNameCnt[linkName]++;
         }
     }
-    for (const auto &each : linkNameCnt) {
-        linkCnt_.push_back(each);
+    {
+        lock_guard<mutex> lock(linkCntMutex_);
+        for (const auto &each : linkNameCnt) {
+            linkCnt_.push_back(each);
+        }
+        if (linkCnt_.empty()) {
+            return DumpStatus::DUMP_FAIL;
+        }
+        std::sort(linkCnt_.begin(), linkCnt_.end(),
+            [](const std::pair<std::string, int> &a, const std::pair<std::string, int> &b) {
+                return a.second > b.second;
+            });
     }
-    if (linkCnt_.empty()) {
-        return DumpStatus::DUMP_FAIL;
-    }
-    std::sort(linkCnt_.begin(), linkCnt_.end(),
-        [](const std::pair<std::string, int> &a, const std::pair<std::string, int> &b) { return a.second > b.second; });
     RecordDetailFdInfo(detailFdInfo, topLeakedType);
     RecordDirFdInfo(detailFdInfo);
     return ret;
