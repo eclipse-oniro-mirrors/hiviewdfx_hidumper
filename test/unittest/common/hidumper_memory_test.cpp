@@ -13,7 +13,9 @@
  * limitations under the License.
  */
 #include <gtest/gtest.h>
+#include <iostream>
 #include <map>
+#include <sstream>
 #include <unistd.h>
 #include <vector>
 #include "executor/memory/get_hardware_info.h"
@@ -26,7 +28,9 @@
 #include "executor/memory/parse/parse_smaps_info.h"
 #include "executor/memory/parse/parse_smaps_rollup_info.h"
 #include "executor/memory/smaps_memory_info.h"
+#include "hidumper_test_utils.h"
 #include "memory_collector.h"
+#include "string_ex.h"
 
 using namespace std;
 using namespace testing::ext;
@@ -35,8 +39,99 @@ namespace HiviewDFX {
 const int INIT_PID = 1;
 const uint64_t INVALID_PID = 0;
 const int BUFFER_SIZE = 1024;
+constexpr int TEST_PSS_VALUE = 100;
 string NULL_STR = "";
+const string FIRST_ROW_TMP = "                          Pss         Shared         Shared        Private";
+const string FIRST_ROW = FIRST_ROW_TMP +
+    "        Private           Swap        SwapPss           Heap           Heap           Heap ";
+const string SECOND_ROW_TMP =
+    "                        Total          Clean          Dirty          Clean          Dirty";
+const string SECOND_ROW = SECOND_ROW_TMP +
+    "          Total          Total           Size          Alloc           Free ";
+const string THIRD_ROW_TMP =
+    "                       ( kB )         ( kB )         ( kB )         ( kB )         ( kB )";
+const string THIRD_ROW = THIRD_ROW_TMP +
+    "         ( kB )         ( kB )         ( kB )         ( kB )         ( kB ) ";
+const string FOURTH_ROW_TMP =
+    "              ---------------------------------------------------------------------------";
+const string FOURTH_ROW = FOURTH_ROW_TMP +
+    "---------------------------------------------------------------------------";
+const vector<string> MEMEORY_TITLE_VEC = {FIRST_ROW, SECOND_ROW, THIRD_ROW, FOURTH_ROW};
 
+const std::map<MemoryItemType, MemoryClass> TYPE_TO_CLASS_MAP = {
+    {MemoryItemType::MEMORY_ITEM_ENTITY_DB, MemoryClass::MEMORY_CLASS_DB},
+    {MemoryItemType::MEMORY_ITEM_ENTITY_DB_SHM, MemoryClass::MEMORY_CLASS_DB},
+    {MemoryItemType::MEMORY_ITEM_ENTITY_HAP, MemoryClass::MEMORY_CLASS_OTHER},
+    {MemoryItemType::MEMORY_ITEM_ENTITY_HSP, MemoryClass::MEMORY_CLASS_OTHER},
+    {MemoryItemType::MEMORY_ITEM_ENTITY_SO, MemoryClass::MEMORY_CLASS_SO},
+    {MemoryItemType::MEMORY_ITEM_ENTITY_SO1, MemoryClass::MEMORY_CLASS_SO},
+    {MemoryItemType::MEMORY_ITEM_ENTITY_TTF, MemoryClass::MEMORY_CLASS_TTF},
+    {MemoryItemType::MEMORY_ITEM_ENTITY_DEV_PARAMETER, MemoryClass::MEMORY_CLASS_DEV},
+    {MemoryItemType::MEMORY_ITEM_ENTITY_DEV_OTHER, MemoryClass::MEMORY_CLASS_DEV},
+    {MemoryItemType::MEMORY_ITEM_ENTITY_DATA_STORAGE, MemoryClass::MEMORY_CLASS_HAP},
+    {MemoryItemType::MEMORY_ITEM_ENTITY_DMABUF, MemoryClass::MEMORY_CLASS_DMABUF},
+    {MemoryItemType::MEMORY_ITEM_ENTITY_OTHER, MemoryClass::MEMORY_CLASS_OTHER},
+    {MemoryItemType::MEMORY_ITEM_TYPE_ANON_INODE, MemoryClass::MEMORY_CLASS_OTHER},
+    {MemoryItemType::MEMORY_ITEM_TYPE_ANON_ARKTS_CODE, MemoryClass::MEMORY_CLASS_OTHER},
+    {MemoryItemType::MEMORY_ITEM_TYPE_ANON_ARKTS_HEAP, MemoryClass::MEMORY_CLASS_ARK_TS_HEAP},
+    {MemoryItemType::MEMORY_ITEM_TYPE_ANON_GUARD, MemoryClass::MEMORY_CLASS_GUARD},
+    {MemoryItemType::MEMORY_ITEM_TYPE_ANON_BSS, MemoryClass::MEMORY_CLASS_OTHER},
+    {MemoryItemType::MEMORY_ITEM_TYPE_ANON_NATIVE_HEAP_BRK, MemoryClass::MEMORY_CLASS_NATIVE_HEAP},
+    {MemoryItemType::MEMORY_ITEM_TYPE_ANON_NATIVE_HEAP_JEMALLOC, MemoryClass::MEMORY_CLASS_NATIVE_HEAP},
+    {MemoryItemType::MEMORY_ITEM_TYPE_ANON_NATIVE_HEAP_JEMALLOC_META, MemoryClass::MEMORY_CLASS_NATIVE_HEAP},
+    {MemoryItemType::MEMORY_ITEM_TYPE_ANON_NATIVE_HEAP_JEMALLOC_TSD, MemoryClass::MEMORY_CLASS_NATIVE_HEAP},
+    {MemoryItemType::MEMORY_ITEM_TYPE_ANON_NATIVE_HEAP_META, MemoryClass::MEMORY_CLASS_NATIVE_HEAP},
+    {MemoryItemType::MEMORY_ITEM_TYPE_ANON_NATIVE_HEAP_MMAP, MemoryClass::MEMORY_CLASS_NATIVE_HEAP},
+    {MemoryItemType::MEMORY_ITEM_TYPE_ANON_NATIVE_HEAP_OTHER, MemoryClass::MEMORY_CLASS_NATIVE_HEAP},
+    {MemoryItemType::MEMORY_ITEM_TYPE_ANON_SIGNAL_STACK, MemoryClass::MEMORY_CLASS_STACK},
+    {MemoryItemType::MEMORY_ITEM_TYPE_ANON_STACK, MemoryClass::MEMORY_CLASS_STACK},
+    {MemoryItemType::MEMORY_ITEM_TYPE_ANON_V8, MemoryClass::MEMORY_CLASS_OTHER},
+    {MemoryItemType::MEMORY_ITEM_TYPE_ANONYMOUS_OTHER, MemoryClass::MEMORY_CLASS_OTHER},
+    {MemoryItemType::MEMORY_ITEM_TYPE_CONTIGUOUS, MemoryClass::MEMORY_CLASS_OTHER},
+    {MemoryItemType::MEMORY_ITEM_TYPE_COPAGE, MemoryClass::MEMORY_CLASS_OTHER},
+    {MemoryItemType::MEMORY_ITEM_TYPE_FILE, MemoryClass::MEMORY_CLASS_OTHER},
+    {MemoryItemType::MEMORY_ITEM_TYPE_GUARD, MemoryClass::MEMORY_CLASS_OTHER},
+    {MemoryItemType::MEMORY_ITEM_TYPE_HEAP, MemoryClass::MEMORY_CLASS_NATIVE_HEAP},
+    {MemoryItemType::MEMORY_ITEM_TYPE_IO, MemoryClass::MEMORY_CLASS_OTHER},
+    {MemoryItemType::MEMORY_ITEM_TYPE_KSHARE, MemoryClass::MEMORY_CLASS_OTHER},
+    {MemoryItemType::MEMORY_ITEM_TYPE_MALLOC, MemoryClass::MEMORY_CLASS_NATIVE_HEAP},
+    {MemoryItemType::MEMORY_ITEM_TYPE_PREHISTORIC, MemoryClass::MEMORY_CLASS_OTHER},
+    {MemoryItemType::MEMORY_ITEM_TYPE_RESERVE, MemoryClass::MEMORY_CLASS_OTHER},
+    {MemoryItemType::MEMORY_ITEM_TYPE_SHMM, MemoryClass::MEMORY_CLASS_OTHER},
+    {MemoryItemType::MEMORY_ITEM_TYPE_STACK, MemoryClass::MEMORY_CLASS_STACK},
+    {MemoryItemType::MEMORY_ITEM_TYPE_UNKNOWN, MemoryClass::MEMORY_CLASS_OTHER},
+    {MemoryItemType::MEMORY_ITEM_TYPE_VNODES, MemoryClass::MEMORY_CLASS_OTHER},
+    {MemoryItemType::MEMORY_ITEM_TYPE_OTHER, MemoryClass::MEMORY_CLASS_OTHER},
+    {MemoryItemType::MEMORY_ITEM_TYPE_GRAPH_GL, MemoryClass::MEMORY_CLASS_GRAPH},
+    {MemoryItemType::MEMORY_ITEM_TYPE_GRAPH_GRAPHICS, MemoryClass::MEMORY_CLASS_GRAPH},
+};
+
+const std::vector<std::pair<std::string, std::string>> TITLE_AND_VALUE = {
+    {"GL", "100"},
+    {"Graph", "100"},
+    {"ark ts heap", "100"},
+    {"guard", "100"},
+    {"native heap", "900"},
+    {".hap", "100"},
+    {"AnonPage other", "1100"},
+    {"stack", "300"},
+    {".db", "200"},
+    {".so", "200"},
+    {"dev", "200"},
+    {"dmabuf", "100"},
+    {".ttf", "100"},
+    {"FilePage other", "900"},
+    {"---------------", ""},
+    {"Total", "4500"},
+    {"\n", ""},
+    {"native heap:", ""},
+    {"heap", "100"},
+    {"jemalloc meta", "100"},
+    {"jemalloc heap", "100"},
+    {"brk heap", "100"},
+    {"musl heap", "100"},
+    {"mmap heap", "100"},
+};
 using ValueMap = std::map<std::string, uint64_t>;
 using GroupMap = std::map<std::string, ValueMap>;
 using StringMatrix = std::shared_ptr<std::vector<std::vector<std::string>>>;
@@ -47,6 +142,9 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
+    void CreateProcessMemoryDetail(ProcessMemoryDetail& processMemoryDetail);
+    void GetMemoryDetail(MemoryDetail& detail);
+    bool CheckMemoryPrint(const std::string& title, const std::string& value, const std::string& line);
 };
 
 void HidumperMemoryTest::SetUpTestCase(void)
@@ -60,6 +158,102 @@ void HidumperMemoryTest::SetUp(void)
 }
 void HidumperMemoryTest::TearDown(void)
 {
+}
+
+void HidumperMemoryTest::CreateProcessMemoryDetail(ProcessMemoryDetail& processMemoryDetail)
+{
+    processMemoryDetail.pid = -1;
+    processMemoryDetail.name = "test";
+    std::vector<MemoryDetail> details;
+    for (int i = 0; i <= static_cast<int>(MemoryClass::MEMORY_CLASS_OTHER); i++) {
+        MemoryDetail detail;
+        detail.memoryClass = static_cast<MemoryClass>(i);
+        GetMemoryDetail(detail);
+        details.push_back(detail);
+        processMemoryDetail.totalRss += detail.totalRss;
+        processMemoryDetail.totalPss += detail.totalPss;
+        processMemoryDetail.totalSwapPss += detail.totalSwapPss;
+        processMemoryDetail.totalSwap += detail.totalSwap;
+        processMemoryDetail.totalAllPss += detail.totalAllPss;
+        processMemoryDetail.totalAllSwap += detail.totalAllSwap;
+        processMemoryDetail.totalSharedDirty += detail.totalSharedDirty;
+        processMemoryDetail.totalPrivateDirty += detail.totalPrivateDirty;
+        processMemoryDetail.totalSharedClean += detail.totalSharedClean;
+        processMemoryDetail.totalPrivateClean += detail.totalPrivateClean;
+    }
+    processMemoryDetail.details = details;
+}
+
+void HidumperMemoryTest::GetMemoryDetail(MemoryDetail& detail)
+{
+    std::vector<MemoryItem> items;
+    int first = 1; // 1 is the filePage of iNode
+    int second = 2; // 2 is the class of iNode
+    for (int j = 0; j <= static_cast<int>(MemoryItemType::MEMORY_ITEM_TYPE_OTHER); j++) {
+        MemoryItem item;
+        item.type = static_cast<MemoryItemType>(j);
+        MemoryClass tempClass = TYPE_TO_CLASS_MAP.find(item.type) != TYPE_TO_CLASS_MAP.end()
+            ? TYPE_TO_CLASS_MAP.at(item.type) : MemoryClass::MEMORY_CLASS_OTHER;
+        if (tempClass != detail.memoryClass) {
+            continue;
+        }
+        item.iNode = (detail.memoryClass == MemoryClass::MEMORY_CLASS_OTHER) && (j % second == 0) ? 0 : first;
+        item.rss = TEST_PSS_VALUE;
+        item.pss = TEST_PSS_VALUE;
+        item.swapPss = TEST_PSS_VALUE;
+        item.swap = TEST_PSS_VALUE;
+        item.allPss = TEST_PSS_VALUE;
+        item.allSwap = TEST_PSS_VALUE;
+        item.sharedDirty = TEST_PSS_VALUE;
+        tempClass == MemoryClass::MEMORY_CLASS_GRAPH ? item.privateDirty = 0 : item.privateDirty = TEST_PSS_VALUE;
+        item.sharedClean = TEST_PSS_VALUE;
+        item.privateClean = TEST_PSS_VALUE;
+        items.push_back(item);
+
+        detail.totalRss += item.rss;
+        detail.totalPss += item.pss;
+        detail.totalSwapPss += item.swapPss;
+        detail.totalSwap += item.swap;
+        detail.totalAllPss += item.allPss;
+        detail.totalAllSwap += item.allSwap;
+        detail.totalSharedDirty += item.sharedDirty;
+        detail.totalPrivateDirty += item.privateDirty;
+        detail.totalSharedClean += item.sharedClean;
+        detail.totalPrivateClean += item.privateClean;
+    }
+    detail.items = items;
+}
+
+bool HidumperMemoryTest::CheckMemoryPrint(const std::string& title, const std::string& value, const std::string& line)
+{
+    if (line.find(title) == std::string::npos) {
+        std::cout << "data error, line:" << line << " title:" << title << std::endl;
+        return false;
+    }
+    std::string valueStr = "";
+    valueStr = line.substr(line.find(title) + title.length(), line.length());
+    if (title == "GL" || title == "Graph") {
+        std::string graphPss = HidumperTestUtils::GetInstance().GetValueInLine(valueStr, 0);
+        std::string graphPrivateDirty = HidumperTestUtils::GetInstance().GetValueInLine(valueStr, 4);
+        if (graphPss != value || graphPrivateDirty != value) {
+            std::cout << "graphPss:" << graphPss << " graphPrivateDirty:" << graphPrivateDirty << std::endl;
+            return false;
+        } else {
+            return true;
+        }
+    }
+    // [Pss Total] ... [SwapPss Total] is 0-6 line
+    for (int i = 0; i <= 6; i++) {
+        std::string tmp = HidumperTestUtils::GetInstance().GetValueInLine(valueStr, i);
+        if (!IsNumericStr(tmp)) {
+            continue;
+        }
+        if (tmp != value) {
+            std::cout << "tmp != value" << std::endl;
+            return false;
+        }
+    }
+    return true;
 }
 
 /**
@@ -280,6 +474,67 @@ HWTEST_F(HidumperMemoryTest, GraphicMemory001, TestSize.Level1)
     ASSERT_TRUE(ret);
     memoryInfo->GetGraphicsMemory(pid, graphicsMemory, GraphicType::GL);
     ASSERT_TRUE(ret);
+}
+
+/**
+ * @tc.name: MemoryTitle001
+ * @tc.desc: Test memory title.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperMemoryTest, MemoryTitle001, TestSize.Level1)
+{
+    shared_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
+        make_shared<OHOS::HiviewDFX::MemoryInfo>();
+    StringMatrix result = std::make_shared<std::vector<std::vector<std::string>>>();
+    memoryInfo->InsertMemoryTitle(result);
+    ASSERT_TRUE(result->size() == MEMEORY_TITLE_VEC.size());
+    std::vector<std::string> memoryTitle;
+    for (size_t i = 0; i < result->size(); i++) {
+        std::string title = "";
+        std::vector<std::string> line = result->at(i);
+        for (size_t j = 0; j < line.size(); j++) {
+            std::string str = line[j];
+            title += str;
+        }
+        memoryTitle.push_back(title);
+    }
+    ASSERT_TRUE(memoryTitle == MEMEORY_TITLE_VEC);
+}
+
+/**
+ * @tc.name: CheckMemoryData001
+ * @tc.desc: Test check memory data.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperMemoryTest, CheckMemoryData001, TestSize.Level1)
+{
+    shared_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
+        make_shared<OHOS::HiviewDFX::MemoryInfo>();
+    StringMatrix result = std::make_shared<std::vector<std::vector<std::string>>>();
+    ProcessMemoryDetail processMemoryDetail;
+    CreateProcessMemoryDetail(processMemoryDetail);
+    unique_ptr<MemoryDetail> nativeHeapDetail = {nullptr};
+    unique_ptr<ProcessMemoryDetail> processMemoryDetailPtr = make_unique<ProcessMemoryDetail>(processMemoryDetail);
+    memoryInfo->UpdateResult(-1, processMemoryDetailPtr, nativeHeapDetail, result);
+    memoryInfo->GetNativeHeap(nativeHeapDetail, result);
+    ASSERT_TRUE(result->size() == TITLE_AND_VALUE.size());
+    for (size_t i = 0; i < result->size(); i++) {
+        std::vector<std::string> line = result->at(i);
+        std::stringstream outputSs;
+        bool isFind = false;
+        for (size_t j = 0; j < line.size(); j++) {
+            std::string str = line[j];
+            if (str == "\n" || str == "native heap:" || str == "---------------") {
+                isFind = true;
+                break;
+            }
+            outputSs << str;
+        }
+        if (isFind) {
+            continue;
+        }
+        ASSERT_TRUE(CheckMemoryPrint(TITLE_AND_VALUE[i].first, TITLE_AND_VALUE[i].second, outputSs.str()));
+    }
 }
 } // namespace HiviewDFX
 } // namespace OHOS
