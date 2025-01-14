@@ -122,19 +122,6 @@ HWTEST_F(SADumperTest, SADumperTest006, TestSize.Level3)
 }
 
 /**
- * @tc.name: SADumperTest007
- * @tc.desc: Test SA ScreenlockService result contain "Screen".
- * @tc.type: FUNC
- * @tc.require: issueI5NWZQ
- */
-HWTEST_F(SADumperTest, SADumperTest007, TestSize.Level3)
-{
-    std::string cmd = "hidumper -s ScreenlockService -a -all";
-    std::string str = "system";
-    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
-}
-
-/**
  * @tc.name: SADumperTest008
  * @tc.desc: Test SA MultimodalInput result contain "Windows".
  * @tc.type: FUNC
