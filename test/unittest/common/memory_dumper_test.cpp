@@ -95,6 +95,10 @@ HWTEST_F(MemoryDumperTest, MemoryDumperTest003, TestSize.Level3)
     ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
     str = "Purgeable:";
     ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+    str = "        PurgSum:0 kB";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+    str = "        PurgPin:0 kB";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
     str = "DMA:";
     ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
 }
@@ -231,6 +235,28 @@ HWTEST_F(MemoryDumperTest, MemoryDumperTest010, TestSize.Level3)
         uint64_t nativeHeapSize = static_cast<uint64_t>(std::stoi(nativeHeapSizeStr));
         ASSERT_TRUE(nativeHeapSize > 0);
     }
+}
+
+/**
+ * @tc.name: MemoryDumperTest011
+ * @tc.desc: Test MemoryDumper has correct print.
+ * @tc.type: FUNC
+ * @tc.require: issueI5NWZQ
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest011, TestSize.Level3)
+{
+    std::string cmd = "hidumper --mem";
+    std::string str = "-------------------------------[memory]-------------------------------";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+    str = "Total Memory Usage by PID:";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+    std::string titleTmp = "PID        Total Pss(xxx in SwapPss)    Total Vss    Total Rss    Total Uss";
+    str = titleTmp + "           GL        Graph          Dma      PurgSum      PurgPin     Name";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+    str = "Total Memory Usage by Size:";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+    str = "Total Pss by OOM adjustment:";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
 }
 
 /**
