@@ -31,6 +31,60 @@ def CheckSAInterface(output):
     result = re.search(r"-+WindowManagerService-+\n([^\n]+){4,}", output)
     return result is not None
 
+def CheckHiviewServiceFaultloggerPlugin(output):
+    result1 = re.search(r"-+HiviewService-+\n([^\n]+){4,}", output)
+    result2 = re.search("log", output)
+    ret = all([result1, result2])
+    return ret
+
+def CheckWindowManagerService(output):
+    result1 = re.search(r"-+WindowManagerService-+\n([^\n]+){4,}", output)
+    result2 = re.search("WindowName", output)
+    ret = all([result1, result2])
+    return ret
+
+def CheckRsAllInfo(output):
+    result1 = re.search(r"-+RenderService-+\n([^\n]+){4,}", output)
+    result2 = re.search("ScreenInfo", output)
+    ret = all([result1, result2])
+    return ret
+
+def CheckRsHelp(output):
+    result1 = re.search(r"-+RenderService-+\n([^\n]+){4,}", output)
+    result2 = re.search("Graphic", output)
+    ret = all([result1, result2])
+    return ret
+
+def CheckWorkSchedule(output):
+    result1 = re.search(r"-+WorkSchedule-+\n([^\n]+){4,}", output)
+    result2 = re.search("Work", output)
+    ret = all([result1, result2])
+    return ret
+
+def CheckAmsL(output):
+    result1 = re.search(r"-+AbilityManagerService-+\n([^\n]+){4,}", output)
+    result2 = re.search("User", output)
+    ret = all([result1, result2])
+    return ret
+
+def CheckAmsA(output):
+    result1 = re.search(r"-+AbilityManagerService-+\n([^\n]+){4,}", output)
+    result2 = re.search("AppRunningRecord", output)
+    ret = all([result1, result2])
+    return ret
+
+def CheckDmsSA(output):
+    result1 = re.search(r"-+DisplayManagerService-+\n([^\n]+){4,}", output)
+    result2 = re.search("Screen", output)
+    ret = all([result1, result2])
+    return ret
+
+def CheckMultimodalInputW(output):
+    result1 = re.search(r"-+MultimodalInput-+\n([^\n]+){4,}", output)
+    result2 = re.search("Windows", output)
+    ret = all([result1, result2])
+    return ret
+
 class TestHidumperSA: 
 
     @pytest.mark.L0
@@ -66,3 +120,102 @@ class TestHidumperSA:
         CheckCmdRedirect(command, CheckSAInterface, None, hidumperTmpCmd)
         # 校验命令行输出到zip文件
         CheckCmdZip(command, CheckSAInterface)
+
+    @pytest.mark.L0
+    def test_sa_hiview(self):
+        command = "hidumper -s 1201 -a '-p Faultlogger'"
+        hidumperTmpCmd = "OPT:s SUB_OPT:a"
+        # 校验命令行输出
+        CheckCmd(command, CheckHiviewServiceFaultloggerPlugin, hidumperTmpCmd)
+        # 校验命令行重定向输出
+        CheckCmdRedirect(command, CheckHiviewServiceFaultloggerPlugin, None, hidumperTmpCmd)
+        # 校验命令行输出到zip文件
+        CheckCmdZip(command, CheckHiviewServiceFaultloggerPlugin)
+
+    @pytest.mark.L0
+    def test_sa_wms(self):
+        command = "hidumper -s WindowManagerService -a -a"
+        hidumperTmpCmd = "OPT:s SUB_OPT:a"
+        # 校验命令行输出
+        CheckCmd(command, CheckWindowManagerService, hidumperTmpCmd)
+        # 校验命令行重定向输出
+        CheckCmdRedirect(command, CheckWindowManagerService, None, hidumperTmpCmd)
+        # 校验命令行输出到zip文件
+        CheckCmdZip(command, CheckWindowManagerService)
+
+    @pytest.mark.L0
+    def test_sa_rs_allinfo(self):
+        command = "hidumper -s 10 -a allInfo"
+        hidumperTmpCmd = "OPT:s SUB_OPT:a"
+        # 校验命令行输出
+        CheckCmd(command, CheckRsAllInfo, hidumperTmpCmd)
+        # 校验命令行重定向输出
+        CheckCmdRedirect(command, CheckRsAllInfo, None, hidumperTmpCmd)
+        # 校验命令行输出到zip文件
+        CheckCmdZip(command, CheckRsAllInfo)
+
+    @pytest.mark.L0
+    def test_sa_rs_help(self):
+        command = "hidumper -s 10 -a -h"
+        hidumperTmpCmd = "OPT:s SUB_OPT:a"
+        # 校验命令行输出
+        CheckCmd(command, CheckRsHelp, hidumperTmpCmd)
+        # 校验命令行重定向输出
+        CheckCmdRedirect(command, CheckRsHelp, None, hidumperTmpCmd)
+        # 校验命令行输出到zip文件
+        CheckCmdZip(command, CheckRsHelp)
+
+    @pytest.mark.L0
+    def test_sa_workschedule(self):
+        command = "hidumper -s 1904 -a -a"
+        hidumperTmpCmd = "OPT:s SUB_OPT:a"
+        # 校验命令行输出
+        CheckCmd(command, CheckWorkSchedule, hidumperTmpCmd)
+        # 校验命令行重定向输出
+        CheckCmdRedirect(command, CheckWorkSchedule, None, hidumperTmpCmd)
+        # 校验命令行输出到zip文件
+        CheckCmdZip(command, CheckWorkSchedule)
+
+    @pytest.mark.L0
+    def test_sa_ams_l(self):
+        command = "hidumper -s AbilityManagerService -a -l"
+        hidumperTmpCmd = "OPT:s SUB_OPT:a"
+        # 校验命令行输出
+        CheckCmd(command, CheckAmsL, hidumperTmpCmd)
+        # 校验命令行重定向输出
+        CheckCmdRedirect(command, CheckAmsL, None, hidumperTmpCmd)
+        # 校验命令行输出到zip文件
+        CheckCmdZip(command, CheckAmsL)
+
+    @pytest.mark.L0
+    def test_sa_ams_a(self):
+        command = "hidumper -s AbilityManagerService -a '-a'"
+        hidumperTmpCmd = "OPT:s SUB_OPT:a"
+        # 校验命令行输出
+        CheckCmd(command, CheckAmsA, hidumperTmpCmd)
+        # 校验命令行重定向输出
+        CheckCmdRedirect(command, CheckAmsA, None, hidumperTmpCmd)
+        # 校验命令行输出到zip文件
+        CheckCmdZip(command, CheckAmsA)
+
+    @pytest.mark.L0
+    def test_sa_dms_s_a(self):
+        command = "hidumper -s DisplayManagerService -a '-s -a'"
+        hidumperTmpCmd = "OPT:s SUB_OPT:a"
+        # 校验命令行输出
+        CheckCmd(command, CheckDmsSA, hidumperTmpCmd)
+        # 校验命令行重定向输出
+        CheckCmdRedirect(command, CheckDmsSA, None, hidumperTmpCmd)
+        # 校验命令行输出到zip文件
+        CheckCmdZip(command, CheckDmsSA)
+
+    @pytest.mark.L0
+    def test_sa_multimodalinput_w(self):
+        command = "hidumper -s MultimodalInput -a -w"
+        hidumperTmpCmd = "OPT:s SUB_OPT:a"
+        # 校验命令行输出
+        CheckCmd(command, CheckMultimodalInputW, hidumperTmpCmd)
+        # 校验命令行重定向输出
+        CheckCmdRedirect(command, CheckMultimodalInputW, None, hidumperTmpCmd)
+        # 校验命令行输出到zip文件
+        CheckCmdZip(command, CheckMultimodalInputW)
