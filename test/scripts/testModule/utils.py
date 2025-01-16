@@ -127,45 +127,6 @@ def IsOpenHarmonyVersion():
     output = subprocess.check_output("hdc shell param get const.product.software.version", shell=True, text=True, encoding="utf-8").strip()
     return "OpenHarmony" in output
 
-def WaitUntillLogAppear(command,targetLog, second):
-    process = subprocess.Popen(
-        command,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        shell=True,
-        text=True
-    )
-    start = time.time()
-    while True:
-        output = process.stdout.readline()
-        if targetLog in output:
-            process.kill()
-            return True
-        now = time.time()
-        if now - start > second:
-            process.kill()
-            return False
-
-def IsLogAppearInCmdOutput(command, targetLog, second):
-    process = subprocess.Popen(
-        command,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        shell=True,
-        text=True
-    )
-    output = process.stdout.readline()
-
-    try:
-        process.wait(timeout=5)
-        process.kill()
-        return True
-    except subprocess.TimeoutExpired:
-        output = process.stdout
-        process.kill()
-        return False
-
-
 def GetHisyseventTmpFile():
     # 获取/data/log/hidumper/hisysevent.tmp文件内容
     get_hisysevent_tmp_txt = "cat /data/log/hidumper/hisysevent.tmp"

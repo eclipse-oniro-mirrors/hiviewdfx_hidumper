@@ -53,6 +53,15 @@ class TestHidumperCpu:
         # 校验命令行输出到zip文件
         CheckCmdZip(command, CheckCpuUsageWithPidOutput)
 
+    @pytest.mark.L3
+    def test_cpuusage_error_pid(self):
+        command = f"hidumper --cpuusage 2147483647;hidumper --cpuusage -2147483647"
+        hidumperTmpCmd = "OPT:cpuusage SUB_OPT:"
+        # 校验命令行输出
+        CheckCmd(command, lambda output : "hidumper: No such process: 2147483647\nhidumper: option pid missed. 2" in output, hidumperTmpCmd)
+        command = f"hidumper --cpuusage 2147483648;hidumper --cpuusage -2147483648"
+        CheckCmd(command, lambda output : "hidumper: option pid missed. 2" in output, hidumperTmpCmd)
+
     @pytest.mark.L0
     def test_cpufreq(self):
         command = "hidumper --cpufreq"

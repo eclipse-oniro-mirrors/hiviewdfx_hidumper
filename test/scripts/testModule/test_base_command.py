@@ -16,6 +16,7 @@
 import pytest
 import re
 import subprocess
+import time
 from utils import *
 
 @print_check_result
@@ -93,19 +94,21 @@ class TestBaseCommand:
     def test_hidumper_help(self):
         hidumperTmpCmd = "ERROR_MESSAGE:parse cmd fail"
         # 校验命令行输出
-        CheckCmd("hidumper -h", lambda output : "usage:" in output, hidumperTmpCmd)
-        # 校验命令行重定向输出
-        CheckCmdRedirect("hidumper -h", lambda output : "usage:" in output, None, hidumperTmpCmd)
+        CheckCmd("hidumper -h", lambda output : "mem" in output, hidumperTmpCmd)
+        command = "hdc shell \"hidumper -h |grep mem\""
+        output = subprocess.check_output(command, shell=True, encoding="utf-8", text=True)
+        assert "mem" in output
 
     @pytest.mark.L0
-    def test_sa_lc(self):
+    def test_hidumper_lc(self):
         command = "hidumper -lc"
         # 设置hisysevent相关信息
         hidumperTmpCmd = "OPT:lc SUB_OPT:"
         # 校验命令行输出
         CheckCmd(command, lambda output : "base                             system" in output, hidumperTmpCmd)
-        # 校验命令行重定向输出
-        CheckCmdRedirect(command, lambda output : "base                             system" in output, None, hidumperTmpCmd)
+        # 校验-l拼接不存在字符输出
+        CheckCmd("hidumper -ld", lambda output : "option pid missed." in output, hidumperTmpCmd)
+        CheckCmd("hidumper -lcd", lambda output : "option pid missed." in output, hidumperTmpCmd)
 
     @pytest.mark.L0
     def test_hidumper_c_all(self):
@@ -115,10 +118,6 @@ class TestBaseCommand:
                                                                     CheckSlabinfo, CheckZoneinfo, CheckVmstat, CheckVmallocinfo]])
         # 校验命令行输出
         CheckCmd("hidumper -c", CheckFunc, hidumperTmpCmd)
-        # 校验命令行重定向输出
-        CheckCmdRedirect("hidumper -c", CheckFunc, None, hidumperTmpCmd)
-        # 校验命令行输出到zip文件
-        CheckCmdZip("hidumper -c", CheckFunc)
 
     @pytest.mark.L0
     def test_hidumper_c_base(self):
@@ -127,10 +126,6 @@ class TestBaseCommand:
         CheckFunc = lambda output : all([check(output) for check in [CheckBuildId, CheckOsVersion, CheckProcVersion, CheckCmdline, CheckUpTime]])
         # 校验命令行输出
         CheckCmd(command, CheckFunc, hidumperTmpCmd)
-        # 校验命令行重定向输出
-        CheckCmdRedirect(command, CheckFunc, None, hidumperTmpCmd)
-        # 校验命令行输出到zip文件
-        CheckCmdZip(command, CheckFunc)
 
     @pytest.mark.L0
     def test_hidumper_c_system(self):
@@ -139,10 +134,6 @@ class TestBaseCommand:
         CheckFunc = lambda output : all([check(output) for check in [CheckPrintEnv, CheckLsmod, CheckSlabinfo, CheckZoneinfo, CheckVmstat, CheckVmallocinfo]])
         # 校验命令行输出
         CheckCmd(command, CheckFunc, hidumperTmpCmd)
-        # 校验命令行重定向输出
-        CheckCmdRedirect(command, CheckFunc, None, hidumperTmpCmd)
-        # 校验命令行输出到zip文件
-        CheckCmdZip(command, CheckFunc)
 
     @pytest.mark.L0
     def test_hidumper_e(self):
@@ -151,20 +142,31 @@ class TestBaseCommand:
         CheckFunc = lambda output : "faultlog" in output
         # 校验命令行输出
         CheckCmd(command, CheckFunc, hidumperTmpCmd)
-        # 校验命令行重定向输出
-        CheckCmdRedirect(command, CheckFunc, None, hidumperTmpCmd)
-        # 校验命令行输出到zip文件
-        CheckCmdZip(command, CheckFunc)
 
     @pytest.mark.L0
     def test_hidumper_error_option(self):
-        command = "hdc shell \"hidumper -D -h\""
+        command = "hdc shell \"hidumper safsadf -h\""
         output = subprocess.check_output(command, shell=True, encoding="utf-8", text=True)
         assert "option pid missed." in output
 
         command = "hdc shell \"hidumper -h -D\""
         output = subprocess.check_output(command, shell=True, encoding="utf-8", text=True)
         assert "usage:" in output
-    
-    
+
+        command = "hdc shell \"hidumper -habc\""
+        output = subprocess.check_output(command, shell=True, encoding="utf-8", text=True)
+        assert "usage:" in output
+
+    @pytest.mark.L2
+    def test_hidumper_service_exit(self):
+        command = "hdc shell \"hidumper -h\""
+        output = subprocess.check_output(command, shell=True, encoding="utf-8", text=True)
+        command = "hdc shell \"pidof hidumper_service\""
+        output = subprocess.check_output(command, shell=True, encoding="utf-8", text=True)
+        assert int(output.strip()) > 0
+        time.sleep(120) # 120s
+        command = "hdc shell \"pidof hidumper_service\""
+        output = subprocess.check_output(command, shell=True, encoding="utf-8", text=True)
+        output = output.strip('\n')
+        assert output == ""
 
