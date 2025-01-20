@@ -40,3 +40,12 @@ class TestHidumperIpc:
 
         output = subprocess.check_output(f"hdc shell hidumper --ipc {pid} --stop-stat", shell=True, text=True, encoding="utf-8")
         assert "success" in output
+
+    @pytest.mark.L3
+    def test_ipc_error_pid(self):
+        command = f"hidumper --ipc 2147483647 --stat;hidumper --ipc -2147483647 --stat"
+        hidumperTmpCmd = "OPT:ipc SUB_OPT:stat"
+        # 校验命令行输出
+        CheckCmd(command, lambda output : "hidumper: No such process: 2147483647\nhidumper: option pid missed. 2" in output, hidumperTmpCmd)
+        command = f"hidumper --ipc 2147483648 --stat;hidumper --mem -2147483648 --stat"
+        CheckCmd(command, lambda output : "hidumper: option pid missed. 2" in output, hidumperTmpCmd)

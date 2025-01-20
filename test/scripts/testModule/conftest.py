@@ -28,12 +28,9 @@ def IsOpenHarmonyVersion():
     return "OpenHarmony" in output
 
 def pytest_sessionstart(session):
-    if not IsRootVersion():
-        print("device is no root version")
-        subprocess.check_call("hdc install testModule/resource/entry-default-signed.hap", shell=True)
-    else:
-        print("device is root version")
+    print("start install jsleakwatcher.hap")
+    subprocess.check_call("hdc install testModule/resource/jsleakwatcher.hap", shell=True)
 
 def pytest_sessionfinish(session, exitstatus):
-    if not IsRootVersion():
-        subprocess.check_call("hdc uninstall com.example.myapplication", shell=True)
+    print("start uinstall jsleakwatcher.hap")
+    subprocess.check_call("hdc uninstall com.example.jsleakwatcher", shell=True)
