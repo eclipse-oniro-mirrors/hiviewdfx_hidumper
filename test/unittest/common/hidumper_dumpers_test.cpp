@@ -739,6 +739,66 @@ HWTEST_F(HidumperDumpersTest, JsHeapDumperTest004, TestSize.Level1)
 }
 
 /**
+ * @tc.name: JsHeapDumperTest005
+ * @tc.desc: Test JsHeapDumper with init pid and dump rawheap
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, JsHeapDumperTest005, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--mem-jsheap"),
+        const_cast<char *>("1"),
+        const_cast<char *>("--raw"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: JsHeapDumperTest006
+ * @tc.desc: Test JsHeapDumper with init pid and dump rawheap
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, JsHeapDumperTest006, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--mem-jsheap"),
+        const_cast<char *>("1"),
+        const_cast<char *>("-T"),
+        const_cast<char *>("1"),
+        const_cast<char *>("--raw"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: JsHeapDumperTest007
+ * @tc.desc: Test raw parameter
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, JsHeapDumperTest007, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--raw"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
+}
+
+/**
  * @tc.name: HelpDumperTest001
  * @tc.desc: Test hidumper -h
  * @tc.type: FUNC

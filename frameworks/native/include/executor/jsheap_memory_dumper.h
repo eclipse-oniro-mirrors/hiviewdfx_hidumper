@@ -39,6 +39,7 @@ private:
     bool needSnapshot_ = true;
     bool needGc_ = true;
     bool needLeakobj_ = false;
+    bool needBinary_ = false;
     uint32_t pid_ = 0;
     uint32_t tid_ = 0;
 };
