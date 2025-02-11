@@ -11,10 +11,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//build/config/components/idl_tool/idl.gni")
 import("../hidumper.gni")
 
 config("interface_include") {
   include_dirs = [
+    "${target_gen_dir}",
     "${hidumper_interface}/innerkits/include",
     "${hidumper_interface}/native/innerkits/include/",
   ]
@@ -39,6 +41,7 @@ config("dump_cpu_config") {
   visibility = [ "*:*" ]
 
   include_dirs = [
+    "${target_gen_dir}",
     "native/include",
     "${hidumper_frameworks_path}/include",
     "${hidumper_interface}/innerkits/include",
@@ -48,11 +51,22 @@ config("dump_cpu_config") {
   ]
 }
 
+config("hidumpercpuservice_gen_config") {
+  include_dirs = [ "${target_gen_dir}" ]
+}
+
+idl_gen_interface("hidumpercpuservice_interface") {
+  sources = [ "IHidumperCpuService.idl" ]
+  log_domainid = "0xD002D20"
+  log_tag = "DumperService"
+  subsystem_name = "${hidumper_subsystem_name}"
+  part_name = "${hidumper_part_name}"
+}
+
 ohos_source_set("zidl_client") {
-  sources = [
-    "zidl/src/dump_broker_cpu_proxy.cpp",
-    "zidl/src/dump_broker_proxy.cpp",
-  ]
+  sources = [ "zidl/src/dump_broker_proxy.cpp" ]
+  output_values = get_target_outputs(":hidumpercpuservice_interface")
+  sources += filter_include(output_values, [ "*service_proxy.cpp" ])
 
   configs = [
     "${hidumper_utils_path}:utils_config",
@@ -60,7 +74,10 @@ ohos_source_set("zidl_client") {
     "${hidumper_service_path}:zidl_cpu_config",
   ]
 
-  deps = [ "${hidumper_utils_path}:utils" ]
+  deps = [
+    ":hidumpercpuservice_interface",
+    "${hidumper_utils_path}:utils",
+  ]
 
   external_deps = [
     "c_utils:utils",
@@ -100,7 +117,8 @@ ohos_source_set("zidl_service") {
 }
 
 ohos_source_set("zidl_cpu_service") {
-  sources = [ "zidl/src/dump_broker_cpu_stub.cpp" ]
+  output_values = get_target_outputs(":hidumpercpuservice_interface")
+  sources = filter_include(output_values, [ "*service_stub.cpp" ])
 
   configs = [
     "${hidumper_utils_path}:utils_config",
@@ -109,7 +127,10 @@ ohos_source_set("zidl_cpu_service") {
     "${hidumper_service_path}:zidl_cpu_config",
   ]
 
-  deps = [ "${hidumper_utils_path}:utils" ]
+  deps = [
+    ":hidumpercpuservice_interface",
+    "${hidumper_utils_path}:utils",
+  ]
 
   external_deps = [
     "c_utils:utils",
@@ -167,8 +188,9 @@ ohos_source_set("hidumperservice_source") {
     "native/src/dump_manager_service.cpp",
     "native/src/dump_on_demand_load.cpp",
     "native/src/raw_param.cpp",
-    "zidl/src/dump_broker_cpu_proxy.cpp",
   ]
+  output_values = get_target_outputs(":hidumpercpuservice_interface")
+  sources += filter_include(output_values, [ "*service_proxy.cpp" ])
 
   configs = [
     "${hidumper_utils_path}:utils_config",
@@ -179,6 +201,7 @@ ohos_source_set("hidumperservice_source") {
   ]
 
   deps = [
+    ":hidumpercpuservice_interface",
     "${hidumper_frameworks_path}:dump_main",
     "${hidumper_service_path}:zidl_service",
     "${hidumper_utils_path}:utils",
@@ -221,7 +244,10 @@ ohos_shared_library("hidumperservice_cpu_source") {
       "${hidumper_service_path}:zidl_config",
     ]
 
-    deps = [ "${hidumper_service_path}:zidl_cpu_service" ]
+    deps = [
+      ":hidumpercpuservice_interface",
+      "${hidumper_service_path}:zidl_cpu_service",
+    ]
 
     external_deps = [
       "access_token:libaccesstoken_sdk",
@@ -266,7 +292,10 @@ ohos_source_set("hidumperservice_cpu_source_test") {
     "${hidumper_service_path}:zidl_config",
   ]
 
-  deps = [ "${hidumper_service_path}:zidl_cpu_service" ]
+  deps = [
+    ":hidumpercpuservice_interface",
+    "${hidumper_service_path}:zidl_cpu_service",
+  ]
 
   external_deps = [
     "access_token:libaccesstoken_sdk",

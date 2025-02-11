@@ -21,9 +21,9 @@
 #include "system_ability_status_change_stub.h"
 #include "delayed_sp_singleton.h"
 #include "dump_common_utils.h"
-#include "dump_broker_cpu_stub.h"
 #include "dump_cpu_data.h"
 #include "common.h"
+#include "hidumper_cpu_service_stub.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -47,7 +47,7 @@ struct ProcInfo {
     std::string majflt;
 };
 class DumpCpuData;
-class DumpManagerCpuService final : public SystemAbility, public DumpBrokerCpuStub {
+class DumpManagerCpuService final : public SystemAbility, public HidumperCpuServiceStub {
     DECLARE_SYSTEM_ABILITY(DumpManagerCpuService)
 public:
     DumpManagerCpuService();
