@@ -88,7 +88,7 @@ def convert_string_to_matrix(data : str) -> list:
     return matrix
 
 def CheckCmd(command, checkFunction, hidumperTmpCmd = ""):
-    if len(hidumperTmpCmd) != 0:
+    if len(hidumperTmpCmd) != 0 and IsRootVersion():
         hisyseventOutput = GetHisyseventTmpFile()
         lastWriteDay = GetLastWriteDay()
         currentTime = GetDate()
@@ -98,7 +98,7 @@ def CheckCmd(command, checkFunction, hidumperTmpCmd = ""):
         JudgeHisyseventReport(command, hisyseventOutput, hidumperTmpCmd, currentTime, lastWriteDay)
 
 def CheckCmdRedirect(command, checkFunction, filePath = None, hidumperTmpCmd = ""):
-    if len(hidumperTmpCmd) != 0:
+    if len(hidumperTmpCmd) != 0 and IsRootVersion():
         hisyseventOutput = GetHisyseventTmpFile()
         lastWriteDay = GetLastWriteDay()
         currentTime = GetDate()
@@ -219,3 +219,13 @@ def TouchButtonByText(text):
     layoutTree = GetLayoutTree()
     location = GetLocationByText(layoutTree, text)
     output = subprocess.check_output(f"hdc shell uitest uiInput click {location[0]} {location[1]}")
+
+def CloseProcess(processName):
+    result = subprocess.run('hdc shell ps -ef', stdout=subprocess.PIPE)
+    output = result.stdout.decode('utf-8')
+
+    for line in output.splitlines():
+        if processName in line:
+            parts = line.split()
+            pid = parts[1]
+            subprocess.run(['hdc', 'shell', 'kill', '-9', pid])

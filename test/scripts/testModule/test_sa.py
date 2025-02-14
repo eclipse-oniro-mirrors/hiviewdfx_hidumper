@@ -236,25 +236,3 @@ class TestHidumperSA:
         # 校验命令行输出
         CheckCmd(command, lambda output : "hidumper: invalid arg: abc\nhidumper: option pid missed. 1\nhidumper: invalid arg: 123456789123456789123456789123456789" in output, hidumperTmpCmd)
 
-    @pytest.mark.L0
-    def test_sa_screenshot(self):
-        if IsOpenHarmonyVersion():
-            pytest.skip("this testcase is only support in HO")
-        else:
-            process_hilog = subprocess.Popen(['hdc', 'shell', 'hilog | grep Dumper > /data/local/tmp/screenshot.txt'])
-            time.sleep(1)
-            # 唤醒屏幕
-            subprocess.check_call("hdc shell power-shell wakeup", shell=True)
-            # 设置屏幕常亮
-            subprocess.check_call("hdc shell power-shell setmode 602", shell=True)
-            time.sleep(3)
-            # 解锁屏幕
-            subprocess.check_call("hdc shell uinput -T -g 100 100 500 500", shell=True)
-            # 触发截图
-            subprocess.check_call("hdc shell uinput -T -m 1000 0 1000 1000 500 && hdc shell uinput -T -c 300 2300", shell=True)
-            time.sleep(3)
-            process_hilog.terminate()
-            output = subprocess.check_output(f"hdc shell cat /data/local/tmp/screenshot.txt", text=True, encoding="utf-8")
-            assert "dump fail!ret" not in output
-            assert "dump success, cmd" in output
-

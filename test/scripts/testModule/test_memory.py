@@ -33,6 +33,26 @@ def ParseMemoryOutput(output):
         memory_data[key] = [int(val) for val in re.findall(r'\d+', line)]
     return memory_data
 
+def Check64bitUnsignedOverflow(memory_data):
+    value = int(memory_data)
+    if value < 0 or value >= (1 << 64):
+        return True
+
+def ParseMemoryUsageOverflowOutput(output):
+    for line in output.split("\n"):
+        if re.search(r"\d", line) is None:
+            continue
+        pattern = r"([\w\.\-:]+?)\(pid=(\d+)\):\s*(\d+)\s+kB"
+        matches = re.findall(pattern, line)
+        for match in matches:
+            service_name, pid, memory_usage = match
+            if Check64bitUnsignedOverflow(memory_usage):
+                print(f"Service Name: {service_name}")
+                print(f"PID: {pid}")
+                print(f"The memory usage of this process exceeds the maximum value.")
+                return False
+    return True
+
 @print_check_result
 def CheckTotalPss(memory_data):
     pss_sum = sum([val[0] for key,val in memory_data.items() if key in ["GL", "Graph", "guard", "native heap", "AnonPage other", "stack", ".so", ".ttf", "dev", "dmabuf", "FilePage other"]])
@@ -76,6 +96,10 @@ def CheckHidumperMemoryWithoutPidOutput(output):
     dma = re.search(r"DMA\((\d+) kB\)", output).group(1)
     return int(graph) == int(dma)
 
+def CheckHidumperMemoryUsagebySizeOutput(output):
+    memory_data = ParseMemoryUsageOverflowOutput(output)
+    return memory_data
+
 # 要并发执行的任务函数
 def ThreadTask(thread_name, delay):
     print(f"Thread {thread_name} starting")
@@ -102,6 +126,19 @@ class TestHidumperMemory:
     def test_memory_all(self):
         command = f"hidumper --mem"
         hidumperTmpCmd = "OPT:mem SUB_OPT:"
+        # 校验命令行输出
+        CheckCmd(command, CheckHidumperMemoryWithoutPidOutput, hidumperTmpCmd)
+        # 校验命令行重定向输出
+        CheckCmdRedirect(command, CheckHidumperMemoryWithoutPidOutput, None, hidumperTmpCmd)
+        # 校验命令行输出到zip文件
+        CheckCmdZip(command, CheckHidumperMemoryWithoutPidOutput)
+
+    @pytest.mark.L0
+    def test_memory_usage_size(self):
+        command = f"hidumper --mem"
+        hidumperTmpCmd = "OPT:mem SUB_OPT:"
+        # 校验所有进程的内存大小
+        CheckCmd(command, CheckHidumperMemoryUsagebySizeOutput, hidumperTmpCmd)
         # 校验命令行输出
         CheckCmd(command, CheckHidumperMemoryWithoutPidOutput, hidumperTmpCmd)
         # 校验命令行重定向输出
