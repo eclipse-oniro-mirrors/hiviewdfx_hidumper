@@ -51,6 +51,7 @@ def ParseMemoryUsageOverflowOutput(output):
                 print(f"PID: {pid}")
                 print(f"The memory usage of this process exceeds the maximum value.")
                 return False
+
     return True
 
 @print_check_result
@@ -100,6 +101,50 @@ def CheckHidumperMemoryUsagebySizeOutput(output):
     memory_data = ParseMemoryUsageOverflowOutput(output)
     return memory_data
 
+def CheckHidumperGraphAndDmaOutput(output):
+    graph = re.search(r"Graph\((\d+) kB\)", output).group(1)
+    dma = re.search(r"DMA\((\d+) kB\)", output).group(1)
+
+    file_path = f"{OUTPUT_PATH}/hidumper_redirect.txt"
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+
+    header_skipped = False
+    sum_graph_value = 0
+    for line in lines:
+        if not header_skipped and "Total Memory Usage by PID:" in line:
+            header_skipped = True
+            continue
+        if line.strip() == '':
+            break
+        parts = line.split()
+        if len(parts) > 7:
+            graph_value = parts[13]
+            dma_value = parts[15]
+            if "Dma" in graph_value or "PurgPin" in dma_value:
+                continue
+            if graph_value == dma_value:
+                sum_graph_value += int(graph_value)
+ 
+    return sum_graph_value == int(dma)
+
+def CheckHidumperPurgSumAndPurgPinOutput(output):
+    purgSum = re.search(r"Total PurgSum:(\d+) kB", output).group(1)
+    purgPin = re.search(r"Total PurgPin:(\d+) kB", output).group(1)
+
+    output = subprocess.check_output(f'hdc shell cat /proc/meminfo', shell=True, text=True, encoding="utf-8")
+    active = re.search(r"Active\(purg\):\s*(\d+) kB", output).group(1)
+    inactive = re.search(r"Inactive\(purg\):\s*(\d+) kB", output).group(1)
+    pined = re.search(r"Pined\(purg\):\s*(\d+) kB", output).group(1)
+
+    return int(purgSum) == int(active) + int(inactive) and int(purgPin) == int(pined)
+
+def CheckHidumperMemoryValueOutput(output):
+    graph_dma_value = CheckHidumperGraphAndDmaOutput(output)
+    purgSum_purgPin_value = CheckHidumperPurgSumAndPurgPinOutput(output)
+
+    return graph_dma_value and purgSum_purgPin_value
+
 # 要并发执行的任务函数
 def ThreadTask(thread_name, delay):
     print(f"Thread {thread_name} starting")
@@ -139,6 +184,8 @@ class TestHidumperMemory:
         hidumperTmpCmd = "OPT:mem SUB_OPT:"
         # 校验所有进程的内存大小
         CheckCmd(command, CheckHidumperMemoryUsagebySizeOutput, hidumperTmpCmd)
+        # 校验Total PurgSum/Total PurgPin
+        CheckCmdRedirect(command, CheckHidumperMemoryValueOutput, None, hidumperTmpCmd)
         # 校验命令行输出
         CheckCmd(command, CheckHidumperMemoryWithoutPidOutput, hidumperTmpCmd)
         # 校验命令行重定向输出
