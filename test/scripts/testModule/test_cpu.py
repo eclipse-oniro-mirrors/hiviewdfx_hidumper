@@ -29,6 +29,33 @@ def CheckCpufreqOutput(output):
     ret = re.search("cmd is: cat /sys/devices/system/cpu/cpu\d/cpufreq/cpuinfo_cur_freq\n\n\d+", output)
     return ret is not None
 
+def GetCpuUsageOutput():
+    subprocess.check_call("hdc shell aa start -a EntryAbility -b com.example.jsleakwatcher", shell=True)
+    process_hilog = subprocess.Popen(['hdc', 'shell', 'hilog | grep jsLeakWatcher_app_cpuUsage > /data/local/tmp/getcpuusage_interface.txt'])
+    time.sleep(1)
+    # 单击【GetCpuUsage】按钮
+    TouchButtonByText("GetCpuUsage")
+    time.sleep(3)
+    process_hilog.terminate()
+    time.sleep(3)
+    output = subprocess.check_output(f"hdc shell cat /data/local/tmp/getcpuusage_interface.txt", text=True, encoding="utf-8")
+    return output
+
+def GetJsLeakWatcherCpuUsage(output):
+    # 按行分割数据
+    lines = output.splitlines()
+    # 初始化一个空列表来存储提取的 CPU 使用率
+    cpu_usages = []
+    # 遍历每一行
+    for line in lines:
+        # 检查行中是否包含 "jsLeakWatcher_app_cpuUsage:"
+        if "jsLeakWatcher_app_cpuUsage:" in line:
+            # 分割行并提取 CPU 使用率
+            parts = line.split(":")
+            cpu_usage = parts[-1].strip()
+            cpu_usages.append(cpu_usage)
+    return float(cpu_usages[-1])
+
 class TestHidumperCpu:
 
     @pytest.mark.L0
@@ -52,6 +79,13 @@ class TestHidumperCpu:
         CheckCmdRedirect(command, CheckCpuUsageWithPidOutput, None, hidumperTmpCmd)
         # 校验命令行输出到zip文件
         CheckCmdZip(command, CheckCpuUsageWithPidOutput)
+
+    @pytest.mark.L0
+    def test_getcpuusage_interface(self):
+        output = GetCpuUsageOutput()
+        assert "jsLeakWatcher_app_cpuUsage:" in output
+        jsLeakWatcher_app_cpuUsage = GetJsLeakWatcherCpuUsage(output)
+        assert jsLeakWatcher_app_cpuUsage > 0
 
     @pytest.mark.L3
     def test_cpuusage_error_pid(self):

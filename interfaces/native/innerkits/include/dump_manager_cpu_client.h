@@ -18,9 +18,9 @@
 #include <singleton.h>
 #include <iservice_registry.h>
 #include "dump_common_utils.h"
-#include "idump_cpu_broker.h"
 #include "dump_cpu_data.h"
 #include "common.h"
+#include "ihidumper_cpu_service.h"
 namespace OHOS {
 namespace HiviewDFX {
 class DumpManagerCpuClient final : public DelayedRefSingleton<DumpManagerCpuClient> {
@@ -47,7 +47,7 @@ private:
     void ResetProxy(const wptr<IRemoteObject>& remote);
     ErrCode OnDemandStart(sptr<ISystemAbilityManager> sam, sptr<IRemoteObject> &remoteObject);
 private:
-    sptr<IDumpCpuBroker> proxy_ {nullptr};
+    sptr<IHidumperCpuService> proxy_ {nullptr};
     sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
     std::mutex mutex_;
 };

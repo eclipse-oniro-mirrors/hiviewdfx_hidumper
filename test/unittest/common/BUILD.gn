@@ -319,6 +319,7 @@ ohos_unittest("HidumperCpuServiceTest") {
   sources = [ "hidumper_cpu_service_test.cpp" ]
 
   configs = [
+    "${hidumper_service_path}:hidumpercpuservice_gen_config",
     "${hidumper_utils_path}:utils_config",
     ":module_private_config",
   ]
