@@ -85,7 +85,10 @@ ohos_source_set("dump_main") {
     ":hidumper_include",
   ]
 
-  deps = [ "${hidumper_utils_path}:utils" ]
+  deps = [
+    "${hidumper_service_path}:hidumpercpuservice_interface",
+    "${hidumper_utils_path}:utils",
+  ]
 
   external_deps = [
     "ability_base:want",
