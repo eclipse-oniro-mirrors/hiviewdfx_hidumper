@@ -34,7 +34,12 @@ OHOS::sptr<OHOS::AppExecFwk::IAppMgr> GetHeapInfo::GetAppManagerInstance()
     OHOS::sptr<OHOS::ISystemAbilityManager> systemAbilityManager =
         OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     OHOS::sptr<OHOS::IRemoteObject> appObject = systemAbilityManager->GetSystemAbility(OHOS::APP_MGR_SERVICE_ID);
+#ifdef HIDUMPER_UNITTEST // for mock test
+    DUMPER_HILOGE(MODULE_SERVICE, "set GetAppManagerInstance return nullptr.");
+    return nullptr;
+#else
     return OHOS::iface_cast<OHOS::AppExecFwk::IAppMgr>(appObject);
+#endif
 }
 #endif
 
@@ -48,6 +53,7 @@ void GetHeapInfo::GetMallocHeapInfo(const int& pid, std::unique_ptr<MallHeapInfo
     OHOS::sptr<OHOS::AppExecFwk::IAppMgr> appManager = GetAppManagerInstance();
     if (appManager == nullptr) {
         DUMPER_HILOGE(MODULE_SERVICE, "GetHeapInfo: Get the appManager is nullptr.");
+        return;
     }
     OHOS::AppExecFwk::MallocInfo mallocInfo;
     int ret = appManager->DumpHeapMemory(pid, mallocInfo);

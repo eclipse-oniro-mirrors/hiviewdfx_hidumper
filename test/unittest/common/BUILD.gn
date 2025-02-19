@@ -283,6 +283,31 @@ ohos_unittest("HidumperInnerkitsTest") {
   ]
 }
 
+ohos_unittest("GetHeapInfoTest") {
+  module_out_path = module_output_path
+
+  sources = [
+    "${hidumper_frameworks_path}/src/executor/memory/get_heap_info.cpp",
+    "get_heap_info_test.cpp",
+  ]
+  cflags = [ "-DHIDUMPER_UNITTEST" ]
+  configs = [ ":module_private_config" ]
+
+  deps = [ "${hidumper_service_path}:hidumperservice_source" ]
+  defines = []
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "hiview:libucollection_utility",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
+  ]
+  if (hidumper_ability_runtime_enable) {
+    external_deps += [ "ability_runtime:app_manager" ]
+    defines += [ "HIDUMPER_ABILITY_RUNTIME_ENABLE" ]
+  }
+}
+
 ohos_unittest("HidumperManagerTest") {
   module_out_path = module_output_path
 
@@ -430,6 +455,7 @@ group("unittest") {
 
   deps = [
     # deps file
+    ":GetHeapInfoTest",
     ":HidumperClientTest",
     ":HidumperConfigUtilsTest",
     ":HidumperDumpersTest",
