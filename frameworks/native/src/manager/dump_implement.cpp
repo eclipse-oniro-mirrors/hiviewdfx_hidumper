@@ -245,6 +245,7 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
                                               {"mem-jsheap", required_argument, 0, 0},
                                               {"gc", no_argument, 0, 0},
                                               {"leakobj", no_argument, 0, 0},
+                                              {"raw", no_argument, 0, 0},
                                               {"ipc", optional_argument, 0, 0},
                                               {"start-stat", no_argument, 0, 0},
                                               {"stop-stat", no_argument, 0, 0},
@@ -417,6 +418,8 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts_, const 
         }
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-jsheap")) {
         return SetMemJsheapParam(opts_);
+    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "raw")) {
+        return SetRawParam(opts_);
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "gc")) {
         opts_.isDumpJsHeapMemGC_ = true;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "leakobj")) {
@@ -452,6 +455,18 @@ DumpStatus DumpImplement::SetMemJsheapParam(DumperOpts &opt)
         return DumpStatus::DUMP_FAIL;
     }
     return SetCmdIntegerParameter(optarg, opt.dumpJsHeapMemPid_);
+}
+
+DumpStatus DumpImplement::SetRawParam(DumperOpts &opt)
+{
+    DumpStatus status = DumpStatus::DUMP_FAIL;
+    if (opt.isDumpJsHeapMem_) {
+        opt.dumpJsRawHeap_ = true;
+        dumperSysEventParams_->opt = "mem-jsrawheap";
+        status = DumpStatus::DUMP_OK;
+    }
+
+    return status;
 }
 
 bool DumpImplement::SetIpcStatParam(DumperOpts &opts_, const std::string& param)
@@ -586,8 +601,8 @@ void DumpImplement::CmdHelp()
         " pid if pid was specified\n"
         "  --zip                       |compress output to /data/log/hidumper\n"
         "  --mem-smaps pid [-v]        |display statistic in /proc/pid/smaps, use -v specify more details\n"
-        "  --mem-jsheap pid [-T tid] [--gc] [--leakobj]  |triggerGC, dumpHeapSnapshot and dumpLeakList"
-        " under pid and tid\n"
+        "  --mem-jsheap pid [-T tid] [--gc] [--leakobj] [--raw]  |triggerGC, dumpHeapSnapshot, dumpRawHeap"
+        " and dumpLeakList under pid and tid\n"
         "  --ipc pid ARG               |ipc load statistic; pid must be specified or set to -a dump all"
         " processes. ARG must be one of --start-stat | --stop-stat | --stat\n";
 
@@ -876,10 +891,14 @@ void DumpImplement::ReportJsheap(const DumperOpts &opts)
     if (!opts.isDumpJsHeapMem_) {
         return;
     }
+    std::string strType = "hidumper";
+    if (opts.dumpJsRawHeap_) {
+        strType = "hidumperRawHeap";
+    }
     int memJsheapRet = HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::FRAMEWORK, "ARK_STATS_DUMP",
         OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
         "PID", std::to_string(opts.dumpJsHeapMemPid_),
-        "TYPE", "hidumper");
+        "TYPE", strType);
     if (memJsheapRet != 0) {
         DUMPER_HILOGE(MODULE_COMMON, "hisysevent report mem jsheap failed! ret %{public}d.", memJsheapRet);
     }

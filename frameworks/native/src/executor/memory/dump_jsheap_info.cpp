@@ -32,8 +32,8 @@ DumpJsHeapInfo::~DumpJsHeapInfo()
 bool DumpJsHeapInfo::DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
 {
     DUMPER_HILOGI(MODULE_SERVICE, "DumpJsHeapMemory pid:%{public}d, tid:%{public}d, "
-        "needGc:%{public}d, needSnapshot:%{public}d",
-        info.pid, info.tid, info.needGc, info.needSnapshot);
+        "needGc:%{public}d, needSnapshot:%{public}d, needBinary:%{public}d",
+        info.pid, info.tid, info.needGc, info.needSnapshot, info.needBinary);
 #ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
     OHOS::sptr<OHOS::ISystemAbilityManager> systemAbilityManager =
         OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
