@@ -154,9 +154,9 @@ ohos_shared_library("hidumper_client") {
     "native/src/dump_on_demand_load.cpp",
   ]
 
+  public_configs = [ ":interface_include" ]
   configs = [
     "${hidumper_utils_path}:utils_config",
-    ":interface_include",
     "${hidumper_frameworks_path}:hidumper_include",
     "${hidumper_service_path}:service_config",
     "${hidumper_service_path}:zidl_config",
