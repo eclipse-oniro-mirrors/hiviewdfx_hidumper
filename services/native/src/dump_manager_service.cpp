@@ -292,7 +292,7 @@ void DumpManagerService::RecordDirFdInfo(std::string &detailFdInfo)
         lock_guard<mutex> lock(linkCntMutex_);
         for (const auto &each : linkCnt_) {
             if (g_fdLeakWp.find(each.first) == g_fdLeakWp.end()) {
-                std::string fileName(each.first, 0, DumpCommonUtils::FindDigitIndex(each.first));
+                std::string fileName(each.first, 0, DumpCommonUtils::FindStorageDirSecondDigitIndex(each.first));
                 if (fileTypeMap.find(fileName) == fileTypeMap.end()) {
                     fileTypeMap[fileName] = each.second;
                 } else {
