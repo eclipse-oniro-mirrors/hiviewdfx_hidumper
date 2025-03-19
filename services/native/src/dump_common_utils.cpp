@@ -39,6 +39,8 @@ constexpr int LINE_VALUE_0 = 0;
 constexpr int UNSET = -1;
 constexpr double ONE_DAY_TO_SECONDS = 24 * 60 * 60;
 static const std::string CPU_STR = "cpu";
+static const std::string STORAGE_PATH_PREFIX = "/data/storage/el";
+static const size_t STORAGE_PATH_SIZE = STORAGE_PATH_PREFIX.size();
 }
 
 std::vector<std::string> DumpCommonUtils::GetSubNodes(const std::string &path, bool digit)
@@ -341,14 +343,22 @@ bool DumpCommonUtils::GetProcessInfo(int pid, PidInfo &info)
     return false;
 }
 
-int DumpCommonUtils::FindDigitIndex(const std::string& fullFileName)
+int DumpCommonUtils::FindStorageDirSecondDigitIndex(const std::string& fullFileName)
 {
-    for (size_t i = 0; i < fullFileName.size(); i++) {
+    size_t fileNameSize = fullFileName.size();
+    if (STORAGE_PATH_SIZE >= fileNameSize) {
+        return static_cast<int>(fileNameSize);
+    }
+    if (fullFileName.compare(0, STORAGE_PATH_SIZE, STORAGE_PATH_PREFIX) != 0 ||
+        !std::isdigit(fullFileName[STORAGE_PATH_SIZE])) {
+            return static_cast<int>(fileNameSize);
+    }
+    for (size_t i = STORAGE_PATH_SIZE + 1; i < fileNameSize; i++) {
         if (std::isdigit(fullFileName[i])) {
-            return i;
+            return static_cast<int>(i);
         }
     }
-    return static_cast<int>(fullFileName.size());
+    return static_cast<int>(fileNameSize);
 }
 
 void DumpCommonUtils::ReportCmdUsage(const std::unique_ptr<DumperSysEventParams>& param)
