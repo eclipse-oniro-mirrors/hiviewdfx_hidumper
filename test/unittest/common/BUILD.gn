@@ -14,7 +14,7 @@
 import("//build/test.gni")
 import("../../../hidumper.gni")
 
-module_output_path = "hiviewdfx/hidumper"
+module_output_path = "hidumper/hidumper"
 
 source_path = "${hidumper_frameworks_path}"
 
