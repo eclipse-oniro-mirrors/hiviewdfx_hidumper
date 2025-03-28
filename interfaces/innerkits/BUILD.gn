@@ -27,10 +27,7 @@ config("dump_usage_config") {
 
 ohos_shared_library("lib_dump_usage") {
   branch_protector_ret = "pac_ret"
-  public_configs = [
-    ":dump_usage_config",
-    "${hidumper_service_path}:hidumpercpuservice_gen_config",
-  ]
+  public_configs = [ ":dump_usage_config" ]
 
   sources = [
     "${hidumper_frameworks_path}/src/executor/memory/dma_info.cpp",

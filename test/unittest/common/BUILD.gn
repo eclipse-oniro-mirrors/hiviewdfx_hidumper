@@ -202,7 +202,6 @@ ohos_unittest("HidumperMemoryTest") {
     "hiview:libucollection_utility",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
   ]
   defines = []
   if (hidumper_report_memmgr) {
@@ -344,7 +343,6 @@ ohos_unittest("HidumperCpuServiceTest") {
   sources = [ "hidumper_cpu_service_test.cpp" ]
 
   configs = [
-    "${hidumper_service_path}:hidumpercpuservice_gen_config",
     "${hidumper_utils_path}:utils_config",
     ":module_private_config",
   ]

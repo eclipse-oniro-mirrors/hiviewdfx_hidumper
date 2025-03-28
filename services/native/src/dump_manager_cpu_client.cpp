@@ -20,6 +20,7 @@
 #include "dump_errors.h"
 #include "inner/dump_service_id.h"
 #include "dump_on_demand_load.h"
+#include "dump_broker_cpu_proxy.h"
 namespace OHOS {
 namespace HiviewDFX {
 DumpManagerCpuClient::DumpManagerCpuClient()
@@ -76,7 +77,7 @@ ErrCode DumpManagerCpuClient::Connect()
         DUMPER_HILOGE(MODULE_CPU_CLIENT, "cpu IsProxyObject is null");
         return ERROR_ADD_DEATH_RECIPIENT;
     }
-    proxy_ = iface_cast<IHidumperCpuService>(remoteObject);
+    proxy_ = iface_cast<IDumpCpuBroker>(remoteObject);
     return ERR_OK;
 }
 

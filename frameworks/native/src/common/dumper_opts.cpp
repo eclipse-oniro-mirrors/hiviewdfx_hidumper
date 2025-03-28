@@ -74,7 +74,6 @@ void DumperOpts::Reset()
     isDumpIpcStartStat_ = false;
     isDumpIpcStopStat_ = false;
     isDumpIpcStat_ = false;
-    dumpJsRawHeap_ = false;
 }
 
 DumperOpts& DumperOpts::operator = (const DumperOpts& opts)
@@ -116,7 +115,6 @@ DumperOpts& DumperOpts::operator = (const DumperOpts& opts)
     isDumpIpcStartStat_ = opts.isDumpIpcStartStat_;
     isDumpIpcStopStat_ = opts.isDumpIpcStopStat_;
     isDumpIpcStat_ = opts.isDumpIpcStat_;
-    dumpJsRawHeap_ = opts.dumpJsRawHeap_;
     return *this;
 }
 
