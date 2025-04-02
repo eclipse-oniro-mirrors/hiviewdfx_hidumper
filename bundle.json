@@ -69,7 +69,9 @@
                     "header": {
                       "header_files": [
                         "idump_broker.h",
-                        "dump_broker_proxy.h"
+                        "idump_cpu_broker.h",
+                        "dump_broker_proxy.h",
+                        "dump_broker_cpu_proxy.h"
                       ],
                       "header_base": "//base/hiviewdfx/hidumper/interfaces/native/innerkits/include/"
                     }

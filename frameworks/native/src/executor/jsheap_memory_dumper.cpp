@@ -38,12 +38,9 @@ DumpStatus JsHeapMemoryDumper::PreExecute(const shared_ptr<DumperParameter> &par
     needGc_ = true;
     needSnapshot_ = true;
     needLeakobj_ = parameter->GetOpts().isDumpJsHeapLeakobj_;
-    /* js runtime，use DumpFormat::BINARY indicates that the rawheap file is generated. */
-    needBinary_ = parameter->GetOpts().dumpJsRawHeap_;
     if (parameter->GetOpts().isDumpJsHeapMemGC_) {
         needSnapshot_ = false;
         needLeakobj_ = false;
-        needBinary_ = false;
         DUMPER_HILOGD(MODULE_SERVICE, "trigger gc, set needSnapshot_ false, needLeakobj_ false");
     }
     pid_ = static_cast<uint32_t>(parameter->GetOpts().dumpJsHeapMemPid_);
@@ -60,7 +57,6 @@ DumpStatus JsHeapMemoryDumper::Execute()
     info.needGc = needGc_;
     info.needSnapshot = needSnapshot_;
     info.needLeakobj = needLeakobj_;
-    info.needBinary = needBinary_;
 
     if (dumpDatas_ != nullptr && jsHeapInfo_ != nullptr) {
         bool ret = jsHeapInfo_->DumpJsHeapMemory(info);

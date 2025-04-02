@@ -170,10 +170,10 @@ The procedure is as follows:
     hidumper --zip
     ```
 
-19. run the **hidumper --mem-jsheap pid [-T tid] [--gc] [--leakobj] [--raw]** The pid parameter is mandatory.Run the following command to trigger all threads gc and export snapshot.If -T is specified, only the thread's GC and snapshot export will be triggered; If --gc is specified, only trigger GC without doing snapshot export; If --leakobj is specified, obtain the list of leaked objects; If --raw is specified, fast export snapshot in binary format.
+19. run the **hidumper --mem-jsheap pid [-T tid] [--gc] [--leakobj]** The pid parameter is mandatory.Run the following command to trigger all threads gc and export snapshot.If -T is specified, only the thread's GC and snapshot export will be triggered; If --gc is specified, only trigger GC without doing snapshot export; If --leakobj is specified, obtain the list of leaked objects.
 
     ```
-    hidumper --mem-jsheap pid [-T tid] [--gc] [--leakobj] [--raw]
+    hidumper --mem-jsheap pid [-T tid] [--gc] [--leakobj]
     ```
 
 ## Repositories Involved<a name="section1371113476307"></a>

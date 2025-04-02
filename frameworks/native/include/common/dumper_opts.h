@@ -55,7 +55,6 @@ struct DumperOpts {
     bool isDumpIpcStartStat_;
     bool isDumpIpcStopStat_;
     bool isDumpIpcStat_;
-    bool dumpJsRawHeap_;
 
 public:
     DumperOpts();

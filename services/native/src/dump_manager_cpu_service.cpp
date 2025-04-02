@@ -39,7 +39,6 @@ using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
-const int APP_UID = 10000;
 const std::string DUMPMGR_CPU_SERVICE_NAME = "HiDumperCpuService";
 static constexpr size_t LOAD_AVG_INFO_COUNT = 3;
 static constexpr int PROC_CPU_LENGTH = 256;
@@ -144,13 +143,6 @@ int DumpManagerCpuService::DumpCpuUsageData()
 
 int DumpManagerCpuService::GetCpuUsageByPid(int32_t pid, double &cpuUsage)
 {
-    int32_t calllingUid = IPCSkeleton::GetCallingUid();
-    int32_t calllingPid = IPCSkeleton::GetCallingPid();
-    if (calllingUid >= APP_UID && pid != calllingPid) {
-        DUMPER_HILOGE(MODULE_SERVICE, "No permission, pid:%{public}d, calllingPid:%{public}d, calllingUid:%{public}d",
-            pid, calllingPid, calllingUid);
-        return DumpStatus::DUMP_NOPERMISSION;
-    }
     std::lock_guard<std::mutex> lock(mutex_);
     if (g_collector == nullptr) {
         g_collector = OHOS::HiviewDFX::UCollectUtil::CpuCollector::Create();
