@@ -58,6 +58,17 @@ def CheckNetDev(output):
     assert re.search("/sys/kernel/debug/binder/stats\n", output) is not None
     assert re.search("binder stats:", output) is not None
     assert re.search("/sys/kernel/debug/binder/state\n", output) is not None
+    lines = output.split(': u')
+    isShowAddress = False
+    for line in lines:
+        if "0000000000000000" not in line and " c0" in line:
+            print(line)
+            isShowAddress = True
+            break
+    if IsRootVersion():
+        assert isShowAddress
+    else:
+        assert not isShowAddress
     result = re.search("binder state:", output) is not None
     return result is not None
 

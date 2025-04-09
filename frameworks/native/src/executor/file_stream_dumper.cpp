@@ -43,6 +43,9 @@ DumpStatus FileStreamDumper::PreExecute(const std::shared_ptr<DumperParameter>& 
     // open first file!
     if (next_file_index_ <= 0) {
         std::string target = ptrDumpCfg_->target_;
+        if (target == "/sys/kernel/debug/binder/state") {
+            needHideAddr_ = true;
+        }
         bool arg_pid = false;
         bool arg_cpuid = false;
         int pid = 0;
@@ -96,6 +99,20 @@ int FileStreamDumper::OpenNextFile()
     return next_file_index_;
 }
 
+std::string FileStreamDumper::ReplaceAddresses(const std::string& input)
+{
+    std::string result = input;
+    size_t start = result.find(": u");
+    if (start == std::string::npos) {
+        return result;
+    }
+    std::string replacement = ": u0000000000000000 c0000000000000000";
+    if (start < result.length()) {
+        result.replace(start, replacement.length(), replacement);
+    }
+    return result;
+}
+
 // read one line
 DumpStatus FileStreamDumper::ReadLineInFile()
 {
@@ -112,6 +129,9 @@ DumpStatus FileStreamDumper::ReadLineInFile()
             line_buffer[read-1] = '\0'; // replease \n
         }
         std::string line = line_buffer;
+        if (needHideAddr_ && DumpUtils::IsUserMode()) {
+            line = ReplaceAddresses(line);
+        }
         std::vector<std::string> line_vector;
         line_vector.push_back(line);
         result_->push_back(line_vector);
@@ -161,6 +181,10 @@ DumpStatus FileStreamDumper::AfterExecute()
 {
     if (!more_data_) {
         CloseFd();
+        if (ptrDumpCfg_->target_ == "/sys/kernel/debug/binder/state") {
+            //The file /sys/kernel/debug/binder/state has been read, set needHideAddr_ false.
+            needHideAddr_ = false;
+        }
         return DumpStatus::DUMP_OK;
     }
     return DumpStatus::DUMP_MORE_DATA;
