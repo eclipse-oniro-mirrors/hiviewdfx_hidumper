@@ -29,6 +29,7 @@
 #include "executor/memory/get_process_info.h"
 #include "executor/memory/get_ram_info.h"
 #include "executor/memory/memory_util.h"
+#include "executor/memory/parse/parse_ashmem_info.h"
 #include "executor/memory/parse/parse_meminfo.h"
 #include "executor/memory/parse/parse_smaps_rollup_info.h"
 #include "executor/memory/parse/parse_smaps_info.h"
@@ -284,6 +285,7 @@ bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
     GetPurgByPid(pid, result);
     GetDma(graphicsMemory_.graph, result);
     GetHiaiServerIon(pid, result);
+    GetAshmem(pid, result);
     return true;
 }
 
@@ -666,6 +668,32 @@ void MemoryInfo::GetHiaiServerIon(const int32_t &pid, StringMatrix result)
         result->push_back(vecIon);
     }
     dlclose(handle);
+}
+
+void MemoryInfo::GetAshmem(const int32_t &pid, StringMatrix result)
+{
+    std::pair<int, std::vector<std::string>> ashmemInfo;
+    unique_ptr<ParseAshmemInfo> parseAshmeminfo = make_unique<ParseAshmemInfo>();
+    if (!parseAshmeminfo->GetAshmemInfo(pid, ashmemInfo)) {
+        DUMPER_HILOGE(MODULE_SERVICE, "GetAshmemInfo error");
+        return;
+    }
+    if (ashmemInfo.second.size() == 0) {
+        DUMPER_HILOGE(MODULE_SERVICE, "no detail ashmem info.");
+        return;
+    }
+    AddBlankLine(result);
+    vector<string> title;
+    title.push_back("Ashmem:");
+    result->push_back(title);
+    vector<string> totalAshmemVec;
+    totalAshmemVec.push_back("Total Ashmem:" + to_string(ashmemInfo.first) + MemoryUtil::GetInstance().KB_UNIT_);
+    result->push_back(totalAshmemVec);
+    for (auto detailInfo : ashmemInfo.second) {
+        vector<string> tempResult;
+        tempResult.push_back(detailInfo);
+        result->push_back(tempResult);
+    }
 }
 
 void MemoryInfo::GetRamCategory(const GroupMap &smapsInfos, const ValueMap &meminfos, StringMatrix result)
