@@ -123,7 +123,6 @@ const std::vector<std::pair<std::string, std::string>> TITLE_AND_VALUE = {
     {"dmabuf", "100"},
     {".ttf", "100"},
     {"FilePage other", "900"},
-    {"Ashmem", "0"},
     {"---------------", ""},
     {"Total", "4500"},
     {"\n", ""},
