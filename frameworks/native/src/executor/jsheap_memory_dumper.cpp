@@ -38,7 +38,7 @@ DumpStatus JsHeapMemoryDumper::PreExecute(const shared_ptr<DumperParameter> &par
     needGc_ = true;
     needSnapshot_ = true;
     needLeakobj_ = parameter->GetOpts().isDumpJsHeapLeakobj_;
-    /* js runtime，use DumpFormat::BINARY indicates that the rawheap file is generated. */
+    /* In the arkts runtime, DumpFormat::BINARY is used to generate rawheap files. */
     needBinary_ = parameter->GetOpts().dumpJsRawHeap_;
     if (parameter->GetOpts().isDumpJsHeapMemGC_) {
         needSnapshot_ = false;
