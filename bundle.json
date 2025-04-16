@@ -12,9 +12,7 @@
     "component": {
         "name": "hidumper",
         "subsystem": "hiviewdfx",
-        "syscap": [
-            "SystemCapability.HiviewDFX.HiDumper"
-        ],
+        "syscap": [],
         "adapted_system_type": [
             "standard"
         ],
