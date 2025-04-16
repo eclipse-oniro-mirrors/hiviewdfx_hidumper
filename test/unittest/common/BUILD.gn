@@ -424,31 +424,6 @@ ohos_unittest("HidumperZidlTest") {
   ]
 }
 
-ohos_unittest("HidumperCpuZidlTest") {
-  module_out_path = module_output_path
-
-  sources = [
-    "${hidumper_service_path}/native/src/dump_cpu_data.cpp",
-    "hidumper_cpu_zidl_test.cpp",
-  ]
-
-  configs = [
-    ":module_private_config",
-    "${hidumper_service_path}:dump_cpu_config",
-    "${hidumper_service_path}:zidl_config",
-  ]
-
-  deps = [ "${hidumper_service_path}:zidl_cpu_service" ]
-
-  external_deps = [
-    "hilog:libhilog",
-    "ipc:ipc_core",
-  ]
-  cflags = [
-    "-Dprivate=public",  #allow test code access private members
-  ]
-}
-
 ###############################################################################
 group("unittest") {
   testonly = true

@@ -16,6 +16,7 @@
 #include <message_parcel.h>
 #include "dump_broker_stub.h"
 #include "hidumper_service_ipc_interface_code.h"
+#include "hilog_wrapper.h"
 using namespace std;
 using namespace testing::ext;
 using namespace OHOS;
@@ -72,6 +73,7 @@ void HidumperZidlTest::TearDown(void)
 HWTEST_F(HidumperZidlTest, HidumperZidlTest001, TestSize.Level3)
 {
     DumpBrokerStub* stub = new(std::nothrow) TestDumpBrokerStub();
+    ASSERT_TRUE(stub != nullptr);
     MessageParcel data, reply;
     MessageOption option;
     int ret = stub->OnRemoteRequest(static_cast<uint32_t>(HidumperServiceInterfaceCode::DUMP_REQUEST_FILEFD),
