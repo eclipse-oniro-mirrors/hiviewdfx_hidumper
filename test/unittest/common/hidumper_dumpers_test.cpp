@@ -889,5 +889,19 @@ HWTEST_F(HidumperDumpersTest, InvalidArgTest004, TestSize.Level1)
     rawParam->Init(args);
     ASSERT_TRUE(args.size() == 0);
 }
+
+/**
+ * @tc.name: SendErrorMsgTest001
+ * @tc.desc: Test error msg.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, SendErrorMsgTest001, TestSize.Level1)
+{
+    DumpImplement::GetInstance().SendReleaseAppErrorMessage("--mem-smaps");
+    ASSERT_TRUE(DumpImplement::GetInstance().ptrReqCtl_ == nullptr);
+    std::vector<std::u16string> args;
+    DumpImplement::GetInstance().ptrReqCtl_ = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    DumpImplement::GetInstance().SendReleaseAppErrorMessage("--mem-smaps");
+}
 } // namespace HiviewDFX
 } // namespace OHOS

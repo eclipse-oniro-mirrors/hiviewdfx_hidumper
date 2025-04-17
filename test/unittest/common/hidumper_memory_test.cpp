@@ -269,28 +269,6 @@ HWTEST_F(HidumperMemoryTest, MemoryParse001, TestSize.Level1)
     ASSERT_EQ(result.size(), 0);
 }
 
-/**
- * @tc.name: ParseSmapsInfo001
- * @tc.desc: Test parseSmapsInfo invalid ret.
- * @tc.type: FUNC
- */
-HWTEST_F(HidumperMemoryTest, ParseSmapsInfo001, TestSize.Level1)
-{
-    unique_ptr<OHOS::HiviewDFX::ParseSmapsInfo> parseSmapsInfo = make_unique<OHOS::HiviewDFX::ParseSmapsInfo>();
-    uint64_t pid = 0;
-    ASSERT_FALSE(parseSmapsInfo->GetHasPidValue("RSS", NULL_STR, pid));
-    ASSERT_FALSE(parseSmapsInfo->GetHasPidValue("PSS", NULL_STR, pid));
-    ASSERT_FALSE(parseSmapsInfo->GetHasPidValue("Size", NULL_STR, pid));
-    ASSERT_FALSE(parseSmapsInfo->GetSmapsValue(MemoryFilter::MemoryType::NOT_SPECIFIED_PID, NULL_STR,
-        NULL_STR, pid));
-    GroupMap groupMapResult;
-    std::vector<std::map<std::string, std::string>> vectMap;
-    parseSmapsInfo->memMap_.clear();
-    ASSERT_FALSE(parseSmapsInfo->ShowSmapsData(OHOS::HiviewDFX::MemoryFilter::MemoryType::NOT_SPECIFIED_PID,
-        0, groupMapResult, false, vectMap));
-    ASSERT_TRUE(parseSmapsInfo->ShowSmapsData(OHOS::HiviewDFX::MemoryFilter::MemoryType::NOT_SPECIFIED_PID,
-        INIT_PID, groupMapResult, true, vectMap));
-}
 
 /**
  * @tc.name: ParseSmapsRollupInfo001

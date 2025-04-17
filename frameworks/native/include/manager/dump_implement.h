@@ -75,6 +75,7 @@ private:
     bool IsShortOptionReqArg(const char* optStr);
     void SendErrorMessage(const std::string& errorStr);
     void SendPidErrorMessage(int pid);
+    void SendReleaseAppErrorMessage(const std::string& opt);
     bool ParseSubLongCmdOption(int argc, DumperOpts &opts_, const struct option longOptions[],
         const int &optionIndex, char *argv[]);
     DumpStatus ParseLongCmdOption(int argc, DumperOpts& opts_, const struct option longOptions[],

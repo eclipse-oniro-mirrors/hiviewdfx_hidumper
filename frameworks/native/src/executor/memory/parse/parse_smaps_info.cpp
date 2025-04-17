@@ -23,7 +23,6 @@
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
-constexpr int DATAS_MIN_LEN = 2;
 ParseSmapsInfo::ParseSmapsInfo()
 {
 }
@@ -81,15 +80,6 @@ bool ParseSmapsInfo::GetValue(const MemoryFilter::MemoryType &memType, const str
     }
 }
 
-bool ParseSmapsInfo::GetSmapsValue(const MemoryFilter::MemoryType &memType, const string &str, string &type,
-    uint64_t &value)
-{
-    if (memType == MemoryFilter::MemoryType::APPOINT_PID) {
-        return GetHasPidValue(str, type, value);
-    }
-    return false;
-}
-
 /**
  * @description: Parse smaps file
  * @param {MemoryType} &memType-APPOINT_PID-Specify the PID,NOT_SPECIFIED_PID-No PID is specified
@@ -121,72 +111,92 @@ bool ParseSmapsInfo::GetInfo(const MemoryFilter::MemoryType &memType, const int 
     return ret;
 }
 
-void ParseSmapsInfo::SetMapByNameLine(const string &group, const string &content)
+void ParseSmapsInfo::SetMemoryData(MemoryData &memoryData, const MemoryItem &memoryItem,
+    const std::string& memoryClassStr)
 {
-    memMap_.insert(pair<string, string>("Name", group));
-    vector<string> datas;
-    StringUtils::GetInstance().StringSplit(content, " ", datas);
-    vector<string> startAndEnd;
-    if (datas.size() < DATAS_MIN_LEN) {
-        DUMPER_HILOGE(MODULE_COMMON, "datas are invalid, content: %{public}s", content.c_str());
-        return;
-    }
-    StringUtils::GetInstance().StringSplit(datas.at(0), "-", startAndEnd);
-    string startVal = startAndEnd.front();
-    string endVal = startAndEnd.back();
-    memMap_.insert(pair<string, string>("Start", startVal));
-    memMap_.insert(pair<string, string>("End", endVal));
-    memMap_.insert(pair<string, string>("Perm", datas.at(1)));
+    memoryData.name = memoryItem.name == "" ? "[anon]" : memoryItem.name;
+    memoryData.memoryClass = memoryClassStr;
+    memoryData.counts = 1;
+    memoryData.size = memoryItem.size;
+    memoryData.rss = memoryItem.rss;
+    memoryData.pss = memoryItem.pss;
+    memoryData.swapPss = memoryItem.swapPss;
+    memoryData.swap = memoryItem.swap;
+    memoryData.sharedDirty = memoryItem.sharedDirty;
+    memoryData.privateDirty = memoryItem.privateDirty;
+    memoryData.sharedClean = memoryItem.sharedClean;
+    memoryData.privateClean = memoryItem.privateClean;
+    memoryData.iNode = memoryItem.iNode;
 }
 
-void ParseSmapsInfo::SetLineToResult(GroupMap &result, const std::string &line)
+void ParseSmapsInfo::UpdateCountSameNameMemMap(const std::vector<MemoryItem>& memoryItems,
+    const std::string& memoryClassStr, std::map<std::string, MemoryData>& countSameNameMemMap)
 {
-    vector<string> datas;
-    StringUtils::GetInstance().StringSplit(line, " ", datas);
-    if (datas.size() < DATAS_MIN_LEN) {
-        DUMPER_HILOGE(MODULE_COMMON, "datas are invalid, line: %{public}s", line.c_str());
-        return;
-    }
-    result[memGroup_].insert(pair<string, uint64_t>("Perm", MemoryUtil::GetInstance().PermToInt(datas.at(1))));
-    result[memGroup_].insert(pair<string, uint64_t>("Counts", 1));
-    result[memGroup_].insert(pair<string, uint64_t>("Name", 0));
-}
-
-bool ParseSmapsInfo::ShowSmapsData(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &result,
-    bool isShowSmapsInfo, vector<map<string, string>> &vectMap)
-{
-    string path = "/proc/" + to_string(pid) + "/smaps";
-    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, true, [&](const string& line) -> void {
-        string name;
-        uint64_t iNode = 0;
-        if (StringUtils::GetInstance().IsEnd(line, "B")) {
-            string type;
-            uint64_t value = 0;
-            if (GetSmapsValue(memType, line, type, value)) {
-                MemoryUtil::GetInstance().CalcGroup(memGroup_, type, value, result);
-                memMap_.insert(pair<string, string>(type, to_string(value)));
-            }
-        } else if (MemoryUtil::GetInstance().IsNameLine(line, name, iNode)) {
-            memGroup_ = name;
-            if (!memMap_.empty()) {
-                vectMap.push_back(memMap_);
-                memMap_.clear();
-            }
-            if (result.find(memGroup_) != result.end()) {
-                result[memGroup_]["Counts"]++;
-            } else {
-                SetLineToResult(result, line);
-            }
-            if (isShowSmapsInfo) {
-                SetMapByNameLine(memGroup_, line);
-            }
+    for (const auto& memoryItem : memoryItems) {
+        if (countSameNameMemMap.find(memoryItem.name) == countSameNameMemMap.end()) {
+            MemoryData memoryData;
+            SetMemoryData(memoryData, memoryItem, memoryClassStr);
+            countSameNameMemMap[memoryItem.name] = memoryData;
+        } else {
+            MemoryData& data = countSameNameMemMap[memoryItem.name];
+            data.size += memoryItem.size;
+            data.rss += memoryItem.rss;
+            data.pss += memoryItem.pss;
+            data.swapPss += memoryItem.swapPss;
+            data.swap += memoryItem.swap;
+            data.sharedDirty += memoryItem.sharedDirty;
+            data.privateDirty += memoryItem.privateDirty;
+            data.sharedClean += memoryItem.sharedClean;
+            data.privateClean += memoryItem.privateClean;
+            data.counts++;
         }
-    });
-    if (!memMap_.empty()) {
-        vectMap.push_back(memMap_);
-        memMap_.clear();
     }
-    return ret;
+}
+
+void ParseSmapsInfo::UpdateShowAddressMemInfoVec(const std::vector<MemoryItem>& memoryItems,
+    const std::string& memoryClassStr, std::vector<MemoryData>& showAddressMemInfoVec)
+{
+    for (const auto& memoryItem : memoryItems) {
+        MemoryData memoryData;
+        memoryData.permission = memoryItem.permission;
+        memoryData.startAddr = memoryItem.startAddr;
+        memoryData.endAddr = memoryItem.endAddr;
+        SetMemoryData(memoryData, memoryItem, memoryClassStr);
+        showAddressMemInfoVec.push_back(memoryData);
+    }
+}
+
+bool ParseSmapsInfo::GetSmapsData(const int &pid, bool isShowSmapsAddress,
+    std::map<std::string, MemoryData>& countSameNameMemMap, std::vector<MemoryData>& showAddressMemInfoVec)
+{
+    DUMPER_HILOGI(MODULE_SERVICE, "collect memory begin, pid:%{public}d", pid);
+    std::shared_ptr<UCollectUtil::MemoryCollector> collector = UCollectUtil::MemoryCollector::Create();
+    auto collectRet = collector->CollectProcessMemoryDetail(pid, GraphicMemOption::NONE);
+    if (collectRet.retCode != UCollect::UcError::SUCCESS) {
+        DUMPER_HILOGE(MODULE_SERVICE, "collect process memory error, ret:%{public}d", collectRet.retCode);
+        return false;
+    }
+    DUMPER_HILOGI(MODULE_SERVICE, "collect memory end, pid:%{public}d", pid);
+    vector<MemoryDetail> memoryDetails = collectRet.data.details;
+    for (const auto& memoryDetail : memoryDetails) {
+        MemoryClass memoryClass = memoryDetail.memoryClass;
+        if (static_cast<int>(memoryClass) < 0 ||
+            static_cast<size_t>(memoryClass) > MEMORY_CLASS_VEC.size()) {
+            DUMPER_HILOGE(MODULE_SERVICE, "memoryClass:%{public}d is not exist", memoryClass);
+            continue;
+        }
+        string memoryClassStr = MEMORY_CLASS_VEC[static_cast<int>(memoryClass)];
+        if (memoryClassStr == "graph") {
+            continue;
+        }
+        vector<MemoryItem> memoryItems = memoryDetail.items;
+        if (isShowSmapsAddress) {
+            UpdateShowAddressMemInfoVec(memoryItems, memoryClassStr, showAddressMemInfoVec);
+        } else {
+            UpdateCountSameNameMemMap(memoryItems, memoryClassStr, countSameNameMemMap);
+        }
+    }
+    return true;
 }
 } // namespace HiviewDFX
 } // namespace OHOS

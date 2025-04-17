@@ -260,6 +260,46 @@ HWTEST_F(MemoryDumperTest, MemoryDumperTest011, TestSize.Level3)
 }
 
 /**
+ * @tc.name: MemoryDumperTest012
+ * @tc.desc: Test --mem-smaps has correct print.
+ * @tc.type: FUNC
+ * @tc.require: issueI5NWZQ
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest012, TestSize.Level3)
+{
+    std::string cmd = "hidumper --mem-smaps 1";
+    std::string str = "-------------------------------[memory]-------------------------------";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+    std::string titleTmp = "Size        Rss         Pss         Clean       Dirty       Clean       Dirty";
+    str = titleTmp + "       Swap        SwapPss     Counts      Category                         Name";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+    str = ".so                              /system";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+    str = "                                 Summary";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+}
+
+/**
+ * @tc.name: MemoryDumperTest013
+ * @tc.desc: Test --mem-smaps -v has correct print.
+ * @tc.type: FUNC
+ * @tc.require: issueI5NWZQ
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest013, TestSize.Level3)
+{
+    std::string cmd = "hidumper --mem-smaps 1 -v";
+    std::string str = "-------------------------------[memory]-------------------------------";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+    std::string titleTmp = "Size        Rss         Pss         Clean       Dirty       Clean       Dirty       Swap";
+    str = titleTmp + "        SwapPss     Perm        Start             End         Category                   Name";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+    str = "dev                        /dev";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+    str = "                                 Summary";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+}
+
+/**
  * @tc.name: MemoryUtilTest001
  * @tc.desc: Test IsNameLine has correct ret.
  * @tc.type: FUNC
