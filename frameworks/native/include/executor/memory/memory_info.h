@@ -43,6 +43,7 @@ static const std::string MEMINFO_DMA = "Dma";
 static const std::string MEMINFO_OTHER = "other";
 static const std::string MEMINFO_ANONPAGE_OTHER = "AnonPage other";
 static const std::string MEMINFO_FILEPAGE_OTHER = "FilePage other";
+static const std::string MEMINFO_ASHMEM = "Ashmem";
 static const std::string MEMINFO_TOTAL = "Total";
 }
 class MemoryInfo {
@@ -189,6 +190,7 @@ private:
     void SetValueForRet(const std::string& value, std::vector<std::string>& tempResult);
     void SetNativeDetailRet(const std::string& nativeClassStr, const std::unique_ptr<MemoryItem>& item,
         StringMatrix result);
+    void GetAshmem(const int32_t &pid, StringMatrix result);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

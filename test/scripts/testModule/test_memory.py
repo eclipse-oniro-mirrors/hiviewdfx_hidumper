@@ -56,7 +56,7 @@ def ParseMemoryUsageOverflowOutput(output):
 
 @print_check_result
 def CheckTotalPss(memory_data):
-    pss_sum = sum([val[0] for key,val in memory_data.items() if key in ["GL", "Graph", "guard", "native heap", "AnonPage other", "stack", ".so", ".ttf", "dev", "dmabuf", "FilePage other"]])
+    pss_sum = sum([val[0] for key,val in memory_data.items() if key in ["GL", "Graph", "guard", "native heap", "AnonPage other", "stack", ".so", ".ttf", "dev", "dmabuf", "FilePage other", "Ashmem"]])
     return memory_data["Total"][PSS_TOTAL_INDEX] == (pss_sum + memory_data["Total"][SWAP_PSS_INDEX])
 
 @print_check_result
@@ -79,6 +79,8 @@ def CheckDataLength(memory_data):
     assert len(dev_mem) == COLUMN_NUM, "dev memory data error"
     FilePage_other = memory_data.get("FilePage other", [])
     assert len(FilePage_other) == COLUMN_NUM, "FilePage other memory data error"
+    ashmem = memory_data.get("Ashmem", [])
+    assert len(ashmem) == COLUMN_NUM, "Ashmem memory data error"
     Total_mem = memory_data.get("Total", [])
     assert len(Total_mem) == COLUMN_NUM, "Total memory data error"
     return True
@@ -87,9 +89,27 @@ def CheckDataLength(memory_data):
 def CheckDmaGraphMem(memory_data):
     return memory_data["Dma"][0] == memory_data["Graph"][PSS_TOTAL_INDEX]
 
+def CheckRenderServiceAshmemInfo(memory_data):
+    if IsOpenHarmonyVersion():
+        pytest.skip("this testcase is only support in HO")
+        return True
+    else:
+        output = subprocess.check_output(f'hdc shell cat /proc/ashmem_process_info', shell=True, text=True, encoding="utf-8")
+        #Total ashmem  of [render_service] virtual size is  33778396, physical size is 33734656 
+        match = re.search(r'Total ashmem  of \[render_service\] virtual size is  \d+, physical size is (\d+) ', output)
+        if match:
+            render_service_ashmem = int(match.group(1)) / 1024
+            print(f"render_service_ashmem: {render_service_ashmem}")
+            ashmem = memory_data["Ashmem"][0]
+            print(f"memory_data ashmem: {ashmem}")
+            return memory_data["Ashmem"][0] == render_service_ashmem
+        else:
+            print(f"not find render_service_ashmem")
+            return False
+
 def CheckHidumperMemoryWithPidOutput(output):
     memory_data = ParseMemoryOutput(output)
-    ret = all(check(memory_data) for check in [CheckDmaGraphMem, CheckTotalPss, CheckDataLength])
+    ret = all(check(memory_data) for check in [CheckDmaGraphMem, CheckTotalPss, CheckDataLength, CheckRenderServiceAshmemInfo])
     return ret
 
 def CheckHidumperMemoryWithoutPidOutput(output):
