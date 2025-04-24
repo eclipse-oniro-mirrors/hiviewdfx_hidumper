@@ -37,6 +37,7 @@ private:
     void ReplaceCpuidInFilename(std::string& filename, int cpuid);
     int OpenNextFile();
     void CloseFd();
+    std::string ReplaceAddresses(const std::string& input);
 
 private:
     std::vector<std::string> filenames_;
@@ -48,6 +49,8 @@ private:
     // MoreData Flag
     bool more_data_;
     bool need_loop_;
+
+    bool needHideAddr_ = false; // hide addr
 };
 } // namespace HiviewDFX
 } // namespace OHOS
