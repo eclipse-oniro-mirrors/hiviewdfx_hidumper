@@ -19,8 +19,27 @@
 #include <vector>
 #include "executor/memory/memory_filter.h"
 #include "executor/memory/parse/meminfo_data.h"
+#include "memory_collector.h"
 namespace OHOS {
 namespace HiviewDFX {
+struct MemoryData {
+    std::string name = "[anon]";
+    std::string memoryClass;
+    std::string startAddr;  // 566ab4e000
+    std::string endAddr;    // 566ab7c000
+    std::string permission; // r-xp
+    int counts = 0; // number of occurrences of the same name
+    uint64_t size = 0; // calculate the sum of sizes corresponding to the same name.
+    uint64_t rss = 0;
+    uint64_t pss = 0;
+    uint64_t swapPss = 0;
+    uint64_t swap = 0;
+    uint64_t sharedDirty = 0;
+    uint64_t privateDirty = 0;
+    uint64_t sharedClean = 0;
+    uint64_t privateClean = 0;
+    uint64_t iNode = 0;
+};
 class ParseSmapsInfo {
 public:
     ParseSmapsInfo();
@@ -30,20 +49,26 @@ public:
     using GroupMap = std::map<std::string, ValueMap>;
 
     bool GetInfo(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &nativeMap, GroupMap &result);
-    bool ShowSmapsData(const MemoryFilter::MemoryType &memType, const int &pid, GroupMap &result,
-        bool isShowSmapsInfo, std::vector<std::map<std::string, std::string>> &vectMap);
+    // countSameNameMemMap---key: name, value: MemoryData
+    bool GetSmapsData(const int &pid, bool isShowSmapsAddress,
+        std::map<std::string, MemoryData>& countSameNameMemMap, std::vector<MemoryData>& showAddressMemInfoVec);
 
 private:
+    const std::vector<std::string> MEMORY_CLASS_VEC = {
+        "graph", "ark ts heap", ".db", "dev", "dmabuf", "guard", ".hap",
+        "native heap", ".so", "stack", ".ttf", "other"
+    };
     std::string memGroup_ = "";
     std::string nativeMemGroup_ = "";
-    std::map<std::string, std::string> memMap_;
+
     bool GetValue(const MemoryFilter::MemoryType &memType, const std::string &str, std::string &type, uint64_t &value);
-    bool GetSmapsValue(const MemoryFilter::MemoryType &memType, const std::string &str, std::string &type,
-        uint64_t &value);
     bool GetHasPidValue(const std::string &str, std::string &type, uint64_t &value);
     bool GetNoPidValue(const std::string &str, std::string &type, uint64_t &value);
-    void SetLineToResult(GroupMap &result, const std::string &line);
-    void SetMapByNameLine(const std::string &group, const std::string &content);
+    void UpdateShowAddressMemInfoVec(const std::vector<MemoryItem>& memoryItems, const std::string& memoryClassStr,
+        std::vector<MemoryData>& showAddressMemInfoVec);
+    void UpdateCountSameNameMemMap(const std::vector<MemoryItem>& memoryItems, const std::string& memoryClassStr,
+        std::map<std::string, MemoryData>& countSameNameMemMap);
+    void SetMemoryData(MemoryData &memoryData, const MemoryItem &memoryItem, const std::string& memoryClassStr);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

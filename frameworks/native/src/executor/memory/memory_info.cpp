@@ -294,7 +294,7 @@ void MemoryInfo::GetResult(const int32_t& pid, StringMatrix result)
     DUMPER_HILOGD(MODULE_SERVICE, "CollectProcessMemoryDetail pid:%{public}d start", pid);
     std::shared_ptr<UCollectUtil::MemoryCollector> collector = UCollectUtil::MemoryCollector::Create();
     CollectResult<ProcessMemoryDetail> collectRet;
-    collectRet = collector->CollectProcessMemoryDetail(pid, true);
+    collectRet = collector->CollectProcessMemoryDetail(pid, GraphicMemOption::LOW_LATENCY);
     if (collectRet.retCode != UCollect::UcError::SUCCESS) {
         DUMPER_HILOGE(MODULE_SERVICE, "collect process memory error, ret:%{public}d", collectRet.retCode);
         return;

@@ -49,7 +49,24 @@
 
 namespace OHOS {
 namespace HiviewDFX {
-const int HIVIEW_UID = 1201;
+static struct option LONG_OPTIONS[] = {{"cpufreq", no_argument, 0, 0},
+#ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
+    {"cpuusage", optional_argument, 0, 0},
+#endif
+    {"mem", optional_argument, 0, 0},
+    {"net", no_argument, 0, 0},
+    {"storage", no_argument, 0, 0},
+    {"zip", no_argument, 0, 0},
+    {"mem-smaps", required_argument, 0, 0},
+    {"mem-jsheap", required_argument, 0, 0},
+    {"gc", no_argument, 0, 0},
+    {"leakobj", no_argument, 0, 0},
+    {"raw", no_argument, 0, 0},
+    {"ipc", optional_argument, 0, 0},
+    {"start-stat", no_argument, 0, 0},
+    {"stop-stat", no_argument, 0, 0},
+    {"stat", no_argument, 0, 0},
+    {0, 0, 0, 0}};
 DumpImplement::DumpImplement()
 {
     AddExecutorFactoryToMap();
@@ -233,30 +250,11 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
     bool loop = true;
     while (loop) {
         int optionIndex = 0;
-        static struct option longOptions[] = {{"cpufreq", no_argument, 0, 0},
-#ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
-                                              {"cpuusage", optional_argument, 0, 0},
-#endif
-                                              {"mem", optional_argument, 0, 0},
-                                              {"net", no_argument, 0, 0},
-                                              {"storage", no_argument, 0, 0},
-                                              {"zip", no_argument, 0, 0},
-                                              {"mem-smaps", required_argument, 0, 0},
-                                              {"mem-jsheap", required_argument, 0, 0},
-                                              {"gc", no_argument, 0, 0},
-                                              {"leakobj", no_argument, 0, 0},
-                                              {"raw", no_argument, 0, 0},
-                                              {"ipc", optional_argument, 0, 0},
-                                              {"start-stat", no_argument, 0, 0},
-                                              {"stop-stat", no_argument, 0, 0},
-                                              {"stat", no_argument, 0, 0},
-                                              {0, 0, 0, 0}};
-
-        int c = getopt_long(argc, argv, optStr, longOptions, &optionIndex);
+        int c = getopt_long(argc, argv, optStr, LONG_OPTIONS, &optionIndex);
         if (c == -1) {
             break;
         } else if (c == 0) {
-            DumpStatus status = ParseLongCmdOption(argc, opts_, longOptions, optionIndex, argv);
+            DumpStatus status = ParseLongCmdOption(argc, opts_, LONG_OPTIONS, optionIndex, argv);
             if (status != DumpStatus::DUMP_OK) {
                 return status;
             }
@@ -278,7 +276,9 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
         return status;
     }
     if (!CheckDumpPermission(opts_)) {
-        CmdHelp();
+        if (!opts_.isShowSmaps_) {
+            CmdHelp();
+        }
         return DumpStatus::DUMP_HELP;
     }
     RemoveDuplicateString(opts_);
@@ -825,6 +825,23 @@ void DumpImplement::SendPidErrorMessage(int pid)
     dprintf(rawParamFd, pidError_.c_str(), pid);
 }
 
+void DumpImplement::SendReleaseAppErrorMessage(const std::string& opt)
+{
+    if (ptrReqCtl_ == nullptr) {
+        DUMPER_HILOGE(MODULE_COMMON, "ptrReqCtl_ == nullptr");
+        return;
+    }
+    int rawParamFd = ptrReqCtl_->GetOutputFd();
+    if (rawParamFd < 0) {
+        DUMPER_HILOGE(MODULE_COMMON, "rawParamFd < 0");
+        return;
+    }
+    std::string onlySupportDebugSignedAppMessage_;
+    onlySupportDebugSignedAppMessage_ += "[ERROR]: The %s option is only supported for debug-signed application [ ";
+    onlySupportDebugSignedAppMessage_ += "\"appProvisionType\": \"debug\"].\n";
+    dprintf(rawParamFd, onlySupportDebugSignedAppMessage_.c_str(), opt.c_str());
+}
+
 std::string DumpImplement::RemoveCharacterFromStr(const std::string &str, const char character)
 {
     std::string strTmp = str;
@@ -912,15 +929,10 @@ bool DumpImplement::CheckDumpPermission(DumperOpts& opt)
     if (!isUserMode) {
         return true;
     }
-    // mem-smaps -v
-    if (opt.isShowSmapsInfo_) {
-        DUMPER_HILOGE(MODULE_COMMON, "ShowSmaps -v false isUserMode:%{public}d", isUserMode);
-        return false;
-    }
-    // mem-smaps + !hiview
-    int32_t calllingUid = IPCSkeleton::GetCallingUid();
-    if (opt.isShowSmaps_ && calllingUid != HIVIEW_UID) {
-        DUMPER_HILOGE(MODULE_COMMON, "ShowSmaps false isUserMode %{public}d uid %{public}d", isUserMode, calllingUid);
+    // mem-smaps [-v] + releaseApp
+    if (opt.isShowSmaps_ && !DumpUtils::CheckAppDebugVersion(opt.memPid_)) {
+        SendReleaseAppErrorMessage("--mem-smaps");
+        DUMPER_HILOGE(MODULE_COMMON, "ShowSmaps false, isUserMode:%{public}d, pid:%{public}d", isUserMode, opt.memPid_);
         return false;
     }
     // mem-jsheap + releaseApp

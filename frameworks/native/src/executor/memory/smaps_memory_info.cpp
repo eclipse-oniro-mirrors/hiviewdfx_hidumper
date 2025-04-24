@@ -22,6 +22,7 @@
 #include <cstring>
 
 #include "dump_common_utils.h"
+#include "dump_utils.h"
 #include "executor/memory/get_cma_info.h"
 #include "executor/memory/get_hardware_info.h"
 #include "executor/memory/get_kernel_info.h"
@@ -46,32 +47,12 @@ static constexpr int LINE_WIDTH = 12;
 static constexpr int LINE_NAME_VAL_WIDTH = 60;
 static constexpr int LINE_START_VAL_WIDTH = 18;
 static constexpr int LINE_NAME_V_WIDTH = 16;
+static constexpr int LINE_MEMORY_CLASS_WIDTH = 15;
 static constexpr size_t TYPE_SIZE = 2;
 static constexpr size_t TYPE_MIN_SIZE = 1;
 static constexpr char BLANK = ' ';
 SmapsMemoryInfo::SmapsMemoryInfo()
 {
-    sMapsMethodVec_.clear();
-    sMapsMethodVec_.push_back(make_pair(SMAPS_MEMINFO_RSS,
-        bind(&SmapsMemoryInfo::SetRss, this, placeholders::_1, placeholders::_2)));
-    sMapsMethodVec_.push_back(make_pair(SMAPS_MEMINFO_PSS,
-        bind(&SmapsMemoryInfo::SetPss, this, placeholders::_1, placeholders::_2)));
-    sMapsMethodVec_.push_back(make_pair(SMAPS_MEMINFO_SHARED_CLEAN,
-        bind(&SmapsMemoryInfo::SetSharedClean, this, placeholders::_1, placeholders::_2)));
-    sMapsMethodVec_.push_back(make_pair(SMAPS_MEMINFO_SHARED_DIRTY,
-        bind(&SmapsMemoryInfo::SetSharedDirty, this, placeholders::_1, placeholders::_2)));
-    sMapsMethodVec_.push_back(make_pair(SMAPS_MEMINFO_PRIVATE_CLEAN,
-        bind(&SmapsMemoryInfo::SetPrivateClean, this, placeholders::_1, placeholders::_2)));
-    sMapsMethodVec_.push_back(make_pair(SMAPS_MEMINFO_PRIVATE_DIRTY,
-        bind(&SmapsMemoryInfo::SetPrivateDirty, this, placeholders::_1, placeholders::_2)));
-    sMapsMethodVec_.push_back(make_pair(SMAPS_MEMINFO_SWAP,
-        bind(&SmapsMemoryInfo::SetSwap, this, placeholders::_1, placeholders::_2)));
-    sMapsMethodVec_.push_back(make_pair(SMAPS_MEMINFO_SWAP_PSS,
-        bind(&SmapsMemoryInfo::SetSwapPss, this, placeholders::_1, placeholders::_2)));
-    sMapsMethodVec_.push_back(make_pair(SMAPS_MEMINFO_SIZE,
-        bind(&SmapsMemoryInfo::SetSize, this, placeholders::_1, placeholders::_2)));
-    sMapsMethodVec_.push_back(make_pair(SMAPS_MEMINFO_COUNTS,
-        bind(&SmapsMemoryInfo::SetCounts, this, placeholders::_1, placeholders::_2)));
 }
 
 SmapsMemoryInfo::~SmapsMemoryInfo()
@@ -84,6 +65,11 @@ void SmapsMemoryInfo::InsertSmapsTitle(StringMatrix result, bool isShowSmapsInfo
     vector<string> line2;
     vector<string> titleVec = isShowSmapsInfo ? MemoryFilter::GetInstance().TITLE_V_SMAPS_HAS_PID_ :
         MemoryFilter::GetInstance().TITLE_SMAPS_HAS_PID_;
+    if (DumpUtils::IsUserMode()) {
+        titleVec.erase(std::remove(titleVec.begin(), titleVec.end(), "Perm"), titleVec.end());
+        titleVec.erase(std::remove(titleVec.begin(), titleVec.end(), "Start"), titleVec.end());
+        titleVec.erase(std::remove(titleVec.begin(), titleVec.end(), "End"), titleVec.end());
+    }
     for (string str : titleVec) {
         vector<string> types;
         StringUtils::GetInstance().StringSplit(str, "_", types);
@@ -103,6 +89,8 @@ void SmapsMemoryInfo::InsertSmapsTitle(StringMatrix result, bool isShowSmapsInfo
             if (StringUtils::GetInstance().IsSameStr(title, "Name")) {
                 StringUtils::GetInstance().SetWidth(isShowSmapsInfo ? LINE_NAME_V_WIDTH : LINE_NAME_KEY_WIDTH,
                     BLANK, false, title);
+            } else if (StringUtils::GetInstance().IsSameStr(title, "Category")) {
+                StringUtils::GetInstance().SetWidth(LINE_MEMORY_CLASS_WIDTH, BLANK, true, title);
             } else {
                 StringUtils::GetInstance().SetWidth(StringUtils::GetInstance().IsSameStr(title, "Start") ?
                     LINE_START_VAL_WIDTH : LINE_WIDTH, BLANK, true, title);
@@ -114,189 +102,116 @@ void SmapsMemoryInfo::InsertSmapsTitle(StringMatrix result, bool isShowSmapsInfo
     result->push_back(line2);
 }
 
-void SmapsMemoryInfo::BuildSmapsInfo(StringMatrix result, vector<map<string, string>> vectMap)
+void SmapsMemoryInfo::SetValueForRet(const std::string& value, const int &width, std::vector<std::string>& tempResult)
 {
-    for (auto obj : vectMap) {
-        vector<string> tempResult;
-        for (const auto &tag : MemoryFilter::GetInstance().VALUE_SMAPS_V_WITH_PID_) {
-            string value = obj.at(tag);
-            if (StringUtils::GetInstance().IsSameStr(tag, "Name")) {
-                string space = " ";
-                StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, false, space);
-                value = space + value;
-                StringUtils::GetInstance().SetWidth(LINE_NAME_VAL_WIDTH, BLANK, true, value);
-            } else {
-                StringUtils::GetInstance().SetWidth(StringUtils::GetInstance().IsSameStr(tag, "Start") ?
-                    LINE_START_VAL_WIDTH : LINE_WIDTH, BLANK, true, value);
-            }
-            tempResult.push_back(value);
-        }
-        result->push_back(tempResult);
-    }
+    std::string tempStr = value;
+    StringUtils::GetInstance().SetWidth(width, BLANK, true, tempStr);
+    tempResult.push_back(tempStr);
 }
 
-void SmapsMemoryInfo::BuildSmapsResult(const GroupMap &infos, StringMatrix result, bool isShowSmapsInfo,
-    vector<map<string, string>> vectMap)
+void SmapsMemoryInfo::SetOneRowMemInfo(const MemoryData &memInfo, bool isShowSmapsInfo,
+    bool isSummary, StringMatrix result)
 {
-    InsertSmapsTitle(result, isShowSmapsInfo);
+    vector<string> tempResult;
+    SetValueForRet(to_string(memInfo.size), LINE_WIDTH, tempResult);
+    SetValueForRet(to_string(memInfo.rss), LINE_WIDTH, tempResult);
+    SetValueForRet(to_string(memInfo.pss), LINE_WIDTH, tempResult);
+    SetValueForRet(to_string(memInfo.sharedClean), LINE_WIDTH, tempResult);
+    SetValueForRet(to_string(memInfo.sharedDirty), LINE_WIDTH, tempResult);
+    SetValueForRet(to_string(memInfo.privateClean), LINE_WIDTH, tempResult);
+    SetValueForRet(to_string(memInfo.privateDirty), LINE_WIDTH, tempResult);
+    SetValueForRet(to_string(memInfo.swap), LINE_WIDTH, tempResult);
+    SetValueForRet(to_string(memInfo.swapPss), LINE_WIDTH, tempResult);
     if (isShowSmapsInfo) {
-        BuildSmapsInfo(result, vectMap);
-        return;
-    }
-    for (const auto &info : infos) {
-        vector<string> tempResult;
-        auto &valueMap = info.second;
-        for (const auto &tag : MemoryFilter::GetInstance().TITLE_SMAPS_HAS_PID_) {
-            auto it = valueMap.find(tag);
-            string value = "0";
-            if (it != valueMap.end()) {
-                if (StringUtils::GetInstance().IsSameStr(tag, "Name")) {
-                    value = info.first;
-                } else {
-                    value = to_string(it->second);
-                }
-            }
-            if (StringUtils::GetInstance().IsSameStr(tag, "Name")) {
-                string space = " ";
-                StringUtils::GetInstance().SetWidth(LINE_START_VAL_WIDTH, BLANK, false, space);
-                value = space + value;
-                StringUtils::GetInstance().SetWidth(LINE_NAME_VAL_WIDTH, BLANK, true, value);
-            } else {
-                StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, true, value);
-            }
-            tempResult.push_back(value);
+        if (!DumpUtils::IsUserMode()) {
+            SetValueForRet(memInfo.permission, LINE_WIDTH, tempResult);
+            SetValueForRet(memInfo.startAddr, LINE_START_VAL_WIDTH, tempResult);
+            SetValueForRet(memInfo.endAddr, LINE_WIDTH, tempResult);
         }
-        result->push_back(tempResult);
-    }
-}
-
-bool SmapsMemoryInfo::CalcSmapsStatData(MemInfoData::MemSmapsInfo &memSmapsInfo, const GroupMap &infos)
-{
-    for (const auto &info : infos) {
-        auto &valueMap = info.second;
-        for (const auto &method : sMapsMethodVec_) {
-            auto it = valueMap.find(method.first);
-            if (it != valueMap.end()) {
-                method.second(memSmapsInfo, it->second);
-            }
-        }
-    }
-    return true;
-}
-
-bool SmapsMemoryInfo::CalcSmapsInfo(MemInfoData::MemSmapsInfo &memSmapsInfo, vector<map<string, string>> vectMap)
-{
-    for (auto obj : vectMap) {
-        for (const auto &method : sMapsMethodVec_) {
-            string key = method.first;
-            if (obj.find(key) != obj.end()) {
-                constexpr int BASE = 10;
-                method.second(memSmapsInfo, strtoull(obj.at(key).c_str(), nullptr, BASE));
-            }
-        }
-    }
-    return true;
-}
-
-void SmapsMemoryInfo::CalcSmapsGroup(const GroupMap &infos, StringMatrix result,
-    MemInfoData::MemSmapsInfo &memSmapsInfo, bool isShowSmapsInfo, vector<map<string, string>> vectMap)
-{
-    bool flag = isShowSmapsInfo ? CalcSmapsInfo(memSmapsInfo, vectMap) : CalcSmapsStatData(memSmapsInfo, infos);
-    if (!flag) {
-        return;
-    }
-    vector<string> lines;
-    vector<string> values;
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.size), lines, values, true);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.rss), lines, values, true);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.pss + memSmapsInfo.swapPss), lines, values, true);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.sharedClean), lines, values, true);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.sharedDirty), lines, values, true);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.privateClean), lines, values, true);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.privateDirty), lines, values, true);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.swap), lines, values, true);
-    MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.swapPss), lines, values, true);
-    if (!isShowSmapsInfo) {
-        MemoryUtil::GetInstance().SetMemTotalValue(to_string(memSmapsInfo.counts), lines, values, true);
     } else {
-        MemoryUtil::GetInstance().SetMemTotalValue("", lines, values, true);
-        MemoryUtil::GetInstance().SetMemTotalValue("", lines, values, true);
-        MemoryUtil::GetInstance().SetMemTotalValue("", lines, values, true);
+        SetValueForRet(to_string(memInfo.counts), LINE_WIDTH, tempResult);
     }
-    MemoryUtil::GetInstance().SetMemTotalValue("Summary", lines, values, true);
-    result->push_back(lines);
-    result->push_back(values);
+    // set memory class
+    string memoryClass = memInfo.memoryClass;
+    if (memoryClass == "other") {
+        if (memInfo.iNode == 0) {
+            memoryClass = "FilePage other";
+        } else {
+            memoryClass = "AnonPage other";
+        }
+    }
+    SetValueForRet(memoryClass, LINE_MEMORY_CLASS_WIDTH, tempResult);
+    // set name
+    string space = " ";
+    StringUtils::GetInstance().SetWidth(isShowSmapsInfo ? LINE_WIDTH : LINE_START_VAL_WIDTH, BLANK, false, space);
+    string value = isSummary ? "Summary" : memInfo.name;
+    value = space + value;
+    StringUtils::GetInstance().SetWidth(LINE_NAME_VAL_WIDTH, BLANK, true, value);
+    tempResult.push_back(value);
+
+    // set one row data
+    result->push_back(tempResult);
 }
 
-bool SmapsMemoryInfo::ShowMemorySmapsByPid(const int &pid, StringMatrix result, bool isShowSmapsInfo)
+void SmapsMemoryInfo::UpdateShowAddressMemInfoResult(const std::vector<MemoryData>& showAddressMemInfoVec,
+    StringMatrix result)
 {
-    GroupMap groupMap;
-    MemInfoData::MemSmapsInfo memSmapsinfo;
-    vector<map<string, string>> vectMap;
-    MemoryUtil::GetInstance().InitMemSmapsInfo(memSmapsinfo);
+    MemoryData summary;
+    for (const auto &memInfo : showAddressMemInfoVec) {
+        summary.size += memInfo.size;
+        summary.rss += memInfo.rss;
+        summary.pss += memInfo.pss;
+        summary.sharedClean += memInfo.sharedClean;
+        summary.sharedDirty += memInfo.sharedDirty;
+        summary.privateClean += memInfo.privateClean;
+        summary.privateDirty += memInfo.privateDirty;
+        summary.swap += memInfo.swap;
+        summary.swapPss += memInfo.swapPss;
+        SetOneRowMemInfo(memInfo, true, false, result);
+    }
+    summary.pss += summary.swapPss;
+    SetOneRowMemInfo(summary, true, true, result);
+}
+
+void SmapsMemoryInfo::UpdateCountSameNameMemResult(std::map<std::string, MemoryData>& countSameNameMemMap,
+    StringMatrix result)
+{
+    MemoryData summary;
+    for (const auto &memInfo : countSameNameMemMap) {
+        summary.size += memInfo.second.size;
+        summary.rss += memInfo.second.rss;
+        summary.pss += memInfo.second.pss;
+        summary.sharedClean += memInfo.second.sharedClean;
+        summary.sharedDirty += memInfo.second.sharedDirty;
+        summary.privateClean += memInfo.second.privateClean;
+        summary.privateDirty += memInfo.second.privateDirty;
+        summary.swap += memInfo.second.swap;
+        summary.swapPss += memInfo.second.swapPss;
+        summary.counts += memInfo.second.counts;
+        SetOneRowMemInfo(memInfo.second, false, false, result);
+    }
+    summary.pss += summary.swapPss;
+    SetOneRowMemInfo(summary, false, true, result);
+}
+
+bool SmapsMemoryInfo::ShowMemorySmapsByPid(const int &pid, StringMatrix result, bool isShowSmapsAddress)
+{
+    DUMPER_HILOGI(MODULE_SERVICE, "get smaps data begin, pid:%{public}d", pid);
+    std::map<std::string, MemoryData> countSameNameMemMap;
+    std::vector<MemoryData> showAddressMemInfoVec;
     unique_ptr<ParseSmapsInfo> parseSmapsInfo = make_unique<ParseSmapsInfo>();
-    if (!parseSmapsInfo->ShowSmapsData(MemoryFilter::APPOINT_PID, pid, groupMap, isShowSmapsInfo, vectMap)) {
-        DUMPER_HILOGE(MODULE_SERVICE, "parse smaps info fail");
+    bool ret = parseSmapsInfo->GetSmapsData(pid, isShowSmapsAddress, countSameNameMemMap, showAddressMemInfoVec);
+    if (!ret) {
         return false;
     }
-    BuildSmapsResult(groupMap, result, isShowSmapsInfo, vectMap);
-    CalcSmapsGroup(groupMap, result, memSmapsinfo, isShowSmapsInfo, vectMap);
+    InsertSmapsTitle(result, isShowSmapsAddress);
+    if (isShowSmapsAddress) {
+        UpdateShowAddressMemInfoResult(showAddressMemInfoVec, result);
+    } else {
+        UpdateCountSameNameMemResult(countSameNameMemMap, result);
+    }
+    DUMPER_HILOGI(MODULE_SERVICE, "get smaps data end, pid:%{public}d", pid);
     return true;
-}
-
-void SmapsMemoryInfo::SetPss(MemInfoData::MemSmapsInfo &meminfo, uint64_t value)
-{
-    meminfo.pss += value;
-}
-
-void SmapsMemoryInfo::SetRss(MemInfoData::MemSmapsInfo &meminfo, uint64_t value)
-{
-    meminfo.rss += value;
-}
-
-void SmapsMemoryInfo::SetSharedClean(MemInfoData::MemSmapsInfo &meminfo, uint64_t value)
-{
-    meminfo.sharedClean += value;
-}
-
-void SmapsMemoryInfo::SetSharedDirty(MemInfoData::MemSmapsInfo &meminfo, uint64_t value)
-{
-    meminfo.sharedDirty += value;
-}
-
-void SmapsMemoryInfo::SetPrivateClean(MemInfoData::MemSmapsInfo &meminfo, uint64_t value)
-{
-    meminfo.privateClean += value;
-}
-
-void SmapsMemoryInfo::SetPrivateDirty(MemInfoData::MemSmapsInfo &meminfo, uint64_t value)
-{
-    meminfo.privateDirty += value;
-}
-
-void SmapsMemoryInfo::SetSwap(MemInfoData::MemSmapsInfo &meminfo, uint64_t value)
-{
-    meminfo.swap += value;
-}
-
-void SmapsMemoryInfo::SetSwapPss(MemInfoData::MemSmapsInfo &meminfo, uint64_t value)
-{
-    meminfo.swapPss += value;
-}
-
-void SmapsMemoryInfo::SetSize(MemInfoData::MemSmapsInfo &meminfo, uint64_t value)
-{
-    meminfo.size += value;
-}
-
-void SmapsMemoryInfo::SetName(MemInfoData::MemSmapsInfo &meminfo, const string &value)
-{
-    meminfo.name = value;
-}
-
-void SmapsMemoryInfo::SetCounts(MemInfoData::MemSmapsInfo &meminfo, uint64_t value)
-{
-    meminfo.counts += value;
 }
 } // namespace HiviewDFX
 } // namespace OHOS
