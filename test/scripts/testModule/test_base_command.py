@@ -109,6 +109,7 @@ class TestBaseCommand:
         # 校验-l拼接不存在字符输出
         CheckCmd("hidumper -ld", lambda output : "option pid missed." in output, hidumperTmpCmd)
         CheckCmd("hidumper -lcd", lambda output : "option pid missed." in output, hidumperTmpCmd)
+        CheckCmd("hidumper -l", lambda output : "invalid arg: -1" in output, hidumperTmpCmd)
 
     @pytest.mark.L0
     def test_hidumper_c_all(self):

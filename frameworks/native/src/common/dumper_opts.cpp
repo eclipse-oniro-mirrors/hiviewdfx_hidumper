@@ -188,7 +188,7 @@ bool DumperOpts::CheckOptions(std::string& errStr) const
         return false;
     }
     if (isDumpList_ && ((!isDumpService_) && (!isDumpSystemAbility_) && (!isDumpSystem_))) {
-        errStr = "-1";
+        errStr = "-l";
         return false;
     }
     std::string path = TrimStr(path_);
