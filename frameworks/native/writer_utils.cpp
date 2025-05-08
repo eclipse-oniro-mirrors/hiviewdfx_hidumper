@@ -15,38 +15,102 @@
 #include "writer_utils.h"
 #include <unistd.h>
 #include <fcntl.h>
-#include "common/dumper_parameter.h"
-#include "dump_utils.h"
+#include <fstream>
+#include <string>
+#include <sstream>
+
+#include "file_ex.h"
 #include "hilog_wrapper.h"
 
 
 namespace OHOS {
 namespace HiviewDFX {
 
-void WriteStringIntoFd(const std::string& str, const std::shared_ptr<DumperParameter>& parameter)
+void WriteStringIntoFd(const std::string& str, int fd)
 {
-    if (parameter == nullptr) {
+    if (fd == -1) {
+        DUMPER_HILOGE(MODULE_COMMON, "Failed to get output fd");
         return;
     }
-    int fd = parameter->getClientCallback()->GetOutputFd();
-    std::string strWithNewline = str + "\n";
-    if (write(fd, strWithNewline.c_str(), strlen(strWithNewline.c_str())) == -1) {
-        DUMPER_HILOGE(MODULE_COMMON, "write to fd failed, errno: %{public}d", errno);
+    if (str.empty()) {
+        DUMPER_HILOGW(MODULE_COMMON, "str is empty");
+        return;
+    }
+    std::string outputStr = str;
+    if (outputStr.back() != '\n') {
+        outputStr += '\n';
+    }
+    SaveStringToFd(fd, outputStr);
+}
+
+void WriteStringIntoFd(const std::vector<std::string>& strs, int fd)
+{
+    if (fd == -1) {
+        DUMPER_HILOGE(MODULE_COMMON, "Failed to get output fd");
+        return;
+    }
+    if (strs.empty()) {
+        DUMPER_HILOGW(MODULE_COMMON, "strs is empty");
+        return;
+    }
+    for (const auto& str : strs) {
+        WriteStringIntoFd(str, fd);
     }
 }
 
-void WriteStringIntoFd(const std::vector<std::string>& strs, const std::shared_ptr<DumperParameter>& parameter)
+bool LoadStringFromFile(const std::string& path, const DataHandler& func)
 {
-    if (parameter == nullptr) {
-        return;
+    DUMPER_HILOGE(MODULE_COMMON, "LoadStringFromFile, path=%{public}s", path.c_str());
+    char canonicalPath[PATH_MAX] = {0};
+    if (realpath(path.c_str(), canonicalPath) == nullptr) {
+        DUMPER_HILOGE(MODULE_COMMON, "realpath failed, errno=%{public}d, path=%{public}s", errno, path.c_str());
+        return false;
     }
-    int fd = parameter->getClientCallback()->GetOutputFd();
-    for (const auto& str : strs) {
-        std::string strWithNewline = str + "\n";
-        if (write(fd, strWithNewline.c_str(), strWithNewline.length()) == -1) {
-            DUMPER_HILOGE(MODULE_COMMON, "write to fd failed, errno: %{public}d", errno);
+    std::ifstream file(canonicalPath);
+    if (!file.is_open()) {
+        DUMPER_HILOGE(MODULE_COMMON, "Failed to open file, path=%{public}s", path.c_str());
+        return false;
+    }
+    std::string line;
+    while (std::getline(file, line)) {
+        line += '\n';
+        DUMPER_HILOGE(MODULE_COMMON, "LoadStringFromFile, line=%{public}s", line.c_str());
+        if (!func(line)) {
+            break;
         }
     }
+    return true;
+}
+
+bool LoadStringFromCommand(const std::string& command, const DataHandler& func)
+{
+    auto pipe = std::unique_ptr<FILE, decltype(&pclose)>{popen(command.c_str(), "r"), pclose};
+    if (pipe == nullptr) {
+        DUMPER_HILOGE(MODULE_COMMON, "popen failed, errno=%{public}d, command=%{public}s", errno, command.c_str());
+        return false;
+    }
+    char *lineBuf = nullptr;
+    ssize_t lineLen;
+    size_t lineAlloc = 0;
+    while ((lineLen = getline(&lineBuf, &lineAlloc, pipe.get())) > 0) {
+        lineBuf[lineLen] = '\0';
+        const std::string content = lineBuf;
+        if (!func(content)) {
+            break;
+        }
+    }
+    if (lineBuf != nullptr) {
+        free(lineBuf);
+        lineBuf = nullptr;
+    }
+    return true;
+}
+
+void WriteTitle(const std::string& title, int fd)
+{
+    WriteStringIntoFd("\n", fd);
+    WriteStringIntoFd(title, fd);
+    WriteStringIntoFd("\n", fd);
 }
 }
 }

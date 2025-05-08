@@ -13,22 +13,26 @@
  * limitations under the License.
  */
 
-#ifndef HIVIEWDFX_HIDUMPER_WRITER_UTILS_H
-#define HIVIEWDFX_HIDUMPER_WRITER_UTILS_H
+#ifndef STORAGE_DUMP_STRATEGY_H
+#define STORAGE_DUMP_STRATEGY_H
 
-#include <string>
-#include <vector>
+#include "dump_strategy.h"
 #include <memory>
+#include "base/task_control.h"
+#include "data_inventory.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-using DataHandler = std::function<bool(const std::string& content)>;
+class StorageDumpStrategy : public DumpStrategy {
+public:
+    StorageDumpStrategy() = default;
 
-void WriteStringIntoFd(const std::string& str, int fd);
-void WriteStringIntoFd(const std::vector<std::string>& strs, int fd);
-void WriteTitle(const std::string& str, int fd);
-bool LoadStringFromFile(const std::string& path, const DataHandler& func);
-bool LoadStringFromCommand(const std::string& command, const DataHandler& func);
-}
-}
-#endif
+    DumpStatus CreateRootTaskList(const std::shared_ptr<DumpContext>& context,
+                                  std::vector<TaskId>& rootTasks) override
+    {
+        return DUMP_OK;
+    }
+};
+} // namespace HiviewDFX
+} // namespace OHOS
+#endif // STORAGE_DUMP_STRATEGY_H

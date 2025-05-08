@@ -17,47 +17,58 @@
 #include "task/system_info/device_info_task.h"
 
 #include "data_inventory.h"
-#include "data_id.h"
 #include "hilog_wrapper.h"
 #include "parameter.h"
 #include "task/base/task_register.h"
-#include "task/base/task_id.h"
+#include "writer_utils.h"
 
 namespace OHOS {
 namespace HiviewDFX {
 
-DumpStatus DeviceInfoTask::TaskEntry(DataInventory& dataInventory, const std::shared_ptr<DumperParameter>& parameter)
+DumpStatus DeviceInfoTask::TaskEntry(DataInventory& dataInventory, const std::shared_ptr<DumpContext>& dumpContext)
 {
-    DUMPER_HILOGI(MODULE_COMMON, "info|APIDumper Execute");
-    AddApiRetIntoResult(GetDisplayVersion(), "BuildId");
-    AddApiRetIntoResult(GetOsReleaseType(), "RleaseType");
-    AddApiRetIntoResult(GetVersionId(), "OsVersion");
-    AddApiRetIntoResult(GetDeviceType(), "DeviceType");
-    AddApiRetIntoResult(GetManufacture(), "Manufacture");
-    AddApiRetIntoResult(GetBrand(), "Brand");
-    AddApiRetIntoResult(GetMarketName(), "MarketName");
-    AddApiRetIntoResult(GetProductSeries(), "ProductSeries");
-    AddApiRetIntoResult(GetProductModel(), "ProductModel");
-    AddApiRetIntoResult(GetSoftwareModel(), "SoftwareModel");
-    AddApiRetIntoResult(GetHardwareModel(), "HardwareModel");
-    AddApiRetIntoResult(GetHardwareProfile(), "HardwareProfile");
-    AddApiRetIntoResult(GetBootloaderVersion(), "BootLoaderVersion");
-    AddApiRetIntoResult(GetAbiList(), "ABIList");
-    AddApiRetIntoResult(GetSecurityPatchTag(), "SecurityPatch");
-    AddApiRetIntoResult(GetIncrementalVersion(), "IncrementalVersion");
-    AddApiRetIntoResult(GetOSFullName(), "OSFullName");
-    AddApiRetIntoResult(GetSdkApiVersion(), "SDKAPIVersion");
-    AddApiRetIntoResult(GetFirstApiVersion(), "FirstAPIVersion");
-    AddApiRetIntoResult(GetBuildRootHash(), "BuildHash");
-    AddApiRetIntoResult(GetBuildType(), "BuildType");
-    AddApiRetIntoResult(GetBuildUser(), "BuildUser");
-    AddApiRetIntoResult(GetBuildHost(), "BuildHost");
-    AddApiRetIntoResult(GetBuildTime(), "BuildTime");
-
-    dataInventory.Inject(DataId::DEVICE_INFO, std::make_shared<std::vector<std::string>>(result_));
+    bool ret = false;
+    ret = GetDeviceInfoByParam(dataInventory);
+    dataInventory.LoadAndInject("/proc/version", PROC_VERSION_INFO, true);
+    dataInventory.LoadAndInject("/proc/cmdline", PROC_CMDLINE_INFO, true);
+    dataInventory.LoadAndInject("uptime -p", UPTIME_INFO, false);
+    if (!ret) {
+        return DUMP_FAIL;
+    }
     return DUMP_OK;
 }
 
-REGISTER_TASK(DUMP_DEVICE_INFO, DeviceInfoTask, true);
+bool DeviceInfoTask::GetDeviceInfoByParam(DataInventory& dataInventory)
+{
+    std::vector<std::string> deviceInfo = {};
+    AddApiRetIntoResult(GetDisplayVersion(), "BuildId", deviceInfo);
+    AddApiRetIntoResult(GetOsReleaseType(), "RleaseType", deviceInfo);
+    AddApiRetIntoResult(GetVersionId(), "OsVersion", deviceInfo);
+    AddApiRetIntoResult(GetDeviceType(), "DeviceType", deviceInfo);
+    AddApiRetIntoResult(GetManufacture(), "Manufacture", deviceInfo);
+    AddApiRetIntoResult(GetBrand(), "Brand", deviceInfo);
+    AddApiRetIntoResult(GetMarketName(), "MarketName", deviceInfo);
+    AddApiRetIntoResult(GetProductSeries(), "ProductSeries", deviceInfo);
+    AddApiRetIntoResult(GetProductModel(), "ProductModel", deviceInfo);
+    AddApiRetIntoResult(GetSoftwareModel(), "SoftwareModel", deviceInfo);
+    AddApiRetIntoResult(GetHardwareModel(), "HardwareModel", deviceInfo);
+    AddApiRetIntoResult(GetHardwareProfile(), "HardwareProfile", deviceInfo);
+    AddApiRetIntoResult(GetBootloaderVersion(), "BootLoaderVersion", deviceInfo);
+    AddApiRetIntoResult(GetAbiList(), "ABIList", deviceInfo);
+    AddApiRetIntoResult(GetSecurityPatchTag(), "SecurityPatch", deviceInfo);
+    AddApiRetIntoResult(GetIncrementalVersion(), "IncrementalVersion", deviceInfo);
+    AddApiRetIntoResult(GetOSFullName(), "OSFullName", deviceInfo);
+    AddApiRetIntoResult(GetSdkApiVersion(), "SDKAPIVersion", deviceInfo);
+    AddApiRetIntoResult(GetFirstApiVersion(), "FirstAPIVersion", deviceInfo);
+    AddApiRetIntoResult(GetBuildRootHash(), "BuildHash", deviceInfo);
+    AddApiRetIntoResult(GetBuildType(), "BuildType", deviceInfo);
+    AddApiRetIntoResult(GetBuildUser(), "BuildUser", deviceInfo);
+    AddApiRetIntoResult(GetBuildHost(), "BuildHost", deviceInfo);
+    AddApiRetIntoResult(GetBuildTime(), "BuildTime", deviceInfo);
+    dataInventory.Inject(DataId::DEVICE_INFO, std::make_shared<std::vector<std::string>>(deviceInfo));
+    return true;
+}
+
+REGISTER_TASK(DUMP_DEVICE_INFO, DeviceInfoTask, false);
 } // namespace HiviewDFX
 } // namespace OHOS

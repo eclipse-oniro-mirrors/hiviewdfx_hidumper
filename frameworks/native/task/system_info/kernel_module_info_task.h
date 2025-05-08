@@ -13,10 +13,9 @@
  * limitations under the License.
  */
 
-#ifndef HIVIEWDFX_HIDUMPER_DEVICE_INFO_H
-#define HIVIEWDFX_HIDUMPER_DEVICE_INFO_H
+#ifndef HIVIEWDFX_HIDUMPER_KERNEL_MODULE_INFO_H
+#define HIVIEWDFX_HIDUMPER_KERNEL_MODULE_INFO_H
  
-#include <sstream>
 
 #include "task/base/task.h"
 #include "data_inventory.h"
@@ -24,24 +23,15 @@
 namespace OHOS {
 namespace HiviewDFX {
  
-class DeviceInfoTask : public Task {
+class KernelModuleInfoTask : public Task {
 public:
-    DeviceInfoTask() = default;
-    ~DeviceInfoTask() override = default;
+    KernelModuleInfoTask() = default;
+    ~KernelModuleInfoTask() override = default;
  
 private:
     DumpStatus TaskEntry(DataInventory& dataInventory, const std::shared_ptr<DumpContext>& dumpContext) override;
-    bool GetDeviceInfoByParam(DataInventory& dataInventory);
-
-    template<typename T>
-    void AddApiRetIntoResult(const T& content, const std::string& title, std::vector<std::string>& result)
-    {
-        std::ostringstream s;
-        s << title << ": " << content;
-        result.emplace_back(s.str());
-    }
 };
 
-}
-}
-#endif // HIVIEWDFX_HIDUMPER_DEVICE_INFO_H
+} // namespace HiviewDFX
+} // namespace OHOS
+#endif // HIVIEWDFX_HIDUMPER_KERNEL_MODULE_INFO_H

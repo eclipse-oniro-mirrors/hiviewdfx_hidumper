@@ -21,6 +21,7 @@
 #include <sstream>
 #include <locale>
 #include <set>
+#include <queue>
 #include "ffrt.h"
 #include "hilog_wrapper.h"
 
@@ -51,8 +52,15 @@ void FillStatistcsDependence(const TaskCollection& regTask, std::vector<TaskStat
 }
 }
 
-bool TaskControl::VerifyTasks(const TaskCollection& tasks)
+TaskControl::TaskControl() = default;
+TaskControl::~TaskControl() = default;
+
+bool TaskControl::VerifyTaskTopo(const TaskCollection& tasks)
 {
+    if (tasks.empty()) {
+        DUMPER_HILOGE(MODULE_COMMON, "Failed to verify taskTopo, tasks is empty");
+        return false;
+    }
     auto verifyTasks = tasks;
     auto runnableTasks = SelectRunnableTasks(verifyTasks);
     while (!runnableTasks.empty()) {
@@ -61,23 +69,73 @@ bool TaskControl::VerifyTasks(const TaskCollection& tasks)
     return verifyTasks.empty();
 }
 
-DumpStatus TaskControl::ExcuteTask(DataInventory& dataInventory, TaskCollection& tasks,
-                                   const std::shared_ptr<DumperParameter>& parameter)
+DumpStatus TaskControl::ExcuteTask(DataInventory& dataInventory, const std::vector<TaskId>& taskIds,
+                                   const std::shared_ptr<DumpContext>& dumpContext)
 {
-    if (!VerifyTasks(tasks)) {
+    TaskCollection taskTopo;
+    for (size_t i = 0; i < taskIds.size(); i++) {
+        if (taskIds[i] <= ROOT_TASK_START) {
+            DUMPER_HILOGE(MODULE_COMMON, "Taskid is not root task: %{public}d", taskIds[i]);
+            return DUMP_FAIL;
+        }
+        BuildTaskTopo(taskIds[i], taskTopo);
+        if (i > 0 && taskTopo.find(taskIds[i]) != taskTopo.end()) {
+            taskTopo[taskIds[i]].taskDependency.push_back(taskIds[i - 1]);
+        }
+    }
+    if (!VerifyTaskTopo(taskTopo)) {
+        DUMPER_HILOGE(MODULE_COMMON, "Failed to verify taskTopo");
         return DUMP_FAIL;
     }
+    DumpStatus ret = ExcuteTaskInner(dataInventory, taskTopo, dumpContext);
+    if (ret != DUMP_OK) {
+        return ret;
+    }
+    return DUMP_OK;
+}
+
+void TaskControl::BuildTaskTopo(TaskId rootTaskId, TaskCollection& taskTopo)
+{
+    std::queue<TaskId> taskQueue;
+    std::set<TaskId> visited;
+    taskQueue.push(rootTaskId);
+    visited.insert(rootTaskId);
+
+    const auto& container = TaskRegister::GetContainer();
+    while (!taskQueue.empty()) {
+        TaskId taskId = taskQueue.front();
+        taskQueue.pop();
+
+        auto it = container.find(taskId);
+        if (it == container.end()) {
+            continue;
+        }
+        taskTopo.emplace(taskId, it->second);
+
+        const auto& depTasks = it->second.taskDependency;
+        for (TaskId depTaskId : depTasks) {
+            if (visited.count(depTaskId) == 0) {
+                taskQueue.push(depTaskId);
+                visited.insert(depTaskId);
+            }
+        }
+    }
+}
+
+DumpStatus TaskControl::ExcuteTaskInner(DataInventory& dataInventory, TaskCollection& tasks,
+                                        const std::shared_ptr<DumpContext>& dumpContext)
+{
     auto taskCopy = tasks;
     auto runnableTasks = SelectRunnableTasks(tasks);
     while (!runnableTasks.empty()) {
         std::vector<TaskStatistcs> stat(runnableTasks.size());
-        SubmitRunnableTasks(runnableTasks, dataInventory, parameter, stat);
+        SubmitRunnableTasks(runnableTasks, dataInventory, dumpContext, stat);
         ffrt::wait();
-
         // for dfx
         FillStatistcsDependence(taskCopy, stat);
         auto ret = std::all_of(stat.begin(), stat.end(), [](const TaskStatistcs& node) {
             if (node.dumpStatus != DUMP_OK && node.mandatory) {
+                DUMPER_HILOGE(MODULE_COMMON, "Failed to dump task: %{public}s", node.taskName.c_str());
                 return false;
             }
             return true;
@@ -92,19 +150,19 @@ DumpStatus TaskControl::ExcuteTask(DataInventory& dataInventory, TaskCollection&
 }
 
 void TaskControl::SubmitRunnableTasks(TaskCollection& tasks, DataInventory& dataInventory,
-                                      const std::shared_ptr<DumperParameter>& parameter,
+                                      const std::shared_ptr<DumpContext>& dumpContext,
                                       std::vector<TaskStatistcs>& stat)
 {
     size_t concurrentIndex = 0;
     for (auto& taskInfo : tasks) {
-        ffrt::submit([&taskInfo, &dataInventory, parameter, concurrentIndex, &stat]() {
+        ffrt::submit([&taskInfo, &dataInventory, dumpContext, concurrentIndex, &stat]() {
             auto startTime = std::chrono::steady_clock::now();
             if (taskInfo.second.creator == nullptr) {
                 return;
             }
             auto task = taskInfo.second.creator();
             if (task != nullptr) {
-                stat[concurrentIndex].dumpStatus = task->Run(dataInventory, parameter);
+                stat[concurrentIndex].dumpStatus = task->Run(dataInventory, dumpContext);
                 stat[concurrentIndex].mandatory = taskInfo.second.mandatory;
             }
             auto endTime = std::chrono::steady_clock::now();

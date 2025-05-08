@@ -22,7 +22,7 @@
 #include <memory>
 #include "data_inventory.h"
 #include "common.h"
-#include "common/dumper_parameter.h"
+#include "dump_context.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -32,18 +32,18 @@ public:
     Task() = default;
     virtual ~Task() = default;
 
-    DumpStatus Run(DataInventory& dataInventory, const std::shared_ptr<DumperParameter>& parameter)
+    DumpStatus Run(DataInventory& dataInventory, const std::shared_ptr<DumpContext>& dumpContext)
     {
-        PreDump(dataInventory, parameter);
-        auto ret = TaskEntry(dataInventory, parameter);
-        PostDump(dataInventory, parameter);
+        PreDump(dataInventory, dumpContext);
+        auto ret = TaskEntry(dataInventory, dumpContext);
+        PostDump(dataInventory, dumpContext);
         return ret;
     }
 
 private:
-    virtual DumpStatus TaskEntry(DataInventory& dataInventory, const std::shared_ptr<DumperParameter>& parameter) = 0;
-    virtual void PreDump(DataInventory& dataInventory, const std::shared_ptr<DumperParameter>& parameter) const {};
-    virtual void PostDump(DataInventory& dataInventory, const std::shared_ptr<DumperParameter>& parameter) const {};
+    virtual DumpStatus TaskEntry(DataInventory& dataInventory, const std::shared_ptr<DumpContext>& dumpContext) = 0;
+    virtual void PreDump(DataInventory& dataInventory, const std::shared_ptr<DumpContext>& dumpContext) const {};
+    virtual void PostDump(DataInventory& dataInventory, const std::shared_ptr<DumpContext>& dumpContext) const {};
 };
 
 }

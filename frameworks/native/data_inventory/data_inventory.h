@@ -19,11 +19,33 @@
 #include <mutex>
 #include <set>
 #include <unordered_map>
-
-#include "data_id.h"
+#include "hilog_wrapper.h"
+#include "writer_utils.h"
 
 namespace OHOS {
 namespace HiviewDFX {
+
+enum DataId : uint32_t {
+    DEVICE_INFO = 0,
+    SYSTEM_CLUSTER_INFO,
+    PROC_VERSION_INFO,
+    PROC_CMDLINE_INFO,
+    WAKEUP_SOURCES_INFO,
+    UPTIME_INFO,
+    CPU_FREQ_INFO,
+    PROC_SLAB_INFO,
+    PROC_ZONE_INFO,
+    PROC_VMSTAT_INFO,
+    PROC_VMALLOC_INFO,
+    PROC_MODULES_INFO,
+    PRINTENV_INFO,
+    LSMOD_INFO,
+};
+
+struct InfoConfig {
+    std::string title;
+    DataId dataId;
+};
 
 struct BaseType {
     virtual ~BaseType() = default;
@@ -56,10 +78,25 @@ public:
         container->data = ptr;
         return InputToData(dataId, container);
     }
+
     template <typename T>
     std::shared_ptr<T> GetPtr(DataId dataId) const
     {
         return Cast<T>(GetPtr(dataId));
+    }
+
+    bool LoadAndInject(const std::string& source, DataId dataId, bool isFile)
+    {
+        std::vector<std::string> result = {};
+        auto loader = isFile ? LoadStringFromFile : LoadStringFromCommand;
+        if (!loader(source, [&result](const std::string& line) {
+            result.emplace_back(line);
+            return true;
+        })) {
+            return false;
+        }
+        return Inject(dataId, std::make_shared<std::vector<std::string>>(result));
+        ;
     }
 
     std::set<DataId> RemoveRestData(const std::set<DataId>& keepingDataType);

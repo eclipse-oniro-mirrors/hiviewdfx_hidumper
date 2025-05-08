@@ -12,20 +12,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef HIVIEWDFX_HIDUMPER_TASK_ID_H
-#define HIVIEWDFX_HIDUMPER_TASK_ID_H
 
-#include <cstdint>
+#ifndef SYSTEM_ABILITY_DUMP_STRATEGY_H
+#define SYSTEM_ABILITY_DUMP_STRATEGY_H
+
+#include "dump_strategy.h"
+#include <memory>
+#include "base/task_control.h"
+#include "data_inventory.h"
 
 namespace OHOS {
 namespace HiviewDFX {
+class SystemAbilityDumpStrategy : public DumpStrategy {
+public:
+    SystemAbilityDumpStrategy() = default;
 
-enum TaskId : uint32_t {
-    DUMP_DEVICE_INFO = 0,
-    WRITE_DEVICE_INFO = 1,
+    DumpStatus CreateRootTaskList(const std::shared_ptr<DumpContext>& context,
+                                  std::vector<TaskId>& rootTasks) override
+    {
+        return DUMP_OK;
+    }
 };
-
-}
-}
-
-#endif
+} // namespace HiviewDFX
+} // namespace OHOS
+#endif // SYSTEM_ABILITY_DUMP_STRATEGY_H
