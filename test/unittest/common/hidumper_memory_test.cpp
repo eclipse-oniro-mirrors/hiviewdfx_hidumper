@@ -18,12 +18,14 @@
 #include <sstream>
 #include <unistd.h>
 #include <vector>
+#include "dump_utils.h"
 #include "executor/memory/get_hardware_info.h"
 #include "executor/memory/get_process_info.h"
 #include "executor/memory/get_kernel_info.h"
 #include "executor/memory/memory_info.h"
 #include "executor/memory/memory_filter.h"
 #include "executor/memory/memory_util.h"
+#include "executor/memory/parse/parse_ashmem_info.h"
 #include "executor/memory/parse/parse_meminfo.h"
 #include "executor/memory/parse/parse_smaps_info.h"
 #include "executor/memory/parse/parse_smaps_rollup_info.h"
@@ -423,6 +425,32 @@ HWTEST_F(HidumperMemoryTest, MemoryInfo004, TestSize.Level1)
 }
 
 /**
+ * @tc.name: MemoryInfo005
+ * @tc.desc: Test about ashmem.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperMemoryTest, MemoryInfo005, TestSize.Level1)
+{
+    unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
+        make_unique<OHOS::HiviewDFX::MemoryInfo>();
+    shared_ptr<vector<vector<string>>> result = make_shared<vector<vector<string>>>();
+    memoryInfo->GetAshmem(INIT_PID, result);
+    ASSERT_TRUE(result->size() == 0);
+
+    FILE* file = popen("pidof render_service", "r");
+    char buffer[BUFFER_SIZE];
+    if (file) {
+        if (fgets(buffer, sizeof(buffer), file) != nullptr) {};
+        pclose(file);
+    }
+    int rsPid = strtol(buffer, nullptr, 10);
+    memoryInfo->GetAshmem(rsPid, result);
+    if (DumpUtils::IsHmKernel()) {
+        ASSERT_TRUE(result->size() != 0);
+    }
+}
+
+/**
  * @tc.name: GetProcessInfo001
  * @tc.desc: Test GetProcessInfo ret.
  * @tc.type: FUNC
@@ -535,6 +563,25 @@ HWTEST_F(HidumperMemoryTest, CheckMemoryData001, TestSize.Level1)
         }
         ASSERT_TRUE(CheckMemoryPrint(TITLE_AND_VALUE[i].first, TITLE_AND_VALUE[i].second, outputSs.str()));
     }
+}
+
+/**
+ * @tc.name: ParseAshmemInfo001
+ * @tc.desc: Test error ashmemInfo.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperMemoryTest, ParseAshmemInfo001, TestSize.Level1)
+{
+    unique_ptr<ParseAshmemInfo> parseAshmeminfo = make_unique<ParseAshmemInfo>();
+    std::unordered_map<std::string, int> ashmemOverviewMap;
+    parseAshmeminfo->UpdateAshmemOverviewMap("", ashmemOverviewMap);
+    parseAshmeminfo->UpdateAshmemOverviewMap("test", ashmemOverviewMap);
+    parseAshmeminfo->UpdateAshmemOverviewMap("test[", ashmemOverviewMap);
+    parseAshmeminfo->UpdateAshmemOverviewMap("test]", ashmemOverviewMap);
+    parseAshmeminfo->UpdateAshmemOverviewMap("test][", ashmemOverviewMap);
+    parseAshmeminfo->UpdateAshmemOverviewMap("test[]", ashmemOverviewMap);
+    parseAshmeminfo->UpdateAshmemOverviewMap("test[], physical size is testSize", ashmemOverviewMap);
+    ASSERT_TRUE(ashmemOverviewMap.empty());
 }
 } // namespace HiviewDFX
 } // namespace OHOS
