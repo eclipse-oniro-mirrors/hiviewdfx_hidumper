@@ -17,17 +17,36 @@
 #define HIVIEWDFX_HIDUMPER_TASK_STRUCT_H
 
 #include "task/base/task.h"
-#include "task/base/task_id.h"
 
 namespace OHOS {
 namespace HiviewDFX {
+
+enum TaskId : uint32_t {
+    DUMP_DEVICE_INFO = 0,
+    DUMP_SYSTEM_CLUSTER_INFO,
+    DUMP_WAKEUP_SOURCES_INFO,
+    DUMP_KERNEL_MODULE_INFO,
+    DUMP_SLAB_INFO,
+    DUMP_ZONE_INFO,
+    DUMP_VMSTAT_INFO,
+    DUMP_VMALLOC_INFO,
+    DUMP_CPU_FREQ_INFO,
+    ROOT_TASK_START = 1000, // ROOT_TASK is a special task, it will be executed last.
+    WRITE_DEVICE_INFO,
+    WRITE_SYSTEM_CLUSTER_INFO,
+    WRITE_SYSTEM_BASE_INFO,
+    WRITE_KERNEL_MODULE_INFO,
+    WRITE_KERNEL_MEM_INFO,
+    WRITE_CPU_FREQ_INFO,
+    WRITE_ALL_PROCESS_MEM_INFO,
+};
 
 using TaskCreator = std::function<std::unique_ptr<Task>()>;
 
 struct RegTaskInfo {
     TaskCreator creator;
-    std::vector<DataId> dataDependency; // 当前task需要的数据类型
-    std::vector<TaskId> taskDependency; // 当前task的前向依赖
+    std::vector<DataId> dataDependency;
+    std::vector<TaskId> taskDependency;
     std::string taskName; // for DFX
     bool mandatory; // 是否为关键任务，关键任务失败后整个dump失败
 };

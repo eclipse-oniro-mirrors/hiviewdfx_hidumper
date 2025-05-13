@@ -12,28 +12,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "task/writer/device_info_writer.h"
+
+#ifndef DUMP_MANAGER_H
+#define DUMP_MANAGER_H
+
 #include <memory>
-#include "data_id.h"
-#include "writer_utils.h"
-#include "task/base/task_register.h"
-#include "task/base/task_id.h"
+#include "common.h"
+#include "dump_context.h"
+#include "singleton.h"
 
 namespace OHOS {
 namespace HiviewDFX {
 
-DumpStatus DeviceInfoWriter::TaskEntry(DataInventory& dataInventory, const std::shared_ptr<DumperParameter>& parameter)
-{
-    auto data = dataInventory.GetPtr<std::vector<std::string>>(DataId::DEVICE_INFO);
-    if (!data) {
-        return DUMP_FAIL;
-    }
-    WriteStringIntoFd(*data, parameter);
-    return DUMP_OK;
-}
-
-REGISTER_TASK(WRITE_DEVICE_INFO, DeviceInfoWriter, true, DUMP_DEVICE_INFO);
-REGISTER_DEPENDENT_DATA(WRITE_DEVICE_INFO, DEVICE_INFO);
+class DumpManager : public DelayedRefSingleton<DumpManager> {
+    DECLARE_DELAYED_REF_SINGLETON(DumpManager)
+public:
+    DISALLOW_COPY_AND_MOVE(DumpManager);
+    
+    DumpStatus StartDump(int argc, char *argv[], std::shared_ptr<DumpContext> context);
+};
 
 } // namespace HiviewDFX
 } // namespace OHOS
+#endif // DUMP_MANAGER_H

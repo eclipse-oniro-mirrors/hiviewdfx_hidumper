@@ -21,8 +21,10 @@
 #include <vector>
 #include <map>
 
-#include "common/dumper_parameter.h"
+#include "data_inventory.h"
+#include "dump_context.h"
 #include "task/base/task_register.h"
+#include "singleton.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -36,22 +38,23 @@ struct TaskStatistcs {
     bool mandatory;
 };
 
-class TaskControl final {
+class TaskControl : public DelayedRefSingleton<TaskControl> {
+    DECLARE_DELAYED_REF_SINGLETON(TaskControl)
 public:
-    TaskControl() = default;
-    ~TaskControl() = default;
+    DISALLOW_COPY_AND_MOVE(TaskControl);
 
     DumpStatus ExcuteTask(DataInventory& dataInventory,
-                          TaskCollection& tasks, const std::shared_ptr<DumperParameter>& parameter);
-
+                          const std::vector<TaskId>& taskIds, const std::shared_ptr<DumpContext>& dumpContext);
 private:
-    bool VerifyTasks(const TaskCollection& tasks);
+    DumpStatus ExcuteTaskInner(DataInventory& dataInventory,
+                               TaskCollection& tasks, const std::shared_ptr<DumpContext>& dumpContext);
+    bool VerifyTaskTopo(const TaskCollection& taskTopo);
+    void BuildTaskTopo(TaskId rootTaskId, TaskCollection& taskTopo);
     TaskCollection SelectRunnableTasks(TaskCollection& tasks);
     void ReleaseNoUsedData(DataInventory& dataInventory, const TaskCollection& tasks);
     void SubmitRunnableTasks(TaskCollection& tasks, DataInventory& dataInventory,
-                             const std::shared_ptr<DumperParameter>& parameter, std::vector<TaskStatistcs>& stat);
+                             const std::shared_ptr<DumpContext>& dumpContext, std::vector<TaskStatistcs>& stat);
 };
-
-}
-}
-#endif
+} // namespace HiviewDFX
+} // namespace OHOS
+#endif // HIVIEWDFX_HIDUMPER_TASK_CONTROL_H

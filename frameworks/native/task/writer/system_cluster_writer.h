@@ -12,36 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#ifndef HIVIEWDFX_HIDUMPER_DEVICE_INFO_H
-#define HIVIEWDFX_HIDUMPER_DEVICE_INFO_H
- 
-#include <sstream>
+#ifndef HIVIEWDFX_HIDUMPER_SYSTEM_CLUSTER_WRITER_H
+#define HIVIEWDFX_HIDUMPER_SYSTEM_CLUSTER_WRITER_H
 
 #include "task/base/task.h"
 #include "data_inventory.h"
- 
+#include "dump_context.h"
+
 namespace OHOS {
 namespace HiviewDFX {
- 
-class DeviceInfoTask : public Task {
+class SystemClusterWriter : public Task {
 public:
-    DeviceInfoTask() = default;
-    ~DeviceInfoTask() override = default;
- 
+    SystemClusterWriter() = default;
+    ~SystemClusterWriter() override = default;
+
 private:
     DumpStatus TaskEntry(DataInventory& dataInventory, const std::shared_ptr<DumpContext>& dumpContext) override;
-    bool GetDeviceInfoByParam(DataInventory& dataInventory);
-
-    template<typename T>
-    void AddApiRetIntoResult(const T& content, const std::string& title, std::vector<std::string>& result)
-    {
-        std::ostringstream s;
-        s << title << ": " << content;
-        result.emplace_back(s.str());
-    }
 };
-
-}
-}
-#endif // HIVIEWDFX_HIDUMPER_DEVICE_INFO_H
+} // namespace HiviewDFX
+} // namespace OHOS
+#endif // HIVIEWDFX_HIDUMPER_SYSTEM_CLUSTER_WRITER_H

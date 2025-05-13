@@ -13,25 +13,26 @@
  * limitations under the License.
  */
 
-#ifndef HIVIEWDFX_HIDUMPER_DEVICE_INFO_WRITER_H
-#define HIVIEWDFX_HIDUMPER_DEVICE_INFO_WRITER_H
+#ifndef HIVIEWDFX_HIDUMPER_SYSTEM_BASE_INFO_WRITER_H
+#define HIVIEWDFX_HIDUMPER_SYSTEM_BASE_INFO_WRITER_H
 
 #include "task/base/task.h"
 #include "data_inventory.h"
-#include "common/dumper_parameter.h"
+#include "dump_context.h"
 
 namespace OHOS {
 namespace HiviewDFX {
 
-class DeviceInfoWriter : public Task {
+class SystemBaseInfoWriter : public Task {
 public:
-    DeviceInfoWriter() = default;
-    ~DeviceInfoWriter() override = default;
+    SystemBaseInfoWriter() = default;
+    ~SystemBaseInfoWriter() override = default;
 
 private:
-    DumpStatus TaskEntry(DataInventory& dataInventory, const std::shared_ptr<DumperParameter>& parameter) override;
+    DumpStatus TaskEntry(DataInventory& dataInventory, const std::shared_ptr<DumpContext>& dumpContext) override;
+    DumpStatus WriteSystemBaseInfo(DataInventory& dataInventory,
+                                   const std::shared_ptr<DumpContext>& dumpContext, const InfoConfig& config);
 };
-
-}
-}
-#endif
+} // namespace HiviewDFX
+} // namespace OHOS
+#endif // HIVIEWDFX_HIDUMPER_SYSTEM_BASE_INFO_WRITER_H
