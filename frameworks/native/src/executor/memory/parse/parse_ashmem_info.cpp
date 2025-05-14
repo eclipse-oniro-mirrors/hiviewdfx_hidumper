@@ -35,7 +35,7 @@ ParseAshmemInfo::~ParseAshmemInfo()
 }
 
 void ParseAshmemInfo::UpdateAshmemOverviewMap(
-    const std::string &line, std::unordered_map<std::string, int> &ashmemOverviewMap)
+    const std::string &line, std::unordered_map<std::string, int64_t> &ashmemOverviewMap)
 {
     std::string tempLine = line;
     // delete the whitespace characters at the end of the line
@@ -60,7 +60,12 @@ void ParseAshmemInfo::UpdateAshmemOverviewMap(
         DUMPER_HILOGE(MODULE_SERVICE, "physicalSize is not number, physicalSize:%{public}s.", physicalSize.c_str());
         return;
     }
-    ashmemOverviewMap[tmpProcessName] = std::stoi(physicalSize);
+    int64_t pss = 0;
+    if (!StringUtils::GetInstance().IsStringToIntSuccess(physicalSize, pss)) {
+        DUMPER_HILOGE(MODULE_SERVICE, "physicalSize is too big, physicalSize:%{public}s.", physicalSize.c_str());
+        return;
+    }
+    ashmemOverviewMap[tmpProcessName] = pss;
 }
 
 bool ParseAshmemInfo::GetAshmemInfo(const int32_t &pid, pair<int, vector<string>> &result)
@@ -71,7 +76,7 @@ bool ParseAshmemInfo::GetAshmemInfo(const int32_t &pid, pair<int, vector<string>
     std::string processName = "unknown";
     std::string detailTitle = "";
     std::vector<string> details;
-    std::unordered_map<std::string, int> ashmemOverviewMap;
+    std::unordered_map<std::string, int64_t> ashmemOverviewMap;
     bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, true, [&](const string &line) -> void {
         if (line.find("Total ashmem  of") != std::string::npos) {
             UpdateAshmemOverviewMap(line, ashmemOverviewMap);
