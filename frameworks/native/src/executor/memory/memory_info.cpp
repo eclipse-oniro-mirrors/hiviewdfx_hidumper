@@ -794,6 +794,23 @@ string MemoryInfo::GetProcessAdjLabel(const int32_t pid)
 }
 #endif
 
+int MemoryInfo::GetScoreAdj(const int32_t pid)
+{
+    string filePath = "/proc/" + to_string(pid) + "/oom_score_adj";
+    if(!DumpUtils::PathIsValid(filePath)) {
+        DUMPER_HILOGE(MODULE_COMMON, "GetScoreAdj leave|false, PathIsValid");
+        return -1;
+    }
+    std::string content = "-1";
+    OHOS::LoadStringFromFile(filePath, content);
+    int value = Memory::RECLAIM_PRIORITY_UNKNOWN;
+    if (!StrToInt(content.substr(0, content.size() - 1), value)) {
+        DUMPER_HILOGE(MODULE_COMMON, "GetScoreAdj|StrToInt failed.");
+        return -1;
+    }
+    return value;
+}
+
 bool MemoryInfo::GetPids()
 {
     bool success = DumpCommonUtils::GetUserPids(pids_);
@@ -852,9 +869,11 @@ bool MemoryInfo::GetMemByProcessPid(const int32_t &pid, MemInfoData::MemUsage &u
     MemInfoData::MemInfo memInfo;
     unique_ptr<ParseSmapsRollupInfo> getSmapsRollup = make_unique<ParseSmapsRollupInfo>();
     if (getSmapsRollup->GetMemInfo(pid, memInfo)) {
-        usage.vss = GetVss(pid);
-        usage.uss = memInfo.privateClean + memInfo.privateDirty;
-        usage.rss = memInfo.rss;
+        if (!dumpPrune_) {
+            usage.vss = GetVss(pid);
+            usage.uss = memInfo.privateClean + memInfo.privateDirty;
+            usage.rss = memInfo.rss;
+        }
         usage.pss = memInfo.pss;
         usage.swapPss = memInfo.swapPss;
         usage.name = GetProcName(pid);
@@ -869,19 +888,23 @@ bool MemoryInfo::GetMemByProcessPid(const int32_t &pid, MemInfoData::MemUsage &u
     MemoryUtil::GetInstance().InitGraphicsMemory(graphicsMemory);
     if (GetGraphicsMemory(pid, graphicsMemory, GraphicType::GL)) {
         usage.gl = graphicsMemory.gl;
-        usage.uss = usage.uss + graphicsMemory.gl;
+        if (!dumpPrune_) {
+            usage.uss = usage.uss + graphicsMemory.gl;
+            usage.rss = usage.rss + graphicsMemory.gl;
+        }
         usage.pss = usage.pss + graphicsMemory.gl;
-        usage.rss = usage.rss + graphicsMemory.gl;
     }
-    if (GetGraphicsMemory(pid, graphicsMemory, GraphicType::GRAPH)) {
-        usage.graph = graphicsMemory.graph;
-        usage.dma = graphicsMemory.graph;
-        usage.uss = usage.uss + graphicsMemory.graph;
-        usage.pss = usage.pss + graphicsMemory.graph;
-        usage.rss = usage.rss + graphicsMemory.graph;
-        DUMPER_HILOGD(MODULE_SERVICE, "uss:%{public}d pss:%{public}d rss:%{public}d gl:%{public}d graph:%{public}d",
-                      static_cast<int>(usage.uss), static_cast<int>(usage.pss), static_cast<int>(usage.rss),
-                      static_cast<int>(graphicsMemory.gl), static_cast<int>(graphicsMemory.graph));
+    if (!dumpPrune_) {
+        if (GetGraphicsMemory(pid, graphicsMemory, GraphicType::GRAPH)) {
+            usage.graph = graphicsMemory.graph;
+            usage.dma = graphicsMemory.graph;
+            usage.uss = usage.uss + graphicsMemory.graph;
+            usage.pss = usage.pss + graphicsMemory.graph;
+            usage.rss = usage.rss + graphicsMemory.graph;
+            DUMPER_HILOGD(MODULE_SERVICE, "uss:%{public}d pss:%{public}d rss:%{public}d gl:%{public}d graph:%{public}d",
+                        static_cast<int>(usage.uss), static_cast<int>(usage.pss), static_cast<int>(usage.rss),
+                        static_cast<int>(graphicsMemory.gl), static_cast<int>(graphicsMemory.graph));
+        }
     }
     return success;
 }
@@ -895,45 +918,54 @@ void MemoryInfo::MemUsageToMatrix(const MemInfoData::MemUsage &memUsage, StringM
     string totalPss = to_string(pss) + "(" + to_string(memUsage.swapPss) + " in SwapPss) kB";
     StringUtils::GetInstance().SetWidth(PSS_WIDTH_, BLANK_, false, totalPss);
 
-    uint64_t vss = memUsage.vss;
-    string totalVss = AddKbUnit(vss);
-    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalVss);
-
-    uint64_t rss = memUsage.rss;
-    string totalRss = AddKbUnit(rss);
-    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalRss);
-
-    uint64_t uss = memUsage.uss;
-    string totalUss = AddKbUnit(uss);
-    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalUss);
-
     uint64_t gl = memUsage.gl;
     string unMappedGL = AddKbUnit(gl);
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedGL);
 
-    uint64_t graph = memUsage.graph;
-    string unMappedGraph = AddKbUnit(graph);
-    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedGraph);
-
-    uint64_t dma = memUsage.dma;
-    string unMappedDma = AddKbUnit(dma);
-    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedDma);
-
-    uint64_t purgSum = memUsage.purgSum;
-    string unMappedPurgSum = AddKbUnit(purgSum);
-    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedPurgSum);
-
-    uint64_t purgPin = memUsage.purgPin;
-    string unMappedPurgPin = AddKbUnit(purgPin);
-    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedPurgPin);
-
     string name = "    " + memUsage.name;
     StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, name);
 
-    (void)dprintf(rawParamFd_, "%s %s %s %s %s %s %s %s %s %s %s\n", pid.c_str(),
-        totalPss.c_str(), totalVss.c_str(), totalRss.c_str(), totalUss.c_str(),
-        unMappedGL.c_str(), unMappedGraph.c_str(), unMappedDma.c_str(), unMappedPurgSum.c_str(),
-        unMappedPurgPin.c_str(), name.c_str());
+    if (!dumpPrune_) {
+        uint64_t vss = memUsage.vss;
+        string totalVss = AddKbUnit(vss);
+        StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalVss);
+
+        uint64_t rss = memUsage.rss;
+        string totalRss = AddKbUnit(rss);
+        StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalRss);
+
+        uint64_t uss = memUsage.uss;
+        string totalUss = AddKbUnit(uss);
+        StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalUss);
+
+        uint64_t graph = memUsage.graph;
+        string unMappedGraph = AddKbUnit(graph);
+        StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedGraph);
+
+        uint64_t dma = memUsage.dma;
+        string unMappedDma = AddKbUnit(dma);
+        StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedDma);
+
+        uint64_t purgSum = memUsage.purgSum;
+        string unMappedPurgSum = AddKbUnit(purgSum);
+        StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedPurgSum);
+
+        uint64_t purgPin = memUsage.purgPin;
+        string unMappedPurgPin = AddKbUnit(purgPin);
+        StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedPurgPin);
+
+        (void)dprintf(rawParamFd_, "%s %s %s %s %s %s %s %s %s %s %s\n", pid.c_str(),
+            totalPss.c_str(), totalVss.c_str(), totalRss.c_str(), totalUss.c_str(),
+            unMappedGL.c_str(), unMappedGraph.c_str(), unMappedDma.c_str(), unMappedPurgSum.c_str(),
+            unMappedPurgPin.c_str(), name.c_str());
+    } else {
+        int scoreAdj = GetScoreAdj(memUsage.pid);
+        string scoreAdjStr = to_string(scoreAdj);
+        StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, scoreAdjStr);
+
+        (void)dprintf(rawParamFd_, "%s %s %s %s %s\n", pid.c_str(),
+            totalPss.c_str(), unMappedGL.c_str(), scoreAdjStr.c_str(), name.c_str());
+    }
 }
 
 void MemoryInfo::AddMemByProcessTitle(StringMatrix result, string sortType)
@@ -947,44 +979,49 @@ void MemoryInfo::AddMemByProcessTitle(StringMatrix result, string sortType)
     string totalPss = "Total Pss(xxx in SwapPss)";
     StringUtils::GetInstance().SetWidth(PSS_WIDTH_, BLANK_, false, totalPss);
 
-    string totalVss = "Total Vss";
-    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalVss);
-
-    string totalRss = "Total Rss";
-    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalRss);
-
-    string totalUss = "Total Uss";
-    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalUss);
-
     string unMappedGL = MemoryFilter::GetInstance().GL_OUT_LABEL;
     StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedGL);
-
-    string unMappedGraph = MemoryFilter::GetInstance().GRAPH_OUT_LABEL;
-    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedGraph);
-
-    string unMappedDma = MemoryFilter::GetInstance().DMA_OUT_LABEL;
-    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedDma);
-
-    string unMappedPurgSum = MemoryFilter::GetInstance().PURGSUM_OUT_LABEL;
-    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedPurgSum);
-
-    string unMappedPurgPin = MemoryFilter::GetInstance().PURGPIN_OUT_LABEL;
-    StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedPurgPin);
 
     string name = "    Name";
     StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, name);
 
-    (void)dprintf(rawParamFd_, "%s %s %s %s %s %s %s %s %s %s %s\n", pid.c_str(),
-        totalPss.c_str(), totalVss.c_str(), totalRss.c_str(), totalUss.c_str(),
-        unMappedGL.c_str(), unMappedGraph.c_str(), unMappedDma.c_str(), unMappedPurgSum.c_str(),
-        unMappedPurgPin.c_str(), name.c_str());
+    if (!dumpPrune_) {
+        string totalVss = "Total Vss";
+        StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalVss);
+
+        string totalRss = "Total Rss";
+        StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalRss);
+
+        string totalUss = "Total Uss";
+        StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, totalUss);
+
+        string unMappedGraph = MemoryFilter::GetInstance().GRAPH_OUT_LABEL;
+        StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedGraph);
+
+        string unMappedDma = MemoryFilter::GetInstance().DMA_OUT_LABEL;
+        StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedDma);
+
+        string unMappedPurgSum = MemoryFilter::GetInstance().PURGSUM_OUT_LABEL;
+        StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedPurgSum);
+
+        string unMappedPurgPin = MemoryFilter::GetInstance().PURGPIN_OUT_LABEL;
+        StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, unMappedPurgPin);
+
+        (void)dprintf(rawParamFd_, "%s %s %s %s %s %s %s %s %s %s %s\n", pid.c_str(),
+            totalPss.c_str(), totalVss.c_str(), totalRss.c_str(), totalUss.c_str(),
+            unMappedGL.c_str(), unMappedGraph.c_str(), unMappedDma.c_str(), unMappedPurgSum.c_str(),
+            unMappedPurgPin.c_str(), name.c_str());
+    } else {
+        string adjLabel = "AdjLabel";
+        StringUtils::GetInstance().SetWidth(KB_WIDTH_, BLANK_, false, adjLabel);
+
+        (void)dprintf(rawParamFd_, "%s %s %s %s %s\n", pid.c_str(),
+            totalPss.c_str(), unMappedGL.c_str(), adjLabel.c_str(), name.c_str());
+    } 
 }
 
-DumpStatus MemoryInfo::GetMemoryInfoNoPid(int fd, StringMatrix result)
+bool MemoryInfo::GetMemoryInfoInit(StringMatrix result)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
-    rawParamFd_ = fd;
-    (void)dprintf(rawParamFd_, "%s\n", MEMORY_LINE.c_str());
     if (!isReady_) {
         memUsages_.clear();
         pids_.clear();
@@ -992,24 +1029,16 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(int fd, StringMatrix result)
         totalGraph_ = 0;
         AddMemByProcessTitle(result, "PID");
         if (!GetPids()) {
-            return DUMP_FAIL;
+            DUMPER_HILOGE(MODULE_SERVICE, "GetPids error!\n");
+            return false;
         }
         isReady_ = true;
     }
+    return true;
+}
 
-    if (!dumpSmapsOnStart_) {
-        dumpSmapsOnStart_ = true;
-        std::promise<GroupMap> promise;
-        fut_ = promise.get_future();
-        std::thread([promise = std::move(promise), this]() mutable {
-            GroupMap groupMap;
-            std::vector<int32_t> pids(this->pids_);
-            for (auto pid : pids) {
-                GetSmapsInfoNoPid(pid, groupMap);
-            }
-            promise.set_value(groupMap);
-            }).detach();
-    }
+void MemoryInfo::GetMemoryUsageInfo(StringMatrix result)
+{
     MemInfoData::MemUsage usage;
     MemoryUtil::GetInstance().InitMemUsage(usage);
     for (auto pid : pids_) {
@@ -1024,7 +1053,45 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(int fd, StringMatrix result)
             DUMPER_HILOGE(MODULE_SERVICE, "Get smaps_rollup error! pid = %{public}d\n", static_cast<int>(pid));
         }
     }
+}
+
+DumpStatus MemoryInfo::GetMemoryInfoNoPid(int fd, StringMatrix result)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    rawParamFd_ = fd;
+    (void)dprintf(rawParamFd_, "%s\n", MEMORY_LINE.c_str());
+	if (!GetMemoryInfoInit(result)) {
+		return DUMP_FAIL;
+	}
+
+    if (!dumpSmapsOnStart_) {
+        dumpSmapsOnStart_ = true;
+        std::promise<GroupMap> promise;
+        fut_ = promise.get_future();
+        std::thread([promise = std::move(promise), this]() mutable {
+            GroupMap groupMap;
+            std::vector<int32_t> pids(this->pids_);
+            for (auto pid : pids) {
+                GetSmapsInfoNoPid(pid, groupMap);
+            }
+            promise.set_value(groupMap);
+            }).detach();
+    }
+    GetMemoryUsageInfo(result);
     return DealResult(result);
+}
+
+DumpStatus MemoryInfo::GetMemoryInfoPrune(int fd, StringMatrix result)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    rawParamFd_ = fd;
+    dumpPrune_ = true;
+    (void)dprintf(rawParamFd_, "%s\n", MEMORY_LINE.c_str());
+	if (!GetMemoryInfoInit(result)) {
+		return DUMP_FAIL;
+	}
+    GetMemoryUsageInfo(result);
+    return DUMP_OK;
 }
 
 DumpStatus MemoryInfo::DealResult(StringMatrix result)

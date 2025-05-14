@@ -38,14 +38,17 @@ private:
     int rawParamFd_ = 0;
     bool isShowMaps_ = false;
     bool isShowSmapsInfo_ = false;
+    bool dumpMemPrune_ = false;
     DumpStatus status_ = DUMP_FAIL;
     StringMatrix dumpDatas_;
     using GetMemByPidFunc = int (*)(int, StringMatrix);
     using GetMemNoPidFunc = int (*)(int, StringMatrix);
+    using GetMemPruneNoPidFunc = int (*)(int, StringMatrix);
     using GetMemSmapsByPidFunc = int (*)(int, StringMatrix, bool);
 
     void GetMemByPid();
     void GetMemNoPid();
+    void GetMemPruneNoPid();
     void GetMemSmapsByPid();
 };
 } // namespace HiviewDFX

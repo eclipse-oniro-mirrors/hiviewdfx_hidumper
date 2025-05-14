@@ -34,6 +34,7 @@ DumpStatus MemoryDumper::PreExecute(const shared_ptr<DumperParameter> &parameter
     pid_ = parameter->GetOpts().memPid_;
     isShowMaps_ = parameter->GetOpts().isShowSmaps_;
     isShowSmapsInfo_ =  parameter->GetOpts().isShowSmapsInfo_;
+    dumpMemPrune_ = parameter->GetOpts().dumpMemPrune_;
     dumpDatas_ = dumpDatas;
 
     bool isZip = parameter->GetOpts().IsDumpZip();
@@ -63,7 +64,11 @@ DumpStatus MemoryDumper::Execute()
             }
             GetMemByPid();
         } else {
-            GetMemNoPid();
+            if (dumpMemPrune_) {
+                GetMemPruneNoPid();
+            } else {
+                GetMemNoPid();
+            }
         }
     }
     DUMPER_HILOGI(MODULE_SERVICE, "info|MemoryDumper Execute end");
@@ -107,6 +112,24 @@ void MemoryDumper::GetMemNoPid()
         return;
     }
     status_ = (DumpStatus)(getMemNoPidFunc(rawParamFd_, dumpDatas_));
+    dlclose(handle);
+}
+
+void MemoryDumper::GetMemPruneNoPid()
+{
+    void* handle = dlopen(MEM_LIB.c_str(), RTLD_LAZY | RTLD_NODELETE);
+    if (handle == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "fail to open %{public}s. errno:%{public}s", MEM_LIB.c_str(), dlerror());
+        return;
+    }
+    GetMemPruneNoPidFunc getMemPruneNoPidFunc = reinterpret_cast<GetMemPruneNoPidFunc>(dlsym(handle, "GetMemoryInfoPrune"));
+    if (getMemPruneNoPidFunc == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "fail to dlsym GetMemoryInfoPrune. errno:%{public}s", dlerror());
+        dlclose(handle);
+        status_ = DUMP_FAIL;
+        return;
+    }
+    status_ = (DumpStatus)(getMemPruneNoPidFunc(rawParamFd_, dumpDatas_));
     dlclose(handle);
 }
 

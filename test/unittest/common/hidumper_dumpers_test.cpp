@@ -401,6 +401,20 @@ HWTEST_F(HidumperDumpersTest, CMDDumperTest003, TestSize.Level3)
 }
 
 /**
+ * @tc.name: CMDDumperTest004
+ * @tc.desc: CMD Dumper GetCmdInterface prune.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, CMDDumperTest004, TestSize.Level3)
+{
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    auto cmdDumper = std::make_shared<CMDDumper>();
+
+    int ret = cmdDumper->GetCmdInterface("hidumper --mem --prune", dumpDatas);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
  * @tc.name: MemoryDumperTest001
  * @tc.desc: Test MemoryDumper one process has correct ret.
  * @tc.type: FUNC

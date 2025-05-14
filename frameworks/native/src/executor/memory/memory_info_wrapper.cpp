@@ -41,6 +41,13 @@ int GetMemoryInfoNoPid(int fd, StringMatrix data)
     return ret;
 }
 
+int GetMemoryInfoPrune(int fd, StringMatrix data)
+{
+    std::unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo = std::make_unique<OHOS::HiviewDFX::MemoryInfo>();
+    int ret = memoryInfo->GetMemoryInfoPrune(fd, data);
+    return ret;
+}
+
 int ShowMemorySmapsByPid(int pid, StringMatrix data, bool isShowSmapsInfo)
 {
     std::unique_ptr<OHOS::HiviewDFX::SmapsMemoryInfo> smapsMemoryInfo =
