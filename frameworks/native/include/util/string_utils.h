@@ -26,6 +26,7 @@ public:
     StringUtils(StringUtils const &) = delete;
     void operator=(StringUtils const &) = delete;
 
+    bool IsStringToIntSuccess(const std::string &str, int64_t &num);
     void StringSplit(const std::string &str, const std::string &split, std::vector<std::string> &result);
     bool IsBegin(const std::string &content, const std::string &begin);
     bool IsEnd(const std::string &content, const std::string &end);

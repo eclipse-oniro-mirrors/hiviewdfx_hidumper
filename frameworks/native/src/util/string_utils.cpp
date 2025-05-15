@@ -29,6 +29,19 @@ StringUtils::~StringUtils()
 {
 }
 
+bool StringUtils::IsStringToIntSuccess(const std::string &str, int64_t &val)
+{
+    char *endPtr = nullptr;
+    errno = 0;
+    long long num = 0;
+    num = std::strtoll(str.c_str(), &endPtr, 10); // 10 : decimal scale
+    if (errno != 0 || num > INT64_MAX || num < INT64_MIN) {
+        return false;
+    }
+    val = static_cast<int64_t>(num);
+    return true;
+}
+
 void StringUtils::StringSplit(const string &content, const string &split, vector<string> &result)
 {
     SplitStr(content, split, result, false, false);

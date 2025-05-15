@@ -551,7 +551,7 @@ HWTEST_F(HidumperMemoryTest, CheckMemoryData001, TestSize.Level1)
 HWTEST_F(HidumperMemoryTest, ParseAshmemInfo001, TestSize.Level1)
 {
     unique_ptr<ParseAshmemInfo> parseAshmeminfo = make_unique<ParseAshmemInfo>();
-    std::unordered_map<std::string, int> ashmemOverviewMap;
+    std::unordered_map<std::string, int64_t> ashmemOverviewMap;
     parseAshmeminfo->UpdateAshmemOverviewMap("", ashmemOverviewMap);
     parseAshmeminfo->UpdateAshmemOverviewMap("test", ashmemOverviewMap);
     parseAshmeminfo->UpdateAshmemOverviewMap("test[", ashmemOverviewMap);
@@ -559,6 +559,7 @@ HWTEST_F(HidumperMemoryTest, ParseAshmemInfo001, TestSize.Level1)
     parseAshmeminfo->UpdateAshmemOverviewMap("test][", ashmemOverviewMap);
     parseAshmeminfo->UpdateAshmemOverviewMap("test[]", ashmemOverviewMap);
     parseAshmeminfo->UpdateAshmemOverviewMap("test[], physical size is testSize", ashmemOverviewMap);
+    parseAshmeminfo->UpdateAshmemOverviewMap("test[test], physical size is 12345678912345678912", ashmemOverviewMap);
     ASSERT_TRUE(ashmemOverviewMap.empty());
 }
 } // namespace HiviewDFX
