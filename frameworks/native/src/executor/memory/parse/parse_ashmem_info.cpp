@@ -106,7 +106,7 @@ bool ParseAshmemInfo::GetAshmemInfo(const int32_t &pid, pair<int, vector<string>
         DUMPER_HILOGE(MODULE_SERVICE, "not find processName:%{public}s.", processName.c_str());
         return false;
     }
-    result.first = ashmemOverviewMap[processName] / MemoryUtil::GetInstance().BYTE_TO_KB_; // KB
+    result.first = ashmemOverviewMap[processName] / static_cast<int64_t>(MemoryUtil::GetInstance().BYTE_TO_KB_); // KB
     result.second = details;
     DUMPER_HILOGD(MODULE_SERVICE, "GetAshmemInfo end, pid:%{public}d, ret:%{public}d", pid, ret);
     return ret;
