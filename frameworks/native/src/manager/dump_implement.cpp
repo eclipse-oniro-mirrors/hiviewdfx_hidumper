@@ -62,6 +62,7 @@ static struct option LONG_OPTIONS[] = {{"cpufreq", no_argument, 0, 0},
     {"gc", no_argument, 0, 0},
     {"leakobj", no_argument, 0, 0},
     {"raw", no_argument, 0, 0},
+    {"prune", no_argument, 0, 0},
     {"ipc", optional_argument, 0, 0},
     {"start-stat", no_argument, 0, 0},
     {"stop-stat", no_argument, 0, 0},
@@ -420,6 +421,8 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts_, const 
         return SetMemJsheapParam(opts_);
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "raw")) {
         return SetRawParam(opts_);
+    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "prune")) {
+        return SetMemPruneParam(opts_);
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "gc")) {
         opts_.isDumpJsHeapMemGC_ = true;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "leakobj")) {
@@ -466,6 +469,17 @@ DumpStatus DumpImplement::SetRawParam(DumperOpts &opt)
         status = DumpStatus::DUMP_OK;
     }
 
+    return status;
+}
+
+DumpStatus DumpImplement::SetMemPruneParam(DumperOpts &opt)
+{
+    DumpStatus status = DumpStatus::DUMP_FAIL;
+    if (opt.isDumpMem_) {
+        opt.dumpMemPrune_ = true;
+        dumperSysEventParams_->opt = "mem";
+        status = DumpStatus::DUMP_OK;
+    }
     return status;
 }
 
@@ -597,8 +611,9 @@ void DumpImplement::CmdHelp()
         "  -p [pid]                    |dump threads under pid, includes smap, block channel,"
         " execute time, mountinfo\n"
         "  --cpufreq                   |dump real CPU frequency of each core\n"
-        "  --mem [pid]                 |dump memory usage of total; dump memory usage of specified"
-        " pid if pid was specified\n"
+        "  --mem [pid] [--prune]       |dump memory usage of total; dump memory usage of specified"
+        " pid if pid was specified; dump simplified memory infomation if prune is specified and not support"
+        " dumped simplified memory infomation of specified pid\n"
         "  --zip                       |compress output to /data/log/hidumper\n"
         "  --mem-smaps pid [-v]        |display statistic in /proc/pid/smaps, use -v specify more details\n"
         "  --mem-jsheap pid [-T tid] [--gc] [--leakobj] [--raw]  |triggerGC, dumpHeapSnapshot, dumpRawHeap"

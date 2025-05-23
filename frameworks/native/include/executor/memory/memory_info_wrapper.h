@@ -31,6 +31,7 @@ using StringMatrix = std::shared_ptr<std::vector<std::vector<std::string>>>;
 
 EXPORT_API int GetMemoryInfoByPid(int pid, StringMatrix data);
 EXPORT_API int GetMemoryInfoNoPid(int fd, StringMatrix data);
+EXPORT_API int GetMemoryInfoPrune(int fd, StringMatrix data);
 EXPORT_API int ShowMemorySmapsByPid(int pid, StringMatrix data, bool isShowSmapsInfo);
 
 #ifdef __cplusplus

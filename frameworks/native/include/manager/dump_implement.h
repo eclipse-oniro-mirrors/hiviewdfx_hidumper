@@ -96,6 +96,7 @@ private:
     void ProcessDumpOptions(int clientPid, std::shared_ptr<DumperParameter> &dumpParameter, DumperOpts &opts);
     DumpStatus SetMemJsheapParam(DumperOpts &opt);
     DumpStatus SetRawParam(DumperOpts &opt);
+    DumpStatus SetMemPruneParam(DumperOpts &opt);
     DumpStatus CheckArgs(int argc, char* argv[]);
 
 private:

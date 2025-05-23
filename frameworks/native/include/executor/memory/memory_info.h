@@ -61,6 +61,7 @@ public:
 
     bool GetMemoryInfoByPid(const int32_t &pid, StringMatrix result);
     DumpStatus GetMemoryInfoNoPid(int fd, StringMatrix result);
+    DumpStatus GetMemoryInfoPrune(int fd, StringMatrix result);
     DumpStatus DealResult(StringMatrix result);
 
 private:
@@ -110,6 +111,7 @@ private:
     };
 
     bool isReady_ = false;
+    bool dumpPrune_ = false;
     bool dumpSmapsOnStart_ = false;
     uint64_t totalGL_ = 0;
     uint64_t totalGraph_ = 0;
@@ -152,6 +154,8 @@ private:
     void PairToStringMatrix(const std::string &titleStr, std::vector<std::pair<std::string, uint64_t>> &vec,
                             StringMatrix result);
     void AddMemByProcessTitle(StringMatrix result, std::string sortType);
+    bool GetMemoryInfoInit(StringMatrix result);
+    void GetMemoryUsageInfo(StringMatrix result);
     
     static uint64_t GetVss(const int32_t &pid);
     static std::string GetProcName(const int32_t &pid);
@@ -159,6 +163,7 @@ private:
 #ifdef HIDUMPER_MEMMGR_ENABLE
     static std::string GetProcessAdjLabel(const int32_t pid);
 #endif
+    static int GetScoreAdj(const int32_t pid);
     static void InitMemInfo(MemInfoData::MemInfo &memInfo);
     static void InitMemUsage(MemInfoData::MemUsage &usage);
     void GetSortedMemoryInfoNoPid(StringMatrix result);

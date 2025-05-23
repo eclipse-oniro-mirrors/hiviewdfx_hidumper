@@ -299,6 +299,17 @@ HWTEST_F(MemoryDumperTest, MemoryDumperTest013, TestSize.Level3)
     ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
 }
 
+HWTEST_F(MemoryDumperTest, MemoryDumperTest014, TestSize.Level3)
+{
+    std::string cmd = "hidumper --mem --prune";
+    std::string str = "-------------------------------[memory]-------------------------------";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+    str = "Total Memory Usage by PID:";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+    str = "PID        Total Pss(xxx in SwapPss)           GL     AdjLabel     Name";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+}
+
 /**
  * @tc.name: MemoryUtilTest001
  * @tc.desc: Test IsNameLine has correct ret.
