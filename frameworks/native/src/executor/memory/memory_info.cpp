@@ -797,7 +797,7 @@ string MemoryInfo::GetProcessAdjLabel(const int32_t pid)
 int MemoryInfo::GetScoreAdj(const int32_t pid)
 {
     string filePath = "/proc/" + to_string(pid) + "/oom_score_adj";
-    if(!DumpUtils::PathIsValid(filePath)) {
+    if (!DumpUtils::PathIsValid(filePath)) {
         DUMPER_HILOGE(MODULE_COMMON, "GetScoreAdj leave|false, PathIsValid");
         return -1;
     }
@@ -902,8 +902,8 @@ bool MemoryInfo::GetMemByProcessPid(const int32_t &pid, MemInfoData::MemUsage &u
             usage.pss = usage.pss + graphicsMemory.graph;
             usage.rss = usage.rss + graphicsMemory.graph;
             DUMPER_HILOGD(MODULE_SERVICE, "uss:%{public}d pss:%{public}d rss:%{public}d gl:%{public}d graph:%{public}d",
-                        static_cast<int>(usage.uss), static_cast<int>(usage.pss), static_cast<int>(usage.rss),
-                        static_cast<int>(graphicsMemory.gl), static_cast<int>(graphicsMemory.graph));
+                static_cast<int>(usage.uss), static_cast<int>(usage.pss), static_cast<int>(usage.rss),
+                static_cast<int>(graphicsMemory.gl), static_cast<int>(graphicsMemory.graph));
         }
     }
     return success;
@@ -1017,7 +1017,7 @@ void MemoryInfo::AddMemByProcessTitle(StringMatrix result, string sortType)
 
         (void)dprintf(rawParamFd_, "%s %s %s %s %s\n", pid.c_str(),
             totalPss.c_str(), unMappedGL.c_str(), adjLabel.c_str(), name.c_str());
-    } 
+    }
 }
 
 bool MemoryInfo::GetMemoryInfoInit(StringMatrix result)
