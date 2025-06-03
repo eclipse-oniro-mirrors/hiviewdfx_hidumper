@@ -20,6 +20,7 @@
 #include <sched.h>
 #include <string_ex.h>
 #include <sstream>
+#include <sys/syscall.h>
 #include <system_ability_definition.h>
 #include <thread>
 #include <unistd.h>
@@ -132,13 +133,13 @@ int32_t DumpManagerService::OnIdle(const SystemAbilityOnDemandReason& idleReason
 
 void DumpManagerService::SetCpuSchedAffinity()
 {
-    pid_t hidumperServicePid = getprocpid();
+    int curTid = syscall(SYS_gettid);
     cpu_set_t mask;
     CPU_ZERO(&mask);
     for (int i = 0; i < SMALL_CPU_SIZE; i++) {
         CPU_SET(i, &mask);
     }
-    if (sched_setaffinity(hidumperServicePid, sizeof(mask), &mask) < 0) {
+    if (sched_setaffinity(curTid, sizeof(mask), &mask) < 0) {
         DUMPER_HILOGE(MODULE_SERVICE, "error|sched_setaffinity failed");
     }
 }
@@ -181,6 +182,7 @@ void DumpManagerService::HandleRequestError(std::vector<std::u16string> &args, i
 
 int32_t DumpManagerService::Request(std::vector<std::u16string> &args, int outfd)
 {
+    SetCpuSchedAffinity();
     if (blockRequest_) {
         HandleRequestError(args, outfd, static_cast<int32_t>(DumpStatus::DUMP_FAIL), "request has blocked");
         return DumpStatus::DUMP_FAIL;
