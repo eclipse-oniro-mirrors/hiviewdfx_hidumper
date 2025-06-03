@@ -197,6 +197,8 @@ std::string DumpCfg::ToDumperStr(int type)
         return "mem_dumper";
     } else if (type == DumperConstant::JSHEAP_MEMORY_DUMPER) {
         return "dumper_jsheap_memory";
+    } else if (type == DumperConstant::CJHEAP_MEMORY_DUMPER) {
+        return "dumper_cjheap_memory";
     } else if (type == DumperConstant::STACK_DUMPER) {
         return "stack_dumper";
     } else if (type == DumperConstant::TRAFFIC_DUMPER) {

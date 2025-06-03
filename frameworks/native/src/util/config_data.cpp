@@ -30,6 +30,7 @@ const std::string ConfigData::CONFIG_DUMPER_LIST_SERVICE = ConfigData::CONFIG_DU
 const std::string ConfigData::CONFIG_DUMPER_LIST_SYSTEM_ABILITY = ConfigData::CONFIG_DUMPER_LIST_ + "system_ability";
 const std::string ConfigData::CONFIG_DUMPER_LIST_SYSTEM = ConfigData::CONFIG_DUMPER_LIST_ + "system";
 const std::string ConfigData::CONFIG_DUMPER_JSHEAP_MEMORY = ConfigData::CONFIG_DUMPER_ + "jsheap_memory";
+const std::string ConfigData::CONFIG_DUMPER_CJHEAP_MEMORY = ConfigData::CONFIG_DUMPER_ + "cjheap_memory";
 const std::string ConfigData::CONFIG_GROUP_IPC_STAT = ConfigData::CONFIG_GROUP_ + "ipc";
 const std::string ConfigData::CONFIG_GROUP_CPU_FREQ = ConfigData::CONFIG_GROUP_ + "cpufreq";
 const std::string ConfigData::CONFIG_GROUP_CPU_USAGE = ConfigData::CONFIG_GROUP_ + "cpuusage";
@@ -180,6 +181,17 @@ const ConfigData::ItemCfg ConfigData::jsHeapMemDumper_[] = {
     {
         CONFIG_DUMPER_JSHEAP_MEMORY, "jsheap Memory Information", "%pid", "",
         DumperConstant::JSHEAP_MEMORY_DUMPER, DumperConstant::NONE, DumperConstant::LOOP, ""
+    },
+    {
+        "", "", "", "",
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::LOOP, ""
+    },
+};
+
+const ConfigData::ItemCfg ConfigData::cjHeapMemDumper_[] = {
+    {
+        CONFIG_DUMPER_CJHEAP_MEMORY, "cjheap Memory Information", "%pid", "",
+        DumperConstant::CJHEAP_MEMORY_DUMPER, DumperConstant::NONE, DumperConstant::LOOP, ""
     },
     {
         "", "", "", "",
@@ -822,6 +834,10 @@ const ConfigData::DumperCfg ConfigData::dumpers_[] = {
      .desc_ = jsHeapMemDumper_[0].desc_,
      .list_ = jsHeapMemDumper_,
      .size_ = ARRAY_SIZE(jsHeapMemDumper_)},
+    {.name_ = cjHeapMemDumper_[0].name_,
+     .desc_ = cjHeapMemDumper_[0].desc_,
+     .list_ = cjHeapMemDumper_,
+     .size_ = ARRAY_SIZE(cjHeapMemDumper_)},
     {.name_ = envDumper_[0].name_,
      .desc_ = envDumper_[0].desc_,
      .list_ = envDumper_,

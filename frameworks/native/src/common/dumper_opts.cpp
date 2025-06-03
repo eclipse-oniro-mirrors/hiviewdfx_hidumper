@@ -66,7 +66,10 @@ void DumperOpts::Reset()
     isDumpJsHeapMem_ = false;
     isDumpJsHeapMemGC_ = false;
     isDumpJsHeapLeakobj_ = false;
+    isDumpCjHeapMem_ = false;
+    isDumpCjHeapMemGC_ = false;
     dumpJsHeapMemPid_ = 0;
+    dumpCjHeapMemPid_ = 0;
     threadId_ = 0;
     ipcStatPid_ = -1;
     isDumpAllIpc_ = false;
@@ -109,7 +112,10 @@ DumperOpts& DumperOpts::operator = (const DumperOpts& opts)
     isDumpJsHeapMem_ = opts.isDumpJsHeapMem_;
     isDumpJsHeapMemGC_ = opts.isDumpJsHeapMemGC_;
     isDumpJsHeapLeakobj_ = opts.isDumpJsHeapLeakobj_;
+    isDumpCjHeapMem_ = opts.isDumpCjHeapMem_;
+    isDumpCjHeapMemGC_ = opts.isDumpCjHeapMemGC_;
     dumpJsHeapMemPid_ = opts.dumpJsHeapMemPid_;
+    dumpCjHeapMemPid_ = opts.dumpCjHeapMemPid_;
     threadId_ = opts.threadId_;
     ipcStatPid_ = opts.ipcStatPid_;
     isDumpAllIpc_ = opts.isDumpAllIpc_;
@@ -172,6 +178,9 @@ bool DumperOpts::IsSelectAny() const
     if (isDumpJsHeapMem_) {
         return true;
     }
+    if (isDumpCjHeapMem_) {
+        return true;
+    }
     if (isDumpIpc_) {
         return true;
     }
@@ -226,6 +235,10 @@ bool DumperOpts::CheckOptions(std::string& errStr) const
     }
     if (dumpJsHeapMemPid_ < 0) {
         errStr = std::to_string(dumpJsHeapMemPid_);
+        return false;
+    }
+    if (dumpCjHeapMemPid_ < 0) {
+        errStr = std::to_string(dumpCjHeapMemPid_);
         return false;
     }
     if (threadId_ < 0) {

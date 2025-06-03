@@ -726,6 +726,24 @@ HWTEST_F(HiDumperManagerTest, DumpTest035, TestSize.Level0)
 }
 
 /**
+ * @tc.name: MemoryDumperTest36
+ * @tc.desc: Test dump statistic in /proc/pid/smaps has correct ret.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest036, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("--mem-cjheap"),
+        const_cast<char *>(std::to_string(getpid()).c_str()),
+        const_cast<char *>(""),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
  * @tc.name: IpcStatDumpTest001
  * @tc.desc: hidumper --ipc -a --start-stat
  * @tc.type: FUNC

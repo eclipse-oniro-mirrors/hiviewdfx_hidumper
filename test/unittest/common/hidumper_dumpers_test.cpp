@@ -22,6 +22,7 @@
 #include "executor/file_stream_dumper.h"
 #include "executor/ipc_stat_dumper.h"
 #include "executor/jsheap_memory_dumper.h"
+#include "executor/cjheap_memory_dumper.h"
 #include "executor/list_dumper.h"
 #include "executor/sa_dumper.h"
 #include "executor/version_dumper.h"
@@ -916,6 +917,77 @@ HWTEST_F(HidumperDumpersTest, SendErrorMsgTest001, TestSize.Level1)
     std::vector<std::u16string> args;
     DumpImplement::GetInstance().ptrReqCtl_ = std::make_shared<RawParam>(0, 1, 0, args, -1);
     DumpImplement::GetInstance().SendReleaseAppErrorMessage("--mem-smaps");
+}
+
+/**
+ * @tc.name: CjHeapDumperTest001
+ * @tc.desc: Test CjHeapDumper with init pid
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, CjHeapDumperTest001, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--mem-cjheap"),
+        const_cast<char *>("1"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: CjHeapDumperTest002
+ * @tc.desc: Test CjHeapDumper with init pid and trigger gc.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, CjHeapDumperTest002, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--mem-cjheap"),
+        const_cast<char *>("1"),
+        const_cast<char *>("--gc"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: CjHeapDumperTest003
+ * @tc.desc: Test CjHeapDumper with nullptr parameter.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, CjHeapDumperTest003, TestSize.Level1)
+{
+    auto CjHeapDumper = std::make_unique<CjHeapMemoryDumper>();
+    DumpStatus ret = CjHeapDumper->PreExecute(nullptr, g_dump_datas);
+    ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
+}
+
+/**
+ * @tc.name: CjHeapDumperTest004
+ * @tc.desc: Test CjHeapDumper with init pid and dump jsleaklist
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, CjHeapDumperTest004, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--mem-cjheap"),
+        const_cast<char *>("1"),
+        const_cast<char *>("--leakobj"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
 } // namespace HiviewDFX
 } // namespace OHOS
