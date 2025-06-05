@@ -181,6 +181,12 @@ hidumper可以为开发者导出系统当前基本信息，通过这些基本信
     hidumper --mem-jsheap pid [-T tid] [--gc] [--leakobj] [--raw]
     ```
 
+20. 运行  **hidumper --mem-cjheap pid [--gc]**  pid 必选参数，仓颉应用的进程号。命令触发仓颉进程的gc和快照导出。如果指定--gc，只触发gc不做快照导出。仓颉SDK中提供的cjprof工具可解析和查看快照文件。
+
+    ```
+    hidumper --mem-cjheap pid [--gc]
+    ```
+
 ## 相关仓<a name="section1371113476307"></a>
 
 

@@ -177,6 +177,12 @@ The procedure is as follows:
     hidumper --mem-jsheap pid [-T tid] [--gc] [--leakobj] [--raw]
     ```
 
+20. run the **hidumper --mem-cjheap pid [--gc]** The pid parameter is mandatory and belongs to the Cangjie process. Run the following command to trigger gc and export snapshot. If --gc is specified, only trigger GC without doing snapshot export. Use the cjprof tool provided in the Cangjie SDK to pares and view snapshot files.
+
+    ```
+    hidumper --mem-cjheap pid [--gc]
+    ```
+
 ## Repositories Involved<a name="section1371113476307"></a>
 
 [DFX Subsystem](https://gitee.com/openharmony/docs/blob/master/en/readme/dfx.md)

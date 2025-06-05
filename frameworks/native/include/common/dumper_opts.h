@@ -57,6 +57,9 @@ struct DumperOpts {
     bool isDumpIpcStat_;
     bool dumpJsRawHeap_;
     bool dumpMemPrune_;
+    bool isDumpCjHeapMem_;
+    bool isDumpCjHeapMemGC_;
+    int dumpCjHeapMemPid_;
 
 public:
     DumperOpts();

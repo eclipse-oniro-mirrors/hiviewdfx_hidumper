@@ -394,5 +394,43 @@ HWTEST_F(HidumperClientTest, ManagerClientTest012, TestSize.Level0)
     int ret = DumpManagerClient::GetInstance().Request(args, STDOUT_FILENO);
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
+
+/**
+ * @tc.name: ManagerClientTest013
+ * @tc.desc: Test --mem-cjheap.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperClientTest, ManagerClientTest013, TestSize.Level0)
+{
+    vector<u16string> args{
+        std::u16string(u"hidumper"),
+        std::u16string(u"--mem-cjheap"),
+    };
+    int ret = DumpManagerClient::GetInstance().Request(args, STDOUT_FILENO);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: ManagerClientTest014
+ * @tc.desc: Test --mem-cjheap.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperClientTest, ManagerClientTest014, TestSize.Level0)
+{
+    string pid;
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    std::vector<RunningProcessInfo> runningProcessInfos;
+    appMgrClient->GetAllRunningProcesses(runningProcessInfos);
+    ASSERT_TRUE(runningProcessInfos.size() > 0);
+
+    pid = to_string(runningProcessInfos[0].pid_);
+    vector<u16string> args{
+        std::u16string(u"hidumper"),
+        std::u16string(u"--mem-cjheap"),
+        Str8ToStr16(pid)
+    };
+    int ret = DumpManagerClient::GetInstance().Request(args, STDOUT_FILENO);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
 } // namespace HiviewDFX
 } // namespace OHOS
