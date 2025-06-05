@@ -32,7 +32,6 @@ DumpManagerClient::DumpManagerClient()
 
 DumpManagerClient::~DumpManagerClient()
 {
-    Reset();
 }
 
 int32_t DumpManagerClient::Request(std::vector<std::u16string> &args, int outfd)
@@ -48,22 +47,6 @@ int32_t DumpManagerClient::Request(std::vector<std::u16string> &args, int outfd)
             return DumpStatus::DUMP_FAIL;
         }
     }
-    if (Connect() != ERR_OK) {
-        DUMPER_HILOGE(MODULE_CLIENT, "Connect failed.");
-        return DumpStatus::DUMP_FAIL;
-    }
-    int32_t ret = proxy_->Request(args, outfd);
-    DUMPER_HILOGD(MODULE_CLIENT, "debug|ret=%{public}d", ret);
-    return ret;
-}
-
-ErrCode DumpManagerClient::Connect()
-{
-    std::lock_guard<std::mutex> lock(mutex_);
-    if (proxy_ != nullptr) {
-        DUMPER_HILOGD(MODULE_CLIENT, "proxy_ is not nullptr.");
-        return ERR_OK;
-    }
     sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (sam == nullptr) {
         DUMPER_HILOGE(MODULE_CLIENT, "sam is nullptr.");
@@ -77,59 +60,14 @@ ErrCode DumpManagerClient::Connect()
             return ERROR_GET_DUMPER_SERVICE;
         }
     }
-    deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new DumpManagerDeathRecipient());
-    if (deathRecipient_ == nullptr) {
-        DUMPER_HILOGE(MODULE_CLIENT, "deathRecipient_ is nullptr.");
-        return ERR_NO_MEMORY;
+    sptr<IDumpBroker> proxy = iface_cast<IDumpBroker>(remoteObject);
+    if (proxy == nullptr) {
+        DUMPER_HILOGE(MODULE_CLIENT, "proxy == nullptr");
+        return DumpStatus::DUMP_FAIL;
     }
-    if ((remoteObject->IsProxyObject()) && (!remoteObject->AddDeathRecipient(deathRecipient_))) {
-        DUMPER_HILOGE(MODULE_CLIENT, "IsProxyObject failed.");
-        return ERROR_ADD_DEATH_RECIPIENT;
-    }
-    proxy_ = iface_cast<IDumpBroker>(remoteObject);
-    DUMPER_HILOGD(MODULE_CLIENT, "debug|connected");
-    return ERR_OK;
-}
-
-bool DumpManagerClient::IsConnected()
-{
-    return (proxy_ != nullptr);
-}
-
-void DumpManagerClient::Reset()
-{
-    std::lock_guard<std::mutex> lock(mutex_);
-    if (proxy_ == nullptr) {
-        return;
-    }
-    auto serviceRemote = proxy_->AsObject();
-    if (serviceRemote != nullptr) {
-        serviceRemote->RemoveDeathRecipient(deathRecipient_);
-        proxy_ = nullptr;
-        DUMPER_HILOGD(MODULE_CLIENT, "debug|disconnected");
-    }
-}
-
-void DumpManagerClient::ResetProxy(const wptr<IRemoteObject>& remote)
-{
-    std::lock_guard<std::mutex> lock(mutex_);
-    if (proxy_ == nullptr) {
-        return;
-    }
-    auto serviceRemote = proxy_->AsObject();
-    if ((serviceRemote != nullptr) && (serviceRemote == remote.promote())) {
-        serviceRemote->RemoveDeathRecipient(deathRecipient_);
-        proxy_ = nullptr;
-        DUMPER_HILOGD(MODULE_CLIENT, "debug|disconnected");
-    }
-}
-
-void DumpManagerClient::DumpManagerDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
-{
-    if (remote == nullptr) {
-        return;
-    }
-    DumpManagerClient::GetInstance().ResetProxy(remote);
+    int32_t ret = proxy->Request(args, outfd);
+    DUMPER_HILOGD(MODULE_CLIENT, "debug|ret = %{public}d", ret);
+    return ret;
 }
 
 ErrCode DumpManagerClient::OnDemandStart(sptr<ISystemAbilityManager> sam, sptr<IRemoteObject> &remoteObject)

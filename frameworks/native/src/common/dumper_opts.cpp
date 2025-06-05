@@ -44,6 +44,8 @@ void DumperOpts::Reset()
     isDumpLog_ = false;
     logArgs_.clear();
     isDumpMem_ = false;
+    isReceivedSigInt_ = false;
+    timeInterval_ = 0;
     memPid_ = -1;
     isDumpStorage_ = false;
     storagePid_ = -1;
@@ -90,6 +92,8 @@ DumperOpts& DumperOpts::operator = (const DumperOpts& opts)
     isDumpLog_ = opts.isDumpLog_;
     logArgs_.assign((opts.logArgs_).begin(), (opts.logArgs_).end());
     isDumpMem_ = opts.isDumpMem_;
+    isReceivedSigInt_ = opts.isReceivedSigInt_;
+    timeInterval_ = opts.timeInterval_;
     memPid_ = opts.memPid_;
     isDumpStorage_ = opts.isDumpStorage_;
     storagePid_ = opts.storagePid_;
@@ -188,6 +192,43 @@ bool DumperOpts::IsSelectAny() const
     return false;
 }
 
+bool DumperOpts::CheckRemainingOptions(std::string& errStr) const
+{
+    if (processPid_ < -1) {
+        errStr = std::to_string(processPid_);
+        return false;
+    }
+    if (storagePid_ < -1) {
+        errStr = std::to_string(storagePid_);
+        return false;
+    }
+    if (netPid_ < -1) {
+        errStr = std::to_string(netPid_);
+        return false;
+    }
+    if (dumpJsHeapMemPid_ < 0) {
+        errStr = std::to_string(dumpJsHeapMemPid_);
+        return false;
+    }
+    if (dumpCjHeapMemPid_ < 0) {
+        errStr = std::to_string(dumpCjHeapMemPid_);
+        return false;
+    }
+    if (threadId_ < 0) {
+        errStr = std::to_string(threadId_);
+        return false;
+    }
+    if (timeInterval_ < 0) {
+        errStr = std::to_string(timeInterval_);
+        return false;
+    }
+    if (ipcStatPid_ < -1) {
+        errStr = std::to_string(ipcStatPid_);
+        return false;
+    }
+    return true;
+}
+
 bool DumperOpts::CheckOptions(std::string& errStr) const
 {
     if (cpuUsagePid_ < -1) {
@@ -221,35 +262,7 @@ bool DumperOpts::CheckOptions(std::string& errStr) const
             return false;
         }
     }
-    if (processPid_ < -1) {
-        errStr = std::to_string(processPid_);
-        return false;
-    }
-    if (storagePid_ < -1) {
-        errStr = std::to_string(storagePid_);
-        return false;
-    }
-    if (netPid_ < -1) {
-        errStr = std::to_string(netPid_);
-        return false;
-    }
-    if (dumpJsHeapMemPid_ < 0) {
-        errStr = std::to_string(dumpJsHeapMemPid_);
-        return false;
-    }
-    if (dumpCjHeapMemPid_ < 0) {
-        errStr = std::to_string(dumpCjHeapMemPid_);
-        return false;
-    }
-    if (threadId_ < 0) {
-        errStr = std::to_string(threadId_);
-        return false;
-    }
-    if (ipcStatPid_ < -1) {
-        errStr = std::to_string(ipcStatPid_);
-        return false;
-    }
-    return true;
+    return CheckRemainingOptions(errStr);
 }
 } // namespace HiviewDFX
 } // namespace OHOS

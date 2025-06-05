@@ -59,6 +59,18 @@ int ShowMemorySmapsByPid(int pid, StringMatrix data, bool isShowSmapsInfo)
     return OHOS::HiviewDFX::DumpStatus::DUMP_OK;
 }
 
+void GetMemoryInfoByTimeInterval(int fd, int pid, int timeInterval)
+{
+    std::unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo = std::make_unique<OHOS::HiviewDFX::MemoryInfo>();
+    memoryInfo->GetMemoryInfoByTimeInterval(fd, pid, timeInterval);
+}
+
+void SetReceivedSigInt(bool isReceivedSigInt)
+{
+    std::unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo = std::make_unique<OHOS::HiviewDFX::MemoryInfo>();
+    memoryInfo->SetReceivedSigInt(isReceivedSigInt);
+}
+
 #ifdef __cplusplus
 }
 #endif

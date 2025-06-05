@@ -33,6 +33,8 @@ EXPORT_API int GetMemoryInfoByPid(int pid, StringMatrix data);
 EXPORT_API int GetMemoryInfoNoPid(int fd, StringMatrix data);
 EXPORT_API int GetMemoryInfoPrune(int fd, StringMatrix data);
 EXPORT_API int ShowMemorySmapsByPid(int pid, StringMatrix data, bool isShowSmapsInfo);
+EXPORT_API void GetMemoryInfoByTimeInterval(int fd, int pid, int timeInterval);
+EXPORT_API void SetReceivedSigInt(bool isReceivedSigInt);
 
 #ifdef __cplusplus
 }

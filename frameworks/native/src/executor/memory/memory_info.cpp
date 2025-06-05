@@ -13,11 +13,13 @@
 * limitations under the License.
 */
 #include "executor/memory/memory_info.h"
-
+#include <algorithm>
+#include <atomic>
 #include <dlfcn.h>
 #include <cinttypes>
 #include <fstream>
 #include <numeric>
+#include <sstream>
 #include <thread>
 #include <v1_0/imemory_tracker_interface.h>
 
@@ -57,6 +59,10 @@ static const std::string PRE_BLANK = "   ";
 static const std::string MEMORY_LINE = "-------------------------------[memory]-------------------------------";
 constexpr char HIAI_MEM_INFO_FN[] = "HIAI_Memory_QueryAllUserAllocatedMemInfo";
 using HiaiFunc = int (*)(MemInfoData::HiaiUserAllocatedMemInfo*, int, int*);
+std::atomic<bool> g_isDumpMem = true;
+constexpr int SECOND_TO_MILLISECONDS = 1000;
+constexpr int MAX_STARS_NUM = 20;
+constexpr int ONE_STAR = 1;
 
 MemoryInfo::MemoryInfo()
 {
@@ -254,6 +260,7 @@ void MemoryInfo::UpdateTotalDetail(const std::unique_ptr<ProcessMemoryDetail>& d
     vector<string> values;
     uint64_t totalPrivateDirty = static_cast<uint64_t>(detail->totalPrivateDirty) + graphicsMemory_.gl +
         graphicsMemory_.graph;
+    currentPss_ = detail->totalAllPss;
     MemoryUtil::GetInstance().SetMemTotalValue(MEMINFO_TOTAL, lines, values);
     MemoryUtil::GetInstance().SetMemTotalValue(to_string(detail->totalAllPss), lines, values);
     MemoryUtil::GetInstance().SetMemTotalValue(to_string(detail->totalSharedClean), lines, values);
@@ -275,6 +282,191 @@ void MemoryInfo::UpdateTotalDetail(const std::unique_ptr<ProcessMemoryDetail>& d
     }
     result->push_back(lines);
     result->push_back(values);
+}
+
+int MemoryInfo::CalculateStars(const std::vector<int>& pssValues, int currentPSS)
+{
+    if (pssValues.empty()) {
+        return MAX_STARS_NUM;
+    }
+    auto [min_it, max_it] = std::minmax_element(pssValues.begin(), pssValues.end());
+    int minPSS = *min_it;
+    int maxPSS = *max_it;
+    if (maxPSS == minPSS) {
+        return MAX_STARS_NUM;
+    }
+    double stdValue = static_cast<double>(currentPSS - minPSS) / (maxPSS - minPSS);
+    return static_cast<int>(stdValue * (MAX_STARS_NUM - ONE_STAR) + ONE_STAR);
+}
+
+void MemoryInfo::WriteStdout(const std::string& s)
+{
+    write(rawParamFd_, s.c_str(), s.size());
+}
+
+void MemoryInfo::ClearPreviousLines(int lineCount)
+{
+    for (int i = 0; i < lineCount; ++i) {
+        WriteStdout("\033[F");
+        WriteStdout("\033[2K");
+    }
+}
+
+std::string MemoryInfo::GenerateLine(const std::vector<int>& pssValues, int index)
+{
+    DUMPER_HILOGI(MODULE_SERVICE, "pss:%{public}d", pssValues[index]);
+    int stars = CalculateStars(pssValues, pssValues[index]);
+    const int TOTAL_WIDTH = 26;
+    std::stringstream ss;
+    ss << std::string(stars, '*')
+       << std::string(TOTAL_WIDTH - stars, ' ')
+       << "times" << (index + 1) << ": PSS=" << pssValues[index] << "kB\n";
+    return ss.str();
+}
+
+std::string MemoryInfo::GenerateTimestamps(const std::vector<int>& pssValues)
+{
+    std::string endTime;
+    DumpCommonUtils::GetDateAndTime(DumpCommonUtils::GetMilliseconds() / SECOND_TO_MILLISECONDS, endTime);
+    int timeIndex = static_cast<int>(pssValues.size());
+    int maxMem = *std::max_element(pssValues.begin(), pssValues.end());
+    int changePss = 0;
+    if (pssValues.size() > 1) {
+        changePss = pssValues[pssValues.size() - 1] - pssValues[0];
+    }
+
+    StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, startTime_);
+    StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, endTime);
+    string count = to_string(timeIndex);
+    StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, count);
+    string maxMemStr = to_string(maxMem) + "kB";
+    StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, maxMemStr);
+    string changePssStr = to_string(changePss) + "kB";
+    StringUtils::GetInstance().SetWidth(NAME_WIDTH_, BLANK_, true, changePssStr);
+    return "StartTime           EndTime              Count                MaxMem              Change\n" +
+           startTime_ + endTime + " " + count + " " + maxMemStr + " " + changePssStr + "\n";
+}
+
+void MemoryInfo::CalculateMaxIdex(const std::vector<int>& pssValues, int *maxIndex)
+{
+    const int minIndex = 5;
+    const int lastLines = 5;
+    for (int i = minIndex; i < static_cast<int>(pssValues.size()) - lastLines; ++i) {
+        if (pssValues[i] > pssValues[*maxIndex]) {
+            *maxIndex = i;
+        }
+    }
+}
+
+void MemoryInfo::PrintMemoryInfo(const std::vector<int>& pssValues, int* prevLineCount)
+{
+    static int lastMaxIndex = -1;
+    static int numHeaderLines = 2;
+    const int minIndex = 5;
+    const int lastLines = 5;
+    const int thresholdLines = 6;
+    const size_t maxPssValues = 10;
+    int currentLineCount = 0;
+    std::string output;
+
+    output += GenerateTimestamps(pssValues);
+    currentLineCount += numHeaderLines;
+
+    if (pssValues.size() <= maxPssValues) {
+        currentLineCount += pssValues.size();
+        for (size_t i = 0; i < pssValues.size(); ++i) {
+            output += GenerateLine(pssValues, static_cast<int>(i));
+        }
+    } else {
+        int maxIndex = 0;
+        CalculateMaxIdex(pssValues, &maxIndex);
+        for (int i = 0; i < minIndex; ++i) {
+            output += GenerateLine(pssValues, i);
+            currentLineCount++;
+        }
+
+        if (maxIndex >= minIndex && maxIndex < static_cast<int>(pssValues.size()) - lastLines) {
+            if (maxIndex > minIndex) {
+                output += "...\n";
+                currentLineCount++;
+            }
+
+            output += GenerateLine(pssValues, maxIndex);
+            currentLineCount++;
+
+            if (maxIndex < static_cast<int>(pssValues.size()) - thresholdLines) {
+                output += "...\n";
+                currentLineCount++;
+            }
+
+            lastMaxIndex = maxIndex;
+        } else {
+            output += "...\n";
+            currentLineCount++;
+        }
+
+        for (int i = pssValues.size() - lastLines; i < static_cast<int>(pssValues.size()); ++i) {
+            output += GenerateLine(pssValues, i);
+            currentLineCount++;
+        }
+    }
+
+    if (*prevLineCount > 0) {
+        ClearPreviousLines(*prevLineCount);
+    }
+
+    WriteStdout(output);
+    *prevLineCount = currentLineCount;
+}
+
+void MemoryInfo::SetReceivedSigInt(bool isReceivedSigInt)
+{
+    DUMPER_HILOGI(MODULE_SERVICE, "isReceivedSigInt: %{public}d", isReceivedSigInt);
+    g_isDumpMem = !isReceivedSigInt;
+}
+
+void MemoryInfo::RedirectMemoryInfo(int timeIndex, StringMatrix result)
+{
+    int redirectFd = DumpUtils::FdToWrite("/data/log/hidumper/record_mem.txt");
+    if (redirectFd <= -1) {
+        DUMPER_HILOGE(MODULE_COMMON, "write to record_mem.txt failed");
+        return;
+    }
+    string timeTitle = "\ntimes:" + to_string(timeIndex) + "\n";
+    write(redirectFd, timeTitle.c_str(), strlen(timeTitle.c_str()));
+    for (size_t i = 0; i < result->size(); i++) {
+        std::vector<std::string> line = result->at(i);
+        for (size_t j = 0; j < line.size(); j++) {
+            std::string str = line[j];
+            if ((j == (line.size() - 1)) && (str.find("\n") == std::string::npos)) {
+                str = str + "\n";
+            }
+            if (write(redirectFd, str.c_str(), strlen(str.c_str())) == -1) {
+                DUMPER_HILOGE(MODULE_COMMON, "write to rawParamFd failed, errno: %{public}d", errno);
+            }
+        }
+    }
+}
+
+void MemoryInfo::GetMemoryInfoByTimeInterval(int fd, const int32_t &pid, const int32_t &timeInterval)
+{
+    std::lock_guard<std::mutex> lock(timeIntervalMutex_);
+    rawParamFd_ = fd;
+    (void)dprintf(rawParamFd_, "%s\n\n", MEMORY_LINE.c_str());
+    DumpCommonUtils::GetDateAndTime(DumpCommonUtils::GetMilliseconds() / SECOND_TO_MILLISECONDS, startTime_);
+    DUMPER_HILOGI(MODULE_SERVICE, "GetMemoryInfoByTimeInterval timeInterval:%{public}d", timeInterval);
+    std::vector<int> pssValues;
+    int prevLineCount = 0;
+    while (g_isDumpMem) {
+        StringMatrix result = std::make_shared<std::vector<std::vector<std::string>>>();
+        GetMemoryInfoByPid(pid, result);
+        pssValues.push_back(static_cast<int>(currentPss_));
+        PrintMemoryInfo(pssValues, &prevLineCount);
+        RedirectMemoryInfo(static_cast<int>(pssValues.size()), result);
+        sleep(timeInterval);
+    }
+    g_isDumpMem = true;
+    DUMPER_HILOGI(MODULE_SERVICE, "GetMemoryInfoByTimeInterval timeInterval:%{public}d end", timeInterval);
 }
 
 bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)

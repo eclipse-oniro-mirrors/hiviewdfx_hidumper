@@ -32,8 +32,10 @@ MemoryDumper::~MemoryDumper()
 DumpStatus MemoryDumper::PreExecute(const shared_ptr<DumperParameter> &parameter, StringMatrix dumpDatas)
 {
     pid_ = parameter->GetOpts().memPid_;
+    timeInterval_ = parameter->GetOpts().timeInterval_;
     isShowMaps_ = parameter->GetOpts().isShowSmaps_;
     isShowSmapsInfo_ =  parameter->GetOpts().isShowSmapsInfo_;
+    isReceivedSigInt_ = parameter->GetOpts().isReceivedSigInt_;
     dumpMemPrune_ = parameter->GetOpts().dumpMemPrune_;
     dumpDatas_ = dumpDatas;
 
@@ -55,11 +57,21 @@ DumpStatus MemoryDumper::PreExecute(const shared_ptr<DumperParameter> &parameter
 DumpStatus MemoryDumper::Execute()
 {
     DUMPER_HILOGI(MODULE_SERVICE, "info|MemoryDumper Execute enter");
+    if (isReceivedSigInt_) {
+        SetReceivedSigInt();
+        DUMPER_HILOGI(MODULE_SERVICE, "ctrl+c, pid:%{public}d", pid_);
+        return status_;
+    }
     if (dumpDatas_ != nullptr) {
         if (pid_ >= 0) {
             if (isShowMaps_) {
                 GetMemSmapsByPid();
                 DUMPER_HILOGI(MODULE_SERVICE, "get mem smaps end,pid:%{public}d", pid_);
+                return status_;
+            }
+            if (timeInterval_ > 0) {
+                GetMemByTimeInterval();
+                DUMPER_HILOGI(MODULE_SERVICE, "GetMemByTimeInterval end,pid:%{public}d", pid_);
                 return status_;
             }
             GetMemByPid();
@@ -153,6 +165,43 @@ void MemoryDumper::GetMemSmapsByPid()
         DUMPER_HILOGE(MODULE_SERVICE, "GetMemSmapsByPid failed, pid:%{public}d", pid_);
         status_ = DumpStatus::DUMP_FAIL;
     }
+    dlclose(handle);
+}
+
+void MemoryDumper::GetMemByTimeInterval()
+{
+    void *handle = dlopen(MEM_LIB.c_str(), RTLD_LAZY | RTLD_NODELETE);
+    if (handle == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "fail to open %{public}s. errno:%{public}s", MEM_LIB.c_str(), dlerror());
+        return;
+    }
+    GetMemByTimeIntervalFunc pfn = reinterpret_cast<GetMemByTimeIntervalFunc>(
+        dlsym(handle, "GetMemoryInfoByTimeInterval"));
+    if (pfn == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "fail to dlsym GetMemoryInfoByTimeInterval. errno:%{public}s", dlerror());
+        dlclose(handle);
+        return;
+    }
+    pfn(rawParamFd_, pid_, timeInterval_);
+    status_ = DumpStatus::DUMP_OK;
+    dlclose(handle);
+}
+
+void MemoryDumper::SetReceivedSigInt()
+{
+    void *handle = dlopen(MEM_LIB.c_str(), RTLD_LAZY | RTLD_NODELETE);
+    if (handle == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "fail to open %{public}s. errno:%{public}s", MEM_LIB.c_str(), dlerror());
+        return;
+    }
+    SetReceivedSigIntFunc pfn = reinterpret_cast<SetReceivedSigIntFunc>(dlsym(handle, "SetReceivedSigInt"));
+    if (pfn == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "fail to dlsym SetReceivedSigInt. errno:%{public}s", dlerror());
+        dlclose(handle);
+        return;
+    }
+    pfn(isReceivedSigInt_);
+    status_ = DumpStatus::DUMP_OK;
     dlclose(handle);
 }
 

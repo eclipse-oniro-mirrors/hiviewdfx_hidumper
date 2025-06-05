@@ -41,6 +41,8 @@ constexpr double ONE_DAY_TO_SECONDS = 24 * 60 * 60;
 static const std::string CPU_STR = "cpu";
 static const std::string STORAGE_PATH_PREFIX = "/data/storage/el";
 static const size_t STORAGE_PATH_SIZE = STORAGE_PATH_PREFIX.size();
+static const int TM_START_YEAR = 1900;
+static const int DEC_SYSTEM_VALUE = 10;
 }
 
 std::vector<std::string> DumpCommonUtils::GetSubNodes(const std::string &path, bool digit)
@@ -425,6 +427,48 @@ void DumpCommonUtils::ClearHisyseventTmpFile()
         std::ofstream ofs(HISYSEVENT_TMP_FILE, std::ios::out | std::ios::trunc);
         ofs.close();
     }
+}
+
+uint64_t DumpCommonUtils::GetMilliseconds()
+{
+    auto now = std::chrono::system_clock::now();
+    auto millisecs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+    return millisecs.count();
+}
+
+void DumpCommonUtils::GetDateAndTime(uint64_t timeStamp, std::string &dateTime)
+{
+    time_t time = static_cast<time_t>(timeStamp);
+    struct tm timeData = {0};
+    localtime_r(&time, &timeData);
+
+    dateTime = "";
+    dateTime.append(std::to_string(TM_START_YEAR + timeData.tm_year));
+    dateTime.append("-");
+    if (1 + timeData.tm_mon < DEC_SYSTEM_VALUE) {
+        dateTime.append(std::to_string(0));
+    }
+    dateTime.append(std::to_string(1 + timeData.tm_mon));
+    dateTime.append("-");
+    if (timeData.tm_mday < DEC_SYSTEM_VALUE) {
+        dateTime.append(std::to_string(0));
+    }
+    dateTime.append(std::to_string(timeData.tm_mday));
+    dateTime.append(" ");
+    if (timeData.tm_hour < DEC_SYSTEM_VALUE) {
+        dateTime.append(std::to_string(0));
+    }
+    dateTime.append(std::to_string(timeData.tm_hour));
+    dateTime.append(":");
+    if (timeData.tm_min < DEC_SYSTEM_VALUE) {
+        dateTime.append(std::to_string(0));
+    }
+    dateTime.append(std::to_string(timeData.tm_min));
+    dateTime.append(":");
+    if (timeData.tm_sec < DEC_SYSTEM_VALUE) {
+        dateTime.append(std::to_string(0));
+    }
+    dateTime.append(std::to_string(timeData.tm_sec));
 }
 
 } // namespace HiviewDFX
