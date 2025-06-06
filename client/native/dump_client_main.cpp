@@ -63,11 +63,6 @@ int DumpClientMain::Main(int argc, char* argv[], int outFd)
     std::vector<std::u16string> args;
     SetCmdArgs(argc, argv, args);
     auto& dumpManagerClient = DumpManagerClient::GetInstance();
-    if (dumpManagerClient.Connect() != ERR_OK) {
-        (void)dprintf(outFd, "connect error\n");
-        DUMPER_HILOGE(MODULE_SERVICE, "connect error.");
-        return -1;
-    }
     DumpUtils::IgnoreStdoutCache();
     int32_t ret = dumpManagerClient.Request(args, outFd);
     if (ret < DumpStatus::DUMP_OK) {
@@ -76,10 +71,6 @@ int DumpClientMain::Main(int argc, char* argv[], int outFd)
             DUMPER_HILOGE(MODULE_SERVICE, "request error, ret: %{public}d.", ret);
         }
         return ret;
-    }
-    if (!dumpManagerClient.IsConnected()) {
-        (void)dprintf(outFd, "service error\n");
-        DUMPER_HILOGE(MODULE_SERVICE, "service error.");
     }
     return ret;
 }

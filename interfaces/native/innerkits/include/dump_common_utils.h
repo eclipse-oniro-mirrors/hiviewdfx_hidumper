@@ -59,6 +59,8 @@ public:
     static int FindStorageDirSecondDigitIndex(const std::string& fullFileName);
     static void ReportCmdUsage(const std::unique_ptr<DumperSysEventParams>& param);
     static void ClearHisyseventTmpFile();
+    static uint64_t GetMilliseconds();
+    static void GetDateAndTime(uint64_t timeStamp, std::string &dateTime);
 private:
     static bool GetLinesInFile(const std::string& file, std::vector<std::string>& lines);
     static bool GetNamesInFolder(const std::string& folder, std::vector<std::string>& names);

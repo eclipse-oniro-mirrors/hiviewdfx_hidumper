@@ -60,6 +60,8 @@ struct DumperOpts {
     bool isDumpCjHeapMem_;
     bool isDumpCjHeapMemGC_;
     int dumpCjHeapMemPid_;
+    int timeInterval_;
+    bool isReceivedSigInt_;
 
 public:
     DumperOpts();
@@ -68,6 +70,7 @@ public:
     void AddSelectAll();
     bool IsSelectAny() const;
     bool IsDumpZip() const;
+    bool CheckRemainingOptions(std::string& errStr) const;
     bool CheckOptions(std::string& errStr) const;
 };
 } // namespace HiviewDFX

@@ -5,6 +5,8 @@
         GetMemoryInfoNoPid;
         GetMemoryInfoPrune;
         ShowMemorySmapsByPid;
+        GetMemoryInfoByTimeInterval;
+        SetReceivedSigInt;
         "OHOS::HiviewDFX::DumpManagerCpuService::DumpManagerCpuService()";
         "OHOS::HiviewDFX::DumpManagerCpuService::StartService()";
         "OHOS::HiviewDFX::DumpManagerCpuService::~DumpManagerCpuService()";

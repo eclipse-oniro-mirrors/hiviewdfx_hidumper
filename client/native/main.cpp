@@ -12,11 +12,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <csignal>
 #include <unistd.h>
+#include <thread>
 #include "dump_client_main.h"
+#include "hilog_wrapper.h"
 using OHOS::HiviewDFX::DumpClientMain;
+
+static void SigHandler(int sig)
+{
+    if (sig == SIGINT) {
+        std::thread([&]() mutable {
+            char *argv[] = {
+                const_cast<char *>("hidumper"),
+                const_cast<char *>("--mem"),
+                const_cast<char *>("SIGINT"),
+            };
+            int argc = sizeof(argv) / sizeof(argv[0]);
+            int ret = DumpClientMain::GetInstance().Main(argc, argv, STDOUT_FILENO);
+            _exit(ret);
+        }).detach();
+    }
+}
+
 int main(int argc, char *argv[])
 {
+    std::signal(SIGINT, SigHandler);
     int ret = DumpClientMain::GetInstance().Main(argc, argv, STDOUT_FILENO);
     _exit(ret);
 }

@@ -60,6 +60,8 @@ public:
     using PageTypePair = std::pair<PageType, PageType>;
 
     bool GetMemoryInfoByPid(const int32_t &pid, StringMatrix result);
+    void GetMemoryInfoByTimeInterval(int fd, const int32_t &pid, const int32_t &timeInterval);
+    void SetReceivedSigInt(bool isReceivedSigInt);
     DumpStatus GetMemoryInfoNoPid(int fd, StringMatrix result);
     DumpStatus GetMemoryInfoPrune(int fd, StringMatrix result);
     DumpStatus DealResult(StringMatrix result);
@@ -116,7 +118,10 @@ private:
     uint64_t totalGL_ = 0;
     uint64_t totalGraph_ = 0;
     uint64_t totalDma_ = 0;
+    uint64_t currentPss_ = 0;
+    std::string startTime_;
     std::mutex mutex_;
+    std::mutex timeIntervalMutex_;
     std::future<GroupMap> fut_;
     std::vector<int32_t> pids_;
     std::vector<MemInfoData::MemUsage> memUsages_;
@@ -196,6 +201,14 @@ private:
     void SetNativeDetailRet(const std::string& nativeClassStr, const std::unique_ptr<MemoryItem>& item,
         StringMatrix result);
     void GetAshmem(const int32_t &pid, StringMatrix result);
+    int CalculateStars(const std::vector<int>& pssValues, int currentPSS);
+    void WriteStdout(const std::string& s);
+    void ClearPreviousLines(int lineCount);
+    std::string GenerateTimestamps(const std::vector<int>& pssValues);
+    std::string GenerateLine(const std::vector<int>& pssValues, int index);
+    void CalculateMaxIdex(const std::vector<int>& pssValues, int *maxIndex);
+    void PrintMemoryInfo(const std::vector<int>& pssValues, int* prevLineCount);
+    void RedirectMemoryInfo(int timeIndex, StringMatrix result);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

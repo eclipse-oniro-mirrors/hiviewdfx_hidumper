@@ -251,7 +251,7 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
 {
     optind = 0; // reset getopt_long
     opterr = 0; // getopt not show error info
-    const char optStr[] = "-hlcsa:epvT:";
+    const char optStr[] = "-hlcsa:epvT:t:";
     bool loop = true;
     while (loop) {
         int optionIndex = 0;
@@ -281,7 +281,7 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
         return status;
     }
     if (!CheckDumpPermission(opts_)) {
-        if (!opts_.isShowSmaps_) {
+        if (!opts_.isShowSmaps_ || !opts_.isDumpMem_) {
             CmdHelp();
         }
         return DumpStatus::DUMP_HELP;
@@ -326,7 +326,12 @@ DumpStatus DumpImplement::SetCmdParameter(int argc, char *argv[], DumperOpts &op
             StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "--cpuusage")) {
             status = SetCmdIntegerParameter(argv[optind - 1], opts_.cpuUsagePid_);
         } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "--mem")) {
-            status = SetCmdIntegerParameter(argv[optind - 1], opts_.memPid_);
+            std::string optionParam = argv[optind - 1];
+            if (optionParam == "SIGINT") {
+                opts_.isReceivedSigInt_ = true;
+            } else {
+                status = SetCmdIntegerParameter(optionParam, opts_.memPid_);
+            }
         } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "--net")) {
             status = SetCmdIntegerParameter(argv[optind - 1], opts_.netPid_);
         } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "--storage")) {
@@ -338,6 +343,8 @@ DumpStatus DumpImplement::SetCmdParameter(int argc, char *argv[], DumperOpts &op
             status = SetCmdIntegerParameter(argv[optind - 1], opts_.processPid_);
         } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "-T")) {
             status = SetCmdIntegerParameter(argv[optind - 1], opts_.threadId_);
+        } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "-t")) {
+            status = SetCmdIntegerParameter(argv[optind - 1], opts_.timeInterval_);
         } else if (IsSADumperOption(argv)) {
             opts_.abilitieNames_.push_back(argv[optind - 1]);
             dumperSysEventParams_->target += argv[optind - 1];
@@ -620,6 +627,28 @@ DumpStatus DumpImplement::SetCmdIntegerParameter(const std::string &str, int &va
     return DumpStatus::DUMP_OK;
 }
 
+void DumpImplement::PrintCommonUsage(std::string& str)
+{
+    if (DumpUtils::IsUserMode()) {
+        std::string substr = "  --mem [pid] -t [timeInterval]  |dump process memory change information,"
+        " press Ctrl+C to stop the export. detail information is stored in /data/log/hidumper/record_mem.txt.\n";
+
+        size_t pos = 0;
+        if ((pos = str.find(substr)) != std::string::npos) {
+            str.erase(pos, substr.length());
+        }
+    }
+
+    if (ptrReqCtl_ == nullptr) {
+        return;
+    }
+    int rawParamFd = ptrReqCtl_->GetOutputFd();
+    if (rawParamFd < 0) {
+        return;
+    }
+    SaveStringToFd(rawParamFd, str.c_str());
+}
+
 void DumpImplement::CmdHelp()
 {
     const std::string commonUsageStr =
@@ -644,6 +673,8 @@ void DumpImplement::CmdHelp()
         "  --mem [pid] [--prune]       |dump memory usage of total; dump memory usage of specified"
         " pid if pid was specified; dump simplified memory infomation if prune is specified and not support"
         " dumped simplified memory infomation of specified pid\n"
+        "  --mem [pid] -t [timeInterval]  |dump process memory change information, press Ctrl+C to stop the export."
+        " detail information is stored in /data/log/hidumper/record_mem.txt.\n"
         "  --zip                       |compress output to /data/log/hidumper\n"
         "  --mem-smaps pid [-v]        |display statistic in /proc/pid/smaps, use -v specify more details\n"
         "  --mem-jsheap pid [-T tid] [--gc] [--leakobj] [--raw]  |triggerGC, dumpHeapSnapshot, dumpRawHeap"
@@ -662,15 +693,7 @@ void DumpImplement::CmdHelp()
 #else
     std::string str = commonUsageStr;
 #endif
-
-    if (ptrReqCtl_ == nullptr) {
-        return;
-    }
-    int rawParamFd = ptrReqCtl_->GetOutputFd();
-    if (rawParamFd < 0) {
-        return;
-    }
-    SaveStringToFd(rawParamFd, str.c_str());
+    PrintCommonUsage(str);
 }
 
 void DumpImplement::setExecutorList(std::vector<std::shared_ptr<HidumperExecutor>> &executors,
@@ -785,6 +808,10 @@ void DumpImplement::AddGroupTitle(const std::string &groupName, HidumperExecutor
         DUMPER_HILOGI(MODULE_COMMON, "hidumper --mem cmd, do not need title.");
         return;
     }
+    if (StringUtils::GetInstance().IsSameStr(groupName, "memory") && dumpParameter->GetOpts().timeInterval_ > 0) {
+        DUMPER_HILOGI(MODULE_COMMON, "hidumper --mem pid -t timeinterval cmd, do not need title.");
+        return;
+    }
     if (StringUtils::GetInstance().IsSameStr(groupName, "ability")) {
         return;
     }
@@ -887,6 +914,22 @@ void DumpImplement::SendReleaseAppErrorMessage(const std::string& opt)
     onlySupportDebugSignedAppMessage_ += "[ERROR]: The %s option is only supported for debug-signed application [ ";
     onlySupportDebugSignedAppMessage_ += "\"appProvisionType\": \"debug\"].\n";
     dprintf(rawParamFd, onlySupportDebugSignedAppMessage_.c_str(), opt.c_str());
+}
+
+void DumpImplement::SendReleaseVersionErrorMessage(const std::string& opt)
+{
+    if (ptrReqCtl_ == nullptr) {
+        DUMPER_HILOGE(MODULE_COMMON, "ptrReqCtl_ == nullptr");
+        return;
+    }
+    int rawParamFd = ptrReqCtl_->GetOutputFd();
+    if (rawParamFd < 0) {
+        DUMPER_HILOGE(MODULE_COMMON, "rawParamFd < 0");
+        return;
+    }
+    std::string onlySupportDebugVersionAppMessage;
+    onlySupportDebugVersionAppMessage += "[ERROR]: The %s opton is not supported in user privilege.\n";
+    dprintf(rawParamFd, onlySupportDebugVersionAppMessage.c_str(), opt.c_str());
 }
 
 std::string DumpImplement::RemoveCharacterFromStr(const std::string &str, const char character)
@@ -994,6 +1037,12 @@ bool DumpImplement::CheckDumpPermission(DumperOpts& opt)
     // mem-cjheap + releaseApp
     if (opt.isDumpCjHeapMem_ && !DumpUtils::CheckAppDebugVersion(opt.dumpCjHeapMemPid_)) {
         DUMPER_HILOGE(MODULE_COMMON, "DumpCjHeapMem false isUserMode %{public}d", isUserMode);
+        return false;
+    }
+    if (opt.isDumpMem_ && opt.timeInterval_ > 0) {
+        SendReleaseVersionErrorMessage("-t");
+        DUMPER_HILOGE(MODULE_COMMON, "Show mem false, isUserMode:%{public}d, pid:%{public}d, timeInterval_:%{public}d",
+            isUserMode, opt.memPid_, opt.timeInterval_);
         return false;
     }
     return true;

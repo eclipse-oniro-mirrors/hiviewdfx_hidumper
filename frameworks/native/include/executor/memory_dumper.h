@@ -36,8 +36,10 @@ public:
 private:
     int pid_ = 0;
     int rawParamFd_ = 0;
+    int timeInterval_ = 0;
     bool isShowMaps_ = false;
     bool isShowSmapsInfo_ = false;
+    bool isReceivedSigInt_ = false;
     bool dumpMemPrune_ = false;
     DumpStatus status_ = DUMP_FAIL;
     StringMatrix dumpDatas_;
@@ -45,11 +47,15 @@ private:
     using GetMemNoPidFunc = int (*)(int, StringMatrix);
     using GetMemPruneNoPidFunc = int (*)(int, StringMatrix);
     using GetMemSmapsByPidFunc = int (*)(int, StringMatrix, bool);
+    using GetMemByTimeIntervalFunc = void (*)(int, int, int);
+    using SetReceivedSigIntFunc = void (*)(bool);
 
     void GetMemByPid();
     void GetMemNoPid();
     void GetMemPruneNoPid();
     void GetMemSmapsByPid();
+    void GetMemByTimeInterval();
+    void SetReceivedSigInt();
 };
 } // namespace HiviewDFX
 } // namespace OHOS

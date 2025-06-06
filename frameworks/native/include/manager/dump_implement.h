@@ -55,6 +55,7 @@ private:
         int argc, char* argv[], DumperOpts& opts_);
     DumpStatus SetCmdParameter(int argc, char* argv[], DumperOpts& opts_);
     DumpStatus SetCmdIntegerParameter(const std::string& str, int& value);
+    void PrintCommonUsage(std::string& str);
     void CmdHelp();
     void setExecutorList(std::vector<std::shared_ptr<HidumperExecutor>>& executors,
         const std::vector<std::shared_ptr<DumpCfg>>& configs, bool isZip);
@@ -76,6 +77,7 @@ private:
     void SendErrorMessage(const std::string& errorStr);
     void SendPidErrorMessage(int pid);
     void SendReleaseAppErrorMessage(const std::string& opt);
+    void SendReleaseVersionErrorMessage(const std::string& opt);
     bool ParseSubLongCmdOption(int argc, DumperOpts &opts_, const struct option longOptions[],
         const int &optionIndex, char *argv[]);
     DumpStatus ParseLongCmdOption(int argc, DumperOpts& opts_, const struct option longOptions[],
