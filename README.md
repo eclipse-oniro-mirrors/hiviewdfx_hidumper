@@ -151,12 +151,13 @@ The procedure is as follows:
     hidumper --cpufreq
     ```
 
-16. Run the **hidumper --mem [pid] [--prune]** command to obtain all memory usage information of the process whose PID has been specified; If --prune is specified, export simplified memory infomation quickly.
+16. Run the **hidumper --mem [pid] [--prune]** command to obtain all memory usage information of the process whose PID has been specified; If --prune is specified, export simplified memory infomation quickly; By specified the specific PID and time, the memory change information of PID can be printed out.
 
     ```
     hidumper --mem
     hidumper --mem 1024
     hidumper --mem --prune
+    hidumper --mem 1 -t 1
     ```
 
 17. Run the **hidumper --zip** command to compress data to the **/data/log/hidumper** directory.

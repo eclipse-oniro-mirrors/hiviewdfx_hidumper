@@ -39,9 +39,11 @@ using namespace testing::ext;
 namespace OHOS {
 namespace HiviewDFX {
 const int INIT_PID = 1;
+const int INDEX = 1;
 const uint64_t INVALID_PID = 0;
 const int BUFFER_SIZE = 1024;
 constexpr int TEST_PSS_VALUE = 100;
+const std::vector<int> pssValues = {1000, 1050, 1020, 1030, 1010, 1020, 1040, 1050, 1030, 1060, 1010};
 string NULL_STR = "";
 const string FIRST_ROW_TMP = "                          Pss         Shared         Shared        Private";
 const string FIRST_ROW = FIRST_ROW_TMP +
@@ -426,6 +428,73 @@ HWTEST_F(HidumperMemoryTest, MemoryInfo005, TestSize.Level1)
     if (DumpUtils::IsHmKernel()) {
         ASSERT_TRUE(result->size() != 0);
     }
+}
+
+/**
+ * @tc.name: MemoryInfo006
+ * @tc.desc: Test CalculateStars ret.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperMemoryTest, MemoryInfo006, TestSize.Level1)
+{
+    unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
+        make_unique<OHOS::HiviewDFX::MemoryInfo>();
+    int value = static_cast<int>(memoryInfo->CalculateStars(pssValues, INDEX));
+    ASSERT_TRUE(value != 0);
+}
+
+/**
+ * @tc.name: MemoryInfo007
+ * @tc.desc: Test GenerateTimestamps ret.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperMemoryTest, MemoryInfo007, TestSize.Level1)
+{
+    unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
+        make_unique<OHOS::HiviewDFX::MemoryInfo>();
+    std::string timeStamps = memoryInfo->GenerateTimestamps(pssValues);
+    ASSERT_TRUE(timeStamps.size() != 0);
+}
+
+/**
+ * @tc.name: MemoryInfo008
+ * @tc.desc: Test GenerateLine ret.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperMemoryTest, MemoryInfo008, TestSize.Level1)
+{
+    unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
+        make_unique<OHOS::HiviewDFX::MemoryInfo>();
+    std::string generateLine = memoryInfo->GenerateLine(pssValues, INDEX);
+    ASSERT_TRUE(generateLine.size() != 0);
+}
+
+/**
+ * @tc.name: MemoryInfo009
+ * @tc.desc: Test CalculateMaxIdex index.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperMemoryTest, MemoryInfo009, TestSize.Level1)
+{
+    unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
+        make_unique<OHOS::HiviewDFX::MemoryInfo>();
+    int index = 0;
+    memoryInfo->CalculateMaxIdex(pssValues, &index);
+    ASSERT_TRUE(index != 0);
+}
+
+/**
+ * @tc.name: MemoryInfo010
+ * @tc.desc: Test PrintMemoryInfo prevLineCount.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperMemoryTest, MemoryInfo010, TestSize.Level1)
+{
+    unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
+        make_unique<OHOS::HiviewDFX::MemoryInfo>();
+    int prevLineCount = 0;
+    memoryInfo->PrintMemoryInfo(pssValues, &prevLineCount);
+    ASSERT_TRUE(prevLineCount != 0);
 }
 
 /**

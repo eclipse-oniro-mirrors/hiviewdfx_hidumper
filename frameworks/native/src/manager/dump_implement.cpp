@@ -633,8 +633,8 @@ void DumpImplement::PrintCommonUsage(std::string& str)
         std::string substr = "  --mem [pid] -t [timeInterval]  |dump process memory change information,"
         " press Ctrl+C to stop the export. detail information is stored in /data/log/hidumper/record_mem.txt.\n";
 
-        size_t pos = 0;
-        if ((pos = str.find(substr)) != std::string::npos) {
+        size_t pos = str.find(substr);
+        if (pos != std::string::npos) {
             str.erase(pos, substr.length());
         }
     }

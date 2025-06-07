@@ -446,6 +446,7 @@ void MemoryInfo::RedirectMemoryInfo(int timeIndex, StringMatrix result)
             }
         }
     }
+    close(redirectFd);
 }
 
 void MemoryInfo::GetMemoryInfoByTimeInterval(int fd, const int32_t &pid, const int32_t &timeInterval)
