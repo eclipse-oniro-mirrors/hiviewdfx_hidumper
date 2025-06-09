@@ -299,6 +299,12 @@ HWTEST_F(MemoryDumperTest, MemoryDumperTest013, TestSize.Level3)
     ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
 }
 
+/**
+ * @tc.name: MemoryDumperTest014
+ * @tc.desc: Test hidumper --mem --prune has correct print.
+ * @tc.type: FUNC
+ * @tc.require: issueI5NWZQ
+ */
 HWTEST_F(MemoryDumperTest, MemoryDumperTest014, TestSize.Level3)
 {
     std::string cmd = "hidumper --mem --prune";

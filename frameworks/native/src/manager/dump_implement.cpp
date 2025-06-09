@@ -928,7 +928,7 @@ void DumpImplement::SendReleaseVersionErrorMessage(const std::string& opt)
         return;
     }
     std::string onlySupportDebugVersionAppMessage;
-    onlySupportDebugVersionAppMessage += "[ERROR]: The %s opton is not supported in user privilege.\n";
+    onlySupportDebugVersionAppMessage += "[ERROR]: The %s option is not supported in user privilege.\n";
     dprintf(rawParamFd, onlySupportDebugVersionAppMessage.c_str(), opt.c_str());
 }
 
