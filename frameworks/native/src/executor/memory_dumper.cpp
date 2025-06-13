@@ -122,7 +122,8 @@ void MemoryDumper::GetMemPruneNoPid()
         DUMPER_HILOGE(MODULE_SERVICE, "fail to open %{public}s. errno:%{public}s", MEM_LIB.c_str(), dlerror());
         return;
     }
-    GetMemPruneNoPidFunc getMemPruneNoPidFunc = reinterpret_cast<GetMemPruneNoPidFunc>(dlsym(handle, "GetMemoryInfoPrune"));
+    GetMemPruneNoPidFunc getMemPruneNoPidFunc = reinterpret_cast<GetMemPruneNoPidFunc>(dlsym(handle,
+        "GetMemoryInfoPrune"));
     if (getMemPruneNoPidFunc == nullptr) {
         DUMPER_HILOGE(MODULE_SERVICE, "fail to dlsym GetMemoryInfoPrune. errno:%{public}s", dlerror());
         dlclose(handle);
