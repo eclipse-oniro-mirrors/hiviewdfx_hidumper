@@ -182,7 +182,6 @@ void DumpManagerService::HandleRequestError(std::vector<std::u16string> &args, i
 
 int32_t DumpManagerService::Request(std::vector<std::u16string> &args, int outfd)
 {
-    SetCpuSchedAffinity();
     if (blockRequest_) {
         HandleRequestError(args, outfd, static_cast<int32_t>(DumpStatus::DUMP_FAIL), "request has blocked");
         return DumpStatus::DUMP_FAIL;
