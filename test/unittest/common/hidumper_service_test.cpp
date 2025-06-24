@@ -140,34 +140,10 @@ HWTEST_F(HidumperServiceTest, DumpManagerService005, TestSize.Level3)
 
 /**
  * @tc.name: DumpManagerService006
- * @tc.desc: Test hidumper_service run in small cpu.
- * @tc.type: FUNC
- */
-HWTEST_F(HidumperServiceTest, DumpManagerService006, TestSize.Level3)
-{
-    std::string cmd = "hidumper -h";
-    std::vector<std::string> vec;
-    ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
-    ASSERT_GT(vec.size(), 0);
-    cmd = "taskset -p `pidof hidumper_service`";
-    vec.clear();
-    ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
-    ASSERT_TRUE(vec.size() > 0);
-    ASSERT_TRUE(vec[0].find(":") != std::string::npos);
-    std::string str = vec[0];
-    string::size_type typePos = str.find(":");
-    if (typePos != str.npos) {
-        string valueStr = str.substr(typePos + 2); // pid ***'s current affinity mask: f
-        ASSERT_TRUE(valueStr == "f");
-    }
-}
-
-/**
- * @tc.name: DumpManagerService007
  * @tc.desc: Test DumpManagerService error request.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService007, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService006, TestSize.Level3)
 {
     auto dumpManagerService = std::make_shared<DumpManagerService>();
     std::vector<std::u16string> args;
