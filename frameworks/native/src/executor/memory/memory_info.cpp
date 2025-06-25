@@ -373,7 +373,7 @@ void MemoryInfo::PrintMemoryInfo(const std::vector<int>& pssValues, int* prevLin
     currentLineCount += numHeaderLines;
 
     if (pssValues.size() <= maxPssValues) {
-        currentLineCount += pssValues.size();
+        currentLineCount += static_cast<int>(pssValues.size());
         for (size_t i = 0; i < pssValues.size(); ++i) {
             output += GenerateLine(pssValues, static_cast<int>(i));
         }
@@ -405,7 +405,7 @@ void MemoryInfo::PrintMemoryInfo(const std::vector<int>& pssValues, int* prevLin
             currentLineCount++;
         }
 
-        for (int i = pssValues.size() - lastLines; i < static_cast<int>(pssValues.size()); ++i) {
+        for (int i = static_cast<int>(pssValues.size()) - lastLines; i < static_cast<int>(pssValues.size()); ++i) {
             output += GenerateLine(pssValues, i);
             currentLineCount++;
         }
