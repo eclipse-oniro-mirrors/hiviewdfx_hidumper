@@ -59,7 +59,7 @@ public:
     using PageType = std::vector<std::pair<std::string, uint64_t>>;
     using PageTypePair = std::pair<PageType, PageType>;
 
-    bool GetMemoryInfoByPid(const int32_t &pid, StringMatrix result);
+    bool GetMemoryInfoByPid(const int32_t &pid, StringMatrix result, bool showAshmem);
     void GetMemoryInfoByTimeInterval(int fd, const int32_t &pid, const int32_t &timeInterval);
     void SetReceivedSigInt(bool isReceivedSigInt);
     DumpStatus GetMemoryInfoNoPid(int fd, StringMatrix result);
@@ -200,7 +200,7 @@ private:
     void SetValueForRet(const std::string& value, std::vector<std::string>& tempResult);
     void SetNativeDetailRet(const std::string& nativeClassStr, const std::unique_ptr<MemoryItem>& item,
         StringMatrix result);
-    void GetAshmem(const int32_t &pid, StringMatrix result);
+    void GetAshmem(const int32_t &pid, StringMatrix result, bool showAshmem);
     int CalculateStars(const std::vector<int>& pssValues, int currentPSS);
     void WriteStdout(const std::string& s);
     void ClearPreviousLines(int lineCount);

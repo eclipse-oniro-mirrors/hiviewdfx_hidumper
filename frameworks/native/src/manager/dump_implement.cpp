@@ -65,6 +65,7 @@ static struct option LONG_OPTIONS[] = {{"cpufreq", no_argument, 0, 0},
     {"leakobj", no_argument, 0, 0},
     {"raw", no_argument, 0, 0},
     {"prune", no_argument, 0, 0},
+    {"show-ashmem", no_argument, 0, 0},
     {"ipc", optional_argument, 0, 0},
     {"start-stat", no_argument, 0, 0},
     {"stop-stat", no_argument, 0, 0},
@@ -428,6 +429,8 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts_, const 
         if (status != DumpStatus::DUMP_OK) {
             return status;
         }
+    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "show-ashmem")) {
+        opts_.showAshmem_ = true;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-jsheap")) {
         return SetMemJsheapParam(opts_);
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-cjheap")) {
@@ -673,6 +676,7 @@ void DumpImplement::CmdHelp()
         "  --mem [pid] [--prune]       |dump memory usage of total; dump memory usage of specified"
         " pid if pid was specified; dump simplified memory infomation if prune is specified and not support"
         " dumped simplified memory infomation of specified pid\n"
+        "  --mem [pid] [--show-ashmem]   |show ashmem info when dumping memory of specified pid\n"
         "  --mem [pid] -t [timeInterval]  |dump process memory change information, press Ctrl+C to stop the export."
         " detail information is stored in /data/log/hidumper/record_mem.txt.\n"
         "  --zip                       |compress output to /data/log/hidumper\n"

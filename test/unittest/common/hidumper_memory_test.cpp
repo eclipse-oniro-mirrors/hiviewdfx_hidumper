@@ -414,7 +414,7 @@ HWTEST_F(HidumperMemoryTest, MemoryInfo005, TestSize.Level1)
     unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
         make_unique<OHOS::HiviewDFX::MemoryInfo>();
     shared_ptr<vector<vector<string>>> result = make_shared<vector<vector<string>>>();
-    memoryInfo->GetAshmem(INIT_PID, result);
+    memoryInfo->GetAshmem(INIT_PID, result, true);
     ASSERT_TRUE(result->size() == 0);
 
     FILE* file = popen("pidof render_service", "r");
@@ -424,7 +424,7 @@ HWTEST_F(HidumperMemoryTest, MemoryInfo005, TestSize.Level1)
         pclose(file);
     }
     int rsPid = strtol(buffer, nullptr, 10);
-    memoryInfo->GetAshmem(rsPid, result);
+    memoryInfo->GetAshmem(rsPid, result, true);
     if (DumpUtils::IsHmKernel()) {
         ASSERT_TRUE(result->size() != 0);
     }
