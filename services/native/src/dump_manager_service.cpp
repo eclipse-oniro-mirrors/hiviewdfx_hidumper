@@ -88,7 +88,6 @@ void DumpManagerService::OnStart()
         return;
     }
     started_ = true;
-    SetCpuSchedAffinity();
 }
 
 void DumpManagerService::OnStop()
