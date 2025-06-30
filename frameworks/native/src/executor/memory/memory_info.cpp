@@ -460,7 +460,7 @@ void MemoryInfo::GetMemoryInfoByTimeInterval(int fd, const int32_t &pid, const i
     int prevLineCount = 0;
     while (g_isDumpMem) {
         StringMatrix result = std::make_shared<std::vector<std::vector<std::string>>>();
-        GetMemoryInfoByPid(pid, result);
+        GetMemoryInfoByPid(pid, result, false);
         pssValues.push_back(static_cast<int>(currentPss_));
         PrintMemoryInfo(pssValues, &prevLineCount);
         RedirectMemoryInfo(static_cast<int>(pssValues.size()), result);
@@ -470,7 +470,7 @@ void MemoryInfo::GetMemoryInfoByTimeInterval(int fd, const int32_t &pid, const i
     DUMPER_HILOGI(MODULE_SERVICE, "GetMemoryInfoByTimeInterval timeInterval:%{public}d end", timeInterval);
 }
 
-bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
+bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result, bool showAshmem)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     InsertMemoryTitle(result);
@@ -478,7 +478,7 @@ bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result)
     GetPurgByPid(pid, result);
     GetDma(graphicsMemory_.graph, result);
     GetHiaiServerIon(pid, result);
-    GetAshmem(pid, result);
+    GetAshmem(pid, result, showAshmem);
     return true;
 }
 
@@ -863,7 +863,7 @@ void MemoryInfo::GetHiaiServerIon(const int32_t &pid, StringMatrix result)
     dlclose(handle);
 }
 
-void MemoryInfo::GetAshmem(const int32_t &pid, StringMatrix result)
+void MemoryInfo::GetAshmem(const int32_t &pid, StringMatrix result, bool showAshmem)
 {
     std::pair<int, std::vector<std::string>> ashmemInfo;
     unique_ptr<ParseAshmemInfo> parseAshmeminfo = make_unique<ParseAshmemInfo>();
@@ -882,10 +882,12 @@ void MemoryInfo::GetAshmem(const int32_t &pid, StringMatrix result)
     vector<string> totalAshmemVec;
     totalAshmemVec.push_back("Total Ashmem:" + to_string(ashmemInfo.first) + MemoryUtil::GetInstance().KB_UNIT_);
     result->push_back(totalAshmemVec);
-    for (auto detailInfo : ashmemInfo.second) {
-        vector<string> tempResult;
-        tempResult.push_back(detailInfo);
-        result->push_back(tempResult);
+    if (showAshmem) {
+        for (auto detailInfo : ashmemInfo.second) {
+            vector<string> tempResult;
+            tempResult.push_back(detailInfo);
+            result->push_back(tempResult);
+        }
     }
 }
 

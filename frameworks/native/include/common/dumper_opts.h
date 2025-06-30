@@ -62,6 +62,7 @@ struct DumperOpts {
     int dumpCjHeapMemPid_;
     int timeInterval_;
     bool isReceivedSigInt_;
+    bool showAshmem_;
 
 public:
     DumperOpts();
