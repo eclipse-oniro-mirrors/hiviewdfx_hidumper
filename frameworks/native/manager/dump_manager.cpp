@@ -28,6 +28,7 @@ DumpManager::~DumpManager() {}
 
 DumpStatus DumpManager::StartDump(int argc, char *argv[], std::shared_ptr<DumpContext> context)
 {
+    DUMPER_HILOGI(MODULE_COMMON, "WJL DumpManager Start");
     if (CmdParse::GetInstance().Parse(argc, argv, context) != DumpStatus::DUMP_OK) {
         DUMPER_HILOGE(MODULE_COMMON, "Failed to parse command line options");
         return DumpStatus::DUMP_FAIL;

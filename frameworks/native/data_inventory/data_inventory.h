@@ -40,6 +40,12 @@ enum DataId : uint32_t {
     PROC_MODULES_INFO,
     PRINTENV_INFO,
     LSMOD_INFO,
+    STORAGE_STATE_INFO,
+    DF_INFO,
+    LSOF_INFO,
+    IOTOP_INFO,
+    PROC_MOUNTS_INFO,
+    PROC_PID_IO_INFO,
 };
 
 struct InfoConfig {

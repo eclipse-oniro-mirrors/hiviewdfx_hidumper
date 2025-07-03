@@ -31,6 +31,11 @@ enum TaskId : uint32_t {
     DUMP_VMSTAT_INFO,
     DUMP_VMALLOC_INFO,
     DUMP_CPU_FREQ_INFO,
+    DUMP_DISK_INFO,
+    DUMP_LSOF_INFO,
+    DUMP_IOTOP_INFO,
+    DUMP_MOUNTS_INFO,
+    DUMP_STORAGE_IO_INFO,
     ROOT_TASK_START = 1000, // ROOT_TASK is a special task, it will be executed last.
     WRITE_DEVICE_INFO,
     WRITE_SYSTEM_CLUSTER_INFO,
@@ -39,6 +44,8 @@ enum TaskId : uint32_t {
     WRITE_KERNEL_MEM_INFO,
     WRITE_CPU_FREQ_INFO,
     WRITE_ALL_PROCESS_MEM_INFO,
+    WRITE_STORAGE_INFO,
+    WRITE_STORAGE_IO_INFO,
 };
 
 using TaskCreator = std::function<std::unique_ptr<Task>()>;
