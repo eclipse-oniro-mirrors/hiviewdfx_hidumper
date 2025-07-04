@@ -25,6 +25,17 @@
 namespace OHOS {
 namespace HiviewDFX {
 
+namespace {
+const char ASCII_CR = '\r';
+const char ASCII_LF = '\n';
+const char ASCII_ESC = '\033';
+const char ASCII_OB = '[';
+const char ASCII_UA = 'A';
+const char ASCII_LA = 'a';
+const char ASCII_UZ = 'Z';
+const char ASCII_LZ = 'z';
+}
+
 enum DataId : uint32_t {
     DEVICE_INFO = 0,
     SYSTEM_CLUSTER_INFO,
@@ -103,6 +114,49 @@ public:
         }
         return Inject(dataId, std::make_shared<std::vector<std::string>>(result));
         ;
+    }
+
+    bool LoadAndInjectWithFilter(const std::string& source, DataId dataId, bool isFile)
+    {
+        std::vector<std::string> result = {};
+        auto loader = isFile ? LoadStringFromFile : LoadStringFromCommand;
+        if (!loader(source, [&result, this](const std::string& line) {
+            std::string formatLine = line;
+            FilterControlChar(formatLine);
+            result.emplace_back(formatLine);
+            return true;
+        })) {
+            return false;
+        }
+        return Inject(dataId, std::make_shared<std::vector<std::string>>(result));
+    }
+
+    void FilterControlChar(std::string &str)
+    {
+        std::string newStr;
+        bool skip = false;
+        const size_t sum = str.size();
+        for (size_t pos = 0; pos < sum; pos++) {
+            char &c = str.at(pos);
+
+            if ((!skip) && (c == ASCII_ESC) && ((pos + 1) < sum)) {
+                char &next_c = str.at(pos + 1);
+                skip = (next_c == ASCII_OB);
+            }
+
+            if (skip && (((c >= ASCII_UA) && (c <= ASCII_UZ)) || ((c >= ASCII_LA) && (c <= ASCII_LZ)))) {
+                skip = false;
+                continue;
+            }
+
+            if (skip || (c == ASCII_CR) || (c == ASCII_LF)) {
+                continue;
+            }
+
+            newStr.append(1, c);
+        }
+
+        str = newStr;
     }
 
     std::set<DataId> RemoveRestData(const std::set<DataId>& keepingDataType);

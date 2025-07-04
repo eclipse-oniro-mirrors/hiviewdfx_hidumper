@@ -23,7 +23,7 @@ namespace HiviewDFX {
 DumpStatus IoTopInfoTask::TaskEntry(DataInventory& dataInventory,
                                             const std::shared_ptr<DumpContext>& dumpContext)
 {
-    dataInventory.LoadAndInject("iotop -n 1 -m 100", IOTOP_INFO, false);
+    dataInventory.LoadAndInjectWithFilter("iotop -n 1 -m 100", IOTOP_INFO, false);
     return DUMP_OK;
 }
 REGISTER_TASK(DUMP_IOTOP_INFO, IoTopInfoTask, false);
