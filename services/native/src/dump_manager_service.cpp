@@ -35,7 +35,6 @@
 #include "token_setproc.h"
 #include "accesstoken_kit.h"
 #include "system_ability_ondemand_reason.h"
-#include "dump_manager.h"
 
 using namespace std;
 namespace OHOS {
@@ -492,12 +491,7 @@ void DumpManagerService::RequestMain(const std::shared_ptr<RawParam> rawParam)
         for (int i = 0; i < argC; i++) {
             DUMPER_HILOGD(MODULE_SERVICE, "debug|argV[%{public}d]=%{public}s", i, argV[i]);
         }
-        int32_t uid = rawParam->GetUid();
-        int32_t pid = rawParam->GetPid();
-        int outfd = rawParam->GetOutputFd();
-        std::shared_ptr<DumpContext> context = std::make_shared<DumpContext>(uid, pid, outfd);
-        DumpManager::GetInstance().StartDump(argC, argV, context);
-        // DumpImplement::GetInstance().Main(argC, argV, rawParam);
+        DumpImplement::GetInstance().Main(argC, argV, rawParam);
         DUMPER_HILOGD(MODULE_SERVICE, "debug|leave task");
     }
     DumpLogManager::EraseTmpFolder(rawParam->GetRequestId());
