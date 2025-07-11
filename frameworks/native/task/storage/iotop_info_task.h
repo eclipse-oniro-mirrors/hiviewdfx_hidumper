@@ -15,20 +15,19 @@
 
 #ifndef HIVIEWDFX_HIDUMPER_IOTOP_INFO_H
 #define HIVIEWDFX_HIDUMPER_IOTOP_INFO_H
- 
-#include <sstream>
+
 
 #include "task/base/task.h"
 #include "data_inventory.h"
- 
+
 namespace OHOS {
 namespace HiviewDFX {
- 
+
 class IoTopInfoTask : public Task {
 public:
     IoTopInfoTask() = default;
     ~IoTopInfoTask() override = default;
- 
+
 private:
     DumpStatus TaskEntry(DataInventory& dataInventory, const std::shared_ptr<DumpContext>& dumpContext) override;
 };

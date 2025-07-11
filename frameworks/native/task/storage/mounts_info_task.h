@@ -15,20 +15,19 @@
 
 #ifndef HIVIEWDFX_HIDUMPER_MOUNTS_INFO_H
 #define HIVIEWDFX_HIDUMPER_MOUNTS_INFO_H
- 
-#include <sstream>
+
 
 #include "task/base/task.h"
 #include "data_inventory.h"
- 
+
 namespace OHOS {
 namespace HiviewDFX {
- 
+
 class MountsInfoTask : public Task {
 public:
     MountsInfoTask() = default;
     ~MountsInfoTask() override = default;
- 
+
 private:
     DumpStatus TaskEntry(DataInventory& dataInventory, const std::shared_ptr<DumpContext>& dumpContext) override;
 };

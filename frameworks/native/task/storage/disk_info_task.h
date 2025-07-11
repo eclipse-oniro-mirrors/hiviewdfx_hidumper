@@ -15,20 +15,17 @@
 
 #ifndef HIVIEWDFX_HIDUMPER_DISK_INFO_H
 #define HIVIEWDFX_HIDUMPER_DISK_INFO_H
- 
-#include <sstream>
 
 #include "task/base/task.h"
 #include "data_inventory.h"
- 
+
 namespace OHOS {
 namespace HiviewDFX {
- 
 class DiskInfoTask : public Task {
 public:
     DiskInfoTask() = default;
     ~DiskInfoTask() override = default;
- 
+
 private:
     DumpStatus TaskEntry(DataInventory& dataInventory, const std::shared_ptr<DumpContext>& dumpContext) override;
 };

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "storage_io_info_task.h"
+#include "task/storage/storage_io_info_task.h"
 
 #include "data_inventory.h"
 #include "hilog_wrapper.h"
