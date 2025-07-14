@@ -23,7 +23,7 @@ namespace OHOS {
 namespace HiviewDFX {
 
 DumpStatus StorageIoInfoWriter::TaskEntry(DataInventory& dataInventory,
-                                             const std::shared_ptr<DumpContext>& dumpContext)
+                                          const std::shared_ptr<DumpContext>& dumpContext)
 {
     const std::string title = "-------------------------------[storage io]-------------------------------";
     WriteTitle(title, dumpContext->GetOutputFd());

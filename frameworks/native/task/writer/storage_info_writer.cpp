@@ -23,7 +23,7 @@ namespace OHOS {
 namespace HiviewDFX {
 
 DumpStatus StorageInfoWriter::TaskEntry(DataInventory& dataInventory,
-                                             const std::shared_ptr<DumpContext>& dumpContext)
+                                        const std::shared_ptr<DumpContext>& dumpContext)
 {
     const std::string title = "-------------------------------[storage]-------------------------------";
     WriteTitle(title, dumpContext->GetOutputFd());
@@ -50,7 +50,8 @@ DumpStatus StorageInfoWriter::TaskEntry(DataInventory& dataInventory,
 }
 
 REGISTER_TASK(WRITE_STORAGE_INFO, StorageInfoWriter, true, DUMP_DISK_INFO, DUMP_LSOF_INFO,
-    DUMP_IOTOP_INFO, DUMP_MOUNTS_INFO);
-REGISTER_DEPENDENT_DATA(WRITE_STORAGE_INFO, STORAGE_STATE_INFO, DF_INFO, LSOF_INFO, IOTOP_INFO, PROC_MOUNTS_INFO);
+              DUMP_IOTOP_INFO, DUMP_MOUNTS_INFO);
+REGISTER_DEPENDENT_DATA(WRITE_STORAGE_INFO, STORAGE_STATE_INFO, DF_INFO, LSOF_INFO,
+                        IOTOP_INFO, PROC_MOUNTS_INFO);
 } // namespace HiviewDFX
 } // namespace OHOS

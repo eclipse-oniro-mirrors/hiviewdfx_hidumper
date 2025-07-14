@@ -122,8 +122,6 @@ public:
         return Inject(dataId, std::make_shared<std::vector<std::string>>(result));
     }
 
-
-
     std::set<DataId> RemoveRestData(const std::set<DataId>& keepingDataType);
 
     std::size_t Size()

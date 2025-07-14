@@ -16,7 +16,6 @@
 #ifndef HIVIEWDFX_HIDUMPER_LSOF_INFO_H
 #define HIVIEWDFX_HIDUMPER_LSOF_INFO_H
 
-
 #include "task/base/task.h"
 #include "data_inventory.h"
 

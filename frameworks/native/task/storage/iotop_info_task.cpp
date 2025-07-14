@@ -33,7 +33,7 @@ const char ASCII_LZ = 'z';
 }
 
 DumpStatus IoTopInfoTask::TaskEntry(DataInventory& dataInventory,
-                                            const std::shared_ptr<DumpContext>& dumpContext)
+                                    const std::shared_ptr<DumpContext>& dumpContext)
 {
     dataInventory.LoadAndInjectWithFilter("iotop -n 1 -m 100", IOTOP_INFO, false, [&](std::string &line) -> void {
         FilterControlChar(line);

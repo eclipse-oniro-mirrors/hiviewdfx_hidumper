@@ -21,7 +21,7 @@
 namespace OHOS {
 namespace HiviewDFX {
 DumpStatus StorageIoInfoTask::TaskEntry(DataInventory& dataInventory,
-                                            const std::shared_ptr<DumpContext>& dumpContext)
+                                        const std::shared_ptr<DumpContext>& dumpContext)
 {
     std::string path = "/proc/" + std::to_string(dumpContext->GetDumperOpts()->storagePid) + "/io";
     dataInventory.LoadAndInject(path, PROC_PID_IO_INFO, true);

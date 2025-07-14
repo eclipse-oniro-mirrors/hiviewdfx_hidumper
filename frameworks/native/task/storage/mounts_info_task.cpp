@@ -21,7 +21,7 @@
 namespace OHOS {
 namespace HiviewDFX {
 DumpStatus MountsInfoTask::TaskEntry(DataInventory& dataInventory,
-                                            const std::shared_ptr<DumpContext>& dumpContext)
+                                     const std::shared_ptr<DumpContext>& dumpContext)
 {
     dataInventory.LoadAndInject("/proc/mounts", PROC_MOUNTS_INFO, true);
     return DUMP_OK;

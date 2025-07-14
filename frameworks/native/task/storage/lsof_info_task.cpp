@@ -21,7 +21,7 @@
 namespace OHOS {
 namespace HiviewDFX {
 DumpStatus LsofInfoTask::TaskEntry(DataInventory& dataInventory,
-                                            const std::shared_ptr<DumpContext>& dumpContext)
+                                   const std::shared_ptr<DumpContext>& dumpContext)
 {
     dataInventory.LoadAndInject("lsof", LSOF_INFO, false);
     return DUMP_OK;

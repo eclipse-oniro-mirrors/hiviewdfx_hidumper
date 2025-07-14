@@ -21,7 +21,7 @@
 namespace OHOS {
 namespace HiviewDFX {
 DumpStatus DiskInfoTask::TaskEntry(DataInventory& dataInventory,
-                                            const std::shared_ptr<DumpContext>& dumpContext)
+                                   const std::shared_ptr<DumpContext>& dumpContext)
 {
     dataInventory.LoadAndInject("storaged -u -p", STORAGE_STATE_INFO, false);
     dataInventory.LoadAndInject("df -k", DF_INFO, false);

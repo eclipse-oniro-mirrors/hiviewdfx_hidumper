@@ -16,8 +16,6 @@
 #ifndef HIVIEWDFX_HIDUMPER_STORAGE_IO_INFO_H
 #define HIVIEWDFX_HIDUMPER_STORAGE_IO_INFO_H
 
-
-
 #include "task/base/task.h"
 #include "data_inventory.h"
 
