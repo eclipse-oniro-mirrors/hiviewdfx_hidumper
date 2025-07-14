@@ -27,6 +27,7 @@ class IoTopInfoTask : public Task {
 public:
     IoTopInfoTask() = default;
     ~IoTopInfoTask() override = default;
+    void FilterControlChar(std::string &str);
 
 private:
     DumpStatus TaskEntry(DataInventory& dataInventory, const std::shared_ptr<DumpContext>& dumpContext) override;

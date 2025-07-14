@@ -24,8 +24,7 @@ namespace HiviewDFX {
 DumpStatus WakeupSourcesInfoTask::TaskEntry(DataInventory& dataInventory,
                                             const std::shared_ptr<DumpContext>& dumpContext)
 {
-    const std::string WAKEUP_SOURCES_PATH = "/sys/kernel/debug/wakeup_sources";
-    if (!dataInventory.LoadAndInject(WAKEUP_SOURCES_PATH, PROC_MODULES_INFO, true)) {
+    if (!dataInventory.LoadAndInject("/sys/kernel/debug/wakeup_sources", WAKEUP_SOURCES_INFO, true)) {
         return DUMP_FAIL;
     }
     return DUMP_OK;
