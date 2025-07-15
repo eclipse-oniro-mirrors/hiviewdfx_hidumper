@@ -108,9 +108,15 @@ HWTEST_F(HidumperServiceTest, DumpManagerService004, TestSize.Level3)
     std::vector<int32_t> pidList;
     int32_t ret = dumpManagerService->ScanPidOverLimit(requestType, LIMIT_SIZE, pidList);
     ASSERT_TRUE(ret == 0);
+    ret = dumpManagerService->ScanPidOverLimit(requestType, 0, pidList);
+    ASSERT_TRUE(ret == 0);
 
     ret = dumpManagerService->ScanPidOverLimit(requestType, -1, pidList);
     ASSERT_TRUE(ret != 0);
+
+    requestType = "..";
+    ret = dumpManagerService->ScanPidOverLimit(requestType, 1, pidList);
+    ASSERT_TRUE(ret == 0);
 }
 
 /**
@@ -153,6 +159,28 @@ HWTEST_F(HidumperServiceTest, DumpManagerService006, TestSize.Level3)
     args.push_back(Str8ToStr16("test"));
     dumpManagerService->HandleRequestError(args, outfd, -1, "test");
     ASSERT_TRUE(args.size() == 0);
+}
+
+/**
+ * @tc.name: DumpManagerService007
+ * @tc.desc: Test DumpManagerService OnIdle.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperServiceTest, DumpManagerService007, TestSize.Level3)
+{
+    auto dumpManagerService = std::make_shared<DumpManagerService>();
+    SystemAbilityOnDemandReason idleReason;
+    int32_t ret = dumpManagerService->OnIdle(idleReason);
+    ASSERT_TRUE(ret == 0);
+    idleReason.SetId(OnDemandReasonId::INTERFACE_CALL);
+    ret = dumpManagerService->OnIdle(idleReason);
+    ASSERT_TRUE(ret == 0);
+    std::vector<std::u16string> args;
+    args.push_back(Str8ToStr16("test"));
+    dumpManagerService->AddRequestRawParam(args, -1);
+    ret = dumpManagerService->OnIdle(idleReason);
+    ASSERT_TRUE(ret == 120000);
+    dumpManagerService->SetCpuSchedAffinity();
 }
 } // namespace HiviewDFX
 } // namespace OHOS

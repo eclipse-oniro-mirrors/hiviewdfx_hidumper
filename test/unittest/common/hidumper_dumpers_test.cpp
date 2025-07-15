@@ -434,6 +434,51 @@ HWTEST_F(HidumperDumpersTest, MemoryDumperTest002, TestSize.Level1)
 {
     HandleMemoryDumperTest(-1);
 }
+/**
+ * @tc.name: MemoryDumperTest003
+ * @tc.desc: Test MemoryDumper isReceivedSigInt.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, MemoryDumperTest003, TestSize.Level1)
+{
+    auto memoryDumper = std::make_shared<MemoryDumper>();
+    memoryDumper->pid_ = 1;
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    memoryDumper->dumpDatas_ = dumpDatas;
+    memoryDumper->isReceivedSigInt_ = true;
+    int res = memoryDumper->Execute();
+    ASSERT_EQ(res, DumpStatus::DUMP_OK);
+}
+/**
+ * @tc.name: MemoryDumperTest004
+ * @tc.desc: Test MemoryDumper timeInterval.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, MemoryDumperTest004, TestSize.Level1)
+{
+    auto memoryDumper = std::make_shared<MemoryDumper>();
+    memoryDumper->pid_ = 1;
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    memoryDumper->dumpDatas_ = dumpDatas;
+    memoryDumper->timeInterval_ = 1;
+    int res = memoryDumper->Execute();
+    ASSERT_EQ(res, DumpStatus::DUMP_OK);
+}
+/**
+ * @tc.name: MemoryDumperTest005
+ * @tc.desc: Test MemoryDumper dumpMemPrune.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, MemoryDumperTest005, TestSize.Level1)
+{
+    auto memoryDumper = std::make_shared<MemoryDumper>();
+    memoryDumper->pid_ = -1;
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    memoryDumper->dumpDatas_ = dumpDatas;
+    memoryDumper->dumpMemPrune_ = true;
+    int res = memoryDumper->Execute();
+    ASSERT_EQ(res, DumpStatus::DUMP_OK);
+}
 
 /**
  * @tc.name: SADumperTest001
@@ -920,6 +965,20 @@ HWTEST_F(HidumperDumpersTest, SendErrorMsgTest001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: SendErrorMsgTest002
+ * @tc.desc: Test error msg.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, SendErrorMsgTest002, TestSize.Level1)
+{
+    DumpImplement::GetInstance().ptrReqCtl_ = nullptr;
+    DumpImplement::GetInstance().SendReleaseVersionErrorMessage("-t");
+    ASSERT_TRUE(DumpImplement::GetInstance().ptrReqCtl_ == nullptr);
+    std::vector<std::u16string> args;
+    DumpImplement::GetInstance().ptrReqCtl_ = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    DumpImplement::GetInstance().SendReleaseVersionErrorMessage("-t");
+}
+/**
  * @tc.name: CjHeapDumperTest001
  * @tc.desc: Test CjHeapDumper with init pid
  * @tc.type: FUNC
@@ -982,6 +1041,25 @@ HWTEST_F(HidumperDumpersTest, CjHeapDumperTest004, TestSize.Level1)
         const_cast<char *>("--mem-cjheap"),
         const_cast<char *>("1"),
         const_cast<char *>("--leakobj"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: PruneHeapDumperTest001
+ * @tc.desc: Test PruneHeapDumperTest001
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, PruneHeapDumperTest001, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--mem"),
+        const_cast<char *>("--prune"),
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
     std::vector<std::u16string> args;
