@@ -25,6 +25,7 @@
 namespace OHOS {
 namespace HiviewDFX {
 
+
 enum DataId : uint32_t {
     DEVICE_INFO = 0,
     SYSTEM_CLUSTER_INFO,
@@ -40,6 +41,12 @@ enum DataId : uint32_t {
     PROC_MODULES_INFO,
     PRINTENV_INFO,
     LSMOD_INFO,
+    STORAGE_STATE_INFO,
+    DF_INFO,
+    LSOF_INFO,
+    IOTOP_INFO,
+    PROC_MOUNTS_INFO,
+    PROC_PID_IO_INFO,
 };
 
 struct InfoConfig {
@@ -85,6 +92,7 @@ public:
         return Cast<T>(GetPtr(dataId));
     }
 
+    using DataFilterHandler = std::function<void(std::string& line)>;
     bool LoadAndInject(const std::string& source, DataId dataId, bool isFile)
     {
         std::vector<std::string> result = {};
@@ -97,6 +105,21 @@ public:
         }
         return Inject(dataId, std::make_shared<std::vector<std::string>>(result));
         ;
+    }
+
+    bool LoadAndInjectWithFilter(const std::string& source, DataId dataId, bool isFile, const DataFilterHandler& func)
+    {
+        std::vector<std::string> result = {};
+        auto loader = isFile ? LoadStringFromFile : LoadStringFromCommand;
+        if (!loader(source, [&result, &func](const std::string& line) {
+            std::string formatLine = line;
+            func(formatLine);
+            result.emplace_back(formatLine);
+            return true;
+        })) {
+            return false;
+        }
+        return Inject(dataId, std::make_shared<std::vector<std::string>>(result));
     }
 
     std::set<DataId> RemoveRestData(const std::set<DataId>& keepingDataType);

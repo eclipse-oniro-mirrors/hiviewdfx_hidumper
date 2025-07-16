@@ -12,24 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "task/storage/lsof_info_task.h"
 
-#include "task/system_info/wakeup_sources_info_task.h"
 #include "data_inventory.h"
 #include "hilog_wrapper.h"
 #include "task/base/task_register.h"
-#include "writer_utils.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-DumpStatus WakeupSourcesInfoTask::TaskEntry(DataInventory& dataInventory,
-                                            const std::shared_ptr<DumpContext>& dumpContext)
+DumpStatus LsofInfoTask::TaskEntry(DataInventory& dataInventory,
+                                   const std::shared_ptr<DumpContext>& dumpContext)
 {
-    if (!dataInventory.LoadAndInject("/sys/kernel/debug/wakeup_sources", WAKEUP_SOURCES_INFO, true)) {
-        return DUMP_FAIL;
-    }
+    dataInventory.LoadAndInject("lsof", LSOF_INFO, false);
     return DUMP_OK;
 }
-
-REGISTER_TASK(DUMP_WAKEUP_SOURCES_INFO, WakeupSourcesInfoTask, false);
+REGISTER_TASK(DUMP_LSOF_INFO, LsofInfoTask, false);
 } // namespace HiviewDFX
 } // namespace OHOS
