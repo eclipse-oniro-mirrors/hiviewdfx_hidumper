@@ -287,9 +287,9 @@ string DumpManagerService::MaybeKnownType(const string &link)
     return "unknown";
 }
 
-map<string, int> DumpManagerService::CountPaths(const vector<string>& links)
+unordered_map<string, int> DumpManagerService::CountPaths(const vector<string>& links)
 {
-    map<string, int> counter;
+    unordered_map<string, int> counter;
     for (const auto& link : links) {
         string type = MaybeKnownType(link);
         if (type != "unknown") {
@@ -302,7 +302,7 @@ map<string, int> DumpManagerService::CountPaths(const vector<string>& links)
     return counter;
 }
 
-vector<pair<string, int>> DumpManagerService::TopN(const map<string, int>& counter, size_t n)
+vector<pair<string, int>> DumpManagerService::TopN(const unordered_map<string, int>& counter, size_t n)
 {
     using Entry = pair<string, int>;
 
@@ -333,40 +333,52 @@ vector<pair<string, int>> DumpManagerService::TopN(const map<string, int>& count
     return result;
 }
 
+string DumpManagerService::GetSummary(const vector<pair<string, int>> &topLinks,
+                                      const vector<pair<string, int>> &topTypes)
+{
+    if (topLinks.size() == 0 && topTypes.size() == 0) {
+        return "";
+    }
+    if (topLinks.size() == 0) {
+        return "Leaked dir:" + topTypes[0].first;
+    }
+    if (topTypes.size() == 0) {
+        return "Leaked fd:" + topLinks[0].first;
+    }
+    if (topTypes[0].second > topLinks[0].second) {
+        return "Leaked dir:" + topTypes[0].first;
+    }
+    return "Leaked fd:" + topLinks[0].first;
+}
+
 string DumpManagerService::GetTopFdInfo(const vector<pair<string, int>> &topLinks)
 {
-    string rtn = "";
+    stringstream rtn;
     for (const auto &[name, count] : topLinks) {
-        rtn += to_string(count) + "\t" + name + "\n";
+        rtn << to_string(count) << "\t" << name << "\n";
     }
 
-    return rtn;
+    return rtn.str();
 }
 
 std::string DumpManagerService::GetTopDirInfo(const vector<pair<string, int>> &topTypes,
-                                              const map<string, map<string, int>> &typePaths)
+                                              const map<string, unordered_map<string, int>> &typePaths)
 {
-    string rtn = "";
+    stringstream rtn;
     for (size_t i = 0; i < topTypes.size(); ++i) {
         const auto &[type, total] = topTypes[i];
-        rtn += to_string(total) + "\t" + type + "\n";
+        rtn << to_string(total) << "\t" << type << "\n";
         auto it = typePaths.find(type);
         if (it == typePaths.end()) {
             continue;
         }
         auto paths = TopN(it->second, FD_TOP_CNT);
         for (const auto &[path, count] : paths) {
-            if (type == path) {
-                continue;
-            }
-            rtn += "\t" + to_string(count) + "\t" + path + "\n";
-        }
-        if (paths.size() >= FD_TOP_CNT) {
-            rtn += "\t...\n";
+            rtn << "0" << to_string(count) << "\t" << path << "\n";
         }
     }
 
-    return rtn;
+    return rtn.str();
 }
 
 int32_t DumpManagerService::CountFdNums(int32_t pid, uint32_t &fdNums, std::string &detailFdInfo,
@@ -383,12 +395,14 @@ int32_t DumpManagerService::CountFdNums(int32_t pid, uint32_t &fdNums, std::stri
     auto linkCounts = CountPaths(links);
     auto topLinks = TopN(linkCounts, FD_TOP_CNT);
 
-    map<string, map<string, int>> typePaths;
+    map<string, unordered_map<string, int>> typePaths;
     for (const auto& [path, count] : linkCounts) {
         string type(path, 0, DumpCommonUtils::FindStorageDirSecondDigitIndex(path));
-        typePaths[type][path] = count;
+        if (type != path) {
+            typePaths[type][path] = count;
+        }
     }
-    map<string, int> typeTotal;
+    unordered_map<string, int> typeTotal;
     for (const auto& [type, paths] : typePaths) {
         int total = 0;
         for (const auto& [path, count] : paths) {
@@ -400,9 +414,15 @@ int32_t DumpManagerService::CountFdNums(int32_t pid, uint32_t &fdNums, std::stri
 
     fdNums = links.size();
     topLeakedType = topLinks[0].first;
-    detailFdInfo = GetTopFdInfo(topLinks);
-    detailFdInfo += "Top Dir " + to_string(FD_TOP_CNT) + ":\n";
-    detailFdInfo += GetTopDirInfo(topTypes, typePaths);
+
+    stringstream output;
+    output << "Summary:\n";
+    output << GetSummary(topLinks, topTypes);
+    output << "\n\nLeaked fd Top 10:\n";
+    output << GetTopFdInfo(topLinks);
+    output << "Top Dir " << to_string(FD_TOP_CNT) << ":\n";
+    output << GetTopDirInfo(topTypes, typePaths);
+    detailFdInfo = output.str();
 
     return DumpStatus::DUMP_OK;
 }

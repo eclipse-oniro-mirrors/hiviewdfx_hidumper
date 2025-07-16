@@ -12,35 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef HIVIEWDFX_HIDUMPER_STORAGE_IO_INFO_WRITER_H
+#define HIVIEWDFX_HIDUMPER_STORAGE_IO_INFO_WRITER_H
 
-#ifndef STORAGE_DUMP_STRATEGY_H
-#define STORAGE_DUMP_STRATEGY_H
-
-#include "dump_strategy.h"
-#include <memory>
-#include "base/task_control.h"
+#include "task/base/task.h"
 #include "data_inventory.h"
+#include "dump_context.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-class StorageDumpStrategy : public DumpStrategy {
+class StorageIoInfoWriter : public Task {
 public:
-    StorageDumpStrategy() = default;
+    StorageIoInfoWriter() = default;
+    ~StorageIoInfoWriter() override = default;
 
-    DumpStatus CreateRootTaskList(const std::shared_ptr<DumpContext>& context,
-                                  std::vector<TaskId>& rootTasks) override
-    {
-        auto opt = context->GetDumperOpts();
-        if (opt->isDumpStorage) {
-            if (opt->storagePid > 0) {
-                rootTasks.push_back(WRITE_STORAGE_IO_INFO);
-            } else {
-                rootTasks.push_back(WRITE_STORAGE_INFO);
-            }
-        }
-        return DUMP_OK;
-    }
+private:
+    DumpStatus TaskEntry(DataInventory& dataInventory, const std::shared_ptr<DumpContext>& dumpContext) override;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
-#endif // STORAGE_DUMP_STRATEGY_H
+#endif // HIVIEWDFX_HIDUMPER_STORAGE_IO_INFO_WRITER_H

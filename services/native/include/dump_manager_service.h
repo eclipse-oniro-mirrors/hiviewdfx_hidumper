@@ -76,11 +76,13 @@ private:
     std::string GetFdLink(const std::string &linkPath) const;
     std::vector<std::string> GetFdLinks(int pid);
     std::string MaybeKnownType(const std::string &link);
-    std::map<std::string, int> CountPaths(const std::vector<std::string>& links);
-    std::vector<std::pair<std::string, int>> TopN(const std::map<std::string, int>& counter, size_t n);
+    std::unordered_map<std::string, int> CountPaths(const std::vector<std::string>& links);
+    std::vector<std::pair<std::string, int>> TopN(const std::unordered_map<std::string, int>& counter, size_t n);
+    std::string GetSummary(const std::vector<std::pair<std::string, int>> &topLinks,
+                           const std::vector<std::pair<std::string, int>> &topTypes);
     std::string GetTopFdInfo(const std::vector<std::pair<std::string, int>> &topLinks);
     std::string GetTopDirInfo(const std::vector<std::pair<std::string, int>> &topTypes,
-                              const std::map<std::string, std::map<std::string, int>> &typePaths);
+                              const std::map<std::string, std::unordered_map<std::string, int>> &typePaths);
     void SetCpuSchedAffinity();
     void HandleRequestError(std::vector<std::u16string> &args, int outfd,
         const int32_t& errorCode, const std::string& errorMsg);

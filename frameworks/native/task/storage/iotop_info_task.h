@@ -13,34 +13,25 @@
  * limitations under the License.
  */
 
-#ifndef STORAGE_DUMP_STRATEGY_H
-#define STORAGE_DUMP_STRATEGY_H
+#ifndef HIVIEWDFX_HIDUMPER_IOTOP_INFO_H
+#define HIVIEWDFX_HIDUMPER_IOTOP_INFO_H
 
-#include "dump_strategy.h"
-#include <memory>
-#include "base/task_control.h"
+#include "task/base/task.h"
 #include "data_inventory.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-class StorageDumpStrategy : public DumpStrategy {
-public:
-    StorageDumpStrategy() = default;
 
-    DumpStatus CreateRootTaskList(const std::shared_ptr<DumpContext>& context,
-                                  std::vector<TaskId>& rootTasks) override
-    {
-        auto opt = context->GetDumperOpts();
-        if (opt->isDumpStorage) {
-            if (opt->storagePid > 0) {
-                rootTasks.push_back(WRITE_STORAGE_IO_INFO);
-            } else {
-                rootTasks.push_back(WRITE_STORAGE_INFO);
-            }
-        }
-        return DUMP_OK;
-    }
+class IoTopInfoTask : public Task {
+public:
+    IoTopInfoTask() = default;
+    ~IoTopInfoTask() override = default;
+    void FilterControlChar(std::string &str);
+
+private:
+    DumpStatus TaskEntry(DataInventory& dataInventory, const std::shared_ptr<DumpContext>& dumpContext) override;
 };
+
 } // namespace HiviewDFX
 } // namespace OHOS
-#endif // STORAGE_DUMP_STRATEGY_H
+#endif // HIVIEWDFX_HIDUMPER_IOTOP_INFO_H

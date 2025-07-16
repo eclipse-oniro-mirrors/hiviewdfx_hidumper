@@ -495,6 +495,22 @@ HWTEST_F(HidumperMemoryTest, MemoryInfo010, TestSize.Level1)
     int prevLineCount = 0;
     memoryInfo->PrintMemoryInfo(pssValues, &prevLineCount);
     ASSERT_TRUE(prevLineCount != 0);
+    prevLineCount = 1;
+    memoryInfo->PrintMemoryInfo(pssValues, &prevLineCount);
+    ASSERT_TRUE(prevLineCount != 0);
+}
+
+/**
+ * @tc.name: MemoryInfo011
+ * @tc.desc: Test PrintMemoryInfo GetScoreAdj.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperMemoryTest, MemoryInfo011, TestSize.Level1)
+{
+    unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
+        make_unique<OHOS::HiviewDFX::MemoryInfo>();
+    int ret = memoryInfo->GetScoreAdj(1);
+    ASSERT_TRUE(ret != -1);
 }
 
 /**
