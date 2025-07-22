@@ -135,9 +135,9 @@ void SmapsMemoryInfo::SetOneRowMemInfo(const MemoryData &memInfo, bool isShowSma
     string memoryClass = memInfo.memoryClass;
     if (memoryClass == "other") {
         if (memInfo.iNode == 0) {
-            memoryClass = "FilePage other";
-        } else {
             memoryClass = "AnonPage other";
+        } else {
+            memoryClass = "FilePage other";
         }
     }
     SetValueForRet(memoryClass, LINE_MEMORY_CLASS_WIDTH, tempResult);
