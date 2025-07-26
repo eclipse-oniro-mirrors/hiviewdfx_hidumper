@@ -28,7 +28,19 @@ public:
 
     bool GetDmaBufInfo(const int32_t &pid, std::vector<std::string> &result,
                        std::unordered_map<std::string, int> &headerMap,
-                       std::vector<int> &columnWidths, std::vector<std::string> &titles);
+                       std::vector<int> &columnWidths,
+                       std::vector<std::string> &titles);
+
+private:
+    void ParseHeaderLine(const std::string &line);
+    void ParseDataLine(const std::string &line);
+
+    std::unordered_map<std::string, int> headerMapTmp_;
+    std::vector<int> columnWidthsTmp_;
+    std::vector<std::string> titlesTmp_;
+    std::string detailTitle_;
+    bool inDetailSection_ = false;
+    std::vector<std::string> details_;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

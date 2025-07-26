@@ -419,14 +419,7 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts_, const 
     if (ParseSubLongCmdOption(argc, opts_, longOptions, optionIndex, argv)) {
         return DumpStatus::DUMP_OK;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-smaps")) {
-        opts_.isShowSmaps_ = true;
-        dumperSysEventParams_->opt = "mem-smaps";
-        DumpStatus status;
-        if (ARG_INDEX_OFFSET_LAST_OPTION < 0 || ARG_INDEX_OFFSET_LAST_OPTION >= argc) {
-            status = DumpStatus::DUMP_FAIL;
-        } else {
-            status = SetCmdIntegerParameter(argv[ARG_INDEX_OFFSET_LAST_OPTION], opts_.memPid_);
-        }
+        DumpStatus status = SetMemSmapsParam(opts_, argc, argv);
         if (status != DumpStatus::DUMP_OK) {
             return status;
         }
@@ -466,6 +459,19 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts_, const 
         DUMPER_HILOGE(MODULE_COMMON, "ParseLongCmdOption %{public}s", longOptions[optionIndex].name);
     }
     return DumpStatus::DUMP_OK;
+}
+
+DumpStatus DumpImplement::SetMemSmapsParam(DumperOpts &opt, int argc, char *argv[])
+{
+    opt.isShowSmaps_ = true;
+    dumperSysEventParams_->opt = "mem-smaps";
+    DumpStatus status;
+    if (ARG_INDEX_OFFSET_LAST_OPTION < 0 || ARG_INDEX_OFFSET_LAST_OPTION >= argc) {
+        status = DumpStatus::DUMP_FAIL;
+    } else {
+        status = SetCmdIntegerParameter(argv[ARG_INDEX_OFFSET_LAST_OPTION], opt.memPid_);
+    }
+    return status;
 }
 
 DumpStatus DumpImplement::SetMemJsheapParam(DumperOpts &opt)

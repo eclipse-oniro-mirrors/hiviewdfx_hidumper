@@ -31,60 +31,86 @@ ParseDmaBufInfo::~ParseDmaBufInfo()
 {
 }
 
-bool ParseDmaBufInfo::GetDmaBufInfo(const int32_t &pid, vector<string> &result, unordered_map<string, int> &headerMap,
-                                    vector<int> &columnWidths, vector<string> &titles)
+void ParseDmaBufInfo::ParseHeaderLine(const std::string &line)
+{
+    std::istringstream lineStream(line);
+    std::vector<std::string> headers;
+    std::string header;
+    while (lineStream >> header) {
+        headers.push_back(header);
+    }
+
+    headerMapTmp_.clear();
+    columnWidthsTmp_.clear();
+
+    for (size_t i = 0; i < headers.size(); ++i) {
+        headerMapTmp_[headers[i]] = static_cast<int>(i);
+        columnWidthsTmp_.push_back(static_cast<int>(headers[i].length()));
+    }
+
+    titlesTmp_ = headers;
+    detailTitle_ = line;
+    inDetailSection_ = true;
+}
+
+void ParseDmaBufInfo::ParseDataLine(const std::string &line)
+{
+    std::istringstream lineStream(line);
+    std::vector<std::string> row;
+    std::string item;
+    while (lineStream >> item) {
+        row.push_back(item);
+    }
+
+    for (size_t i = 0; i < row.size(); ++i) {
+        if (i >= columnWidthsTmp_.size()) {
+            columnWidthsTmp_.push_back(static_cast<int>(row[i].length()));
+        } else if (row[i].length() > static_cast<size_t>(columnWidthsTmp_[i])) {
+            columnWidthsTmp_[i] = static_cast<int>(row[i].length());
+        }
+    }
+
+    details_.push_back(line);
+}
+
+bool ParseDmaBufInfo::GetDmaBufInfo(const int32_t &pid, std::vector<std::string> &result,
+                                    std::unordered_map<std::string, int> &headerMap,
+                                    std::vector<int> &columnWidths,
+                                    std::vector<std::string> &titles)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "GetDmaBufInfo begin, pid:%{public}d", pid);
-    bool inDetailSection = false;
-    std::string path = "/proc/" + to_string(pid) + "/mm_dmabuf_info";
-    std::string detailTitle = "";
-    std::vector<string> details;
-    std::unordered_map<string, int> headerMapTmp;
-    std::vector<int> columnWidthsTmp;
-    std::vector<std::string> titlesTmp;
-    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, true, [&](const string &line) -> void {
-        if (!inDetailSection && line.find("Process") != std::string::npos) {
-            std::istringstream lineStream(line);
-            vector<string> headers;
-            string header;
-            while (lineStream >> header) {
-                headers.push_back(header);
+
+    inDetailSection_ = false;
+    detailTitle_.clear();
+    details_.clear();
+    headerMapTmp_.clear();
+    columnWidthsTmp_.clear();
+    titlesTmp_.clear();
+
+    std::string path = "/proc/" + std::to_string(pid) + "/mm_dmabuf_info";
+
+    bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, true,
+        [&](const std::string &line) -> void {
+            if (!inDetailSection_ && line.find("Process") != std::string::npos) {
+                ParseHeaderLine(line);
+                return;
             }
-            for (size_t i = 0; i < headers.size(); ++i) {
-                headerMapTmp[headers[i]] = i;
-                columnWidthsTmp.push_back(static_cast<int>(headers[i].length()));
+            if (inDetailSection_) {
+                ParseDataLine(line);
             }
-            titlesTmp = headers;
-            detailTitle = line;
-            inDetailSection = true;
-            return;
-        }
-        if (inDetailSection) {
-            std::istringstream lineStream(line);
-            vector<string> row;
-            string item;
-            while (lineStream >> item) {
-                row.push_back(item);
-            }
-            for (size_t i = 0; i < row.size(); ++i) {
-                if (i >= columnWidthsTmp.size()) {
-                    columnWidthsTmp.push_back(static_cast<int>(row[i].length()));
-                } else if (row[i].length() > static_cast<size_t>(columnWidthsTmp[i])) {
-                    columnWidthsTmp[i] = static_cast<int>(row[i].length());
-                }
-            }
-            details.push_back(line);
-        }
-    });
-    if (details.empty()) {
+        });
+
+    if (details_.empty()) {
         DUMPER_HILOGE(MODULE_SERVICE, "detail dmabuf is empty.");
         return false;
     }
-    details.insert(details.begin(), detailTitle);
-    result = details;
-    headerMap = headerMapTmp;
-    columnWidths = columnWidthsTmp;
-    titles = titlesTmp;
+
+    details_.insert(details_.begin(), detailTitle_);
+    result = std::move(details_);
+    headerMap = std::move(headerMapTmp_);
+    columnWidths = std::move(columnWidthsTmp_);
+    titles = std::move(titlesTmp_);
+
     DUMPER_HILOGD(MODULE_SERVICE, "GetDmaBufInfo end, pid:%{public}d, ret:%{public}d", pid, ret);
     return ret;
 }

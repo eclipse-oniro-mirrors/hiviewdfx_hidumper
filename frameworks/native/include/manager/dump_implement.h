@@ -96,6 +96,7 @@ private:
     bool SetIpcStatParam(DumperOpts &opt, const std::string& param);
     DumpStatus ParseCmdOptionForA(DumperOpts &opt, char *argv[]);
     void ProcessDumpOptions(int clientPid, std::shared_ptr<DumperParameter> &dumpParameter, DumperOpts &opts);
+    DumpStatus SetMemSmapsParam(DumperOpts &opt, int argc, char *argv[]);
     DumpStatus SetMemJsheapParam(DumperOpts &opt);
     DumpStatus SetMemCjheapParam(DumperOpts &opt);
     DumpStatus SetRawParam(DumperOpts &opt);

@@ -64,6 +64,8 @@ std::atomic<bool> g_isDumpMem = true;
 constexpr int SECOND_TO_MILLISECONDS = 1000;
 constexpr int MAX_STARS_NUM = 20;
 constexpr int ONE_STAR = 1;
+constexpr int APP_UID = 20000;
+constexpr int LINE_SPACING = 8;
 
 MemoryInfo::MemoryInfo()
 {
@@ -900,7 +902,7 @@ void MemoryInfo::GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDma
         return;
     }
     int32_t uid = GetProcUid(pid);
-    if (uid < 20000) {
+    if (uid < APP_UID) {
         DUMPER_HILOGD(MODULE_SERVICE, "Uid Verification failed for uid: %{public}d", uid);
         return;
     }
@@ -926,7 +928,7 @@ void MemoryInfo::GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDma
                 continue;
             }
             int width = columnWidths[headerMap[title]];
-            oss << std::left << std::setw(width + 8) << value;
+            oss << std::left << std::setw(width + LINE_SPACING) << value;
         }
         vector<string> tempResult;
         tempResult.push_back(oss.str());
