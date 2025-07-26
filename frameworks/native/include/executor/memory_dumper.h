@@ -42,10 +42,11 @@ private:
     bool isReceivedSigInt_ = false;
     bool dumpMemPrune_ = false;
     bool showAshmem_ = false;
+    bool showDmabuf_ = false;
 
     DumpStatus status_ = DUMP_FAIL;
     StringMatrix dumpDatas_;
-    using GetMemByPidFunc = int (*)(int, StringMatrix, bool);
+    using GetMemByPidFunc = int (*)(int, StringMatrix, bool, bool);
     using GetMemNoPidFunc = int (*)(int, StringMatrix);
     using GetMemPruneNoPidFunc = int (*)(int, StringMatrix);
     using GetMemSmapsByPidFunc = int (*)(int, StringMatrix, bool);

@@ -59,7 +59,7 @@ public:
     using PageType = std::vector<std::pair<std::string, uint64_t>>;
     using PageTypePair = std::pair<PageType, PageType>;
 
-    bool GetMemoryInfoByPid(const int32_t &pid, StringMatrix result, bool showAshmem);
+    bool GetMemoryInfoByPid(const int32_t &pid, StringMatrix result, bool showAshmem, bool showDmaBuf);
     void GetMemoryInfoByTimeInterval(int fd, const int32_t &pid, const int32_t &timeInterval);
     void SetReceivedSigInt(bool isReceivedSigInt);
     DumpStatus GetMemoryInfoNoPid(int fd, StringMatrix result);
@@ -164,6 +164,7 @@ private:
     
     static uint64_t GetVss(const int32_t &pid);
     static std::string GetProcName(const int32_t &pid);
+    static int32_t GetProcUid(const int32_t &pid);
     static uint64_t GetProcValue(const int32_t &pid, const std::string& key);
 #ifdef HIDUMPER_MEMMGR_ENABLE
     static std::string GetProcessAdjLabel(const int32_t pid);
@@ -201,6 +202,7 @@ private:
     void SetNativeDetailRet(const std::string& nativeClassStr, const std::unique_ptr<MemoryItem>& item,
         StringMatrix result);
     void GetAshmem(const int32_t &pid, StringMatrix result, bool showAshmem);
+    void GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDmaBuf);
     int CalculateStars(const std::vector<int>& pssValues, int currentPSS);
     void WriteStdout(const std::string& s);
     void ClearPreviousLines(int lineCount);

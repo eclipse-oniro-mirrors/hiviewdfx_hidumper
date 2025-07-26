@@ -349,6 +349,7 @@ ohos_source_set("hidumpermemory_source") {
     "${hidumper_frameworks_path}/src/executor/memory/memory_info_wrapper.cpp",
     "${hidumper_frameworks_path}/src/executor/memory/memory_util.cpp",
     "${hidumper_frameworks_path}/src/executor/memory/parse/parse_ashmem_info.cpp",
+    "${hidumper_frameworks_path}/src/executor/memory/parse/parse_dmabuf_info.cpp",
     "${hidumper_frameworks_path}/src/executor/memory/parse/parse_meminfo.cpp",
     "${hidumper_frameworks_path}/src/executor/memory/parse/parse_smaps_info.cpp",
     "${hidumper_frameworks_path}/src/executor/memory/parse/parse_smaps_rollup_info.cpp",
