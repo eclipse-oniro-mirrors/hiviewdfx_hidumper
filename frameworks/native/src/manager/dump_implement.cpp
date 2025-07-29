@@ -1028,7 +1028,8 @@ bool DumpImplement::CheckDumpPermission(DumperOpts& opt)
         return true;
     }
     // mem-smaps [-v] + releaseApp
-    if (opt.isShowSmaps_ && !DumpUtils::CheckAppDebugVersion(opt.memPid_)) {
+    int uid = ptrReqCtl_->GetUid();
+    if (opt.isShowSmaps_ && uid != HIVIEW_UID && !DumpUtils::CheckAppDebugVersion(opt.memPid_)) {
         SendReleaseAppErrorMessage("--mem-smaps");
         DUMPER_HILOGE(MODULE_COMMON, "ShowSmaps false, isUserMode:%{public}d, pid:%{public}d", isUserMode, opt.memPid_);
         return false;
