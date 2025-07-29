@@ -23,6 +23,7 @@
 #include <sys/syscall.h>
 #include <system_ability_definition.h>
 #include <thread>
+#include <queue>
 #include <unistd.h>
 
 #include "common.h"
@@ -51,19 +52,9 @@ static const int SMALL_CPU_SIZE = 4;
 const std::string TASK_ID = "unload";
 constexpr int32_t DYNAMIC_EXIT_DELAY_TIME = 120000;
 constexpr int32_t UNLOAD_IMMEDIATELY = 0;
-} // namespace
-namespace {
-static const int32_t FD_LOG_NUM = 10;
-std::map<std::string, WpId> g_fdLeakWp {
-    {"eventfd", FDLEAK_WP_EVENTFD},
-    {"eventpoll", FDLEAK_WP_EVENTPOLL},
-    {"sync_file", FDLEAK_WP_SYNCFENCE},
-    {"dmabuf", FDLEAK_WP_DMABUF},
-    {"socket", FDLEAK_WP_SOCKET},
-    {"pipe", FDLEAK_WP_PIPE},
-    {"ashmem", FDLEAK_WP_ASHMEM},
-};
+constexpr size_t FD_TOP_CNT = 10;
 }
+
 DumpManagerService::DumpManagerService() : SystemAbility(DFX_SYS_HIDUMPER_ABILITY_ID, true)
 {
 }
@@ -260,7 +251,7 @@ int32_t DumpManagerService::ScanPidOverLimit(std::string requestType, int32_t li
     return ret;
 }
 
-std::string DumpManagerService::GetFdLinkNum(const std::string &linkPath) const
+std::string DumpManagerService::GetFdLink(const std::string &linkPath) const
 {
     char linkDest[PATH_MAX] = {0};
     ssize_t linkDestSize = readlink(linkPath.c_str(), linkDest, sizeof(linkDest) - 1);
@@ -271,99 +262,169 @@ std::string DumpManagerService::GetFdLinkNum(const std::string &linkPath) const
     return linkDest;
 }
 
-void DumpManagerService::RecordDetailFdInfo(std::string &detailFdInfo, std::string &topLeakedType)
+vector<string> DumpManagerService::GetFdLinks(int pid)
 {
-    lock_guard<mutex> lock(linkCntMutex_);
-    if (linkCnt_.empty()) {
-        DUMPER_HILOGE(MODULE_SERVICE, "linkCnt_ is empty!");
-        return;
+    std::string fdPath = "/proc/" + std::to_string(pid) + "/fd/";
+    vector<string> nodes = DumpCommonUtils::GetSubNodes(fdPath, true);
+    vector<string> links;
+    for (const auto &node : nodes) {
+        std::string linkPath = fdPath + node;
+        links.push_back(GetFdLink(linkPath));
     }
-    topLeakedType = linkCnt_[0].first;
-    for (size_t i = 0; i < linkCnt_.size() && i < FD_LOG_NUM; i++) {
-        detailFdInfo += std::to_string(linkCnt_[i].second) + "\t" + linkCnt_[i].first + "\n";
-    }
+
+    return links;
 }
 
-void DumpManagerService::RecordDirFdInfo(std::string &detailFdInfo)
+string DumpManagerService::MaybeKnownType(const string &link)
 {
-    std::unordered_map<std::string, int> fileTypeMap;
-    std::vector<pair<std::string, int>> fileTypeList;
-    {
-        lock_guard<mutex> lock(linkCntMutex_);
-        for (const auto &each : linkCnt_) {
-            if (g_fdLeakWp.find(each.first) == g_fdLeakWp.end()) {
-                std::string fileName(each.first, 0, DumpCommonUtils::FindStorageDirSecondDigitIndex(each.first));
-                if (fileTypeMap.find(fileName) == fileTypeMap.end()) {
-                    fileTypeMap[fileName] = each.second;
-                } else {
-                    fileTypeMap[fileName] += each.second;
-                }
-            }
+    const set<string> knownTypes{"eventfd", "eventpoll", "sync_file", "dmabuf", "socket", "pipe", "ashmem"};
+    for (const auto &type : knownTypes) {
+        if (link.find(type) != std::string::npos) {
+            return type;
         }
     }
-    for (std::pair<std::string, int> fileNamePair : fileTypeMap) {
-        fileTypeList.push_back(fileNamePair);
-    }
-    sort(fileTypeList.begin(), fileTypeList.end(),
-        [](const std::pair<std::string, int> &p1, const std::pair<std::string, int> &p2) {
-            return p1.second > p2.second;
-    });
-    detailFdInfo += "\nTop Dir Type 10:\n";
-    for (size_t i = 0; i < fileTypeList.size() && i < FD_LOG_NUM; i++) {
-        detailFdInfo += std::to_string(fileTypeList[i].second) + "\t" + fileTypeList[i].first + "\n";
-    }
+
+    return "unknown";
 }
 
-int32_t DumpManagerService::CountFdNums(int32_t pid, uint32_t &fdNums,
-    std::string &detailFdInfo, std::string &topLeakedType)
+unordered_map<string, int> DumpManagerService::CountPaths(const vector<string>& links)
+{
+    unordered_map<string, int> counter;
+    for (const auto& link : links) {
+        string type = MaybeKnownType(link);
+        if (type != "unknown") {
+            ++counter[type];
+        } else {
+            ++counter[link];
+        }
+    }
+
+    return counter;
+}
+
+vector<pair<string, int>> DumpManagerService::TopN(const unordered_map<string, int>& counter, size_t n)
+{
+    using Entry = pair<string, int>;
+
+    auto cmp = [](const Entry& a, const Entry& b) {
+        return a.second > b.second;
+    };
+    priority_queue<Entry, vector<Entry>, decltype(cmp)> minHeap(cmp);
+
+    for (const auto& kv : counter) {
+        if (minHeap.size() < n) {
+            minHeap.push(kv);
+        } else if (kv.second > minHeap.top().second) {
+            minHeap.pop();
+            minHeap.push(kv);
+        }
+    }
+
+    vector<Entry> result;
+    while (!minHeap.empty()) {
+        result.push_back(minHeap.top());
+        minHeap.pop();
+    }
+    std::sort(result.begin(), result.end(),
+              [](const Entry& a, const Entry& b) {
+                  return (a.second == b.second && a.first < b.first) || (a.second > b.second);
+              });
+
+    return result;
+}
+
+string DumpManagerService::GetSummary(const vector<pair<string, int>> &topLinks,
+                                      const vector<pair<string, int>> &topTypes)
+{
+    if (topLinks.size() == 0 && topTypes.size() == 0) {
+        return "";
+    }
+    if (topLinks.size() == 0) {
+        return "Leaked dir:" + topTypes[0].first;
+    }
+    if (topTypes.size() == 0) {
+        return "Leaked fd:" + topLinks[0].first;
+    }
+    if (topTypes[0].second > topLinks[0].second) {
+        return "Leaked dir:" + topTypes[0].first;
+    }
+    return "Leaked fd:" + topLinks[0].first;
+}
+
+string DumpManagerService::GetTopFdInfo(const vector<pair<string, int>> &topLinks)
+{
+    stringstream rtn;
+    for (const auto &[name, count] : topLinks) {
+        rtn << to_string(count) << "\t" << name << "\n";
+    }
+
+    return rtn.str();
+}
+
+std::string DumpManagerService::GetTopDirInfo(const vector<pair<string, int>> &topTypes,
+                                              const map<string, unordered_map<string, int>> &typePaths)
+{
+    stringstream rtn;
+    for (size_t i = 0; i < topTypes.size(); ++i) {
+        const auto &[type, total] = topTypes[i];
+        rtn << to_string(total) << "\t" << type << "\n";
+        auto it = typePaths.find(type);
+        if (it == typePaths.end()) {
+            continue;
+        }
+        auto paths = TopN(it->second, FD_TOP_CNT);
+        for (const auto &[path, count] : paths) {
+            rtn << "0" << to_string(count) << "\t" << path << "\n";
+        }
+    }
+
+    return rtn.str();
+}
+
+int32_t DumpManagerService::CountFdNums(int32_t pid, uint32_t &fdNums, std::string &detailFdInfo,
+                                        std::string &topLeakedType)
 {
     if (!HasDumpPermission()) {
         return DumpStatus::DUMP_FAIL;
     }
-    // transfor to vector to sort by map value.
-    int32_t ret = DumpStatus::DUMP_OK;
-    std::map<std::string, int64_t> linkNameCnt;
-    {
-        lock_guard<mutex> lock(linkCntMutex_);
-        if (!linkCnt_.empty()) {
-            linkCnt_.clear();
+
+    auto links = GetFdLinks(pid);
+    if (links.empty()) {
+        return DumpStatus::DUMP_FAIL;
+    }
+    auto linkCounts = CountPaths(links);
+    auto topLinks = TopN(linkCounts, FD_TOP_CNT);
+
+    map<string, unordered_map<string, int>> typePaths;
+    for (const auto& [path, count] : linkCounts) {
+        string type(path, 0, DumpCommonUtils::FindStorageDirSecondDigitIndex(path));
+        if (type != path) {
+            typePaths[type][path] = count;
         }
     }
-    std::string taskPath = "/proc/" + std::to_string(pid) + "/fd";
-    std::vector<std::string> fdList = DumpCommonUtils::GetSubNodes(taskPath, true);
-    fdNums = GetFileDescriptorNums(pid, "fd");
-    for (const auto &each : fdList) {
-        std::string linkPath = taskPath + "/" + each;
-        std::string linkName = GetFdLinkNum(linkPath);
-        // we count the fd number by name contained the keywords socket/dmabuf...
-        bool contained = false;
-        for (const auto &fdWp : g_fdLeakWp) {
-            if (linkName.find(fdWp.first) != std::string::npos) {
-                linkNameCnt[fdWp.first]++;
-                contained = true;
-                break;
-            }
+    unordered_map<string, int> typeTotal;
+    for (const auto& [type, paths] : typePaths) {
+        int total = 0;
+        for (const auto& [path, count] : paths) {
+            total += count;
         }
-        if (!contained) {
-            linkNameCnt[linkName]++;
-        }
+        typeTotal[type] = total;
     }
-    {
-        lock_guard<mutex> lock(linkCntMutex_);
-        for (const auto &each : linkNameCnt) {
-            linkCnt_.push_back(each);
-        }
-        if (linkCnt_.empty()) {
-            return DumpStatus::DUMP_FAIL;
-        }
-        std::sort(linkCnt_.begin(), linkCnt_.end(),
-            [](const std::pair<std::string, int> &a, const std::pair<std::string, int> &b) {
-                return a.second > b.second;
-            });
-    }
-    RecordDetailFdInfo(detailFdInfo, topLeakedType);
-    RecordDirFdInfo(detailFdInfo);
-    return ret;
+    auto topTypes = TopN(typeTotal, FD_TOP_CNT);
+
+    fdNums = links.size();
+    topLeakedType = topLinks[0].first;
+
+    stringstream output;
+    output << "Summary:\n";
+    output << GetSummary(topLinks, topTypes);
+    output << "\n\nLeaked fd Top 10:\n";
+    output << GetTopFdInfo(topLinks);
+    output << "Top Dir " << to_string(FD_TOP_CNT) << ":\n";
+    output << GetTopDirInfo(topTypes, typePaths);
+    detailFdInfo = output.str();
+
+    return DumpStatus::DUMP_OK;
 }
 
 #ifdef DUMP_TEST_MODE // for mock test

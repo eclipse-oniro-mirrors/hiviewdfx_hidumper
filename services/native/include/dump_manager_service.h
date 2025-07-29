@@ -26,16 +26,6 @@
 #include "system_ability_ondemand_reason.h"
 namespace OHOS {
 namespace HiviewDFX {
-enum WpId {
-    FDLEAK_WP_MIN = 0,
-    FDLEAK_WP_EVENTFD = 0,
-    FDLEAK_WP_EVENTPOLL = 1,
-    FDLEAK_WP_DMABUF = 2,
-    FDLEAK_WP_SYNCFENCE = 3,
-    FDLEAK_WP_SOCKET = 4,
-    FDLEAK_WP_PIPE = 5,
-    FDLEAK_WP_ASHMEM = 6,
-};
 
 class RawParam;
 #ifdef DUMP_TEST_MODE // for mock test
@@ -83,22 +73,27 @@ private:
     void RequestMain(const std::shared_ptr<RawParam> rawParam);
     bool HasDumpPermission() const;
     uint32_t GetFileDescriptorNums(int32_t pid, std::string requestType) const;
-    void RecordDetailFdInfo(std::string &detailFdInfo, std::string &topLeakedType);
-    void RecordDirFdInfo(std::string &detailFdInfo);
-    std::string GetFdLinkNum(const std::string &linkPath) const;
+    std::string GetFdLink(const std::string &linkPath) const;
+    std::vector<std::string> GetFdLinks(int pid);
+    std::string MaybeKnownType(const std::string &link);
+    std::unordered_map<std::string, int> CountPaths(const std::vector<std::string>& links);
+    std::vector<std::pair<std::string, int>> TopN(const std::unordered_map<std::string, int>& counter, size_t n);
+    std::string GetSummary(const std::vector<std::pair<std::string, int>> &topLinks,
+                           const std::vector<std::pair<std::string, int>> &topTypes);
+    std::string GetTopFdInfo(const std::vector<std::pair<std::string, int>> &topLinks);
+    std::string GetTopDirInfo(const std::vector<std::pair<std::string, int>> &topTypes,
+                              const std::map<std::string, std::unordered_map<std::string, int>> &typePaths);
     void SetCpuSchedAffinity();
     void HandleRequestError(std::vector<std::u16string> &args, int outfd,
         const int32_t& errorCode, const std::string& errorMsg);
 private:
     std::mutex mutex_;
-    std::mutex linkCntMutex_;
     std::shared_ptr<AppExecFwk::EventRunner> eventRunner_;
     std::shared_ptr<AppExecFwk::EventHandler> handler_;
     std::atomic<bool> started_ = false;
     std::atomic<bool> blockRequest_ = false;
     uint32_t requestIndex_ {0};
     std::map<uint32_t, std::shared_ptr<RawParam>> requestRawParamMap_;
-    std::vector<std::pair<std::string, int>> linkCnt_;
 #ifdef DUMP_TEST_MODE // for mock test
     DumpManagerServiceTestMainFunc testMainFunc_ {nullptr};
 #endif // for mock test
