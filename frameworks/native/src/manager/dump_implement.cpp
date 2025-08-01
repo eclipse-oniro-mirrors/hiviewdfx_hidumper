@@ -232,6 +232,7 @@ DumpStatus DumpImplement::CmdParse(int argc, char *argv[], std::shared_ptr<Dumpe
         ProcessDumpOptions(clientPid, dumpParameter, opts);
     }
     ReportJsheap(opts);
+    ReportCjheap(opts);
     dumpParameter->SetOpts(opts);
     return DumpStatus::DUMP_OK;
 }
@@ -1016,6 +1017,21 @@ void DumpImplement::ReportJsheap(const DumperOpts &opts)
         "TYPE", strType);
     if (memJsheapRet != 0) {
         DUMPER_HILOGE(MODULE_COMMON, "hisysevent report mem jsheap failed! ret %{public}d.", memJsheapRet);
+    }
+}
+
+void DumpImplement::ReportCjheap(const DumperOpts &opts)
+{
+    if (!opts.isDumpCjHeapMem_) {
+        return;
+    }
+    std::string strType = "hidumper";
+    int memCjheapRet = HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::FRAMEWORK, "ARK_STATS_DUMP",
+        OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
+        "PID", std::to_string(opts.dumpCjHeapMemPid_),
+        "TYPE", strType);
+    if (memCjheapRet != 0) {
+        DUMPER_HILOGE(MODULE_COMMON, "hisysevent report mem cjheap failed! ret %{public}d.", memCjheapRet);
     }
 }
 #endif

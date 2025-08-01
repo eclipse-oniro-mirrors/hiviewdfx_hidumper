@@ -90,6 +90,7 @@ private:
     void RemoveDuplicateString(DumperOpts& opts_);
 #ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
     void ReportJsheap(const DumperOpts &opts_);
+    void ReportCjheap(const DumperOpts &opts_);
 #endif
     bool CheckAppDebugVersion(int pid);
     bool CheckDumpPermission(DumperOpts &opt);
