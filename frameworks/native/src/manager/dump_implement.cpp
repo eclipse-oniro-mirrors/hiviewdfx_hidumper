@@ -71,6 +71,9 @@ static struct option LONG_OPTIONS[] = {{"cpufreq", no_argument, 0, 0},
     {"stop-stat", no_argument, 0, 0},
     {"stat", no_argument, 0, 0},
     {0, 0, 0, 0}};
+
+thread_local std::unique_ptr<DumperSysEventParams> DumpImplement::dumperSysEventParams_{nullptr};
+
 DumpImplement::DumpImplement()
 {
     AddExecutorFactoryToMap();

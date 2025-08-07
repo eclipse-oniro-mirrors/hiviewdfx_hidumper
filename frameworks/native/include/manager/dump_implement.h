@@ -119,7 +119,7 @@ private:
     std::string path_;
     static const int IPC_STAT_ARG_NUMS = 4;
     static const int HIVIEW_UID = 1201;
-    std::unique_ptr<DumperSysEventParams> dumperSysEventParams_{nullptr};
+    static thread_local std::unique_ptr<DumperSysEventParams> dumperSysEventParams_;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
