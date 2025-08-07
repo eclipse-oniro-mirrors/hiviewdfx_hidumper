@@ -56,7 +56,8 @@ public:
     static bool StartWith(const std::string& str, const std::string& head);
     static bool GetUserPids(std::vector<int> &pids);
     static bool IsUserPid(const std::string &pid);
-    static int FindStorageDirSecondDigitIndex(const std::string& fullFileName);
+    static int FindNonSandBoxPathIndex(const std::string& fullFileName);
+    static int FindFdClusterStartIndex(const std::string& fullFileName);
     static void ReportCmdUsage(const std::unique_ptr<DumperSysEventParams>& param);
     static void ClearHisyseventTmpFile();
     static uint64_t GetMilliseconds();

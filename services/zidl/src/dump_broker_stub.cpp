@@ -91,17 +91,17 @@ int32_t DumpBrokerStub::CountFdNumsStub(MessageParcel& data, MessageParcel& repl
     int32_t ret = ERR_OK;
     uint32_t fdNums = 0;
     std::string detailFdInfo;
-    std::string topLeakedType;
+    std::vector<std::string> topLeakedTypeList;
 
     int32_t pid = data.ReadInt32();
-    ret = CountFdNums(pid, fdNums, detailFdInfo, topLeakedType);
+    ret = CountFdNums(pid, fdNums, detailFdInfo, topLeakedTypeList);
     if (!reply.WriteInt32(fdNums)) {
         return ERROR_WRITE_PARCEL;
     }
     if (!reply.WriteString(detailFdInfo)) {
         return ERROR_WRITE_PARCEL;
     }
-    if (!reply.WriteString(topLeakedType)) {
+    if (!reply.WriteStringVector(topLeakedTypeList)) {
         return ERROR_WRITE_PARCEL;
     }
     if (!reply.WriteInt32(ret)) {

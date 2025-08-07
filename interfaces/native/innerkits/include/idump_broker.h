@@ -25,7 +25,7 @@ public:
     // return: = 0 OK; < 0 Error;
     virtual int32_t ScanPidOverLimit(std::string requestType, int32_t limitSize, std::vector<int32_t> &pidList) = 0;
     virtual int32_t CountFdNums(int32_t pid, uint32_t &fdNums,
-        std::string &detailFdInfo, std::string &topLeakedType) = 0;
+        std::string &detailFdInfo, std::vector<std::string> &topLeakedTypeList) = 0;
 
     // Used for dump request
     // return: = 0 OK; < 0 Error;

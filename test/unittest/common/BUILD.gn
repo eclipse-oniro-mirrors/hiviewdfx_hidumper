@@ -424,12 +424,36 @@ ohos_unittest("HidumperZidlTest") {
   ]
 }
 
+ohos_unittest("DumpCommonUtilsTest") {
+  module_out_path = module_output_path
+
+  sources = [ "dump_common_utils_test.cpp" ]
+
+  configs = [
+    "${hidumper_utils_path}:utils_config",
+    ":module_private_config",
+  ]
+
+  deps = [ "${hidumper_service_path}:hidumperservice_source" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+    "zlib:shared_libz",
+  ]
+}
+
 ###############################################################################
 group("unittest") {
   testonly = true
 
   deps = [
     # deps file
+    ":DumpCommonUtilsTest",
     ":GetHeapInfoTest",
     ":HidumperClientTest",
     ":HidumperConfigUtilsTest",

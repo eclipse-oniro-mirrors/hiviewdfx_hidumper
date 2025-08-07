@@ -47,7 +47,8 @@ public:
     // Used for scan pid list over limit
     int32_t ScanPidOverLimit(std::string requestType, int32_t limitSize, std::vector<int32_t> &pidList) override;
     // Used for count fd nums
-    int32_t CountFdNums(int32_t pid, uint32_t &fdNums, std::string &detailFdInfo, std::string &topLeakedType) override;
+    int32_t CountFdNums(int32_t pid, uint32_t &fdNums, std::string &detailFdInfo,
+        std::vector<std::string> &topLeakedTypeList) override;
 public:
     int32_t OnIdle(const SystemAbilityOnDemandReason& idleReason) override;
     int32_t Dump(int32_t fd, const std::vector<std::u16string>& args) override;

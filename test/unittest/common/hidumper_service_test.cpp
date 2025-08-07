@@ -113,13 +113,17 @@ HWTEST_F(HidumperServiceTest, DumpManagerService003, TestSize.Level3)
     int32_t pid = 1;
     uint32_t fdNums = 0;
     std::string detailFdInfo;
-    std::string topLeakedType;
-    int32_t ret = dumpManagerService->CountFdNums(pid, fdNums, detailFdInfo, topLeakedType);
-    cout << "pid:" << pid << " fdNums:" << fdNums << " topLeakedType:" << topLeakedType << endl;
+    std::vector<std::string> topLeakedTypeList;
+    int32_t ret = dumpManagerService->CountFdNums(pid, fdNums, detailFdInfo, topLeakedTypeList);
+    cout << "pid:" << pid << " fdNums:" << fdNums << endl;
+    cout << "topLeakedTypeList:" << endl;
+    for (const auto& type : topLeakedTypeList) {
+        cout << " " << type << endl;
+    }
     cout << "detailFdInfo:" << endl << detailFdInfo << endl;
     ASSERT_TRUE(ret == 0);
     ASSERT_FALSE(detailFdInfo.empty());
-    ASSERT_FALSE(topLeakedType.empty());
+    ASSERT_FALSE(topLeakedTypeList.empty());
 }
 
 /**

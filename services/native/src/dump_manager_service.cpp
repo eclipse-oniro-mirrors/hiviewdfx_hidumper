@@ -53,6 +53,7 @@ const std::string TASK_ID = "unload";
 constexpr int32_t DYNAMIC_EXIT_DELAY_TIME = 120000;
 constexpr int32_t UNLOAD_IMMEDIATELY = 0;
 constexpr size_t FD_TOP_CNT = 10;
+constexpr int32_t NEED_DUMP_FDLINK_NUMS = 1200;
 }
 
 DumpManagerService::DumpManagerService() : SystemAbility(DFX_SYS_HIDUMPER_ABILITY_ID, true)
@@ -382,7 +383,7 @@ std::string DumpManagerService::GetTopDirInfo(const vector<pair<string, int>> &t
 }
 
 int32_t DumpManagerService::CountFdNums(int32_t pid, uint32_t &fdNums, std::string &detailFdInfo,
-                                        std::string &topLeakedType)
+    std::vector<std::string> &topLeakedTypeList)
 {
     if (!HasDumpPermission()) {
         return DumpStatus::DUMP_FAIL;
@@ -397,7 +398,7 @@ int32_t DumpManagerService::CountFdNums(int32_t pid, uint32_t &fdNums, std::stri
 
     map<string, unordered_map<string, int>> typePaths;
     for (const auto& [path, count] : linkCounts) {
-        string type(path, 0, DumpCommonUtils::FindStorageDirSecondDigitIndex(path));
+        string type(path, 0, DumpCommonUtils::FindFdClusterStartIndex(path));
         if (type != path) {
             typePaths[type][path] = count;
         }
@@ -413,7 +414,12 @@ int32_t DumpManagerService::CountFdNums(int32_t pid, uint32_t &fdNums, std::stri
     auto topTypes = TopN(typeTotal, FD_TOP_CNT);
 
     fdNums = links.size();
-    topLeakedType = topLinks[0].first;
+    topLeakedTypeList.push_back(topLinks[0].first);
+    for (size_t i = 0; i < topLinks.size() && i <FD_TOP_CNT; i++) {
+        if (i > 0 && topLinks[i].second > NEED_DUMP_FDLINK_NUMS) {
+            topLeakedTypeList.push_back(topLinks[i].first);
+        }
+    }
 
     stringstream output;
     output << "Summary:\n";
