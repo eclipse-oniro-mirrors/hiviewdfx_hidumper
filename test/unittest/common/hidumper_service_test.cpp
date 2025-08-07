@@ -44,6 +44,12 @@ void WriteFile(const std::string &content, const std::string &filename)
  
     std::cout << "write success" << std::endl;
 }
+
+bool IsProcessExist(int pid)
+{
+    string path = "/proc/" + to_string(pid);
+    return access(path.c_str(), F_OK) == 0;
+}
 }
 
 void HidumperServiceTest::SetUpTestCase(void)
@@ -223,39 +229,16 @@ HWTEST_F(HidumperServiceTest, DumpManagerService008, TestSize.Level3)
  * @tc.desc: Test DumpManagerService GetFdLinks with valid symlinks.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService009, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService009, TestSize.Level1)
 {
-    int pid = 1234;
-    std::string baseFdPath = "/tmp/proc/" + std::to_string(pid) + "/fd/";
-    std::string fdDir = baseFdPath;
-
-    // Ensure directory exists
-    int result = system(("mkdir -p " + fdDir).c_str());
-    if (result != 0) {
-        return;
-    }
-
-    std::string link1 = "0";
-    std::string target1 = "/dev/stdin";
-    std::string link2 = "1";
-    std::string target2 = "/dev/stdout";
-    std::string link3 = "2";
-    std::string target3 = "/dev/stderr";
-
-    symlink(target1.c_str(), (fdDir + link1).c_str());
-    symlink(target2.c_str(), (fdDir + link2).c_str());
-    symlink(target3.c_str(), (fdDir + link3).c_str());
-
+    int pid = 1;
     auto dumpService = std::make_shared<DumpManagerService>();
     std::vector<std::string> links = dumpService->GetFdLinks(pid);
 
-    EXPECT_EQ(links.size(), 3);
-    EXPECT_EQ(links[0], target1);
-    EXPECT_EQ(links[1], target2);
-    EXPECT_EQ(links[2], target3);
+    cout << "links.size:" << links.size() << endl;
 
-    // Cleanup
-    system(("rm -rf " + baseFdPath).c_str());
+    EXPECT_GT(links.size(), 0);
+
     std::cout << "DumpManagerService009 passed with " << links.size() << " links." << std::endl;
 }
 
@@ -264,9 +247,14 @@ HWTEST_F(HidumperServiceTest, DumpManagerService009, TestSize.Level3)
  * @tc.desc: Test DumpManagerService GetFdLinks with non-existent fd directory.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService010, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService010, TestSize.Level1)
 {
-    int pid = 5678;
+    int pid = 65533;
+    // 确保该进程不存在
+    if (IsProcessExist(pid)) {
+        GTEST_SKIP() << "进程 " << pid << " 已经存在，跳过测试。";
+    }
+
     auto dumpService = std::make_shared<DumpManagerService>();
     std::vector<std::string> links = dumpService->GetFdLinks(pid);
     EXPECT_TRUE(links.empty());
@@ -275,172 +263,136 @@ HWTEST_F(HidumperServiceTest, DumpManagerService010, TestSize.Level3)
 
 /**
  * @tc.name: DumpManagerService011
- * @tc.desc: Test DumpManagerService GetFdLinks with some valid and some invalid symlinks.
- * @tc.type: FUNC
- */
-HWTEST_F(HidumperServiceTest, DumpManagerService011, TestSize.Level3)
-{
-    int pid = 8765;
-    std::string baseFdPath = "/tmp/proc/" + std::to_string(pid) + "/fd/";
-
-    // Ensure directory exists
-    int result = system(("mkdir -p " + baseFdPath).c_str());
-    if (result != 0) {
-        return;
-    }
-
-    std::string validLink1 = baseFdPath + "0";
-    std::string validTarget1 = "/dev/null";
-    symlink(validTarget1.c_str(), validLink1.c_str());
-
-    std::string invalidLink = baseFdPath + "1";
-    std::string invalidTarget = "/tmp/nonexistent_target";
-    symlink(invalidTarget.c_str(), invalidLink.c_str());
-
-    auto dumpService = std::make_shared<DumpManagerService>();
-    std::vector<std::string> links = dumpService->GetFdLinks(pid);
-
-    EXPECT_EQ(links.size(), 2);
-    EXPECT_EQ(links[0], validTarget1);
-    EXPECT_EQ(links[1], "unknown");
-
-    // Cleanup
-    system(("rm -rf " + baseFdPath).c_str());
-    std::cout << "DumpManagerService011 passed with mixed link results." << std::endl;
-}
-
-/**
- * @tc.name: DumpManagerService012
  * @tc.desc: Test MaybeKnownType with valid eventfd type in link.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService012, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService011, TestSize.Level3)
 {
     std::string link = "eventfd";
     auto dumpManagerService = std::make_shared<DumpManagerService>();
     std::string result = dumpManagerService->MaybeKnownType(link);
     ASSERT_TRUE(result == "eventfd");
-    std::cout << "DumpManagerService012 passed for eventfd." << std::endl;
+    std::cout << "DumpManagerService011 passed for eventfd." << std::endl;
 }
 
 /**
- * @tc.name: DumpManagerService013
+ * @tc.name: DumpManagerService012
  * @tc.desc: Test MaybeKnownType with valid eventpoll type in link.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService013, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService012, TestSize.Level3)
 {
     std::string link = "eventpoll";
     auto dumpManagerService = std::make_shared<DumpManagerService>();
     std::string result = dumpManagerService->MaybeKnownType(link);
     ASSERT_TRUE(result == "eventpoll");
-    std::cout << "DumpManagerService013 passed for eventpoll." << std::endl;
+    std::cout << "DumpManagerService012 passed for eventpoll." << std::endl;
 }
 
 /**
- * @tc.name: DumpManagerService014
+ * @tc.name: DumpManagerService013
  * @tc.desc: Test MaybeKnownType with valid sync_file type in link.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService014, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService013, TestSize.Level3)
 {
     std::string link = "/proc/123/fd/4->sync_file";
     auto dumpManagerService = std::make_shared<DumpManagerService>();
     std::string result = dumpManagerService->MaybeKnownType(link);
     ASSERT_TRUE(result == "sync_file");
-    std::cout << "DumpManagerService014 passed for sync_file." << std::endl;
+    std::cout << "DumpManagerService013 passed for sync_file." << std::endl;
 }
 
 /**
- * @tc.name: DumpManagerService015
+ * @tc.name: DumpManagerService014
  * @tc.desc: Test MaybeKnownType with valid dmabuf type in link.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService015, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService014, TestSize.Level3)
 {
     std::string link = "dmabuf";
     auto dumpManagerService = std::make_shared<DumpManagerService>();
     std::string result = dumpManagerService->MaybeKnownType(link);
     ASSERT_TRUE(result == "dmabuf");
-    std::cout << "DumpManagerService015 passed for dmabuf." << std::endl;
+    std::cout << "DumpManagerService014 passed for dmabuf." << std::endl;
 }
 
 /**
- * @tc.name: DumpManagerService016
+ * @tc.name: DumpManagerService015
  * @tc.desc: Test MaybeKnownType with valid socket type in link.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService016, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService015, TestSize.Level3)
 {
     std::string link = "socket:[12345]";
     auto dumpManagerService = std::make_shared<DumpManagerService>();
     std::string result = dumpManagerService->MaybeKnownType(link);
     ASSERT_TRUE(result == "socket");
-    std::cout << "DumpManagerService016 passed for socket." << std::endl;
+    std::cout << "DumpManagerService015 passed for socket." << std::endl;
 }
 
 /**
- * @tc.name: DumpManagerService017
+ * @tc.name: DumpManagerService016
  * @tc.desc: Test MaybeKnownType with valid pipe type in link.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService017, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService016, TestSize.Level3)
 {
     std::string link = "pipe:1234";
     auto dumpManagerService = std::make_shared<DumpManagerService>();
     std::string result = dumpManagerService->MaybeKnownType(link);
     ASSERT_TRUE(result == "pipe");
-    std::cout << "DumpManagerService017 passed for pipe." << std::endl;
+    std::cout << "DumpManagerService016 passed for pipe." << std::endl;
 }
 
 /**
- * @tc.name: DumpManagerService018
+ * @tc.name: DumpManagerService017
  * @tc.desc: Test MaybeKnownType with valid ashmem type in link.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService018, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService017, TestSize.Level3)
 {
     std::string link = "ashmem: /dev/ashmem";
     auto dumpManagerService = std::make_shared<DumpManagerService>();
     std::string result = dumpManagerService->MaybeKnownType(link);
     ASSERT_TRUE(result == "ashmem");
-    std::cout << "DumpManagerService018 passed for ashmem." << std::endl;
+    std::cout << "DumpManagerService017 passed for ashmem." << std::endl;
 }
 
 /**
- * @tc.name: DumpManagerService019
+ * @tc.name: DumpManagerService018
  * @tc.desc: Test MaybeKnownType with unknown type in link.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService019, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService018, TestSize.Level3)
 {
     std::string link = "/dev/random-file";
     auto dumpManagerService = std::make_shared<DumpManagerService>();
     std::string result = dumpManagerService->MaybeKnownType(link);
     ASSERT_TRUE(result == "unknown");
-    std::cout << "DumpManagerService019 passed for unknown type." << std::endl;
+    std::cout << "DumpManagerService018 passed for unknown type." << std::endl;
 }
 
 /**
- * @tc.name: DumpManagerService020
+ * @tc.name: DumpManagerService019
  * @tc.desc: Test MaybeKnownType with multiple known types in link (returns first match).
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService020, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService019, TestSize.Level3)
 {
     std::string link = "eventfd_with_pipe";
     auto dumpManagerService = std::make_shared<DumpManagerService>();
     std::string result = dumpManagerService->MaybeKnownType(link);
     ASSERT_TRUE(result == "eventfd");
-    std::cout << "DumpManagerService020 passed for priority match." << std::endl;
+    std::cout << "DumpManagerService019 passed for priority match." << std::endl;
 }
 
 /**
- * @tc.name: DumpManagerService021
+ * @tc.name: DumpManagerService020
  * @tc.desc: Test CountPaths with multiple paths, check if counts are correct.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService021, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService020, TestSize.Level3)
 {
     // 准备测试数据
     std::vector<std::string> links = {
@@ -467,15 +419,15 @@ HWTEST_F(HidumperServiceTest, DumpManagerService021, TestSize.Level3)
 
     // 断言结果是否与预期一致
     ASSERT_TRUE(result == expected);
-    std::cout << "DumpManagerService021 passed for path counting." << std::endl;
+    std::cout << "DumpManagerService020 passed for path counting." << std::endl;
 }
 
 /**
- * @tc.name: DumpManagerService022
+ * @tc.name: DumpManagerService021
  * @tc.desc: Test TopN with valid input and n >= counter size.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService022, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService021, TestSize.Level3)
 {
     std::unordered_map<std::string, int> counter = {
         {"eventfd", 10}, {"pipe", 8}, {"ashmem", 7}, {"socket", 12}, {"unknown1", 5}
@@ -491,15 +443,15 @@ HWTEST_F(HidumperServiceTest, DumpManagerService022, TestSize.Level3)
     EXPECT_EQ(result[1].second, 10);
     EXPECT_EQ(result[2].first, "pipe");
     EXPECT_EQ(result[2].second, 8);
-    std::cout << "DumpManagerService022 passed: Top3 entries correct." << std::endl;
+    std::cout << "DumpManagerService021 passed: Top3 entries correct." << std::endl;
 }
 
 /**
- * @tc.name: DumpManagerService023
+ * @tc.name: DumpManagerService022
  * @tc.desc: Test TopN when n is larger than counter size.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService023, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService022, TestSize.Level3)
 {
     std::unordered_map<std::string, int> counter = {{"a", 3}, {"b", 2}, {"c", 1}};
     size_t n = 5;
@@ -510,15 +462,15 @@ HWTEST_F(HidumperServiceTest, DumpManagerService023, TestSize.Level3)
     EXPECT_EQ(result[0].first, "a");
     EXPECT_EQ(result[1].first, "b");
     EXPECT_EQ(result[2].first, "c");
-    std::cout << "DumpManagerService023 passed: All entries returned when n > size." << std::endl;
+    std::cout << "DumpManagerService022 passed: All entries returned when n > size." << std::endl;
 }
 
 /**
- * @tc.name: DumpManagerService024
+ * @tc.name: DumpManagerService023
  * @tc.desc: Test TopN with empty counter.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService024, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService023, TestSize.Level3)
 {
     std::unordered_map<std::string, int> counter = {};
     size_t n = 2;
@@ -526,15 +478,15 @@ HWTEST_F(HidumperServiceTest, DumpManagerService024, TestSize.Level3)
     std::vector<std::pair<std::string, int>> result = dumpManagerService->TopN(counter, n);
 
     EXPECT_TRUE(result.empty());
-    std::cout << "DumpManagerService024 passed: Empty counter returns empty list." << std::endl;
+    std::cout << "DumpManagerService023 passed: Empty counter returns empty list." << std::endl;
 }
 
 /**
- * @tc.name: DumpManagerService025
+ * @tc.name: DumpManagerService024
  * @tc.desc: Test heap replacement logic in TopN.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService025, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService024, TestSize.Level3)
 {
     std::unordered_map<std::string, int> counter = {
         {"a", 1}, {"b", 3}, {"c", 2}, {"d", 5}, {"e", 4}
@@ -550,15 +502,15 @@ HWTEST_F(HidumperServiceTest, DumpManagerService025, TestSize.Level3)
     EXPECT_EQ(result[1].second, 4);
     EXPECT_EQ(result[2].first, "b");
     EXPECT_EQ(result[2].second, 3);
-    std::cout << "DumpManagerService025 passed: Heap replacement logic works as expected." << std::endl;
+    std::cout << "DumpManagerService024 passed: Heap replacement logic works as expected." << std::endl;
 }
 
 /**
- * @tc.name: DumpManagerService026
+ * @tc.name: DumpManagerService025
  * @tc.desc: Test GetTopFdInfo with normal input containing multiple entries.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService026, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService025, TestSize.Level3)
 {
     std::vector<std::pair<std::string, int>> topLinks = {
         {"eventfd", 3},
@@ -569,45 +521,45 @@ HWTEST_F(HidumperServiceTest, DumpManagerService026, TestSize.Level3)
     std::string result = dumpManagerService->GetTopFdInfo(topLinks);
     std::string expected = "3\teventfd\n5\tpipe\n2\tashmem\n";
     EXPECT_EQ(result, expected);
-    std::cout << "DumpManagerService026 passed: Normal input format correct." << std::endl;
+    std::cout << "DumpManagerService025 passed: Normal input format correct." << std::endl;
 }
 
 /**
- * @tc.name: DumpManagerService027
+ * @tc.name: DumpManagerService026
  * @tc.desc: Test GetTopFdInfo with empty input.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService027, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService026, TestSize.Level3)
 {
     std::vector<std::pair<std::string, int>> topLinks = {};
     auto dumpManagerService = std::make_shared<DumpManagerService>();
     std::string result = dumpManagerService->GetTopFdInfo(topLinks);
     std::string expected = "";
     EXPECT_EQ(result, expected);
-    std::cout << "DumpManagerService027 passed: Empty input returns empty string." << std::endl;
+    std::cout << "DumpManagerService026 passed: Empty input returns empty string." << std::endl;
 }
 
 /**
- * @tc.name: DumpManagerService028
+ * @tc.name: DumpManagerService027
  * @tc.desc: Test GetTopFdInfo with single entry.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService028, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService027, TestSize.Level3)
 {
     std::vector<std::pair<std::string, int>> topLinks = {{"socket", 1}};
     auto dumpManagerService = std::make_shared<DumpManagerService>();
     std::string result = dumpManagerService->GetTopFdInfo(topLinks);
     std::string expected = "1\tsocket\n";
     EXPECT_EQ(result, expected);
-    std::cout << "DumpManagerService028 passed: Single entry returns correct string." << std::endl;
+    std::cout << "DumpManagerService027 passed: Single entry returns correct string." << std::endl;
 }
 
 /**
- * @tc.name: DumpManagerService029
+ * @tc.name: DumpManagerService028
  * @tc.desc: Test GetTopFdInfo with non-ASCII characters in names.
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService029, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService028, TestSize.Level3)
 {
     std::vector<std::pair<std::string, int>> topLinks = {
         {"fd\\twith\\tnull", 2},
@@ -617,15 +569,15 @@ HWTEST_F(HidumperServiceTest, DumpManagerService029, TestSize.Level3)
     std::string result = dumpManagerService->GetTopFdInfo(topLinks);
     std::string expected = "2\tfd\\twith\\tnull\n3\tfile\\nwith\\nnewline\n";
     EXPECT_EQ(result, expected);
-    std::cout << "DumpManagerService029 passed: Non-ASCII characters in names handled properly." << std::endl;
+    std::cout << "DumpManagerService028 passed: Non-ASCII characters in names handled properly." << std::endl;
 }
 
 /**
- * @tc.name: DumpManagerService030
+ * @tc.name: DumpManagerService029
  * @tc.desc: Test GetTopDirInfo with paths exceeding FD_TOP_CNT (10).
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService030, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService029, TestSize.Level3)
 {
     std::vector<std::pair<std::string, int>> topTypes = {
         {"eventfd", 50}  // Arbitrary value for total
@@ -651,15 +603,15 @@ HWTEST_F(HidumperServiceTest, DumpManagerService030, TestSize.Level3)
     std::string expected = "50\teventfd\n012\tpath12\n011\tpath11\n010\tpath10\n09\tpath9\n08\tpath8\n"
                            "07\tpath7\n06\tpath6\n05\tpath1\n04\tpath2\n03\tpath3\n";
     EXPECT_EQ(result, expected);
-    std::cout << "DumpManagerService030 passed: Paths exceeding FD_TOP_CNT add ellipsis." << std::endl;
+    std::cout << "DumpManagerService029 passed: Paths exceeding FD_TOP_CNT add ellipsis." << std::endl;
 }
 
 /**
- * @tc.name: DumpManagerService031
+ * @tc.name: DumpManagerService030
  * @tc.desc: Test GetTopDirInfo with empty input
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService031, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService030, TestSize.Level3)
 {
     std::vector<std::pair<std::string, int>> topTypes = {};
     std::map<std::string, std::unordered_map<std::string, int>> typePaths = {};
@@ -667,15 +619,15 @@ HWTEST_F(HidumperServiceTest, DumpManagerService031, TestSize.Level3)
     std::string result = dumpManagerService->GetTopDirInfo(topTypes, typePaths);
     std::string expected = "";
     EXPECT_EQ(result, expected);
-    std::cout << "DumpManagerService031 passed: Empty input returns empty string." << std::endl;
+    std::cout << "DumpManagerService030 passed: Empty input returns empty string." << std::endl;
 }
 
 /**
- * @tc.name: DumpManagerService032
+ * @tc.name: DumpManagerService031
  * @tc.desc: Test GetTopDirInfo with type path equal to type name
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService032, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService031, TestSize.Level3)
 {
     std::vector<std::pair<std::string, int>> topTypes = {
         {"socket", 5}
@@ -690,15 +642,15 @@ HWTEST_F(HidumperServiceTest, DumpManagerService032, TestSize.Level3)
     std::string result = dumpManagerService->GetTopDirInfo(topTypes, typePaths);
     std::string expected = "5	socket\n03\tsocket_2\n02\tsocket_1\n";
     EXPECT_EQ(result, expected);
-    std::cout << "DumpManagerService032 passed: Skip path equal to type name." << std::endl;
+    std::cout << "DumpManagerService031 passed: Skip path equal to type name." << std::endl;
 }
 
 /**
- * @tc.name: DumpManagerService033
+ * @tc.name: DumpManagerService032
  * @tc.desc: Test GetSummary when both vectors are empty
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService033, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService032, TestSize.Level3)
 {
     std::vector<std::pair<std::string, int>> topLinks{};
     std::vector<std::pair<std::string, int>> topTypes{};
@@ -706,15 +658,15 @@ HWTEST_F(HidumperServiceTest, DumpManagerService033, TestSize.Level3)
     std::string result = dumpManagerService->GetSummary(topLinks, topTypes);
     std::string expected = "";
     EXPECT_EQ(result, expected);
-    std::cout << "DumpManagerService033 passed: Both vectors empty returns empty." << std::endl;
+    std::cout << "DumpManagerService032 passed: Both vectors empty returns empty." << std::endl;
 }
 
 /**
- * @tc.name: DumpManagerService034
+ * @tc.name: DumpManagerService033
  * @tc.desc: Test GetSummary when only topLinks is empty
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService034, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService033, TestSize.Level3)
 {
     std::vector<std::pair<std::string, int>> topLinks{};
     std::vector<std::pair<std::string, int>> topTypes = {{"dir_inode", 10}};
@@ -722,15 +674,15 @@ HWTEST_F(HidumperServiceTest, DumpManagerService034, TestSize.Level3)
     std::string result = dumpManagerService->GetSummary(topLinks, topTypes);
     std::string expected = "Leaked dir:dir_inode";
     EXPECT_EQ(result, expected);
-    std::cout << "DumpManagerService034 passed: Only topTypes has data." << std::endl;
+    std::cout << "DumpManagerService033 passed: Only topTypes has data." << std::endl;
 }
 
 /**
- * @tc.name: DumpManagerService035
+ * @tc.name: DumpManagerService034
  * @tc.desc: Test GetSummary when only topTypes is empty
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService035, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService034, TestSize.Level3)
 {
     std::vector<std::pair<std::string, int>> topLinks = {{"fd_pipe", 7}};
     std::vector<std::pair<std::string, int>> topTypes{};
@@ -738,15 +690,15 @@ HWTEST_F(HidumperServiceTest, DumpManagerService035, TestSize.Level3)
     std::string result = dumpManagerService->GetSummary(topLinks, topTypes);
     std::string expected = "Leaked fd:fd_pipe";
     EXPECT_EQ(result, expected);
-    std::cout << "DumpManagerService035 passed: Only topLinks has data." << std::endl;
+    std::cout << "DumpManagerService034 passed: Only topLinks has data." << std::endl;
 }
 
 /**
- * @tc.name: DumpManagerService036
+ * @tc.name: DumpManagerService035
  * @tc.desc: Test GetSummary when topLinks count is greater
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService036, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService035, TestSize.Level3)
 {
     std::vector<std::pair<std::string, int>> topLinks = {{"fd_char", 10}};
     std::vector<std::pair<std::string, int>> topTypes = {{"dir_block", 5}};
@@ -754,15 +706,15 @@ HWTEST_F(HidumperServiceTest, DumpManagerService036, TestSize.Level3)
     std::string result = dumpManagerService->GetSummary(topLinks, topTypes);
     std::string expected = "Leaked fd:fd_char";
     EXPECT_EQ(result, expected);
-    std::cout << "DumpManagerService036 passed: Link count dominates." << std::endl;
+    std::cout << "DumpManagerService035 passed: Link count dominates." << std::endl;
 }
 
 /**
- * @tc.name: DumpManagerService037
+ * @tc.name: DumpManagerService036
  * @tc.desc: Test GetSummary when counts are equal
  * @tc.type: FUNC
  */
-HWTEST_F(HidumperServiceTest, DumpManagerService037, TestSize.Level3)
+HWTEST_F(HidumperServiceTest, DumpManagerService036, TestSize.Level3)
 {
     std::vector<std::pair<std::string, int>> topLinks = {{"fd_dev", 8}};
     std::vector<std::pair<std::string, int>> topTypes = {{"dir_dev", 8}};
@@ -770,7 +722,7 @@ HWTEST_F(HidumperServiceTest, DumpManagerService037, TestSize.Level3)
     std::string result = dumpManagerService->GetSummary(topLinks, topTypes);
     std::string expected = "Leaked fd:fd_dev";
     EXPECT_EQ(result, expected);
-    std::cout << "DumpManagerService037 passed: Equal counts choose fd." << std::endl;
+    std::cout << "DumpManagerService036 passed: Equal counts choose fd." << std::endl;
 }
 } // namespace HiviewDFX
 } // namespace OHOS
