@@ -238,6 +238,7 @@ inline const std::map<int, std::string> saNameMap_ = {
     { COMM_FIREWALL_MANAGER_SYS_ABILITY_ID, "NetFirewallManager" },
     { SUBSYS_WEBVIEW_SYS_UPDATE_SERVICE_ID, "AppFwkUpdateService"},
     { SELECTION_FWK_SA_ID, "SelectionService" },
+    { MECH_BODY_SA_ID, "MechBodyService" },
 };
 
 namespace HiviewDFX {
