@@ -63,6 +63,7 @@ struct DumperOpts {
     int timeInterval_;
     bool isReceivedSigInt_;
     bool showAshmem_;
+    bool showDmaBuf_;
 
 public:
     DumperOpts();

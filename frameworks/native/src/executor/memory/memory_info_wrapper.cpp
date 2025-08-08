@@ -24,10 +24,10 @@ extern "C" {
 
 using StringMatrix = std::shared_ptr<std::vector<std::vector<std::string>>>;
 
-int GetMemoryInfoByPid(int pid, StringMatrix data, bool showAshmem)
+int GetMemoryInfoByPid(int pid, StringMatrix data, bool showAshmem, bool showDmaBuf)
 {
     std::unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo = std::make_unique<OHOS::HiviewDFX::MemoryInfo>();
-    if (!memoryInfo->GetMemoryInfoByPid(pid, data, showAshmem)) {
+    if (!memoryInfo->GetMemoryInfoByPid(pid, data, showAshmem, showDmaBuf)) {
         DUMPER_HILOGE(MODULE_SERVICE, "GetMemoryInfoByPid error, pid:%{public}d", pid);
         return OHOS::HiviewDFX::DumpStatus::DUMP_FAIL;
     }

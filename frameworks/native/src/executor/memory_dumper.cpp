@@ -38,6 +38,7 @@ DumpStatus MemoryDumper::PreExecute(const shared_ptr<DumperParameter> &parameter
     isReceivedSigInt_ = parameter->GetOpts().isReceivedSigInt_;
     dumpMemPrune_ = parameter->GetOpts().dumpMemPrune_;
     showAshmem_ = parameter->GetOpts().showAshmem_;
+    showDmabuf_ = parameter->GetOpts().showDmaBuf_;
     dumpDatas_ = dumpDatas;
 
     bool isZip = parameter->GetOpts().IsDumpZip();
@@ -101,7 +102,7 @@ void MemoryDumper::GetMemByPid()
         dlclose(handle);
         return;
     }
-    if (!pfn(pid_, dumpDatas_, showAshmem_)) {
+    if (!pfn(pid_, dumpDatas_, showAshmem_, showDmabuf_)) {
         status_ = DumpStatus::DUMP_OK;
     } else {
         DUMPER_HILOGE(MODULE_SERVICE, "MemoryDumper Execute failed, pid:%{public}d", pid_);

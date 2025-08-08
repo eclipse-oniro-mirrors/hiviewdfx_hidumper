@@ -82,6 +82,7 @@ void DumperOpts::Reset()
     dumpJsRawHeap_ = false;
     dumpMemPrune_ = false;
     showAshmem_ = false;
+    showDmaBuf_ = false;
 }
 
 DumperOpts& DumperOpts::operator = (const DumperOpts& opts)
@@ -131,6 +132,7 @@ DumperOpts& DumperOpts::operator = (const DumperOpts& opts)
     dumpJsRawHeap_ = opts.dumpJsRawHeap_;
     dumpMemPrune_ = opts.dumpMemPrune_;
     showAshmem_ = opts.showAshmem_;
+    showDmaBuf_ = opts.showDmaBuf_;
     return *this;
 }
 

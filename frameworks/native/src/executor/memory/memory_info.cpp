@@ -32,6 +32,7 @@
 #include "executor/memory/get_ram_info.h"
 #include "executor/memory/memory_util.h"
 #include "executor/memory/parse/parse_ashmem_info.h"
+#include "executor/memory/parse/parse_dmabuf_info.h"
 #include "executor/memory/parse/parse_meminfo.h"
 #include "executor/memory/parse/parse_smaps_rollup_info.h"
 #include "executor/memory/parse/parse_smaps_info.h"
@@ -63,6 +64,8 @@ std::atomic<bool> g_isDumpMem = true;
 constexpr int SECOND_TO_MILLISECONDS = 1000;
 constexpr int MAX_STARS_NUM = 20;
 constexpr int ONE_STAR = 1;
+constexpr int APP_UID = 20000;
+constexpr int LINE_SPACING = 8;
 
 MemoryInfo::MemoryInfo()
 {
@@ -460,7 +463,7 @@ void MemoryInfo::GetMemoryInfoByTimeInterval(int fd, const int32_t &pid, const i
     int prevLineCount = 0;
     while (g_isDumpMem) {
         StringMatrix result = std::make_shared<std::vector<std::vector<std::string>>>();
-        GetMemoryInfoByPid(pid, result, false);
+        GetMemoryInfoByPid(pid, result, false, false);
         pssValues.push_back(static_cast<int>(currentPss_));
         PrintMemoryInfo(pssValues, &prevLineCount);
         RedirectMemoryInfo(static_cast<int>(pssValues.size()), result);
@@ -470,13 +473,14 @@ void MemoryInfo::GetMemoryInfoByTimeInterval(int fd, const int32_t &pid, const i
     DUMPER_HILOGI(MODULE_SERVICE, "GetMemoryInfoByTimeInterval timeInterval:%{public}d end", timeInterval);
 }
 
-bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result, bool showAshmem)
+bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result, bool showAshmem, bool showDmaBuf)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     InsertMemoryTitle(result);
     GetResult(pid, result);
     GetPurgByPid(pid, result);
     GetDma(graphicsMemory_.graph, result);
+    GetDmaBuf(pid, result, showDmaBuf);
     GetHiaiServerIon(pid, result);
     GetAshmem(pid, result, showAshmem);
     return true;
@@ -891,6 +895,47 @@ void MemoryInfo::GetAshmem(const int32_t &pid, StringMatrix result, bool showAsh
     }
 }
 
+void MemoryInfo::GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDmaBuf)
+{
+    if (!showDmaBuf) {
+        DUMPER_HILOGD(MODULE_SERVICE, "showDmaBuf is false, skip GetDmaBuf");
+        return;
+    }
+    int32_t uid = GetProcUid(pid);
+    if (uid < APP_UID) {
+        DUMPER_HILOGD(MODULE_SERVICE, "Uid Verification failed for uid: %{public}d", uid);
+        return;
+    }
+    std::vector<std::string> dmabufInfo;
+    std::vector<std::string> titles;
+    unordered_map<std::string, int> headerMap;
+    vector<int> columnWidths;
+    unique_ptr<ParseDmaBufInfo> parseDmaBufInfo = make_unique<ParseDmaBufInfo>();
+    if (!parseDmaBufInfo->GetDmaBufInfo(pid, dmabufInfo, headerMap, columnWidths, titles)) {
+        DUMPER_HILOGE(MODULE_SERVICE, "GetDmaBufInfo error");
+        return;
+    }
+    const std::unordered_set<std::string> exTitles = { "can_reclaim", "is_reclaim" };
+    for (const auto& dmabuf : dmabufInfo) {
+        std::istringstream ss(dmabuf);
+        std::ostringstream oss;
+        for (const auto& title : titles) {
+            std::string value;
+            if (!(ss >> value)) {
+                value = "NULL";
+            }
+            if (exTitles.find(title) != exTitles.end()) {
+                continue;
+            }
+            int width = columnWidths[headerMap[title]];
+            oss << std::left << std::setw(width + LINE_SPACING) << value;
+        }
+        vector<string> tempResult;
+        tempResult.push_back(oss.str());
+        result->push_back(tempResult);
+    }
+}
+
 void MemoryInfo::GetRamCategory(const GroupMap &smapsInfos, const ValueMap &meminfos, StringMatrix result)
 {
     SaveStringToFd(rawParamFd_, "Total RAM by Category:\n");
@@ -929,6 +974,25 @@ string MemoryInfo::GetProcName(const int32_t &pid)
         procName = FileUtils::GetInstance().GetProcValue(pid, path, "Name");
     }
     return procName;
+}
+
+int32_t MemoryInfo::GetProcUid(const int32_t &pid)
+{
+    string path = "/proc/" + to_string(pid) + "/status";
+    string procUid = FileUtils::GetInstance().GetProcValue(pid, path, "Uid");
+    if (procUid == UNKNOWN_PROCESS) {
+        DUMPER_HILOGE(MODULE_SERVICE, "GetProcUid failed");
+        return -1;
+    }
+    istringstream uid_stream(procUid);
+    string value;
+    uid_stream >> value;
+    int uid = -1;
+    if (!StrToInt(value, uid)) {
+        DUMPER_HILOGE(MODULE_COMMON, "StrToInt failed, value: %{public}s", value.c_str());
+        return -1;
+    }
+    return static_cast<int32_t>(uid);
 }
 
 uint64_t MemoryInfo::GetProcValue(const int32_t &pid, const string& key)

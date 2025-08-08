@@ -66,6 +66,7 @@ static struct option LONG_OPTIONS[] = {{"cpufreq", no_argument, 0, 0},
     {"raw", no_argument, 0, 0},
     {"prune", no_argument, 0, 0},
     {"show-ashmem", no_argument, 0, 0},
+    {"show-dmabuf", no_argument, 0, 0},
     {"ipc", optional_argument, 0, 0},
     {"start-stat", no_argument, 0, 0},
     {"stop-stat", no_argument, 0, 0},
@@ -419,19 +420,14 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts_, const 
     if (ParseSubLongCmdOption(argc, opts_, longOptions, optionIndex, argv)) {
         return DumpStatus::DUMP_OK;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-smaps")) {
-        opts_.isShowSmaps_ = true;
-        dumperSysEventParams_->opt = "mem-smaps";
-        DumpStatus status;
-        if (ARG_INDEX_OFFSET_LAST_OPTION < 0 || ARG_INDEX_OFFSET_LAST_OPTION >= argc) {
-            status = DumpStatus::DUMP_FAIL;
-        } else {
-            status = SetCmdIntegerParameter(argv[ARG_INDEX_OFFSET_LAST_OPTION], opts_.memPid_);
-        }
+        DumpStatus status = SetMemSmapsParam(opts_, argc, argv);
         if (status != DumpStatus::DUMP_OK) {
             return status;
         }
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "show-ashmem")) {
         opts_.showAshmem_ = true;
+    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "show-dmabuf")) {
+        opts_.showDmaBuf_ = true;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-jsheap")) {
         return SetMemJsheapParam(opts_);
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-cjheap")) {
@@ -464,6 +460,19 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts_, const 
         DUMPER_HILOGE(MODULE_COMMON, "ParseLongCmdOption %{public}s", longOptions[optionIndex].name);
     }
     return DumpStatus::DUMP_OK;
+}
+
+DumpStatus DumpImplement::SetMemSmapsParam(DumperOpts &opt, int argc, char *argv[])
+{
+    opt.isShowSmaps_ = true;
+    dumperSysEventParams_->opt = "mem-smaps";
+    DumpStatus status;
+    if (ARG_INDEX_OFFSET_LAST_OPTION < 0 || ARG_INDEX_OFFSET_LAST_OPTION >= argc) {
+        status = DumpStatus::DUMP_FAIL;
+    } else {
+        status = SetCmdIntegerParameter(argv[ARG_INDEX_OFFSET_LAST_OPTION], opt.memPid_);
+    }
+    return status;
 }
 
 DumpStatus DumpImplement::SetMemJsheapParam(DumperOpts &opt)
@@ -678,6 +687,7 @@ void DumpImplement::CmdHelp()
         " pid if pid was specified; dump simplified memory infomation if prune is specified and not support"
         " dumped simplified memory infomation of specified pid\n"
         "  --mem [pid] [--show-ashmem]   |show ashmem info when dumping memory of specified pid\n"
+        "  --mem [pid] [--show-dmabuf]   |show dmabuf info when dumping memory of specified pid\n"
         "  --mem [pid] -t [timeInterval]  |dump process memory change information, press Ctrl+C to stop the export."
         " detail information is stored in /data/log/hidumper/record_mem.txt.\n"
         "  --zip                       |compress output to /data/log/hidumper\n"
