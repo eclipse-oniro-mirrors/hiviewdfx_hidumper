@@ -155,13 +155,15 @@ hidumper可以为开发者导出系统当前基本信息，通过这些基本信
     hidumper --cpufreq
     ```
 
-16. 运行  **hidumper --mem [pid] [--prune] [-t timeInterval]**  命令获取全部的内存使用信息；如果指定进程的pid，只获取该进程的内存使用情况; 如果指定--prune，则导出精简内存信息; 指定具体pid和时间可以打印出pid的内存变化信息。
+16. 运行  **hidumper --mem [pid] [--prune] [-t timeInterval] [--show-ashmem] [--show-dmabuf]**  命令获取全部的内存使用信息；如果指定进程的pid，只获取该进程的内存使用情况; 如果指定--prune，则导出精简内存信息; 指定具体pid和时间可以打印出pid的内存变化信息。如果指定 --show-ashmem，则补充打印ashmem使用详细信息。如果是应用进程，指定--show-dmabuf，则补充打印DMA内存详情信息。
 
     ```
     hidumper --mem
     hidumper --mem 1024
     hidumper --mem --prune
     hidumper --mem 1 -t 1
+    hidumper --mem 1024 --show-ashmem
+    hidumper --mem 1024 --show-dmabuf
     ```
 
 17. 运行  **hidumper --zip**  命令压缩信息数据到/data/log/hidumper目录下。
