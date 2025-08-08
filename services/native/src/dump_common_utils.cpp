@@ -345,15 +345,22 @@ bool DumpCommonUtils::GetProcessInfo(int pid, PidInfo &info)
     return false;
 }
 
-int DumpCommonUtils::FindStorageDirSecondDigitIndex(const std::string& fullFileName)
+int DumpCommonUtils::FindNonSandBoxPathIndex(const std::string& fullFileName)
+{
+    for (size_t i = 0; i < fullFileName.size(); i++) {
+        if (std::isdigit(fullFileName[i])) {
+            return i;
+        }
+    }
+    return static_cast<int>(fullFileName.size());
+}
+
+int DumpCommonUtils::FindFdClusterStartIndex(const std::string& fullFileName)
 {
     size_t fileNameSize = fullFileName.size();
-    if (STORAGE_PATH_SIZE >= fileNameSize) {
-        return static_cast<int>(fileNameSize);
-    }
     if (fullFileName.compare(0, STORAGE_PATH_SIZE, STORAGE_PATH_PREFIX) != 0 ||
         !std::isdigit(fullFileName[STORAGE_PATH_SIZE])) {
-            return static_cast<int>(fileNameSize);
+            return FindNonSandBoxPathIndex(fullFileName);
     }
     for (size_t i = STORAGE_PATH_SIZE + 1; i < fileNameSize; i++) {
         if (std::isdigit(fullFileName[i])) {

@@ -81,7 +81,7 @@ int32_t DumpBrokerProxy::ScanPidOverLimit(std::string requestType, int32_t limit
 }
 
 int32_t DumpBrokerProxy::CountFdNums(int32_t pid, uint32_t &fdNums,
-    std::string &detailFdInfo, std::string &topLeakedType)
+    std::string &detailFdInfo, std::vector<std::string> &topLeakedTypeList)
 {
     int32_t ret = -1;
     sptr<IRemoteObject> remote = Remote();
@@ -107,7 +107,7 @@ int32_t DumpBrokerProxy::CountFdNums(int32_t pid, uint32_t &fdNums,
     if (!reply.ReadString(detailFdInfo)) {
         return ERROR_READ_PARCEL;
     }
-    if (!reply.ReadString(topLeakedType)) {
+    if (!reply.ReadStringVector(&topLeakedTypeList)) {
         return ERROR_READ_PARCEL;
     }
     if (!reply.ReadInt32(ret)) {

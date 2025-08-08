@@ -43,7 +43,8 @@ public:
     {
         return 0;
     }
-    int32_t CountFdNums(int32_t pid, uint32_t &fdNums, std::string &detailFdInfo, std::string &topLeakedType)
+    int32_t CountFdNums(int32_t pid, uint32_t &fdNums, std::string &detailFdInfo,
+        std::vector<std::string> &topLeakedTypeList)
     {
         return 0;
     }

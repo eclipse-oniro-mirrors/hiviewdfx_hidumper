@@ -260,8 +260,8 @@ HWTEST_F(HidumperClientTest, ManagerClientTest005, TestSize.Level0)
     int32_t pid = 1;
     uint32_t fdNums = 0;
     std::string detailFdInfo;
-    std::string topLeakedType;
-    int ret = proxy_->CountFdNums(pid, fdNums, detailFdInfo, topLeakedType);
+    std::vector<std::string> topLeakedTypeList;
+    int ret = proxy_->CountFdNums(pid, fdNums, detailFdInfo, topLeakedTypeList);
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
 
