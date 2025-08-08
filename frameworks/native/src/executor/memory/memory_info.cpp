@@ -915,7 +915,7 @@ void MemoryInfo::GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDma
         DUMPER_HILOGE(MODULE_SERVICE, "GetDmaBufInfo error");
         return;
     }
-    std::unordered_set<std::string> exTitles = { "can_reclaim", "is_reclaim" };
+    const std::unordered_set<std::string> exTitles = { "can_reclaim", "is_reclaim" };
     for (const auto& dmabuf : dmabufInfo) {
         std::istringstream ss(dmabuf);
         std::ostringstream oss;

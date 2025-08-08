@@ -20,7 +20,6 @@
 #include "util/file_utils.h"
 #include "string_ex.h"
 
-using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
 ParseDmaBufInfo::ParseDmaBufInfo()
@@ -37,15 +36,17 @@ void ParseDmaBufInfo::ParseHeaderLine(const std::string &line)
     std::vector<std::string> headers;
     std::string header;
     while (lineStream >> header) {
-        headers.push_back(header);
+        headers.emplace_back(header);
     }
 
     headerMapTmp_.clear();
     columnWidthsTmp_.clear();
+    headerMapTmp_.reserve(headers.size());
+    columnWidthsTmp_.reserve(headers.size());
 
     for (size_t i = 0; i < headers.size(); ++i) {
         headerMapTmp_[headers[i]] = static_cast<int>(i);
-        columnWidthsTmp_.push_back(static_cast<int>(headers[i].length()));
+        columnWidthsTmp_.emplace_back(static_cast<int>(headers[i].length()));
     }
 
     titlesTmp_ = headers;
@@ -59,18 +60,18 @@ void ParseDmaBufInfo::ParseDataLine(const std::string &line)
     std::vector<std::string> row;
     std::string item;
     while (lineStream >> item) {
-        row.push_back(item);
+        row.emplace_back(item);
     }
 
     for (size_t i = 0; i < row.size(); ++i) {
         if (i >= columnWidthsTmp_.size()) {
-            columnWidthsTmp_.push_back(static_cast<int>(row[i].length()));
+            columnWidthsTmp_.emplace_back(static_cast<int>(row[i].length()));
         } else if (row[i].length() > static_cast<size_t>(columnWidthsTmp_[i])) {
             columnWidthsTmp_[i] = static_cast<int>(row[i].length());
         }
     }
 
-    details_.push_back(line);
+    details_.emplace_back(line);
 }
 
 bool ParseDmaBufInfo::GetDmaBufInfo(const int32_t &pid, std::vector<std::string> &result,
@@ -87,7 +88,7 @@ bool ParseDmaBufInfo::GetDmaBufInfo(const int32_t &pid, std::vector<std::string>
     columnWidthsTmp_.clear();
     titlesTmp_.clear();
 
-    std::string path = "/proc/" + std::to_string(pid) + "/mm_dmabuf_info";
+    const std::string path = "/proc/" + std::to_string(pid) + "/mm_dmabuf_info";
 
     bool ret = FileUtils::GetInstance().LoadStringFromProcCb(path, false, true,
         [&](const std::string &line) -> void {
