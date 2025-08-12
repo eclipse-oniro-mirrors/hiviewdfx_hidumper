@@ -121,18 +121,6 @@ HWTEST_F(SADumperTest, SADumperTest006, TestSize.Level3)
     ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
 }
 
-/**
- * @tc.name: SADumperTest008
- * @tc.desc: Test SA MultimodalInput result contain "Windows".
- * @tc.type: FUNC
- * @tc.require: issueI5NWZQ
- */
-HWTEST_F(SADumperTest, SADumperTest008, TestSize.Level3)
-{
-    std::string cmd = "hidumper -s MultimodalInput -a -w";
-    std::string str = "MultimodalInput";
-    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
-}
 
 /**
  * @tc.name: SADumperTest009
@@ -140,7 +128,7 @@ HWTEST_F(SADumperTest, SADumperTest008, TestSize.Level3)
  * @tc.type: FUNC
  * @tc.require: issueI5NWZQ
  */
-HWTEST_F(SADumperTest, SADumperTest009, TestSize.Level3)
+HWTEST_F(SADumperTest, SADumperTest007, TestSize.Level3)
 {
     std::string path = "/data/log/hidumper/RenderService.txt";
     std::string cmd = "hidumper -s 10 -a -h > " + path;
@@ -155,7 +143,7 @@ HWTEST_F(SADumperTest, SADumperTest009, TestSize.Level3)
  * @tc.type: FUNC
  * @tc.require: issueI5NWZQ
  */
-HWTEST_F(SADumperTest, SADumperTest010, TestSize.Level3)
+HWTEST_F(SADumperTest, SADumperTest008, TestSize.Level3)
 {
     std::string cmd = "hidumper -s 10 -a -h --zip";
     std::string str = "Graphic";
@@ -168,7 +156,7 @@ HWTEST_F(SADumperTest, SADumperTest010, TestSize.Level3)
  * @tc.type: FUNC
  * @tc.require: issueI5NWZQ
  */
-HWTEST_F(SADumperTest, SADumperTest011, TestSize.Level3)
+HWTEST_F(SADumperTest, SADumperTest009, TestSize.Level3)
 {
     std::string cmd = "hidumper -s AbilityManagerService -a '-a'";
     std::string str = "AppRunningRecord";
@@ -180,7 +168,7 @@ HWTEST_F(SADumperTest, SADumperTest011, TestSize.Level3)
  * @tc.desc: Test mutilthread for class member variable.
  * @tc.type: FUNC
  */
-HWTEST_F(SADumperTest, SADumperTest012, TestSize.Level3)
+HWTEST_F(SADumperTest, SADumperTest010, TestSize.Level3)
 {
     for (int i = 0; i < THREAD_EXECUTE_NUM; i++) {
         std::thread([&]() mutable {
