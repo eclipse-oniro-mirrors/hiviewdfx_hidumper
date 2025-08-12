@@ -130,7 +130,7 @@ HWTEST_F(SADumperTest, SADumperTest006, TestSize.Level3)
 HWTEST_F(SADumperTest, SADumperTest008, TestSize.Level3)
 {
     std::string cmd = "hidumper -s MultimodalInput -a -w";
-    std::string str = "Windows";
+    std::string str = "MultimodalInput";
     ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
 }
 
