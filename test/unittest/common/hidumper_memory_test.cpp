@@ -527,14 +527,12 @@ HWTEST_F(HidumperMemoryTest, MemoryInfo012, TestSize.Level1)
     if (access(path.c_str(), F_OK) == 0) {
         memoryInfo->GetDmaBuf(INIT_PID, result, true);
         ASSERT_TRUE(result->size() == 0);
-        system("hdc shell aa start -a com.ohos.contacts.MainAbility -b com.ohos.contacts");
+        system("aa start -a com.ohos.contacts.MainAbility -b com.ohos.contacts");
         sleep(3);
         pid_t cocPid = HidumperTestUtils::GetInstance().GetPidByName("com.ohos.contacts");
-        std::cout << "cocPid: " << cocPid << std::endl;
-        if (cocPid != -1) {
-            memoryInfo->GetDmaBuf(cocPid, result, true);
-            ASSERT_TRUE(result->size() != 0);
-        }
+        ASSERT_TRUE(cocPid != -1);
+        memoryInfo->GetDmaBuf(cocPid, result, true);
+        ASSERT_TRUE(result->size() != 0);
     }
 }
 
