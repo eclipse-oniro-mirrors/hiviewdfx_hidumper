@@ -23,6 +23,7 @@
 #include "manager/dump_implement.h"
 #include "raw_param.h"
 #include "dump_utils.h"
+#include "hidumper_test_utils.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -741,6 +742,18 @@ HWTEST_F(HiDumperManagerTest, DumpTest036, TestSize.Level0)
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     int ret = GetDumpResult(argc, argv);
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: DumpTest037
+ * @tc.desc: Test illegal dump.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest037, TestSize.Level0)
+{
+    std::string cmd = "hidumper -t 10";
+    std::string str = "  -h                          |help text for the tool\n";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
 }
 
 /**
