@@ -210,7 +210,6 @@ HWTEST_F(HidumperServiceTest, DumpManagerService007, TestSize.Level3)
     dumpManagerService->AddRequestRawParam(args, -1);
     ret = dumpManagerService->OnIdle(idleReason);
     ASSERT_TRUE(ret == 120000);
-    dumpManagerService->SetCpuSchedAffinity();
 }
 
 /**
