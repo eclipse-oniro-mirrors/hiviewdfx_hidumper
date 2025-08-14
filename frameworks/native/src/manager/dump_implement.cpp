@@ -292,6 +292,10 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
         }
         return DumpStatus::DUMP_HELP;
     }
+    if (!opts_.IsSelectAny() && argc != 1) {
+        CmdHelp();
+        return DumpStatus::DUMP_HELP;
+    }
     RemoveDuplicateString(opts_);
     return DumpStatus::DUMP_OK;
 }
