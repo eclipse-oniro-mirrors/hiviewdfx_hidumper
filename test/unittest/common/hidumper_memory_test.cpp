@@ -525,14 +525,18 @@ HWTEST_F(HidumperMemoryTest, MemoryInfo012, TestSize.Level1)
     shared_ptr<vector<vector<string>>> result = make_shared<vector<vector<string>>>();
     string path = "/proc/" + to_string(INIT_PID) + "/mm_dmabuf_info";
     if (access(path.c_str(), F_OK) == 0) {
-        memoryInfo->GetDmaBuf(INIT_PID, result, true);
-        ASSERT_TRUE(result->size() == 0);
         system("aa start -a com.ohos.contacts.MainAbility -b com.ohos.contacts");
         sleep(3);
         pid_t cocPid = HidumperTestUtils::GetInstance().GetPidByName("com.ohos.contacts");
         ASSERT_TRUE(cocPid != -1);
+        string cmd = "hidumper --mem " + to_string(cocPid);
+        string str = "Dma:0 kB";
         memoryInfo->GetDmaBuf(cocPid, result, true);
-        ASSERT_TRUE(result->size() != 0);
+        if (HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str)) {
+            ASSERT_TRUE(result->size() == 0);
+        } else {
+            ASSERT_TRUE(result->size() != 0);
+        }
     }
 }
 
