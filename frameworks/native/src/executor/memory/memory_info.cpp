@@ -895,16 +895,16 @@ void MemoryInfo::GetAshmem(const int32_t &pid, StringMatrix result, bool showAsh
     }
 }
 
-void MemoryInfo::GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDmaBuf)
+bool MemoryInfo::GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDmaBuf)
 {
     if (!showDmaBuf) {
         DUMPER_HILOGD(MODULE_SERVICE, "showDmaBuf is false, skip GetDmaBuf");
-        return;
+        return false;
     }
     int32_t uid = GetProcUid(pid);
     if (uid < APP_UID) {
         DUMPER_HILOGD(MODULE_SERVICE, "Uid Verification failed for uid: %{public}d", uid);
-        return;
+        return false;
     }
     std::vector<std::string> dmabufInfo;
     std::vector<std::string> titles;
@@ -913,7 +913,7 @@ void MemoryInfo::GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDma
     unique_ptr<ParseDmaBufInfo> parseDmaBufInfo = make_unique<ParseDmaBufInfo>();
     if (!parseDmaBufInfo->GetDmaBufInfo(pid, dmabufInfo, headerMap, columnWidths, titles)) {
         DUMPER_HILOGE(MODULE_SERVICE, "GetDmaBufInfo error");
-        return;
+        return false;
     }
     const std::unordered_set<std::string> exTitles = { "can_reclaim", "is_reclaim" };
     for (const auto& dmabuf : dmabufInfo) {
@@ -934,6 +934,7 @@ void MemoryInfo::GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDma
         tempResult.push_back(oss.str());
         result->push_back(tempResult);
     }
+    return true;
 }
 
 void MemoryInfo::GetRamCategory(const GroupMap &smapsInfos, const ValueMap &meminfos, StringMatrix result)

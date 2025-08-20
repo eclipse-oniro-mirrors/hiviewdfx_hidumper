@@ -525,14 +525,30 @@ HWTEST_F(HidumperMemoryTest, MemoryInfo012, TestSize.Level1)
     shared_ptr<vector<vector<string>>> result = make_shared<vector<vector<string>>>();
     string path = "/proc/" + to_string(INIT_PID) + "/mm_dmabuf_info";
     if (access(path.c_str(), F_OK) == 0) {
-        memoryInfo->GetDmaBuf(INIT_PID, result, true);
-        ASSERT_TRUE(result->size() == 0);
         system("aa start -a com.ohos.contacts.MainAbility -b com.ohos.contacts");
-        sleep(3);
+        sleep(2);
         pid_t cocPid = HidumperTestUtils::GetInstance().GetPidByName("com.ohos.contacts");
         ASSERT_TRUE(cocPid != -1);
-        memoryInfo->GetDmaBuf(cocPid, result, true);
-        ASSERT_TRUE(result->size() != 0);
+        ASSERT_TRUE(memoryInfo->GetDmaBuf(cocPid, result, true));
+    }
+}
+
+/**
+ * @tc.name: MemoryInfo013
+ * @tc.desc: Test about dmabuf.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperMemoryTest, MemoryInfo013, TestSize.Level1)
+{
+    unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
+        make_unique<OHOS::HiviewDFX::MemoryInfo>();
+    shared_ptr<vector<vector<string>>> result = make_shared<vector<vector<string>>>();
+    string path = "/proc/" + to_string(INIT_PID) + "/mm_dmabuf_info";
+    if (access(path.c_str(), F_OK) == 0) {
+        memoryInfo->GetDmaBuf(INIT_PID, result, false);
+        ASSERT_TRUE(result->size() == 0);
+        memoryInfo->GetDmaBuf(INIT_PID, result, true);
+        ASSERT_TRUE(result->size() == 0);
     }
 }
 

@@ -202,7 +202,7 @@ private:
     void SetNativeDetailRet(const std::string& nativeClassStr, const std::unique_ptr<MemoryItem>& item,
         StringMatrix result);
     void GetAshmem(const int32_t &pid, StringMatrix result, bool showAshmem);
-    void GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDmaBuf);
+    bool GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDmaBuf);
     int CalculateStars(const std::vector<int>& pssValues, int currentPSS);
     void WriteStdout(const std::string& s);
     void ClearPreviousLines(int lineCount);
