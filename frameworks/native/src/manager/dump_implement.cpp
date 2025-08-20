@@ -47,7 +47,7 @@
 #ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
 #include "hisysevent.h"
 #endif
-
+#include "manager/dump_manager.h"
 namespace OHOS {
 namespace HiviewDFX {
 static struct option LONG_OPTIONS[] = {{"cpufreq", no_argument, 0, 0},
@@ -125,6 +125,11 @@ DumpStatus DumpImplement::Main(int argc, char *argv[], const std::shared_ptr<Raw
     if (ret != DumpStatus::DUMP_OK) {
         return ret;
     }
+    if (IsNewStructSupport(ptrDumperParameter)) {
+        std::shared_ptr<DumpContext> context = std::make_shared<DumpContext>(reqCtl->GetUid(),
+                                                                             reqCtl->GetPid(), reqCtl->GetOutputFd());
+        return DumpManager::GetInstance().StartDump(argc, argv, context);
+    }
     std::vector<std::shared_ptr<DumpCfg>> &configs = ptrDumperParameter->GetExecutorConfigList();
     DUMPER_HILOGD(MODULE_COMMON, "debug|Main configs size is %{public}zu", configs.size());
     if (configs.size() == 0) {
@@ -153,6 +158,11 @@ DumpStatus DumpImplement::Main(int argc, char *argv[], const std::shared_ptr<Raw
     }
     DumpCommonUtils::ReportCmdUsage(dumperSysEventParams_);
     return DumpStatus::DUMP_OK;
+}
+
+bool DumpImplement::IsNewStructSupport(std::shared_ptr<DumperParameter> ptrDumperParameter)
+{
+    return false;
 }
 
 DumpStatus DumpImplement::InitHandle(int argc, char *argv[], const std::shared_ptr<RawParam> &reqCtl,

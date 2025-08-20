@@ -39,7 +39,9 @@
                 "ability_runtime",
                 "graphic_2d",
                 "hisysevent",
-                "zlib"
+                "zlib",
+                "ffrt",
+                "cJSON"
             ]
         },
         "hisysevent_config": [

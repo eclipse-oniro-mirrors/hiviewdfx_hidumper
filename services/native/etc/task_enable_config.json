@@ -1,0 +1,57 @@
+{
+    "version": "1.0.0",
+    "task_configs": {
+        "DUMP_DEVICE_INFO": {
+            "task_id": 0,
+            "enabled": true
+        },
+        "DUMP_WAKEUP_SOURCES_INFO": {
+            "task_id": 2,
+            "enabled": true
+        },
+        "DUMP_SLAB_INFO": {
+            "task_id": 3,
+            "enabled": true
+        },
+        "DUMP_PROC_VERSION_INFO": {
+            "task_id": 4,
+            "enabled": true
+        },
+        "DUMP_PROC_CMDLINE_INFO": {
+            "task_id": 5,
+            "enabled": true
+        },
+        "DUMP_UPTIME_INFO": {
+            "task_id": 6,
+            "enabled": true
+        },
+        "WRITE_SYSTEM_BASE_INFO": {
+            "task_id": 10002,
+            "enabled": true
+        },
+        "WRITE_DEVICE_INFO": {
+            "task_id": 10003,
+            "enabled": true
+        },
+        "WRITE_WAKEUP_SOURCES_INFO": {
+            "task_id": 10004,
+            "enabled": true
+        },
+        "WRITE_SLAB_INFO": {
+            "task_id": 10005,
+            "enabled": true
+        },
+        "WRITE_PROC_VERSION_INFO": {
+            "task_id": 10006,
+            "enabled": true
+        },
+        "WRITE_PROC_CMDLINE_INFO": {
+            "task_id": 10007,
+            "enabled": true
+        },
+        "WRITE_UPTIME_INFO": {
+            "task_id": 10008,
+            "enabled": true
+        }
+    }
+}
