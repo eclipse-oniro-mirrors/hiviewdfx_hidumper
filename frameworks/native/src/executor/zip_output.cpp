@@ -174,10 +174,16 @@ DumpStatus ZipOutput::AfterExecute()
 void ZipOutput::ClearBuffer()
 {
     if (srcBuffer_.get()) {
-        (void)memset_s(srcBuffer_.get(), sizeof(CompressBuffer), 0, sizeof(CompressBuffer));
+        if (memset_s(srcBuffer_.get(), sizeof(CompressBuffer), 0, sizeof(CompressBuffer)) != EOK) {
+            DUMPER_HILOGE(MODULE_COMMON, "srcBuffer_ memset_s failed");
+            return;
+        }
     }
     if (destBuffer_.get()) {
-        (void)memset_s(destBuffer_.get(), sizeof(CompressBuffer), 0, sizeof(CompressBuffer));
+        if (memset_s(destBuffer_.get(), sizeof(CompressBuffer), 0, sizeof(CompressBuffer)) != EOK) {
+            DUMPER_HILOGE(MODULE_COMMON, "destBuffer_ memset_s failed");
+            return;
+        }
     }
 }
 } // namespace HiviewDFX

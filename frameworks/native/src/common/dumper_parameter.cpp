@@ -21,7 +21,10 @@ namespace HiviewDFX {
 DumperParameter::DumperParameter()
 {
     DUMPER_HILOGD(MODULE_COMMON, "enter|");
-    (void)memset_s(&opts_, sizeof(opts_), 0, sizeof(opts_));
+    if (memset_s(&opts_, sizeof(opts_), 0, sizeof(opts_)) != EOK) {
+        DUMPER_HILOGE(MODULE_COMMON, "DumperParameter memset_s failed");
+        return;
+    }
     opts_.Reset();
 
     DUMPER_HILOGD(MODULE_COMMON, "leave|");
