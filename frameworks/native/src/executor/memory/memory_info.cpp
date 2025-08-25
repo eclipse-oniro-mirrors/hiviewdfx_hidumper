@@ -1322,9 +1322,9 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(int fd, StringMatrix result)
     std::lock_guard<std::mutex> lock(mutex_);
     rawParamFd_ = fd;
     (void)dprintf(rawParamFd_, "%s\n", MEMORY_LINE.c_str());
-	if (!GetMemoryInfoInit(result)) {
-		return DUMP_FAIL;
-	}
+    if (!GetMemoryInfoInit(result)) {
+        return DUMP_FAIL;
+    }
 
     if (!dumpSmapsOnStart_) {
         dumpSmapsOnStart_ = true;
@@ -1349,9 +1349,9 @@ DumpStatus MemoryInfo::GetMemoryInfoPrune(int fd, StringMatrix result)
     rawParamFd_ = fd;
     dumpPrune_ = true;
     (void)dprintf(rawParamFd_, "%s\n", MEMORY_LINE.c_str());
-	if (!GetMemoryInfoInit(result)) {
-		return DUMP_FAIL;
-	}
+    if (!GetMemoryInfoInit(result)) {
+        return DUMP_FAIL;
+    }
     GetMemoryUsageInfo(result);
     return DUMP_OK;
 }
