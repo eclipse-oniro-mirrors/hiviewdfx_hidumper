@@ -104,6 +104,7 @@ private:
     DumpStatus SetMemPruneParam(DumperOpts &opt);
     DumpStatus SetGCParam(DumperOpts &opt);
     DumpStatus CheckArgs(int argc, char* argv[]);
+    bool IsNewStructSupport(std::shared_ptr<DumperParameter> ptrDumperParameter);
 
 private:
     using ExecutorFactoryMap = std::map<int, std::shared_ptr<ExecutorFactory>>;

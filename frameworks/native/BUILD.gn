@@ -16,7 +16,12 @@ import("../../hidumper.gni")
 config("hidumper_include") {
   include_dirs = [
     ".",
+    "${hidumper_frameworks_path}/data_inventory",
+    "${hidumper_frameworks_path}/dump_strategy",
     "${hidumper_frameworks_path}/include",
+    "${hidumper_frameworks_path}/manager",
+    "${hidumper_frameworks_path}/task",
+    "${hidumper_frameworks_path}/utils",
   ]
 }
 
@@ -136,6 +141,41 @@ ohos_source_set("dump_main") {
 
   subsystem_name = "hiviewdfx"
 
+  part_name = "hidumper"
+}
+
+ohos_source_set("dump_framework") {
+  configs = [
+    "${hidumper_utils_path}:utils_config",
+    "${hidumper_service_path}:hidumpercpuservice_gen_config",
+    "${hidumper_service_path}:interface_include",
+    "${hidumper_service_path}:zidl_config",
+    "${hidumper_service_path}:service_config",
+    ":hidumper_include",
+  ]
+
+    sources = [
+    "data_inventory/data_inventory.cpp",
+    "dump_strategy/dump_strategy_factory.cpp",
+    "manager/dump_manager.cpp",
+    "task/base/task_control.cpp",
+    "task/base/task_enable_config.cpp",
+    "task/base/task_register.cpp",
+    "utils/writer_utils.cpp",
+    "utils/error_codes.cpp",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "ffrt:libffrt",
+    "hilog:libhilog",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
+    "cJSON:cjson",
+  ]
+
+  subsystem_name = "hiviewdfx"
   part_name = "hidumper"
 }
 
