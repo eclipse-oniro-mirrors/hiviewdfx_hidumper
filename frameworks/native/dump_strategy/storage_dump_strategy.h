@@ -13,23 +13,33 @@
  * limitations under the License.
  */
 
-#ifndef DUMP_STRATEGY_H
-#define DUMP_STRATEGY_H
+#ifndef STORAGE_DUMP_STRATEGY_H
+#define STORAGE_DUMP_STRATEGY_H
 
+#include "dump_strategy.h"
 #include <memory>
-#include "base/task_struct.h"
-#include "common.h"
-#include "dump_context.h"
+#include "base/task_control.h"
+#include "data_inventory.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-class DumpStrategy {
+class StorageDumpStrategy : public DumpStrategy {
 public:
-    DumpStrategy() = default;
-    virtual ~DumpStrategy() = default;
-    virtual DumpStatus CollectRootTasks(const DumpContext& context, std::vector<TaskId>& rootTasks) = 0;
-};
+    StorageDumpStrategy() = default;
 
+    DumpStatus CollectRootTasks(const DumpContext& context, std::vector<TaskId>& rootTasks) override
+    {
+        auto opt = context.GetDumperOpts();
+        if (opt->isDumpStorage) {
+            if (opt->storagePid > 0) {
+                rootTasks.push_back(TaskId::WRITE_STORAGE_IO_INFO);
+            } else {
+                rootTasks.push_back(TaskId::WRITE_STORAGE_INFO);
+            }
+        }
+        return DUMP_OK;
+    }
+};
 } // namespace HiviewDFX
 } // namespace OHOS
-#endif // DUMP_STRATEGY_H
+#endif // STORAGE_DUMP_STRATEGY_H

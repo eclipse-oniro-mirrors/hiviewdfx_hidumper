@@ -29,21 +29,57 @@
 namespace OHOS {
 namespace HiviewDFX {
 
-std::vector<StrategyConfig> DumpStrategyFactory::strategyConfigs_ = {};
+std::vector<StrategyConfig> DumpStrategyFactory::strategyConfigs_ = {
+    {
+        [](const std::shared_ptr<DumperOptions>& opts) { return opts->isDumpSystem; },
+        []() { return std::make_unique<SystemInfoDumpStrategy>(); }
+    },
+    {
+        [](const std::shared_ptr<DumperOptions>& opts) {
+            return opts->isDumpCpuFreq || opts->isDumpCpuUsage;
+        },
+        []() { return std::make_unique<CpuDumpStrategy>(); }
+    },
+    {
+        [](const std::shared_ptr<DumperOptions>& opts) { return opts->isDumpMem; },
+        []() { return std::make_unique<MemDumpStrategy>(); }
+    },
+    {
+        [](const std::shared_ptr<DumperOptions>& opts) { return opts->isDumpStorage; },
+        []() { return std::make_unique<StorageDumpStrategy>(); }
+    },
+    {
+        [](const std::shared_ptr<DumperOptions>& opts) { return opts->isDumpNet; },
+        []() { return std::make_unique<NetDumpStrategy>(); }
+    },
+    {
+        [](const std::shared_ptr<DumperOptions>& opts) { return opts->isDumpSystemAbility; },
+        []() { return std::make_unique<SystemAbilityDumpStrategy>(); }
+    },
+    {
+        [](const std::shared_ptr<DumperOptions>& opts) { return opts->isDumpProcesses; },
+        []() { return std::make_unique<ProcessInfoDumpStrategy>(); }
+    },
+    {
+        [](const std::shared_ptr<DumperOptions>& opts) { return opts->isDumpLog; },
+        []() { return std::make_unique<LogDumpStrategy>(); }
+    },
+    {
+        [](const std::shared_ptr<DumperOptions>& opts) { return opts->isAppendix; },
+        []() { return std::make_unique<StackDumpStrategy>(); }
+    },
+    {
+        [](const std::shared_ptr<DumperOptions>& opts) { return opts->isDumpIpcStat; },
+        []() { return std::make_unique<IpcStatDumpStrategy>(); }
+    }
+};
 
 DumpStrategyFactory::DumpStrategyFactory() = default;
 DumpStrategyFactory::~DumpStrategyFactory() = default;
 
-DumpStatus DumpStrategyFactory::CollectRootTasks(const std::shared_ptr<DumpContext>& context,
-                                                 std::vector<TaskId>& rootTasks)
+void DumpStrategyFactory::CreateStrategies(const std::shared_ptr<DumperOptions>& opts,
+                                           std::vector<std::unique_ptr<DumpStrategy>>& strategies)
 {
-    std::vector<std::unique_ptr<DumpStrategy>> strategies;
-    auto opts = context->GetDumperOpts();
-    if (opts == nullptr) {
-        DUMPER_HILOGE(MODULE_COMMON, "Failed to get options from context");
-        return DumpStatus::DUMP_FAIL;
-    }
-    
     for (const auto& config : strategyConfigs_) {
         if (config.condition(opts)) {
             auto strategy = config.creator();
@@ -52,13 +88,17 @@ DumpStatus DumpStrategyFactory::CollectRootTasks(const std::shared_ptr<DumpConte
             }
         }
     }
-    
+}
+
+DumpStatus DumpStrategyFactory::ExecuteStrategies(const std::vector<std::unique_ptr<DumpStrategy>>& strategies,
+                                                  const DumpContext& context, std::vector<TaskId>& rootTasks)
+{
     if (strategies.empty()) {
         DUMPER_HILOGE(MODULE_COMMON, "Strategy execution failed");
         return DumpStatus::DUMP_FAIL;
     }
     DumpStatus ret = DumpStatus::DUMP_OK;
-    for (auto& strategy : strategies) {
+    for (const auto& strategy : strategies) {
         ret = strategy->CollectRootTasks(context, rootTasks);
         if (ret != DumpStatus::DUMP_OK) {
             DUMPER_HILOGE(MODULE_COMMON, "Strategy failed");
@@ -67,5 +107,19 @@ DumpStatus DumpStrategyFactory::CollectRootTasks(const std::shared_ptr<DumpConte
     }
     return ret;
 }
+
+DumpStatus DumpStrategyFactory::CollectRootTasks(const DumpContext& context, std::vector<TaskId>& rootTasks)
+{
+    auto opts = context.GetDumperOpts();
+    if (opts == nullptr) {
+        DUMPER_HILOGE(MODULE_COMMON, "Failed to get options from context");
+        return DumpStatus::DUMP_FAIL;
+    }
+    
+    std::vector<std::unique_ptr<DumpStrategy>> strategies;
+    CreateStrategies(opts, strategies);
+    return ExecuteStrategies(strategies, context, rootTasks);
+}
+
 } // namespace HiviewDFX
 } // namespace OHOS

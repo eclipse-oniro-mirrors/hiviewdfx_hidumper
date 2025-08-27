@@ -13,23 +13,29 @@
  * limitations under the License.
  */
 
-#ifndef DUMP_STRATEGY_H
-#define DUMP_STRATEGY_H
+#ifndef CPU_DUMP_STRATEGY_H
+#define CPU_DUMP_STRATEGY_H
 
+#include "dump_strategy.h"
 #include <memory>
-#include "base/task_struct.h"
-#include "common.h"
-#include "dump_context.h"
+#include "base/task_control.h"
+#include "data_inventory.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-class DumpStrategy {
+class CpuDumpStrategy : public DumpStrategy {
 public:
-    DumpStrategy() = default;
-    virtual ~DumpStrategy() = default;
-    virtual DumpStatus CollectRootTasks(const DumpContext& context, std::vector<TaskId>& rootTasks) = 0;
-};
+    CpuDumpStrategy() = default;
 
+    DumpStatus CollectRootTasks(const DumpContext& context, std::vector<TaskId>& rootTasks) override
+    {
+        auto opt = context.GetDumperOpts();
+        if (opt->isDumpCpuFreq) {
+            rootTasks.push_back(TaskId::WRITE_CPU_FREQ_INFO);
+        }
+        return DUMP_OK;
+    }
+};
 } // namespace HiviewDFX
 } // namespace OHOS
-#endif // DUMP_STRATEGY_H
+#endif // CPU_DUMP_STRATEGY_H

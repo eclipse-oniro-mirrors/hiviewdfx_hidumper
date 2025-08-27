@@ -126,8 +126,7 @@ DumpStatus DumpImplement::Main(int argc, char *argv[], const std::shared_ptr<Raw
         return ret;
     }
     if (IsNewStructSupport(ptrDumperParameter)) {
-        std::shared_ptr<DumpContext> context = std::make_shared<DumpContext>(reqCtl->GetUid(),
-                                                                             reqCtl->GetPid(), reqCtl->GetOutputFd());
+        DumpContext context = DumpContext(reqCtl->GetUid(), reqCtl->GetPid(), reqCtl->GetOutputFd());
         return DumpManager::GetInstance().StartDump(argc, argv, context);
     }
     std::vector<std::shared_ptr<DumpCfg>> &configs = ptrDumperParameter->GetExecutorConfigList();

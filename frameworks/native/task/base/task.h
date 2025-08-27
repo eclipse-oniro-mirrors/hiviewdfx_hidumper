@@ -32,7 +32,7 @@ public:
     Task() = default;
     virtual ~Task() = default;
 
-    DumpStatus Run(DataInventory& dataInventory, const std::shared_ptr<DumpContext>& dumpContext)
+    DumpStatus Run(DataInventory& dataInventory, const DumpContext& dumpContext)
     {
         PreDump(dataInventory, dumpContext);
         auto ret = TaskEntry(dataInventory, dumpContext);
@@ -41,9 +41,9 @@ public:
     }
 
 private:
-    virtual DumpStatus TaskEntry(DataInventory& dataInventory, const std::shared_ptr<DumpContext>& dumpContext) = 0;
-    virtual void PreDump(DataInventory& dataInventory, const std::shared_ptr<DumpContext>& dumpContext) const {};
-    virtual void PostDump(DataInventory& dataInventory, const std::shared_ptr<DumpContext>& dumpContext) const {};
+    virtual DumpStatus TaskEntry(DataInventory& dataInventory, const DumpContext& dumpContext) = 0;
+    virtual void PreDump(DataInventory& dataInventory, const DumpContext& dumpContext) const {};
+    virtual void PostDump(DataInventory& dataInventory, const DumpContext& dumpContext) const {};
 };
 
 }

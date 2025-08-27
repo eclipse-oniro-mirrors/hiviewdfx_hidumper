@@ -25,8 +25,7 @@
 namespace OHOS {
 namespace HiviewDFX {
 
-
-enum DataId : uint32_t {
+enum class DataId : uint32_t {
     DEVICE_INFO = 0,
     SYSTEM_CLUSTER_INFO,
     PROC_VERSION_INFO,

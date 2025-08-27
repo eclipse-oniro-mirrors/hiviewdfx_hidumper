@@ -92,7 +92,7 @@ void TaskControl::UpdateTaskFailureCount(TaskId taskId, bool reset)
 }
 
 DumpStatus TaskControl::HandleTaskRetry(TaskId taskId, const RegTaskInfo& taskInfo, DataInventory& dataInventory,
-                                        const std::shared_ptr<DumpContext>& dumpContext)
+                                        const DumpContext& dumpContext)
 {
     DUMPER_HILOGW(MODULE_COMMON, "Task %{public}s failed first time, retrying...", taskInfo.taskName.c_str());
     
@@ -131,7 +131,7 @@ std::unique_ptr<Task> TaskControl::CreateTask(const RegTaskInfo& taskInfo)
 }
 
 DumpStatus TaskControl::ExecuteSingleTask(TaskId taskId, const RegTaskInfo& taskInfo, DataInventory& dataInventory,
-                                          const std::shared_ptr<DumpContext>& dumpContext)
+                                          const DumpContext& dumpContext)
 {
     auto task = CreateTask(taskInfo);
     if (task == nullptr) {
@@ -194,11 +194,11 @@ bool TaskControl::VerifyTaskTopo(const TaskCollection& tasks)
 }
 
 DumpStatus TaskControl::ExecuteTask(DataInventory& dataInventory, const std::vector<TaskId>& taskIds,
-                                    const std::shared_ptr<DumpContext>& dumpContext)
+                                    const DumpContext& dumpContext)
 {
     TaskCollection taskTopo;
     for (size_t i = 0; i < taskIds.size(); i++) {
-        if (taskIds[i] <= ROOT_TASK_START) {
+        if (taskIds[i] <= TaskId::ROOT_TASK_START) {
             DUMPER_HILOGE(MODULE_COMMON, "Taskid is not root task: %{public}d", taskIds[i]);
             return DUMP_FAIL;
         }
@@ -270,7 +270,7 @@ void TaskControl::BuildTaskTopo(TaskId rootTaskId, TaskCollection& taskTopo)
 }
 
 DumpStatus TaskControl::ExecuteTaskInner(DataInventory& dataInventory, TaskCollection& tasks,
-                                         const std::shared_ptr<DumpContext>& dumpContext)
+                                         const DumpContext& dumpContext)
 {
     std::vector<LevelStat> allLevelStats;
     auto taskCopy = tasks;
@@ -282,13 +282,13 @@ DumpStatus TaskControl::ExecuteTaskInner(DataInventory& dataInventory, TaskColle
         FillStatistcsDependence(taskCopy, stat);
         auto ret = GetTaskResult(std::move(stat), allLevelStats);
         if (!ret) {
-            RecordTaskStat(dumpContext->GetOutputFd(), allLevelStats);
+            RecordTaskStat(dumpContext.GetOutputFd(), allLevelStats);
             return DUMP_FAIL;
         }
         ReleaseNoUsedData(dataInventory, tasks);
         runnableTasks = SelectRunnableTasks(tasks);
     }
-    RecordTaskStat(dumpContext->GetOutputFd(), allLevelStats);
+    RecordTaskStat(dumpContext.GetOutputFd(), allLevelStats);
     return DUMP_OK;
 }
 
@@ -306,8 +306,7 @@ bool TaskControl::GetTaskResult(std::vector<TaskStatistcs>&& taskStats, std::vec
 }
 
 void TaskControl::SubmitRunnableTasks(TaskCollection& tasks, DataInventory& dataInventory,
-                                      const std::shared_ptr<DumpContext>& dumpContext,
-                                      std::vector<TaskStatistcs>& stat)
+                                      const DumpContext& dumpContext, std::vector<TaskStatistcs>& stat)
 {
     size_t concurrentIndex = 0;
     for (auto& taskInfo : tasks) {

@@ -26,10 +26,9 @@ namespace HiviewDFX {
 
 class DumpManager : public DelayedRefSingleton<DumpManager> {
     DECLARE_DELAYED_REF_SINGLETON(DumpManager)
-public:
     DISALLOW_COPY_AND_MOVE(DumpManager);
-    
-    DumpStatus StartDump(int argc, char *argv[], std::shared_ptr<DumpContext> context);
+public:
+    DumpStatus StartDump(int argc, char *argv[], DumpContext& context);
 };
 
 } // namespace HiviewDFX
