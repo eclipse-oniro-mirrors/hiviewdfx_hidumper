@@ -102,7 +102,7 @@ bool ParseDmaBufInfo::GetDmaBufInfo(const int32_t &pid, std::vector<std::string>
         });
 
     if (details_.empty()) {
-        DUMPER_HILOGD(MODULE_SERVICE, "detail dmabuf is empty.");
+        DUMPER_HILOGI(MODULE_SERVICE, "detail dmabuf is empty.");
         return ret;
     }
 
