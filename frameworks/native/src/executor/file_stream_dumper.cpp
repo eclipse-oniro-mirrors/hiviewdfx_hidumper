@@ -254,6 +254,9 @@ void FileStreamDumper::CloseFd()
         fclose(fp_);
         fp_ = nullptr;
         fd_ = -1;
+    } else if (fd_ >= 0) {
+        close(fd_);
+        fd_ = -1;
     }
 };
 } // namespace HiviewDFX

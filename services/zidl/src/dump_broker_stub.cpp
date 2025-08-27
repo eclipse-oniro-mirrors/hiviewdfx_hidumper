@@ -64,6 +64,7 @@ int32_t DumpBrokerStub::RequestFileFdStub(MessageParcel& data, MessageParcel& re
         return ERROR_READ_PARCEL;
     }
     int32_t res = Request(args, outfd);
+    close(outfd);
     if (!reply.WriteInt32(res)) {
         return ERROR_WRITE_PARCEL;
     }

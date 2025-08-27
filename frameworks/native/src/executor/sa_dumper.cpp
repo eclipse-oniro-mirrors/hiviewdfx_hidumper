@@ -38,6 +38,10 @@ SADumper::SADumper(void)
 
 SADumper::~SADumper(void)
 {
+    if (outputFd_ >= 0) {
+        close(outputFd_);
+        outputFd_ = -1;
+    }
 }
 
 DumpStatus SADumper::PreExecute(const std::shared_ptr<DumperParameter> &parameter, StringMatrix dump_datas)

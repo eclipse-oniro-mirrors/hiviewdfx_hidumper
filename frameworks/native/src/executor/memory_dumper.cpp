@@ -27,6 +27,10 @@ MemoryDumper::MemoryDumper()
 
 MemoryDumper::~MemoryDumper()
 {
+    if (rawParamFd_ >= 0) {
+        close(rawParamFd_);
+        rawParamFd_ = -1;
+    }
 }
 
 DumpStatus MemoryDumper::PreExecute(const shared_ptr<DumperParameter> &parameter, StringMatrix dumpDatas)
