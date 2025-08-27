@@ -36,7 +36,13 @@ class DumpStrategyFactory : public DelayedRefSingleton<DumpStrategyFactory> {
     DECLARE_DELAYED_REF_SINGLETON(DumpStrategyFactory)
     DISALLOW_COPY_AND_MOVE(DumpStrategyFactory);
 public:
-    DumpStatus CollectRootTasks(const std::shared_ptr<DumpContext>& context, std::vector<TaskId>& rootTasks);
+    DumpStatus CollectRootTasks(const DumpContext& context, std::vector<TaskId>& rootTasks);
+
+private:
+    void CreateStrategies(const std::shared_ptr<DumperOptions>& opts,
+                          std::vector<std::unique_ptr<DumpStrategy>>& strategies);
+    DumpStatus ExecuteStrategies(const std::vector<std::unique_ptr<DumpStrategy>>& strategies,
+                                 const DumpContext& context, std::vector<TaskId>& rootTasks);
 
 private:
     static std::vector<StrategyConfig> strategyConfigs_;

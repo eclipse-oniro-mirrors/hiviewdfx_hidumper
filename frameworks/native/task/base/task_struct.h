@@ -22,7 +22,7 @@
 namespace OHOS {
 namespace HiviewDFX {
 
-enum TaskId : uint32_t {
+enum class TaskId : uint32_t {
     DUMP_DEVICE_INFO = 0,
     DUMP_SYSTEM_CLUSTER_INFO = 1,
     DUMP_WAKEUP_SOURCES_INFO = 2,

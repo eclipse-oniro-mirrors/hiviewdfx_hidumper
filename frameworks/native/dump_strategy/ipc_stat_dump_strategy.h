@@ -12,24 +12,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef IPC_STAT_DUMP_STRATEGY_H
+#define IPC_STAT_DUMP_STRATEGY_H
 
-#ifndef DUMP_STRATEGY_H
-#define DUMP_STRATEGY_H
-
+#include "dump_strategy.h"
 #include <memory>
-#include "base/task_struct.h"
-#include "common.h"
-#include "dump_context.h"
+#include "base/task_control.h"
+#include "data_inventory.h"
 
 namespace OHOS {
 namespace HiviewDFX {
-class DumpStrategy {
+class IpcStatDumpStrategy : public DumpStrategy {
 public:
-    DumpStrategy() = default;
-    virtual ~DumpStrategy() = default;
-    virtual DumpStatus CollectRootTasks(const DumpContext& context, std::vector<TaskId>& rootTasks) = 0;
-};
+    IpcStatDumpStrategy() = default;
 
+    DumpStatus CollectRootTasks(const DumpContext& context, std::vector<TaskId>& rootTasks) override
+    {
+        return DUMP_OK;
+    }
+};
 } // namespace HiviewDFX
 } // namespace OHOS
-#endif // DUMP_STRATEGY_H
+#endif // IPC_STAT_DUMP_STRATEGY_H

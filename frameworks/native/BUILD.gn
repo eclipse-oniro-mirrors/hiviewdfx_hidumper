@@ -94,6 +94,7 @@ ohos_source_set("dump_main") {
   ]
 
   deps = [
+    ":dump_framework",
     "${hidumper_service_path}:hidumpercpuservice_interface",
     "${hidumper_utils_path}:utils",
   ]
@@ -154,21 +155,22 @@ ohos_source_set("dump_framework") {
     ":hidumper_include",
   ]
 
-    sources = [
+  sources = [
     "data_inventory/data_inventory.cpp",
     "dump_strategy/dump_strategy_factory.cpp",
+    "manager/cmd_parse.cpp",
     "manager/dump_manager.cpp",
     "task/base/task_control.cpp",
     "task/base/task_enable_config.cpp",
     "task/base/task_register.cpp",
     "utils/writer_utils.cpp",
-    "utils/error_codes.cpp",
   ]
 
   external_deps = [
     "c_utils:utils",
     "ffrt:libffrt",
     "hilog:libhilog",
+    "hiview:libucollection_utility",
     "init:libbegetutil",
     "ipc:ipc_core",
     "samgr:samgr_proxy",

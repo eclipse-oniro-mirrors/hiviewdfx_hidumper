@@ -55,23 +55,23 @@ public:
     DISALLOW_COPY_AND_MOVE(TaskControl);
 
     DumpStatus ExecuteTask(DataInventory& dataInventory,
-                           const std::vector<TaskId>& taskIds, const std::shared_ptr<DumpContext>& dumpContext);
+                           const std::vector<TaskId>& taskIds, const DumpContext& dumpContext);
 private:
     DumpStatus ExecuteTaskInner(DataInventory& dataInventory,
-                                TaskCollection& tasks, const std::shared_ptr<DumpContext>& dumpContext);
+                                TaskCollection& tasks, const DumpContext& dumpContext);
     bool VerifyTaskTopo(const TaskCollection& taskTopo);
     void BuildTaskTopo(TaskId rootTaskId, TaskCollection& taskTopo);
     TaskCollection SelectRunnableTasks(TaskCollection& tasks);
     void ReleaseNoUsedData(DataInventory& dataInventory, const TaskCollection& tasks);
     void SubmitRunnableTasks(TaskCollection& tasks, DataInventory& dataInventory,
-                             const std::shared_ptr<DumpContext>& dumpContext, std::vector<TaskStatistcs>& stat);
+                             const DumpContext& dumpContext, std::vector<TaskStatistcs>& stat);
     void UpdateTaskFailureCount(TaskId taskId, bool reset = false);
     DumpStatus ExecuteSingleTask(TaskId taskId, const RegTaskInfo& taskInfo, DataInventory& dataInventory,
-                                 const std::shared_ptr<DumpContext>& dumpContext);
+                                 const DumpContext& dumpContext);
     bool IsTaskExcessivelyFailed(TaskId taskId);
     void UpdateTaskDependencies(TaskCollection& tasks, const TaskCollection& runnableTasks);
     DumpStatus HandleTaskRetry(TaskId taskId, const RegTaskInfo& taskInfo, DataInventory& dataInventory,
-                               const std::shared_ptr<DumpContext>& dumpContext);
+                               const DumpContext& dumpContext);
     std::unique_ptr<Task> CreateTask(const RegTaskInfo& taskInfo);
     bool GetTaskResult(std::vector<TaskStatistcs>&& taskStats, std::vector<LevelStat>& allLevelStats);
     void RecordTaskStat(int fd, std::vector<LevelStat>& allLevelStats);

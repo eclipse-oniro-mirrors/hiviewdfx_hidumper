@@ -27,7 +27,7 @@ namespace HiviewDFX {
 DumpManager::DumpManager() = default;
 DumpManager::~DumpManager() = default;
 
-DumpStatus DumpManager::StartDump(int argc, char *argv[], std::shared_ptr<DumpContext> context)
+DumpStatus DumpManager::StartDump(int argc, char *argv[], DumpContext& context)
 {
     if (CmdParse::GetInstance().Parse(argc, argv, context) != DumpStatus::DUMP_OK) {
         DUMPER_HILOGE(MODULE_COMMON, "Command parse failed");
