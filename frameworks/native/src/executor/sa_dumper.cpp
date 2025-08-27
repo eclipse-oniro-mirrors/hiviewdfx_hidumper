@@ -38,7 +38,7 @@ SADumper::SADumper(void)
 
 SADumper::~SADumper(void)
 {
-    if (outputFd_ >= 0) {
+    if (isZip_ && outputFd_ >= 0) {
         close(outputFd_);
         outputFd_ = -1;
     }
@@ -49,6 +49,7 @@ DumpStatus SADumper::PreExecute(const std::shared_ptr<DumperParameter> &paramete
     result_ = dump_datas;
     names_ = ptrDumpCfg_->args_->GetNameList();
     bool isZip = parameter->GetOpts().IsDumpZip();
+    isZip_ = isZip;
     auto callback = parameter->getClientCallback();
     if (callback == nullptr) {
         DUMPER_HILOGE(MODULE_COMMON, "PreExecute error|callback is nullptr");

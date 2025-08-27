@@ -27,7 +27,7 @@ MemoryDumper::MemoryDumper()
 
 MemoryDumper::~MemoryDumper()
 {
-    if (rawParamFd_ >= 0) {
+    if (isZip_ && rawParamFd_ >= 0) {
         close(rawParamFd_);
         rawParamFd_ = -1;
     }
@@ -46,6 +46,7 @@ DumpStatus MemoryDumper::PreExecute(const shared_ptr<DumperParameter> &parameter
     dumpDatas_ = dumpDatas;
 
     bool isZip = parameter->GetOpts().IsDumpZip();
+    isZip_ = isZip;
     auto callback = parameter->getClientCallback();
     if (callback == nullptr) {
         DUMPER_HILOGE(MODULE_SERVICE, "PreExecute error|callback is nullptr");
