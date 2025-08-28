@@ -908,14 +908,15 @@ bool MemoryInfo::GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDma
     }
     std::vector<std::string> dmabufInfo;
     std::vector<std::string> titles;
-    unordered_map<std::string, int> headerMap;
-    vector<int> columnWidths;
+    std::unordered_map<std::string, int> headerMap;
+    std::vector<int> columnWidths;
     unique_ptr<ParseDmaBufInfo> parseDmaBufInfo = make_unique<ParseDmaBufInfo>();
     if (!parseDmaBufInfo->GetDmaBufInfo(pid, dmabufInfo, headerMap, columnWidths, titles)) {
         DUMPER_HILOGE(MODULE_SERVICE, "GetDmaBufInfo error");
         return false;
     }
-    const std::unordered_set<std::string> exTitles = { "can_reclaim", "is_reclaim" };
+    const std::unordered_set<std::string> showTitles = { "Process", "pid", "fd", "size_bytes", "ino", "exp_pid",
+        "exp_task_comm", "buf_name", "exp_name", "buf_type", "leak_type" };
     for (const auto& dmabuf : dmabufInfo) {
         std::istringstream ss(dmabuf);
         std::ostringstream oss;
@@ -924,7 +925,7 @@ bool MemoryInfo::GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDma
             if (!(ss >> value)) {
                 value = "NULL";
             }
-            if (exTitles.find(title) != exTitles.end()) {
+            if (showTitles.find(title) == showTitles.end()) {
                 continue;
             }
             int width = columnWidths[headerMap[title]];
