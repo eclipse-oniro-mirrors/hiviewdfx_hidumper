@@ -202,6 +202,10 @@ DumpStatus TaskControl::ExecuteTask(DataInventory& dataInventory, const std::vec
             DUMPER_HILOGE(MODULE_COMMON, "Taskid is not root task: %{public}d", taskIds[i]);
             return DUMP_FAIL;
         }
+        if (!TaskEnableConfig::GetInstance().IsTaskEnabled(taskIds[i])) {
+            DUMPER_HILOGW(MODULE_COMMON, "Task ID %{public}d is disabled in config, skipping", taskIds[i]);
+            continue;
+        }
         BuildTaskTopo(taskIds[i], taskTopo);
         if (i > 0 && taskTopo.find(taskIds[i]) != taskTopo.end()) {
             taskTopo[taskIds[i]].taskDependency.insert(taskIds[i - 1]);
@@ -228,8 +232,6 @@ void TaskControl::BuildTaskTopo(TaskId rootTaskId, TaskCollection& taskTopo)
         }
         return;
     }
-    DUMPER_HILOGD(MODULE_COMMON, "Building new task topo for rootTaskId %{public}d", rootTaskId);
-    
     TaskCollection independentTopo;
     std::queue<TaskId> taskQueue;
     std::set<TaskId> visited;
@@ -237,31 +239,29 @@ void TaskControl::BuildTaskTopo(TaskId rootTaskId, TaskCollection& taskTopo)
     visited.insert(rootTaskId);
 
     const auto& container = TaskRegister::GetContainer();
-    auto& config = TaskEnableConfig::GetInstance();
     
     while (!taskQueue.empty()) {
         TaskId taskId = taskQueue.front();
         taskQueue.pop();
 
-        auto it = container.find(taskId);
-        if (it == container.end()) {
+        auto containerIt = container.find(taskId);
+        if (containerIt == container.end()) {
             continue;
         }
-        if (!config.IsTaskEnabled(taskId)) {
-            DUMPER_HILOGW(MODULE_COMMON, "Task ID %{public}d is disabled in config, skipping", taskId);
-            continue;
-        }
-        
-        taskTopo.emplace(taskId, it->second);
-        independentTopo.emplace(taskId, it->second);
-        
-        const auto& depTasks = it->second.taskDependency;
-        for (TaskId depTaskId : depTasks) {
-            if (visited.count(depTaskId) == 0) {
-                taskQueue.push(depTaskId);
-                visited.insert(depTaskId);
+        auto taskInfo = containerIt->second;
+        for (auto depIt = taskInfo.taskDependency.begin(); depIt != taskInfo.taskDependency.end();) {
+            if (!TaskEnableConfig::GetInstance().IsTaskEnabled(*depIt)) {
+                depIt = taskInfo.taskDependency.erase(depIt);
+                continue;
             }
+            if (visited.count(*depIt) == 0) {
+                taskQueue.push(*depIt);
+                visited.insert(*depIt);
+            }
+            ++depIt;
         }
+        taskTopo.emplace(taskId, taskInfo);
+        independentTopo.emplace(taskId, taskInfo);
     }
     CacheTaskTopo(rootTaskId, independentTopo);
     DUMPER_HILOGD(MODULE_COMMON,
