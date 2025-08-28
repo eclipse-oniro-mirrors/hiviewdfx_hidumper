@@ -48,15 +48,14 @@ DumpStatus SADumper::PreExecute(const std::shared_ptr<DumperParameter> &paramete
 {
     result_ = dump_datas;
     names_ = ptrDumpCfg_->args_->GetNameList();
-    bool isZip = parameter->GetOpts().IsDumpZip();
-    isZip_ = isZip;
+    isZip_ = parameter->GetOpts().IsDumpZip();
     auto callback = parameter->getClientCallback();
     if (callback == nullptr) {
         DUMPER_HILOGE(MODULE_COMMON, "PreExecute error|callback is nullptr");
         return DumpStatus::DUMP_FAIL;
     }
     std::string logDefaultPath_ = callback->GetFolder() + LOG_TXT;
-    if (isZip) {
+    if (isZip_) {
         outputFd_ = DumpUtils::FdToWrite(logDefaultPath_);
     } else {
         outputFd_ = parameter->getClientCallback()->GetOutputFd();
