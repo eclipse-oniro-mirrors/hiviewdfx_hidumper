@@ -239,6 +239,7 @@ inline const std::map<int, std::string> saNameMap_ = {
     { SUBSYS_WEBVIEW_SYS_UPDATE_SERVICE_ID, "AppFwkUpdateService"},
     { SELECTION_FWK_SA_ID, "SelectionService" },
     { MECH_BODY_SA_ID, "MechBodyController" },
+    { XPERF_SERVICE_SA_ID, "XperfService" },
 };
 
 namespace HiviewDFX {
