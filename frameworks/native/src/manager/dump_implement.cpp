@@ -292,7 +292,10 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
         }
         return DumpStatus::DUMP_HELP;
     }
-    if (!opts_.IsSelectAny() && argc != 1) {
+    bool isZip = opts_.IsDumpZip();
+    bool noSelect = !opts_.IsSelectAny();
+    bool validArgc = (argc == 1) || (argc == 2 && isZip);
+    if (noSelect && !validArgc) {
         CmdHelp();
         return DumpStatus::DUMP_HELP;
     }
