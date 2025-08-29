@@ -39,6 +39,7 @@ private:
     std::mutex mutex_;
     std::string argsStr_;
     int outputFd_ = -1;
+    bool isZip_ = false;
 
     DumpStatus GetData(const std::string &name, const sptr<ISystemAbilityManager> &sam);
 };
