@@ -301,10 +301,7 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
         }
         return DumpStatus::DUMP_HELP;
     }
-    bool isZip = opts_.IsDumpZip();
-    bool noSelect = !opts_.IsSelectAny();
-    bool validArgc = (argc == 1) || (argc == 2 && isZip);
-    if (noSelect && !validArgc) {
+    if (CheckUnableToDumpAll(argc, opts_)) {
         CmdHelp();
         return DumpStatus::DUMP_HELP;
     }
@@ -1096,6 +1093,14 @@ bool DumpImplement::CheckDumpPermission(DumperOpts& opt)
         return false;
     }
     return true;
+}
+
+bool DumpImplement::CheckUnableToDumpAll(int argc, DumperOpts& opt)
+{
+    bool isZip = opt.IsDumpZip();
+    bool noSelect = !opt.IsSelectAny();
+    bool validArgc = (argc == ARG_COUNT_NO_PARAM) || (argc == ARG_COUNT_WITH_ZIP && isZip);
+    return noSelect && !validArgc;
 }
 } // namespace HiviewDFX
 } // namespace OHOS

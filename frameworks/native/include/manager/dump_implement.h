@@ -121,6 +121,8 @@ private:
     std::string path_;
     static const int IPC_STAT_ARG_NUMS = 4;
     static const int HIVIEW_UID = 1201;
+    static const int ARG_COUNT_NO_PARAM = 1;
+    static const int ARG_COUNT_WITH_ZIP = 2;
     static thread_local std::unique_ptr<DumperSysEventParams> dumperSysEventParams_;
 };
 } // namespace HiviewDFX
