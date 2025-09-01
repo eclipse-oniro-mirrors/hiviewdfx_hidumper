@@ -757,6 +757,45 @@ HWTEST_F(HiDumperManagerTest, DumpTest037, TestSize.Level0)
 }
 
 /**
+ * @tc.name: DumpTest038
+ * @tc.desc: Test illegal dump.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest038, TestSize.Level0)
+{
+    std::string cmd = "hidumper -t 10 --zip";
+    std::string str = "  -h                          |help text for the tool\n";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+}
+
+/**
+ * @tc.name: DumpTest039
+ * @tc.desc: Test hidumper.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest039, TestSize.Level0)
+{
+    std::string cmd = "hidumper --zip";
+    std::string str = "The result is:/data/log/hidumper";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+}
+
+/**
+ * @tc.name: DumpTest040
+ * @tc.desc: Test hidumper dump alldata.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest040, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
  * @tc.name: IpcStatDumpTest001
  * @tc.desc: hidumper --ipc -a --start-stat
  * @tc.type: FUNC
