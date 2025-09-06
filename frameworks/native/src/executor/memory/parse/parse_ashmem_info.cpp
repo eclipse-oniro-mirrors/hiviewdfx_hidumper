@@ -43,7 +43,12 @@ void ParseAshmemInfo::UpdateAshmemOverviewMap(
     if (lastNonSpace != std::string::npos) {
         tempLine.erase(lastNonSpace + START_POS);
     }
-    size_t startPos = tempLine.find("[") + START_POS;
+    size_t leftBracketPos = tempLine.find("[");
+    if (leftBracketPos == std::string::npos) {
+        DUMPER_HILOGE(MODULE_SERVICE, "tempLine missing '[': %{public}s.", tempLine.c_str());
+        return;
+    }
+    size_t startPos = leftBracketPos + START_POS;
     size_t endPos = tempLine.find("]", startPos);
     if (startPos == std::string::npos || endPos == std::string::npos || endPos <= startPos) {
         DUMPER_HILOGE(MODULE_SERVICE, "tempLine is error data, tempLine:%{public}s.", tempLine.c_str());
