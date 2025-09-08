@@ -34,7 +34,7 @@ ParseAshmemInfo::~ParseAshmemInfo()
 {
 }
 
-void ParseAshmemInfo::UpdateAshmemOverviewMap(
+bool ParseAshmemInfo::UpdateAshmemOverviewMap(
     const std::string &line, std::unordered_map<std::string, int64_t> &ashmemOverviewMap)
 {
     std::string tempLine = line;
@@ -45,32 +45,33 @@ void ParseAshmemInfo::UpdateAshmemOverviewMap(
     }
     size_t leftBracketPos = tempLine.find("[");
     if (leftBracketPos == std::string::npos) {
-        DUMPER_HILOGE(MODULE_SERVICE, "tempLine missing '[': %{public}s.", tempLine.c_str());
-        return;
+        DUMPER_HILOGE(MODULE_SERVICE, "tempLine missing [:%{public}s.", tempLine.c_str());
+        return false;
     }
     size_t startPos = leftBracketPos + START_POS;
     size_t endPos = tempLine.find("]", startPos);
     if (startPos == std::string::npos || endPos == std::string::npos || endPos <= startPos) {
         DUMPER_HILOGE(MODULE_SERVICE, "tempLine is error data, tempLine:%{public}s.", tempLine.c_str());
-        return;
+        return false;
     }
     std::string tmpProcessName = tempLine.substr(startPos, endPos - startPos);
     size_t pos = tempLine.find("physical size is ");
     if (pos == std::string::npos) {
         DUMPER_HILOGE(MODULE_SERVICE, "tempLine not find [physical size is], tempLine:%{public}s.", tempLine.c_str());
-        return;
+        return false;
     }
     std::string physicalSize = tempLine.substr(pos + PHYSICAL_SIZE);
     if (!IsNumericStr(physicalSize)) {
         DUMPER_HILOGE(MODULE_SERVICE, "physicalSize is not number, physicalSize:%{public}s.", physicalSize.c_str());
-        return;
+        return false;
     }
     int64_t pss = 0;
     if (!StringUtils::GetInstance().IsStringToIntSuccess(physicalSize, pss)) {
         DUMPER_HILOGE(MODULE_SERVICE, "physicalSize is too big, physicalSize:%{public}s.", physicalSize.c_str());
-        return;
+        return false;
     }
     ashmemOverviewMap[tmpProcessName] = pss;
+    return true;
 }
 
 bool ParseAshmemInfo::GetAshmemInfo(const int32_t &pid, pair<int, vector<string>> &result)

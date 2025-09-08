@@ -29,7 +29,7 @@ public:
     bool GetAshmemInfo(const int32_t &pid, std::pair<int, std::vector<std::string>> &result);
 
 private:
-    void UpdateAshmemOverviewMap(const std::string &line, std::unordered_map<std::string, int64_t> &ashmemOverviewMap);
+    bool UpdateAshmemOverviewMap(const std::string &line, std::unordered_map<std::string, int64_t> &ashmemOverviewMap);
 };
 } // namespace HiviewDFX
 } // namespace OHOS
