@@ -397,7 +397,7 @@ bool ConfigUtils::HandleDumpCjHeapMem(std::vector<std::shared_ptr<DumpCfg>> &dum
 {
     const DumperOpts &dumperOpts = dumperParam_->GetOpts();
     if (!dumperOpts.isDumpCjHeapMem_) {
-        DUMPER_HILOGE(MODULE_COMMON, "Option isDumpCjHeapMem_ is false.");
+        DUMPER_HILOGD(MODULE_COMMON, "Option isDumpCjHeapMem_ is false.");
         return false;
     }
     DUMPER_HILOGD(MODULE_COMMON, "debug|memPid=%{public}d", dumperOpts.dumpCjHeapMemPid_);
