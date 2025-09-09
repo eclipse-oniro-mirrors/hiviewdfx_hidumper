@@ -57,6 +57,7 @@ static const std::string LIB = "libai_mnt_client.so";
 
 static const std::string UNKNOWN_PROCESS = "unknown";
 static const std::string PRE_BLANK = "   ";
+static const std::string END_BLANK = "  ";
 static const std::string MEMORY_LINE = "-------------------------------[memory]-------------------------------";
 constexpr char HIAI_MEM_INFO_FN[] = "HIAI_Memory_QueryAllUserAllocatedMemInfo";
 using HiaiFunc = int (*)(MemInfoData::HiaiUserAllocatedMemInfo*, int, int*);
@@ -65,7 +66,8 @@ constexpr int SECOND_TO_MILLISECONDS = 1000;
 constexpr int MAX_STARS_NUM = 20;
 constexpr int ONE_STAR = 1;
 constexpr int APP_UID = 20000;
-constexpr int LINE_SPACING = 8;
+constexpr int LINE_SPACING = 6;
+constexpr int DMABUF_MAX_WIDTH = 33;
 
 MemoryInfo::MemoryInfo()
 {
@@ -928,8 +930,8 @@ bool MemoryInfo::GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDma
             if (showTitles.find(title) == showTitles.end()) {
                 continue;
             }
-            int width = columnWidths[headerMap[title]];
-            oss << std::left << std::setw(width + LINE_SPACING) << value;
+            int width = std::min(columnWidths[headerMap[title]], DMABUF_MAX_WIDTH);
+            oss << std::left << std::setw(width + LINE_SPACING) << value << END_BLANK;
         }
         vector<string> tempResult;
         tempResult.push_back(oss.str());
