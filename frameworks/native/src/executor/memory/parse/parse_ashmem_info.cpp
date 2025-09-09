@@ -25,9 +25,9 @@
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
-const int PHYSICAL_SIZE = 17; // 17 is the length of "physical size is "
 const int START_POS = 1;
 constexpr size_t PROCESS_NAME_MAX_LEN = 128;
+constexpr size_t PHYSICAL_SIZE_MAX_LEN = 64;
 ParseAshmemInfo::ParseAshmemInfo()
 {
 }
@@ -46,17 +46,14 @@ bool ParseAshmemInfo::UpdateAshmemOverviewMap(
     }
 
     char processName[PROCESS_NAME_MAX_LEN] = {0};
-    int ret = sscanf_s(tempLine.c_str(), "%*[^[][%127[^]]]", processName, PROCESS_NAME_MAX_LEN);
-    if (ret != 1) {
+    char numberStr[PHYSICAL_SIZE_MAX_LEN] = {0};
+    int ret = sscanf_s(tempLine.c_str(), "%*[^[][%127[^]]] %*[^p]physical size is %63[0-9]",
+        processName, PROCESS_NAME_MAX_LEN, numberStr, PHYSICAL_SIZE_MAX_LEN);
+    if (ret != 2) {
         DUMPER_HILOGE(MODULE_SERVICE, "tempLine Failed to parse line: %{public}s.", tempLine.c_str());
         return false;
     }
-    size_t pos = tempLine.find("physical size is ");
-    if (pos == std::string::npos) {
-        DUMPER_HILOGE(MODULE_SERVICE, "tempLine not find [physical size is], tempLine:%{public}s.", tempLine.c_str());
-        return false;
-    }
-    std::string physicalSize = tempLine.substr(pos + PHYSICAL_SIZE);
+    std::string physicalSize = std::string(numberStr);
     if (!IsNumericStr(physicalSize)) {
         DUMPER_HILOGE(MODULE_SERVICE, "physicalSize is not number, physicalSize:%{public}s.", physicalSize.c_str());
         return false;
