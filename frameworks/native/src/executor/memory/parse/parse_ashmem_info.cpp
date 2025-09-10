@@ -49,7 +49,7 @@ bool ParseAshmemInfo::UpdateAshmemOverviewMap(
     char numberStr[PHYSICAL_SIZE_MAX_LEN] = {0};
     int ret = sscanf_s(tempLine.c_str(), "%*[^[][%127[^]]] %*[^p]physical size is %63[0-9]",
         processName, PROCESS_NAME_MAX_LEN, numberStr, PHYSICAL_SIZE_MAX_LEN);
-    if (ret != 2) {
+    if (ret != 2) { // 2: expect to parse 2 items
         DUMPER_HILOGE(MODULE_SERVICE, "tempLine Failed to parse line: %{public}s.", tempLine.c_str());
         return false;
     }
