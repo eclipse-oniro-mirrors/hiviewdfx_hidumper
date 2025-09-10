@@ -676,15 +676,36 @@ HWTEST_F(HidumperMemoryTest, ParseAshmemInfo001, TestSize.Level1)
 {
     unique_ptr<ParseAshmemInfo> parseAshmeminfo = make_unique<ParseAshmemInfo>();
     std::unordered_map<std::string, int64_t> ashmemOverviewMap;
-    parseAshmeminfo->UpdateAshmemOverviewMap("", ashmemOverviewMap);
-    parseAshmeminfo->UpdateAshmemOverviewMap("test", ashmemOverviewMap);
-    parseAshmeminfo->UpdateAshmemOverviewMap("test[", ashmemOverviewMap);
-    parseAshmeminfo->UpdateAshmemOverviewMap("test]", ashmemOverviewMap);
-    parseAshmeminfo->UpdateAshmemOverviewMap("test][", ashmemOverviewMap);
-    parseAshmeminfo->UpdateAshmemOverviewMap("test[]", ashmemOverviewMap);
-    parseAshmeminfo->UpdateAshmemOverviewMap("test[], physical size is testSize", ashmemOverviewMap);
-    parseAshmeminfo->UpdateAshmemOverviewMap("test[test], physical size is 12345678912345678912", ashmemOverviewMap);
+    ASSERT_FALSE(parseAshmeminfo->UpdateAshmemOverviewMap("", ashmemOverviewMap));
+    ASSERT_FALSE(parseAshmeminfo->UpdateAshmemOverviewMap("test", ashmemOverviewMap));
+    ASSERT_FALSE(parseAshmeminfo->UpdateAshmemOverviewMap("test[", ashmemOverviewMap));
+    ASSERT_FALSE(parseAshmeminfo->UpdateAshmemOverviewMap("test]", ashmemOverviewMap));
+    ASSERT_FALSE(parseAshmeminfo->UpdateAshmemOverviewMap("test][", ashmemOverviewMap));
+    ASSERT_FALSE(parseAshmeminfo->UpdateAshmemOverviewMap("test[]", ashmemOverviewMap));
+    ASSERT_FALSE(parseAshmeminfo->UpdateAshmemOverviewMap("test[], physical size is testSize", ashmemOverviewMap));
+    ASSERT_FALSE(parseAshmeminfo->UpdateAshmemOverviewMap("test[test], physical size is 12345678912345678912",
+        ashmemOverviewMap));
     ASSERT_TRUE(ashmemOverviewMap.empty());
+}
+
+/**
+ * @tc.name: ParseAshmemInfo002
+ * @tc.desc: Test correct ashmemInfo.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperMemoryTest, ParseAshmemInfo002, TestSize.Level1)
+{
+    unique_ptr<ParseAshmemInfo> parseAshmeminfo = make_unique<ParseAshmemInfo>();
+    std::unordered_map<std::string, int64_t> ashmemOverviewMap;
+    ASSERT_TRUE(parseAshmeminfo->UpdateAshmemOverviewMap(
+        "Total ashmem of [test] virtual size is 123, physical size is 123456789123456789",
+        ashmemOverviewMap));
+    ASSERT_FALSE(ashmemOverviewMap.empty());
+
+    auto iter = ashmemOverviewMap.find("test");
+    ASSERT_NE(iter, ashmemOverviewMap.end());
+    int64_t expectedValue = 123456789123456789LL;
+    ASSERT_EQ(iter->second, expectedValue);
 }
 } // namespace HiviewDFX
 } // namespace OHOS

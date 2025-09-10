@@ -20,12 +20,14 @@
 #include "hilog_wrapper.h"
 #include "util/file_utils.h"
 #include "string_ex.h"
+#include "securec.h"
 
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
-const int PHYSICAL_SIZE = 17; // 17 is the length of "physical size is "
 const int START_POS = 1;
+constexpr size_t PROCESS_NAME_MAX_LEN = 128;
+constexpr size_t PHYSICAL_SIZE_MAX_LEN = 64;
 ParseAshmemInfo::ParseAshmemInfo()
 {
 }
@@ -34,38 +36,35 @@ ParseAshmemInfo::~ParseAshmemInfo()
 {
 }
 
-void ParseAshmemInfo::UpdateAshmemOverviewMap(
+bool ParseAshmemInfo::UpdateAshmemOverviewMap(
     const std::string &line, std::unordered_map<std::string, int64_t> &ashmemOverviewMap)
 {
     std::string tempLine = line;
-    // delete the whitespace characters at the end of the line
     size_t lastNonSpace = tempLine.find_last_not_of(' ');
     if (lastNonSpace != std::string::npos) {
         tempLine.erase(lastNonSpace + START_POS);
     }
-    size_t startPos = tempLine.find("[") + START_POS;
-    size_t endPos = tempLine.find("]", startPos);
-    if (startPos == std::string::npos || endPos == std::string::npos || endPos <= startPos) {
-        DUMPER_HILOGE(MODULE_SERVICE, "tempLine is error data, tempLine:%{public}s.", tempLine.c_str());
-        return;
+
+    char processName[PROCESS_NAME_MAX_LEN] = {0};
+    char numberStr[PHYSICAL_SIZE_MAX_LEN] = {0};
+    int ret = sscanf_s(tempLine.c_str(), "%*[^[][%127[^]]] %*[^p]physical size is %63s",
+        processName, PROCESS_NAME_MAX_LEN, numberStr, PHYSICAL_SIZE_MAX_LEN);
+    if (ret != 2) { // 2: expect to parse 2 items
+        DUMPER_HILOGE(MODULE_SERVICE, "tempLine Failed to parse line: %{public}s.", tempLine.c_str());
+        return false;
     }
-    std::string tmpProcessName = tempLine.substr(startPos, endPos - startPos);
-    size_t pos = tempLine.find("physical size is ");
-    if (pos == std::string::npos) {
-        DUMPER_HILOGE(MODULE_SERVICE, "tempLine not find [physical size is], tempLine:%{public}s.", tempLine.c_str());
-        return;
-    }
-    std::string physicalSize = tempLine.substr(pos + PHYSICAL_SIZE);
+    std::string physicalSize = std::string(numberStr);
     if (!IsNumericStr(physicalSize)) {
         DUMPER_HILOGE(MODULE_SERVICE, "physicalSize is not number, physicalSize:%{public}s.", physicalSize.c_str());
-        return;
+        return false;
     }
     int64_t pss = 0;
     if (!StringUtils::GetInstance().IsStringToIntSuccess(physicalSize, pss)) {
         DUMPER_HILOGE(MODULE_SERVICE, "physicalSize is too big, physicalSize:%{public}s.", physicalSize.c_str());
-        return;
+        return false;
     }
-    ashmemOverviewMap[tmpProcessName] = pss;
+    ashmemOverviewMap[std::string(processName)] = pss;
+    return true;
 }
 
 bool ParseAshmemInfo::GetAshmemInfo(const int32_t &pid, pair<int, vector<string>> &result)
