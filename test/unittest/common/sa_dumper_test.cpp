@@ -121,7 +121,6 @@ HWTEST_F(SADumperTest, SADumperTest006, TestSize.Level3)
     ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
 }
 
-
 /**
  * @tc.name: SADumperTest009
  * @tc.desc: Test SA RenderService result contain "Graphic".

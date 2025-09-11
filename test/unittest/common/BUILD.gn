@@ -202,7 +202,6 @@ ohos_unittest("HidumperMemoryTest") {
     "hiview:libucollection_utility",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
   ]
   defines = []
   if (hidumper_report_memmgr) {
