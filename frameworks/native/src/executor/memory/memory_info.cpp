@@ -925,7 +925,7 @@ bool MemoryInfo::GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDma
             if (!(ss >> value)) {
                 value = "NULL";
             }
-            if (showTitles.find(title) != showTitles.end()) {
+            if (showTitles.find(title) == showTitles.end()) {
                 continue;
             }
             int width = columnWidths[headerMap[title]];
