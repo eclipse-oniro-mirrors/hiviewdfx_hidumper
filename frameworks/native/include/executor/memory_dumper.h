@@ -43,6 +43,7 @@ private:
     bool dumpMemPrune_ = false;
     bool showAshmem_ = false;
     bool showDmabuf_ = false;
+    bool isZip_ = false;
 
     DumpStatus status_ = DUMP_FAIL;
     StringMatrix dumpDatas_;

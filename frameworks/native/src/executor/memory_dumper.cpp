@@ -27,6 +27,10 @@ MemoryDumper::MemoryDumper()
 
 MemoryDumper::~MemoryDumper()
 {
+    if (isZip_ && rawParamFd_ >= 0) {
+        close(rawParamFd_);
+        rawParamFd_ = -1;
+    }
 }
 
 DumpStatus MemoryDumper::PreExecute(const shared_ptr<DumperParameter> &parameter, StringMatrix dumpDatas)
@@ -41,14 +45,14 @@ DumpStatus MemoryDumper::PreExecute(const shared_ptr<DumperParameter> &parameter
     showDmabuf_ = parameter->GetOpts().showDmaBuf_;
     dumpDatas_ = dumpDatas;
 
-    bool isZip = parameter->GetOpts().IsDumpZip();
+    isZip_ = parameter->GetOpts().IsDumpZip();
     auto callback = parameter->getClientCallback();
     if (callback == nullptr) {
         DUMPER_HILOGE(MODULE_SERVICE, "PreExecute error|callback is nullptr");
         return DumpStatus::DUMP_FAIL;
     }
     std::string logDefaultPath_ = callback->GetFolder() + "log.txt";
-    if (isZip) {
+    if (isZip_) {
         rawParamFd_ = DumpUtils::FdToWrite(logDefaultPath_);
     } else {
         rawParamFd_ = parameter->getClientCallback()->GetOutputFd();

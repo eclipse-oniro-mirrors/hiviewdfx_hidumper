@@ -895,27 +895,28 @@ void MemoryInfo::GetAshmem(const int32_t &pid, StringMatrix result, bool showAsh
     }
 }
 
-void MemoryInfo::GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDmaBuf)
+bool MemoryInfo::GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDmaBuf)
 {
     if (!showDmaBuf) {
         DUMPER_HILOGD(MODULE_SERVICE, "showDmaBuf is false, skip GetDmaBuf");
-        return;
+        return false;
     }
     int32_t uid = GetProcUid(pid);
     if (uid < APP_UID) {
         DUMPER_HILOGD(MODULE_SERVICE, "Uid Verification failed for uid: %{public}d", uid);
-        return;
+        return false;
     }
     std::vector<std::string> dmabufInfo;
     std::vector<std::string> titles;
-    unordered_map<std::string, int> headerMap;
-    vector<int> columnWidths;
+    std::unordered_map<std::string, int> headerMap;
+    std::vector<int> columnWidths;
     unique_ptr<ParseDmaBufInfo> parseDmaBufInfo = make_unique<ParseDmaBufInfo>();
     if (!parseDmaBufInfo->GetDmaBufInfo(pid, dmabufInfo, headerMap, columnWidths, titles)) {
         DUMPER_HILOGE(MODULE_SERVICE, "GetDmaBufInfo error");
-        return;
+        return false;
     }
-    const std::unordered_set<std::string> exTitles = { "can_reclaim", "is_reclaim" };
+    const std::unordered_set<std::string> showTitles = { "Process", "pid", "fd", "size_bytes", "ino", "exp_pid",
+        "exp_task_comm", "buf_name", "exp_name", "buf_type", "leak_type" };
     for (const auto& dmabuf : dmabufInfo) {
         std::istringstream ss(dmabuf);
         std::ostringstream oss;
@@ -924,7 +925,7 @@ void MemoryInfo::GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDma
             if (!(ss >> value)) {
                 value = "NULL";
             }
-            if (exTitles.find(title) != exTitles.end()) {
+            if (showTitles.find(title) == showTitles.end()) {
                 continue;
             }
             int width = columnWidths[headerMap[title]];
@@ -934,6 +935,7 @@ void MemoryInfo::GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDma
         tempResult.push_back(oss.str());
         result->push_back(tempResult);
     }
+    return true;
 }
 
 void MemoryInfo::GetRamCategory(const GroupMap &smapsInfos, const ValueMap &meminfos, StringMatrix result)
@@ -1322,9 +1324,9 @@ DumpStatus MemoryInfo::GetMemoryInfoNoPid(int fd, StringMatrix result)
     std::lock_guard<std::mutex> lock(mutex_);
     rawParamFd_ = fd;
     (void)dprintf(rawParamFd_, "%s\n", MEMORY_LINE.c_str());
-    if (!GetMemoryInfoInit(result)) {
-        return DUMP_FAIL;
-    }
+	if (!GetMemoryInfoInit(result)) {
+		return DUMP_FAIL;
+	}
 
     if (!dumpSmapsOnStart_) {
         dumpSmapsOnStart_ = true;
@@ -1349,9 +1351,9 @@ DumpStatus MemoryInfo::GetMemoryInfoPrune(int fd, StringMatrix result)
     rawParamFd_ = fd;
     dumpPrune_ = true;
     (void)dprintf(rawParamFd_, "%s\n", MEMORY_LINE.c_str());
-    if (!GetMemoryInfoInit(result)) {
-        return DUMP_FAIL;
-    }
+	if (!GetMemoryInfoInit(result)) {
+		return DUMP_FAIL;
+	}
     GetMemoryUsageInfo(result);
     return DUMP_OK;
 }
