@@ -163,6 +163,13 @@ ohos_source_set("dump_framework") {
     "task/base/task_control.cpp",
     "task/base/task_enable_config.cpp",
     "task/base/task_register.cpp",
+    "task/storage/disk_info_task.cpp",
+    "task/storage/iotop_info_task.cpp",
+    "task/storage/lsof_info_task.cpp",
+    "task/storage/mounts_info_task.cpp",
+    "task/storage/storage_io_info_task.cpp",
+    "task/writer/storage_info_writer.cpp",
+    "task/writer/storage_io_info_writer.cpp",
     "utils/writer_utils.cpp",
   ]
 
