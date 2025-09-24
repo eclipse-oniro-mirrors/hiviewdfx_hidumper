@@ -469,7 +469,7 @@ bool DumpUtils::CheckAppDebugVersion(int pid)
         return false;
     }
 #ifdef HIDUMPER_BUNDLEMANAGER_FRAMEWORK_ENABLE
-    sptr<AppExecFwk::BundleMgrProxy> proxy = iface_cast<AppExecFwk::BundleMgrProxy>(remoteObject);
+    sptr<AppExecFwk::IBundleMgr> proxy = iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
     AppExecFwk::ApplicationInfo appInfo;
     bool ret = proxy->GetApplicationInfo(appName, AppExecFwk::GET_APPLICATION_INFO_WITH_DISABLE,
                                          AppExecFwk::Constants::ANY_USERID, appInfo);
