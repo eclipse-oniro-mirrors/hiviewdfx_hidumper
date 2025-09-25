@@ -80,6 +80,7 @@ private:
     void SendReleaseVersionErrorMessage(const std::string& opt);
     bool ParseSubLongCmdOption(int argc, DumperOpts &opts_, const struct option longOptions[],
         const int &optionIndex, char *argv[]);
+    bool ParseEventCmdOption(DumperOpts &opts_, const std::string& param);
     DumpStatus ParseLongCmdOption(int argc, DumperOpts& opts_, const struct option longOptions[],
         const int& optionIndex, char* argv[]);
     DumpStatus ParseShortCmdOption(int c, DumperOpts& opts_, int argc, char* argv[]);
@@ -104,6 +105,7 @@ private:
     DumpStatus SetRawParam(DumperOpts &opt);
     DumpStatus SetMemPruneParam(DumperOpts &opt);
     DumpStatus SetGCParam(DumperOpts &opt);
+    DumpStatus SetEventParam(DumperOpts &opts_, const std::string& param);
     DumpStatus CheckArgs(int argc, char* argv[]);
     bool IsNewStructSupport(std::shared_ptr<DumperParameter> ptrDumperParameter);
 

@@ -31,6 +31,8 @@ const std::string ConfigData::CONFIG_DUMPER_LIST_SYSTEM_ABILITY = ConfigData::CO
 const std::string ConfigData::CONFIG_DUMPER_LIST_SYSTEM = ConfigData::CONFIG_DUMPER_LIST_ + "system";
 const std::string ConfigData::CONFIG_DUMPER_JSHEAP_MEMORY = ConfigData::CONFIG_DUMPER_ + "jsheap_memory";
 const std::string ConfigData::CONFIG_DUMPER_CJHEAP_MEMORY = ConfigData::CONFIG_DUMPER_ + "cjheap_memory";
+const std::string ConfigData::CONFIG_DUMPER_EVENT_LIST = ConfigData::CONFIG_DUMPER_ + "event_list";
+const std::string ConfigData::CONFIG_DUMPER_EVENT_DETAIL = ConfigData::CONFIG_DUMPER_ + "event_detail";
 const std::string ConfigData::CONFIG_GROUP_IPC_STAT = ConfigData::CONFIG_GROUP_ + "ipc";
 const std::string ConfigData::CONFIG_GROUP_CPU_FREQ = ConfigData::CONFIG_GROUP_ + "cpufreq";
 const std::string ConfigData::CONFIG_GROUP_CPU_USAGE = ConfigData::CONFIG_GROUP_ + "cpuusage";
@@ -196,6 +198,28 @@ const ConfigData::ItemCfg ConfigData::cjHeapMemDumper_[] = {
     {
         "", "", "", "",
         DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::LOOP, ""
+    },
+};
+
+const ConfigData::ItemCfg ConfigData::eventListDumper_[] = {
+    {
+        CONFIG_DUMPER_EVENT_LIST, "event List Information", "", "",
+        DumperConstant::EVENT_LIST_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "", "",
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+};
+
+const ConfigData::ItemCfg ConfigData::eventDetailDumper_[] = {
+    {
+        CONFIG_DUMPER_EVENT_DETAIL, "event Detail Information", "", "",
+        DumperConstant::EVENT_DETAIL_DUMPER, DumperConstant::NONE, DumperConstant::NONE, ""
+    },
+    {
+        "", "", "", "",
+        DumperConstant::FD_OUTPUT, DumperConstant::NONE, DumperConstant::NONE, ""
     },
 };
 
@@ -838,6 +862,14 @@ const ConfigData::DumperCfg ConfigData::dumpers_[] = {
      .desc_ = cjHeapMemDumper_[0].desc_,
      .list_ = cjHeapMemDumper_,
      .size_ = ARRAY_SIZE(cjHeapMemDumper_)},
+     {.name_ = eventListDumper_[0].name_,
+     .desc_ = eventListDumper_[0].desc_,
+     .list_ = eventListDumper_,
+     .size_ = ARRAY_SIZE(eventListDumper_)},
+     {.name_ = eventDetailDumper_[0].name_,
+     .desc_ = eventDetailDumper_[0].desc_,
+     .list_ = eventDetailDumper_,
+     .size_ = ARRAY_SIZE(eventDetailDumper_)},
     {.name_ = envDumper_[0].name_,
      .desc_ = envDumper_[0].desc_,
      .list_ = envDumper_,

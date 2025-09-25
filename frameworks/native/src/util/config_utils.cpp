@@ -557,8 +557,17 @@ bool ConfigUtils::HandleDumpFaultLog(std::vector<std::shared_ptr<DumpCfg>> &dump
     currentPidInfos_.clear();
 
     std::shared_ptr<OptionArgs> args;
-    GetConfig(CONFIG_GROUP_FAULT_LOG, dumpCfgs, args);
-
+    if (dumperOpts.isEventList_ || dumperOpts.isEventDetail_) {
+        if (dumperOpts.isEventList_) {
+            DUMPER_HILOGD(MODULE_COMMON, "debug|event list");
+            GetConfig(CONFIG_DUMPER_EVENT_LIST, dumpCfgs, args);
+        } else if (dumperOpts.isEventDetail_) {
+            DUMPER_HILOGD(MODULE_COMMON, "debug|event detail");
+            GetConfig(CONFIG_DUMPER_EVENT_DETAIL, dumpCfgs, args);
+        }
+    } else {
+        GetConfig(CONFIG_GROUP_FAULT_LOG, dumpCfgs, args);
+    }
     currentPidInfos_.clear();
     currentPidInfo_.Reset();
     return true;

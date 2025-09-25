@@ -38,6 +38,8 @@ public:
     void SetWidth(const int &width, const char &fileStr, const bool &left, std::string &str);
     char GetBlank();
     char GetSeparator();
+    long long StringToUnixMs(const std::string& datetime);
+    std::string UnixMsToString(uint64_t ms_timestamp);
 
 private:
     const int HEX_STR = 16;

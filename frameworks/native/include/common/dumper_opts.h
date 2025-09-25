@@ -39,6 +39,11 @@ struct DumperOpts {
     std::vector<std::string> systemArgs_;
     bool isDumpProcesses_;
     int processPid_;
+    std::string eventId_;
+    int showEventCount_;
+    std::string processName_;
+    long long startTime_;
+    long long endTime_;
     bool isFaultLog_;
     std::string path_; // for zip
     bool isAppendix_;
@@ -64,6 +69,8 @@ struct DumperOpts {
     bool isReceivedSigInt_;
     bool showAshmem_;
     bool showDmaBuf_;
+    bool isEventList_;
+    bool isEventDetail_;
 
 public:
     DumperOpts();

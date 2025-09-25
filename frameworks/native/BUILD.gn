@@ -45,9 +45,13 @@ ohos_source_set("dump_main") {
     "src/executor/ipc_stat_dumper.cpp",
     "src/executor/jsheap_memory_dumper.cpp",
     "src/executor/cjheap_memory_dumper.cpp",
+    "src/executor/event_detail_dumper.cpp",
+    "src/executor/event_list_dumper.cpp",
     "src/executor/list_dumper.cpp",
     "src/executor/memory/dump_jsheap_info.cpp",
     "src/executor/memory/dump_cjheap_info.cpp",
+    "src/executor/event/dump_event_info.cpp",
+    "src/executor/event/event_query_callback.cpp",
     "src/executor/memory_dumper.cpp",
     "src/executor/properties_dumper.cpp",
     "src/executor/sa_dumper.cpp",
@@ -67,6 +71,8 @@ ohos_source_set("dump_main") {
     "src/factory/ipc_stat_dumper_factory.cpp",
     "src/factory/jsheap_memory_dumper_factory.cpp",
     "src/factory/cjheap_memory_dumper_factory.cpp",
+    "src/factory/event_detail_dumper_factory.cpp",
+    "src/factory/event_list_dumper_factory.cpp",
     "src/factory/list_dumper_factory.cpp",
     "src/factory/memory_dumper_factory.cpp",
     "src/factory/properties_dumper_factory.cpp",
@@ -110,6 +116,8 @@ ohos_source_set("dump_main") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "zlib:shared_libz",
+    "hisysevent:libhisysevent",
+    "hisysevent:libhisyseventmanager",
   ]
   defines = []
 

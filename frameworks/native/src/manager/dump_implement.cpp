@@ -34,6 +34,8 @@
 #include "factory/memory_dumper_factory.h"
 #include "factory/jsheap_memory_dumper_factory.h"
 #include "factory/cjheap_memory_dumper_factory.h"
+#include "factory/event_list_dumper_factory.h"
+#include "factory/event_detail_dumper_factory.h"
 #include "factory/traffic_dumper_factory.h"
 #include "factory/ipc_stat_dumper_factory.h"
 #include "dump_utils.h"
@@ -48,6 +50,8 @@
 #include "hisysevent.h"
 #endif
 #include "manager/dump_manager.h"
+
+#include <unordered_set>
 namespace OHOS {
 namespace HiviewDFX {
 static struct option LONG_OPTIONS[] = {{"cpufreq", no_argument, 0, 0},
@@ -71,6 +75,10 @@ static struct option LONG_OPTIONS[] = {{"cpufreq", no_argument, 0, 0},
     {"start-stat", no_argument, 0, 0},
     {"stop-stat", no_argument, 0, 0},
     {"stat", no_argument, 0, 0},
+    {"list", no_argument, 0, 0},
+    {"print", no_argument, 0, 0},
+    {"since", required_argument, 0, 0},
+    {"until", required_argument, 0, 0},
     {0, 0, 0, 0}};
 
 thread_local std::unique_ptr<DumperSysEventParams> DumpImplement::dumperSysEventParams_{nullptr};
@@ -112,6 +120,10 @@ void DumpImplement::AddExecutorFactoryToMap()
         std::make_pair(DumperConstant::JSHEAP_MEMORY_DUMPER, std::make_shared<JsHeapMemoryDumperFactory>()));
     ptrExecutorFactoryMap_->insert(
         std::make_pair(DumperConstant::CJHEAP_MEMORY_DUMPER, std::make_shared<CjHeapMemoryDumperFactory>()));
+    ptrExecutorFactoryMap_->insert(
+        std::make_pair(DumperConstant::EVENT_LIST_DUMPER, std::make_shared<EventListDumperFactory>()));
+    ptrExecutorFactoryMap_->insert(
+        std::make_pair(DumperConstant::EVENT_DETAIL_DUMPER, std::make_shared<EventDetailDumperFactory>()));
     ptrExecutorFactoryMap_->insert(
         std::make_pair(DumperConstant::TRAFFIC_DUMPER, std::make_shared<TrafficDumperFactory>()));
     ptrExecutorFactoryMap_->insert(
@@ -266,11 +278,12 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
 {
     optind = 0; // reset getopt_long
     opterr = 0; // getopt not show error info
-    const char optStr[] = "-hlcsa:epvT:t:";
+    const char optStr[] = "-hlcsa:epvT:t:n:";
     bool loop = true;
     while (loop) {
         int optionIndex = 0;
         int c = getopt_long(argc, argv, optStr, LONG_OPTIONS, &optionIndex);
+        DUMPER_HILOGI(MODULE_COMMON, "test getopt_long(%{public}d), optind(%{public}d)", c, optind);
         if (c == -1) {
             break;
         } else if (c == 0) {
@@ -364,6 +377,16 @@ DumpStatus DumpImplement::SetCmdParameter(int argc, char *argv[], DumperOpts &op
             status = SetCmdIntegerParameter(argv[optind - 1], opts_.threadId_);
         } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "-t")) {
             status = SetCmdIntegerParameter(argv[optind - 1], opts_.timeInterval_);
+        } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "-n")) {
+            status = SetCmdIntegerParameter(argv[optind - 1], opts_.showEventCount_);
+        } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "--list")) {
+            opts_.processName_ = argv[optind - 1];
+        } else if (StringUtils::GetInstance().IsSameStr(argv[optind - ARG_INDEX_OFFSET_LAST_OPTION], "--print")) {
+            if (IsNumericStr(argv[optind - 1])) {
+                opts_.eventId_ = argv[optind - 1];
+            } else {
+                opts_.processName_ = argv[optind - 1];
+            }
         } else if (IsSADumperOption(argv)) {
             opts_.abilitieNames_.push_back(argv[optind - 1]);
             dumperSysEventParams_->target += argv[optind - 1];
@@ -396,6 +419,57 @@ std::string DumpImplement::GetTime()
     };
 
     return currentTime;
+}
+
+bool DumpImplement::ParseEventCmdOption(DumperOpts &opts_, const std::string& param)
+{
+    if (!opts_.isFaultLog_) {
+        return false;
+    }
+    static const std::unordered_set<std::string> validParams = {
+        "list", "print", "since", "until"
+    };
+    return validParams.find(param) != validParams.end();
+}
+
+DumpStatus DumpImplement::SetEventParam(DumperOpts &opts_, const std::string& param)
+{
+    if (StringUtils::GetInstance().IsSameStr(param, "list")) {
+        opts_.isEventList_ = true;
+        dumperSysEventParams_->subOpt = "list";
+        return DumpStatus::DUMP_OK;
+    } else if (StringUtils::GetInstance().IsSameStr(param, "print")) {
+        opts_.isEventDetail_ = true;
+        dumperSysEventParams_->subOpt = "print";
+        return DumpStatus::DUMP_OK;
+    } else if (StringUtils::GetInstance().IsSameStr(param, "since")) {
+        if (optarg == nullptr) {
+            DUMPER_HILOGE(MODULE_COMMON, "since option miss argument");
+            return DumpStatus::DUMP_FAIL;
+        }
+        opts_.startTime_ = StringUtils::GetInstance().StringToUnixMs(optarg);
+        if (opts_.startTime_ < 0) {
+            DUMPER_HILOGE(MODULE_COMMON, "Invalid string arg %{public}s", optarg);
+            std::string errorStr = invalidError_ + optarg;
+            SendErrorMessage(errorStr);
+            return DumpStatus::DUMP_INVALID_ARG;
+        }
+        return DumpStatus::DUMP_OK;
+    } else if (StringUtils::GetInstance().IsSameStr(param, "until")) {
+        if (optarg == nullptr) {
+            DUMPER_HILOGE(MODULE_COMMON, "until option miss argument");
+            return DumpStatus::DUMP_FAIL;
+        }
+        opts_.endTime_ = StringUtils::GetInstance().StringToUnixMs(optarg);
+        if (opts_.endTime_ < 0) {
+            DUMPER_HILOGE(MODULE_COMMON, "Invalid string arg %{public}s", optarg);
+            std::string errorStr = invalidError_ + optarg;
+            SendErrorMessage(errorStr);
+            return DumpStatus::DUMP_INVALID_ARG;
+        }
+        return DumpStatus::DUMP_OK;
+    }
+    return DumpStatus::DUMP_FAIL;
 }
 
 bool DumpImplement::ParseSubLongCmdOption(int argc, DumperOpts &opts_, const struct option longOptions[],
@@ -472,6 +546,8 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts_, const 
             CmdHelp();
             return DumpStatus::DUMP_HELP;
         }
+    } else if (ParseEventCmdOption(opts_, longOptions[optionIndex].name)) {
+        return SetEventParam(opts_, longOptions[optionIndex].name);
     } else {
         DUMPER_HILOGE(MODULE_COMMON, "ParseLongCmdOption %{public}s", longOptions[optionIndex].name);
     }

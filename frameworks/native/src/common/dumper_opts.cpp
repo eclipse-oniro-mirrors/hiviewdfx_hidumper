@@ -60,6 +60,11 @@ void DumperOpts::Reset()
     systemArgs_.clear();
     isDumpProcesses_ = false;
     processPid_ = -1;
+    eventId_.clear();
+    showEventCount_ = -1;
+    processName_.clear();
+    startTime_ = -1;
+    endTime_ = -1;
     isFaultLog_ = false;
     path_.clear(); // for zip
     isAppendix_ = false;
@@ -83,6 +88,8 @@ void DumperOpts::Reset()
     dumpMemPrune_ = false;
     showAshmem_ = false;
     showDmaBuf_ = false;
+    isEventList_ = false;
+    isEventDetail_ = false;
 }
 
 DumperOpts& DumperOpts::operator = (const DumperOpts& opts)
@@ -110,6 +117,11 @@ DumperOpts& DumperOpts::operator = (const DumperOpts& opts)
     systemArgs_ = opts.systemArgs_;
     isDumpProcesses_ = opts.isDumpProcesses_;
     processPid_ = opts.processPid_;
+    eventId_ = opts.eventId_;
+    showEventCount_ = opts.showEventCount_;
+    processName_ = opts.processName_;
+    startTime_ = opts.startTime_;
+    endTime_ = opts.endTime_;
     isFaultLog_ = opts.isFaultLog_;
     path_ = opts.path_;
     isAppendix_ = opts.isAppendix_;
@@ -133,6 +145,8 @@ DumperOpts& DumperOpts::operator = (const DumperOpts& opts)
     dumpMemPrune_ = opts.dumpMemPrune_;
     showAshmem_ = opts.showAshmem_;
     showDmaBuf_ = opts.showDmaBuf_;
+    isEventList_ = opts.isEventList_;
+    isEventDetail_ = opts.isEventDetail_;
     return *this;
 }
 
@@ -245,6 +259,10 @@ bool DumperOpts::CheckOptions(std::string& errStr) const
     }
     if (isDumpList_ && ((!isDumpService_) && (!isDumpSystemAbility_) && (!isDumpSystem_))) {
         errStr = "-l";
+        return false;
+    }
+    if (isEventDetail_ && isEventList_) {
+        errStr = "--list and --detail cannot be used together";
         return false;
     }
     std::string path = TrimStr(path_);

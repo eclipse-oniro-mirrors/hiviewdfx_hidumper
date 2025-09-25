@@ -21,6 +21,9 @@
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
+
+constexpr int MILLISECONDS_PER_SECOND = 1000;
+
 StringUtils::StringUtils()
 {
 }
@@ -131,5 +134,32 @@ void StringUtils::SetWidth(const int &width, const char &fileStr, const bool &le
     }
     str = s.str();
 }
+
+long long StringUtils::StringToUnixMs(const std::string& datetime)
+{
+    std::tm tm_time = {};
+    std::istringstream ss(datetime);
+    ss >> std::get_time(&tm_time, "%Y-%m-%d %H:%M:%S");
+    if (ss.fail()) {
+        return -1;
+    }
+    time_t time_sec = mktime(&tm_time);
+    if (time_sec == -1) {
+        return -1;
+    }
+    return static_cast<long long>(time_sec) * MILLISECONDS_PER_SECOND;
+}
+
+std::string StringUtils::UnixMsToString(uint64_t ms_timestamp)
+{
+    time_t time_sec = ms_timestamp / MILLISECONDS_PER_SECOND;
+    std::tm tm_time;
+    localtime_r(&time_sec, &tm_time);
+
+    char buffer[20];
+    std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &tm_time);
+    return std::string(buffer);
+}
+
 } // namespace HiviewDFX
 } // namespace OHOS
