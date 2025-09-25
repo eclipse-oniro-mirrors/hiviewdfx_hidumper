@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Copyright (c) 2025 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -24,5 +24,14 @@ group("fuzztest") {
   deps = [ "fuzztest/sadump_fuzzer:fuzztest" ]
   deps += [ "fuzztest/client_fuzzer:fuzztest" ]
   deps += [ "fuzztest/dumpusage_fuzzer:fuzztest" ]
+  deps += [ "fuzztest/helpdump_fuzzer:fuzztest" ]
+  deps += [ "fuzztest/processdump_fuzzer:fuzztest" ]
+  deps += [ "fuzztest/storagedump_fuzzer:fuzztest" ]
+  deps += [ "fuzztest/cpudump_fuzzer:fuzztest" ]
+  deps += [ "fuzztest/memdump_fuzzer:fuzztest" ]
+  deps += [ "fuzztest/memsmapsdump_fuzzer:fuzztest" ]
+  deps += [ "fuzztest/memjsheapdump_fuzzer:fuzztest" ]
+  deps += [ "fuzztest/ipcdump_fuzzer:fuzztest" ]
+  deps += [ "fuzztest/netdump_fuzzer:fuzztest" ]
 }
 ###############################################################################

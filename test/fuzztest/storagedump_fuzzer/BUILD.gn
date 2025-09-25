@@ -15,9 +15,9 @@ import("//build/config/features.gni")
 import("//build/test.gni")
 import("../../../hidumper.gni")
 
-ohos_fuzztest("SADumpFuzzTest") {
+ohos_fuzztest("StorageDumpFuzzTest") {
   module_out_path = hidumper_fuzz_output_path
-  fuzz_config_file = "../../../test/fuzztest/sadump_fuzzer"
+  fuzz_config_file = "../../../test/fuzztest/storagedump_fuzzer"
   include_dirs = [ "./" ]
   cflags = [
     "-g",
@@ -25,11 +25,11 @@ ohos_fuzztest("SADumpFuzzTest") {
     "-Wno-unused-variable",
     "-fno-omit-frame-pointer",
   ]
-  sources = [ "./sadump_fuzzer.cpp" ]
+  sources = [ "./storagedump_fuzzer.cpp" ]
 }
 
 group("fuzztest") {
   testonly = true
   deps = []
-  deps += [ ":SADumpFuzzTest" ]
+  deps += [ ":StorageDumpFuzzTest" ]
 }
