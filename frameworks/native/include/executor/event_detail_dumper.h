@@ -31,6 +31,12 @@ public:
     DumpStatus Execute() override;
     DumpStatus AfterExecute() override;
 private:
+    bool QueryFaultEvents();
+    void CloseFd();
+    std::vector<std::string> FilterLogPaths();
+    void ReadLogsByPaths(const std::vector<std::string> &logPaths);
+    void ReadSingleLogFile(const std::string &path);
+private:
     StringMatrix dumpDatas_;
     std::string processName_;
     long long startTime_;
@@ -40,13 +46,6 @@ private:
     std::vector<HiSysEventRecord> events_;
     FILE* fp_;
     int fd_;
-
-    bool QueryFaultEvents();
-    void CloseFd();
-    std::vector<std::string> FilterLogPaths();
-    void ReadLogsByPaths(const std::vector<std::string> &logPaths);
-    void ReadSingleLogFile(const std::string &path);
-
 };
 } // namespace HiviewDFX
 } // namespace OHOS

@@ -1067,5 +1067,103 @@ HWTEST_F(HidumperDumpersTest, PruneHeapDumperTest001, TestSize.Level1)
     int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
+
+/**
+ * @tc.name: EventDumperTest001
+ * @tc.desc: Test EventDumperTest001
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, EventDumperTest001, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("-e"),
+        const_cast<char *>("--list"),
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("-n"),
+        const_cast<char *>("10"),
+        const_cast<char *>("--since"),
+        const_cast<char *>("2025-10-01 12:00:00"),
+        const_cast<char *>("--until"),
+        const_cast<char *>("2025-10-07 12:00:00"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: EventDumperTest002
+ * @tc.desc: Test EventDumperTest002
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, EventDumperTest002, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("-e"),
+        const_cast<char *>("--print"),
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("-n"),
+        const_cast<char *>("10"),
+        const_cast<char *>("--since"),
+        const_cast<char *>("2025-10-01 12:00:00"),
+        const_cast<char *>("--until"),
+        const_cast<char *>("2025-10-07 12:00:00"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: EventDumperTest003
+ * @tc.desc: Test EventDumperTest003
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, EventDumperTest003, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("-e"),
+        const_cast<char *>("--print"),
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("-n"),
+        const_cast<char *>("10"),
+        const_cast<char *>("--since"),
+        const_cast<char *>("2025-10-01 12:00:00"),
+        const_cast<char *>("--until"),
+        const_cast<char *>("2025-10-07 12:"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_INVALID_ARG);
+}
+
+/**
+ * @tc.name: EventDumperTest004
+ * @tc.desc: Test EventDumperTest004
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, EventDumperTest004, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("-e"),
+        const_cast<char *>("--print"),
+        const_cast<char *>("123456"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
 } // namespace HiviewDFX
 } // namespace OHOS

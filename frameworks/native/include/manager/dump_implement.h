@@ -50,10 +50,12 @@ private:
      * @return bool, hidumper client return true, not return false.
      */
     bool IsHidumperClientProcess(int pid);
-    DumpStatus CmdParseWithParameter(int argc, char* argv[], DumperOpts& opts_);
+    DumpStatus CmdParseWithParameter(int argc, char* argv[], DumperOpts& opts);
     DumpStatus CmdParseWithParameter(std::shared_ptr<DumperParameter>& dumpParameter,
-        int argc, char* argv[], DumperOpts& opts_);
-    DumpStatus SetCmdParameter(int argc, char* argv[], DumperOpts& opts_);
+        int argc, char* argv[], DumperOpts& opts);
+    DumpStatus SetCmdParameter(int argc, char* argv[], DumperOpts& opts);
+    DumpStatus HandleOptionParameter(const std::string &optionName,
+        const std::string &optionValue, DumperOpts &opts, char *argv[]);
     DumpStatus SetCmdIntegerParameter(const std::string& str, int& value);
     void PrintCommonUsage(std::string& str);
     void CmdHelp();
@@ -78,20 +80,20 @@ private:
     void SendPidErrorMessage(int pid);
     void SendReleaseAppErrorMessage(const std::string& opt);
     void SendReleaseVersionErrorMessage(const std::string& opt);
-    bool ParseSubLongCmdOption(int argc, DumperOpts &opts_, const struct option longOptions[],
+    bool ParseSubLongCmdOption(int argc, DumperOpts &opts, const struct option longOptions[],
         const int &optionIndex, char *argv[]);
-    bool ParseEventCmdOption(DumperOpts &opts_, const std::string& param);
-    DumpStatus ParseLongCmdOption(int argc, DumperOpts& opts_, const struct option longOptions[],
+    bool ParseEventCmdOption(DumperOpts &opts, const std::string& param);
+    DumpStatus ParseLongCmdOption(int argc, DumperOpts& opts, const struct option longOptions[],
         const int& optionIndex, char* argv[]);
-    DumpStatus ParseShortCmdOption(int c, DumperOpts& opts_, int argc, char* argv[]);
+    DumpStatus ParseShortCmdOption(int c, DumperOpts& opts, int argc, char* argv[]);
     void CheckIncorrectCmdOption(const char* optStr, char* argv[]);
     std::string RemoveCharacterFromStr(const std::string& str, const char character);
     bool IsSADumperOption(char* argv[]);
-    DumpStatus CheckProcessAlive(const DumperOpts& opts_);
-    void RemoveDuplicateString(DumperOpts& opts_);
+    DumpStatus CheckProcessAlive(const DumperOpts& opts);
+    void RemoveDuplicateString(DumperOpts& opts);
 #ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
-    void ReportJsheap(const DumperOpts &opts_);
-    void ReportCjheap(const DumperOpts &opts_);
+    void ReportJsheap(const DumperOpts &opts);
+    void ReportCjheap(const DumperOpts &opts);
 #endif
     bool CheckAppDebugVersion(int pid);
     bool CheckDumpPermission(DumperOpts &opt);
@@ -105,7 +107,7 @@ private:
     DumpStatus SetRawParam(DumperOpts &opt);
     DumpStatus SetMemPruneParam(DumperOpts &opt);
     DumpStatus SetGCParam(DumperOpts &opt);
-    DumpStatus SetEventParam(DumperOpts &opts_, const std::string& param);
+    DumpStatus SetEventParam(DumperOpts &opts, const std::string& param);
     DumpStatus CheckArgs(int argc, char* argv[]);
     bool IsNewStructSupport(std::shared_ptr<DumperParameter> ptrDumperParameter);
 

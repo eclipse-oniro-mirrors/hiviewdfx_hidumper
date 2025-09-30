@@ -21,6 +21,7 @@ group("service") {
     "frameworks/native:hidumperclient",
     "interfaces/innerkits:lib_dump_usage",
     "sa_profile:hidumper_service_sa_profile",
+    "services:event_reason_config",
     "services:hidumper_service.rc",
     "services:hidumpermemory",
     "services:hidumperservice",

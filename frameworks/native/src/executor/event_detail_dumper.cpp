@@ -18,7 +18,7 @@
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
-EventDetailDumper::EventDetailDumper()
+EventDetailDumper::EventDetailDumper() : startTime_(0), endTime_(0), showEventCount_(-1), fp_(nullptr), fd_(-1)
 {
 }
 
@@ -35,6 +35,11 @@ DumpStatus EventDetailDumper::PreExecute(const shared_ptr<DumperParameter> &para
     startTime_ = parameter->GetOpts().startTime_;
     endTime_ = parameter->GetOpts().endTime_;
     eventId_ = parameter->GetOpts().eventId_;
+    if (!eventId_.empty()) {
+        showEventCount_ = -1;
+        startTime_ = 0;
+        endTime_ = 0;
+    }
     dumpDatas_ = dumpDatas;
     return DumpStatus::DUMP_OK;
 }
@@ -64,8 +69,6 @@ bool EventDetailDumper::QueryFaultEvents()
     EventQueryParam param;
     param.startTime_ = startTime_;
     param.endTime_ = endTime_;
-    param.domain = "";
-    param.eventList = {};
 
     std::shared_ptr<DumpEventInfo> dumpEventInfo = std::make_shared<DumpEventInfo>();
     return dumpEventInfo->DumpFaultEventListByPK(events_, param);
@@ -119,25 +122,27 @@ void EventDetailDumper::ReadSingleLogFile(const std::string &path)
 {
     CloseFd();
 
-    if ((fd_ = DumpUtils::FdToRead(path)) == -1) {
+    fd_ = DumpUtils::FdToRead(path);
+    if (fd_ == -1) {
         std::vector<std::string> expiryNote;
         expiryNote.emplace_back("Read failed, log may be outdated or file unreadable");
         dumpDatas_->push_back(expiryNote);
         return;
     }
-    if ((fp_ = fdopen(fd_, "r")) == nullptr) {
+    fp_ = fdopen(fd_, "r");
+    if (fp_ == nullptr) {
         DUMPER_HILOGE(MODULE_COMMON, "logPaths fdopen failed");
         close(fd_);
         fd_ = -1;
         return;
     }
 
-    char* line_buffer = nullptr;
+    char* lineBuffer = nullptr;
     size_t len = 0;
     ssize_t read = 0;
 
     while (!IsCanceled()) {
-        read = getline(&line_buffer, &len, fp_);
+        read = getline(&lineBuffer, &len, fp_);
         if (read == -1) {
             if (feof(fp_) == 0) {
                 DUMPER_HILOGE(MODULE_COMMON, "logPaths getline failed");
@@ -145,18 +150,18 @@ void EventDetailDumper::ReadSingleLogFile(const std::string &path)
             break;
         }
 
-        if (line_buffer[read - 1] == '\n') {
-            line_buffer[read - 1] = '\0';
+        if (lineBuffer[read - 1] == '\n') {
+            lineBuffer[read - 1] = '\0';
         }
-        std::string line = line_buffer;
-        std::vector<std::string> line_vector;
-        line_vector.push_back(line);
-        dumpDatas_->push_back(line_vector);
+        std::string line = lineBuffer;
+        std::vector<std::string> lineVector;
+        lineVector.push_back(line);
+        dumpDatas_->push_back(lineVector);
     }
 
-    if (line_buffer != nullptr) {
-        free(line_buffer);
-        line_buffer = nullptr;
+    if (lineBuffer != nullptr) {
+        free(lineBuffer);
+        lineBuffer = nullptr;
     }
 }
 

@@ -81,6 +81,29 @@ public:
     bool IsDumpZip() const;
     bool CheckRemainingOptions(std::string& errStr) const;
     bool CheckOptions(std::string& errStr) const;
+private:
+    void ResetCpuOptions();
+    void ResetMemOptions();
+    void ResetStorageOptions();
+    void ResetNetOptions();
+    void ResetSystemAbilityOptions();
+    void ResetSystemOptions();
+    void ResetProcessOptions();
+    void ResetEventOptions();
+    void ResetIpcOptions();
+    void ResetJsHeapOptions();
+    void ResetMiscOptions();
+    void AssignCpuOptions(const DumperOpts& opts);
+    void AssignMemOptions(const DumperOpts& opts);
+    void AssignStorageOptions(const DumperOpts& opts);
+    void AssignListServiceOptions(const DumperOpts& opts);
+    void AssignSystemAbilityOptions(const DumperOpts& opts);
+    void AssignSystemOptions(const DumperOpts& opts);
+    void AssignProcessOptions(const DumperOpts& opts);
+    void AssignEventOptions(const DumperOpts& opts);
+    void AssignJsHeapOptions(const DumperOpts& opts);
+    void AssignIpcOptions(const DumperOpts& opts);
+    void AssignMiscOptions(const DumperOpts& opts);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

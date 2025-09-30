@@ -152,7 +152,11 @@ long long StringUtils::StringToUnixMs(const std::string& datetime)
 
 std::string StringUtils::UnixMsToString(uint64_t ms_timestamp)
 {
-    time_t time_sec = ms_timestamp / MILLISECONDS_PER_SECOND;
+    if (ms_timestamp > static_cast<uint64_t>(INT64_MAX)) {
+        return "";
+    }
+    int64_t ms_signed = static_cast<int64_t>(ms_timestamp);
+    time_t time_sec = static_cast<time_t>(ms_signed / MILLISECONDS_PER_SECOND);
     std::tm tm_time;
     localtime_r(&time_sec, &tm_time);
 

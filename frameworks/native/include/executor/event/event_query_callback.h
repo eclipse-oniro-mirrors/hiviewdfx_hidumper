@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef EVENT_QUERY_CALLBACK_H
-#define EVENT_QUERY_CALLBACK_H
+#ifndef HIVIEWDFX_HIDUMPER_EVENT_QUERY_CALLBACK_H
+#define HIVIEWDFX_HIDUMPER_EVENT_QUERY_CALLBACK_H
 
 #include "hisysevent_manager.h"
 

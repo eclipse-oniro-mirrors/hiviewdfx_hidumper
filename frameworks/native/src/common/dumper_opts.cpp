@@ -38,38 +38,91 @@ DumperOpts::DumperOpts()
 
 void DumperOpts::Reset()
 {
+    ResetCpuOptions();
+    ResetMemOptions();
+    ResetStorageOptions();
+    ResetNetOptions();
+    ResetSystemAbilityOptions();
+    ResetSystemOptions();
+    ResetProcessOptions();
+    ResetEventOptions();
+    ResetIpcOptions();
+    ResetJsHeapOptions();
+    ResetMiscOptions();
+}
+
+void DumperOpts::ResetCpuOptions()
+{
     isDumpCpuFreq_ = false;
     isDumpCpuUsage_ = false;
     cpuUsagePid_ = -1;
-    isDumpLog_ = false;
-    logArgs_.clear();
+}
+
+void DumperOpts::ResetMemOptions()
+{
     isDumpMem_ = false;
     isReceivedSigInt_ = false;
+    dumpMemPrune_ = false;
+    showAshmem_ = false;
+    showDmaBuf_ = false;
     timeInterval_ = 0;
     memPid_ = -1;
+}
+
+void DumperOpts::ResetStorageOptions()
+{
     isDumpStorage_ = false;
     storagePid_ = -1;
+}
+
+void DumperOpts::ResetNetOptions()
+{
     isDumpNet_ = false;
     netPid_ = -1;
-    isDumpList_ = false;
-    isDumpService_ = false;
+}
+
+void DumperOpts::ResetSystemAbilityOptions()
+{
     isDumpSystemAbility_ = false;
     abilitieNames_.clear();
     abilitieArgs_.clear();
+}
+
+void DumperOpts::ResetSystemOptions()
+{
     isDumpSystem_ = false;
     systemArgs_.clear();
+}
+
+void DumperOpts::ResetProcessOptions()
+{
     isDumpProcesses_ = false;
     processPid_ = -1;
+    processName_.clear();
+}
+
+void DumperOpts::ResetEventOptions()
+{
+    isEventList_ = false;
+    isEventDetail_ = false;
     eventId_.clear();
     showEventCount_ = -1;
-    processName_.clear();
     startTime_ = -1;
     endTime_ = -1;
-    isFaultLog_ = false;
-    path_.clear(); // for zip
-    isAppendix_ = false;
-    isShowSmaps_ = false;
-    isShowSmapsInfo_ = false;
+}
+
+void DumperOpts::ResetIpcOptions()
+{
+    ipcStatPid_ = -1;
+    isDumpAllIpc_ = false;
+    isDumpIpc_ = false;
+    isDumpIpcStartStat_ = false;
+    isDumpIpcStopStat_ = false;
+    isDumpIpcStat_ = false;
+}
+
+void DumperOpts::ResetJsHeapOptions()
+{
     isDumpJsHeapMem_ = false;
     isDumpJsHeapMemGC_ = false;
     isDumpJsHeapLeakobj_ = false;
@@ -77,56 +130,106 @@ void DumperOpts::Reset()
     isDumpCjHeapMemGC_ = false;
     dumpJsHeapMemPid_ = 0;
     dumpCjHeapMemPid_ = 0;
-    threadId_ = 0;
-    ipcStatPid_ = -1;
-    isDumpAllIpc_ = false;
-    isDumpIpc_ = false;
-    isDumpIpcStartStat_ = false;
-    isDumpIpcStopStat_ = false;
-    isDumpIpcStat_ = false;
     dumpJsRawHeap_ = false;
-    dumpMemPrune_ = false;
-    showAshmem_ = false;
-    showDmaBuf_ = false;
-    isEventList_ = false;
-    isEventDetail_ = false;
 }
 
-DumperOpts& DumperOpts::operator = (const DumperOpts& opts)
+void DumperOpts::ResetMiscOptions()
+{
+    isDumpLog_ = false;
+    logArgs_.clear();
+    isDumpList_ = false;
+    isDumpService_ = false;
+    isFaultLog_ = false;
+    path_.clear(); // for zip
+    isAppendix_ = false;
+    isShowSmaps_ = false;
+    isShowSmapsInfo_ = false;
+    threadId_ = 0;
+}
+
+DumperOpts& DumperOpts::operator=(const DumperOpts& opts)
 {
     Reset();
+
+    AssignCpuOptions(opts);
+    AssignMemOptions(opts);
+    AssignStorageOptions(opts);
+    AssignListServiceOptions(opts);
+    AssignSystemAbilityOptions(opts);
+    AssignSystemOptions(opts);
+    AssignProcessOptions(opts);
+    AssignEventOptions(opts);
+    AssignJsHeapOptions(opts);
+    AssignIpcOptions(opts);
+    AssignMiscOptions(opts);
+
+    return *this;
+}
+
+void DumperOpts::AssignCpuOptions(const DumperOpts& opts)
+{
     isDumpCpuFreq_ = opts.isDumpCpuFreq_;
     isDumpCpuUsage_ = opts.isDumpCpuUsage_;
     cpuUsagePid_ = opts.cpuUsagePid_;
-    isDumpLog_ = opts.isDumpLog_;
-    logArgs_.assign((opts.logArgs_).begin(), (opts.logArgs_).end());
+}
+
+void DumperOpts::AssignMemOptions(const DumperOpts& opts)
+{
     isDumpMem_ = opts.isDumpMem_;
     isReceivedSigInt_ = opts.isReceivedSigInt_;
     timeInterval_ = opts.timeInterval_;
     memPid_ = opts.memPid_;
-    isDumpStorage_ = opts.isDumpStorage_;
-    storagePid_ = opts.storagePid_;
-    isDumpNet_ = opts.isDumpNet_;
-    netPid_ = opts.netPid_;
-    isDumpList_ = opts.isDumpList_;
-    isDumpService_ = opts.isDumpService_;
-    isDumpSystemAbility_ = opts.isDumpSystemAbility_;
-    abilitieNames_.assign((opts.abilitieNames_).begin(), (opts.abilitieNames_).end());
-    abilitieArgs_.assign((opts.abilitieArgs_).begin(), (opts.abilitieArgs_).end());
-    isDumpSystem_ = opts.isDumpSystem_;
-    systemArgs_ = opts.systemArgs_;
-    isDumpProcesses_ = opts.isDumpProcesses_;
-    processPid_ = opts.processPid_;
-    eventId_ = opts.eventId_;
-    showEventCount_ = opts.showEventCount_;
-    processName_ = opts.processName_;
-    startTime_ = opts.startTime_;
-    endTime_ = opts.endTime_;
-    isFaultLog_ = opts.isFaultLog_;
-    path_ = opts.path_;
-    isAppendix_ = opts.isAppendix_;
+    dumpMemPrune_ = opts.dumpMemPrune_;
+    showAshmem_ = opts.showAshmem_;
+    showDmaBuf_ = opts.showDmaBuf_;
     isShowSmaps_ = opts.isShowSmaps_;
     isShowSmapsInfo_ = opts.isShowSmapsInfo_;
+}
+
+void DumperOpts::AssignStorageOptions(const DumperOpts& opts)
+{
+    isDumpStorage_ = opts.isDumpStorage_;
+    storagePid_ = opts.storagePid_;
+}
+
+void DumperOpts::AssignListServiceOptions(const DumperOpts& opts)
+{
+    isDumpList_ = opts.isDumpList_;
+    isDumpService_ = opts.isDumpService_;
+}
+
+void DumperOpts::AssignSystemAbilityOptions(const DumperOpts& opts)
+{
+    isDumpSystemAbility_ = opts.isDumpSystemAbility_;
+    abilitieNames_ = opts.abilitieNames_;
+    abilitieArgs_ = opts.abilitieArgs_;
+}
+
+void DumperOpts::AssignSystemOptions(const DumperOpts& opts)
+{
+    isDumpSystem_ = opts.isDumpSystem_;
+    systemArgs_ = opts.systemArgs_;
+}
+
+void DumperOpts::AssignProcessOptions(const DumperOpts& opts)
+{
+    isDumpProcesses_ = opts.isDumpProcesses_;
+    processPid_ = opts.processPid_;
+    processName_ = opts.processName_;
+}
+
+void DumperOpts::AssignEventOptions(const DumperOpts& opts)
+{
+    eventId_ = opts.eventId_;
+    showEventCount_ = opts.showEventCount_;
+    isEventList_ = opts.isEventList_;
+    isEventDetail_ = opts.isEventDetail_;
+    startTime_ = opts.startTime_;
+    endTime_ = opts.endTime_;
+}
+
+void DumperOpts::AssignJsHeapOptions(const DumperOpts& opts)
+{
     isDumpJsHeapMem_ = opts.isDumpJsHeapMem_;
     isDumpJsHeapMemGC_ = opts.isDumpJsHeapMemGC_;
     isDumpJsHeapLeakobj_ = opts.isDumpJsHeapLeakobj_;
@@ -134,20 +237,31 @@ DumperOpts& DumperOpts::operator = (const DumperOpts& opts)
     isDumpCjHeapMemGC_ = opts.isDumpCjHeapMemGC_;
     dumpJsHeapMemPid_ = opts.dumpJsHeapMemPid_;
     dumpCjHeapMemPid_ = opts.dumpCjHeapMemPid_;
-    threadId_ = opts.threadId_;
+    dumpJsRawHeap_ = opts.dumpJsRawHeap_;
+}
+
+void DumperOpts::AssignIpcOptions(const DumperOpts& opts)
+{
     ipcStatPid_ = opts.ipcStatPid_;
     isDumpAllIpc_ = opts.isDumpAllIpc_;
     isDumpIpc_ = opts.isDumpIpc_;
     isDumpIpcStartStat_ = opts.isDumpIpcStartStat_;
     isDumpIpcStopStat_ = opts.isDumpIpcStopStat_;
     isDumpIpcStat_ = opts.isDumpIpcStat_;
-    dumpJsRawHeap_ = opts.dumpJsRawHeap_;
-    dumpMemPrune_ = opts.dumpMemPrune_;
-    showAshmem_ = opts.showAshmem_;
-    showDmaBuf_ = opts.showDmaBuf_;
-    isEventList_ = opts.isEventList_;
-    isEventDetail_ = opts.isEventDetail_;
-    return *this;
+}
+
+void DumperOpts::AssignMiscOptions(const DumperOpts& opts)
+{
+    isDumpNet_ = opts.isDumpNet_;
+    netPid_ = opts.netPid_;
+    isDumpLog_ = opts.isDumpLog_;
+    logArgs_ = opts.logArgs_;
+    isDumpList_ = opts.isDumpList_;
+    isDumpService_ = opts.isDumpService_;
+    isFaultLog_ = opts.isFaultLog_;
+    path_ = opts.path_;
+    isAppendix_ = opts.isAppendix_;
+    threadId_ = opts.threadId_;
 }
 
 void DumperOpts::AddSelectAll()

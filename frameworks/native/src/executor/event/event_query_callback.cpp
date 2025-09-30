@@ -19,7 +19,7 @@
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
-EventQueryCallback::EventQueryCallback() : completed_(false)
+EventQueryCallback::EventQueryCallback() : completed_(false), reason_(-1)
 {
 }
 

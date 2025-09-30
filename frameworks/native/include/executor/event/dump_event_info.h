@@ -12,21 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef DUMP_EVENT_INFO_H
-#define DUMP_EVENT_INFO_H
+#ifndef HIVIEWDFX_HIDUMPER_DUMP_EVENT_INFO_H
+#define HIVIEWDFX_HIDUMPER_DUMP_EVENT_INFO_H
 
 #include <unordered_set>
 
 #include "executor/event/event_query_callback.h"
-
 
 namespace OHOS {
 namespace HiviewDFX {
 struct EventQueryParam {
     long long startTime_;
     long long endTime_;
-    std::string domain;
-    std::vector<std::string> eventList;
+    std::vector<std::pair<std::string, std::vector<std::string>>> queryRule;
 };
 class DumpEventInfo {
 public:
@@ -36,7 +34,9 @@ public:
     bool DumpEventList(std::vector<HiSysEventRecord> &events, const EventQueryParam &param);
     bool DumpFaultEventListByPK(std::vector<HiSysEventRecord> &events, EventQueryParam &param);
 private:
-    static const std::unordered_set<std::string> faultEventSet_;
+    bool ExtractPkRunningIdsAndFaultTypes(const std::vector<HiSysEventRecord> &pkEvents,
+                                          std::unordered_set<std::string> &pkRunningIdSet,
+                                          std::unordered_set<std::string> &faultEventQuerySet);
 };
 } // namespace HiviewDFX
 } // namespace OHOS
