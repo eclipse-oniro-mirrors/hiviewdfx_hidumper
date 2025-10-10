@@ -21,14 +21,14 @@
 namespace OHOS {
 constexpr uint8_t MAX_STR_LENGTH = 128;
 
-bool SADumpFuzzTest(const uint8_t* data, size_t size)
+bool MemSmapsDumpFuzzTest(const uint8_t* data, size_t size)
 {
     if (size == 0 || data == nullptr) {
         return true;
     }
     FuzzedDataProvider provider(data, size);
     std::string randomData = provider.ConsumeRandomLengthString(MAX_STR_LENGTH);
-    std::unique_ptr<FILE, decltype(&pclose)> fp(popen(("hidumper -s " + randomData).c_str(), "r"), pclose);
+    std::unique_ptr<FILE, decltype(&pclose)> fp(popen(("hidumper --mem-jsheap " + randomData).c_str(), "r"), pclose);
     return true;
 }
 } // namespace OHOS
@@ -37,6 +37,6 @@ bool SADumpFuzzTest(const uint8_t* data, size_t size)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
     /* Run your code on data */
-    OHOS::SADumpFuzzTest(data, size);
+    OHOS::MemSmapsDumpFuzzTest(data, size);
     return 0;
 }
