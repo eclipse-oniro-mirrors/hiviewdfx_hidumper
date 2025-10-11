@@ -146,13 +146,9 @@ ohos_unittest("HidumperDumpersTest") {
 ohos_unittest("StorageInfoTaskTest") {
   module_out_path = module_output_path
 
-  sources = [
-    "storage_info_task_test.cpp",
-  ]
+  sources = [ "storage_info_task_test.cpp" ]
 
-  deps = [
-    "${hidumper_frameworks_path}:dump_framework"
-  ]
+  deps = [ "${hidumper_frameworks_path}:dump_framework" ]
 
   configs = [
     "${hidumper_frameworks_path}:hidumper_include",
@@ -165,7 +161,7 @@ ohos_unittest("StorageInfoTaskTest") {
 
   external_deps = [
     "c_utils:utils",
-    "hilog:libhilog"
+    "hilog:libhilog",
   ]
 }
 
@@ -506,6 +502,29 @@ ohos_unittest("DumpCommonUtilsTest") {
   ]
 }
 
+ohos_unittest("EventDumperTest") {
+  module_out_path = module_output_path
+
+  sources = [ "event_dumper_test.cpp" ]
+
+  deps = [ "${hidumper_service_path}:hidumperservice_source" ]
+
+  configs = [ ":module_private_config" ]
+
+  cflags = [
+    "-Dprivate=public",  #allow test code access private members
+  ]
+
+  external_deps = [
+    "cJSON:cjson",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
+    "hisysevent:libhisyseventmanager",
+    "ipc:ipc_core",
+  ]
+}
+
 ###############################################################################
 group("unittest") {
   testonly = true
@@ -513,6 +532,7 @@ group("unittest") {
   deps = [
     # deps file
     ":DumpCommonUtilsTest",
+    ":EventDumperTest",
     ":GetHeapInfoTest",
     ":HidumperClientTest",
     ":HidumperConfigUtilsTest",

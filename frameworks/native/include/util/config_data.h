@@ -64,6 +64,8 @@ public:
     static const std::string CONFIG_DUMPER_LIST_SYSTEM;
     static const std::string CONFIG_DUMPER_JSHEAP_MEMORY;
     static const std::string CONFIG_DUMPER_CJHEAP_MEMORY;
+    static const std::string CONFIG_DUMPER_EVENT_LIST;
+    static const std::string CONFIG_DUMPER_EVENT_DETAIL;
     static const std::string STR_ABILITY;
     static const std::string STR_BASE;
     static const std::string STR_SERVICE;
@@ -111,6 +113,8 @@ private:
     static const ItemCfg memDumper_[];
     static const ItemCfg jsHeapMemDumper_[];
     static const ItemCfg cjHeapMemDumper_[];
+    static const ItemCfg eventListDumper_[];
+    static const ItemCfg eventDetailDumper_[];
     static const ItemCfg envDumper_[];
     static const ItemCfg kernelModuleDumper_[];
     static const ItemCfg dumpFormatVersionDumper_[];

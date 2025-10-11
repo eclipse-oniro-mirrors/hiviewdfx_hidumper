@@ -450,3 +450,12 @@ ohos_prebuilt_etc("task_enable_config") {
   part_name = "${hidumper_part_name}"
 }
 
+ohos_prebuilt_etc("event_reason_config") {
+  source = "native/etc/event_reason_config.json"
+
+  relative_install_dir = "hidumper"
+
+  subsystem_name = "${hidumper_subsystem_name}"
+
+  part_name = "${hidumper_part_name}"
+}
