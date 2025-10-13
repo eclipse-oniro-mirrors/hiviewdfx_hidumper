@@ -27,6 +27,7 @@
                 "eventhandler",
                 "hilog",
                 "hiview",
+                "hicollie",
                 "init",
                 "ipc",
                 "memmgr",

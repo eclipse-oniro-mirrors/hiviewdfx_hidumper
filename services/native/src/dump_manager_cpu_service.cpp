@@ -34,6 +34,8 @@
 #include "token_setproc.h"
 #include "util/string_utils.h"
 #include "util/file_utils.h"
+#include "xcollie/xcollie.h"
+#include "xcollie/xcollie_define.h"
 
 using namespace std;
 namespace OHOS {
@@ -49,6 +51,7 @@ static constexpr int INVALID_PID = -1;
 static const int TM_START_YEAR = 1900;
 static const int DEC_SYSTEM_VALUE = 10;
 static const int AVG_INFO_SUBSTR_LENGTH = 4;
+static constexpr int32_t HIDUMPER_XCOLLIE_TIMEOUT = 60; // 60 seconds
 }
 DumpManagerCpuService::DumpManagerCpuService() : SystemAbility(DFX_SYS_HIDUMPER_CPU_ABILITY_ID, true)
 {
@@ -71,16 +74,20 @@ void DumpManagerCpuService::OnStart()
 int32_t DumpManagerCpuService::Request(DumpCpuData &dumpCpuData)
 {
     DUMPER_HILOGI(MODULE_CPU_SERVICE, "enter");
+    auto timerId = HiviewDFX::XCollie::GetInstance().SetTimer("HiviewDfx_DumperCpuService_Request",
+        HIDUMPER_XCOLLIE_TIMEOUT, nullptr, nullptr, HiviewDFX::XCOLLIE_FLAG_LOG | HiviewDFX::XCOLLIE_FLAG_RECOVERY);
     std::lock_guard<std::mutex> lock(mutex_);
     InitParam(dumpCpuData);
     if (!HasDumpPermission()) {
         DUMPER_HILOGE(MODULE_SERVICE,
                       "No ohos.permission.DUMP permission to acccess hidumper cpuservice, please check!");
+        HiviewDFX::XCollie::GetInstance().CancelTimer(timerId);
         return DumpStatus::DUMP_NOPERMISSION;
     }
     int32_t ret = DumpCpuUsageData();
     dumpCpuData.dumpCPUDatas_ = *dumpCPUDatas_;
     ResetParam();
+    HiviewDFX::XCollie::GetInstance().CancelTimer(timerId);
     return ret;
 }
 
@@ -142,11 +149,14 @@ int DumpManagerCpuService::DumpCpuUsageData()
 
 int DumpManagerCpuService::GetCpuUsageByPid(int32_t pid, double &cpuUsage)
 {
+    auto timerId = HiviewDFX::XCollie::GetInstance().SetTimer("HiviewDfx_DumperCpuService_GetCpuUsageByPid",
+        HIDUMPER_XCOLLIE_TIMEOUT, nullptr, nullptr, HiviewDFX::XCOLLIE_FLAG_LOG | HiviewDFX::XCOLLIE_FLAG_RECOVERY);
     int32_t calllingUid = IPCSkeleton::GetCallingUid();
     int32_t calllingPid = IPCSkeleton::GetCallingPid();
     if (calllingUid >= APP_UID && pid != calllingPid) {
         DUMPER_HILOGE(MODULE_SERVICE, "No permission, pid:%{public}d, calllingPid:%{public}d, calllingUid:%{public}d",
             pid, calllingPid, calllingUid);
+        HiviewDFX::XCollie::GetInstance().CancelTimer(timerId);
         return DumpStatus::DUMP_NOPERMISSION;
     }
     std::lock_guard<std::mutex> lock(mutex_);
@@ -154,15 +164,18 @@ int DumpManagerCpuService::GetCpuUsageByPid(int32_t pid, double &cpuUsage)
         OHOS::HiviewDFX::UCollectUtil::CpuCollector::Create();
     if (singleCollector == nullptr) {
         DUMPER_HILOGE(MODULE_CPU_SERVICE, "get cpu usage by pid create failed");
+        HiviewDFX::XCollie::GetInstance().CancelTimer(timerId);
         return DumpStatus::DUMP_FAIL;
     }
     if (pid != INVALID_PID) {
         std::shared_ptr<ProcInfo> singleProcInfo = std::make_shared<ProcInfo>();
         if (!GetSingleProcInfo(pid, singleProcInfo)) {
+            HiviewDFX::XCollie::GetInstance().CancelTimer(timerId);
             return DumpStatus::DUMP_FAIL;
         }
         cpuUsage = singleProcInfo->totalUsage / HUNDRED_PERCENT_VALUE;
     }
+    HiviewDFX::XCollie::GetInstance().CancelTimer(timerId);
     DUMPER_HILOGD(MODULE_CPU_SERVICE, "GetCpuUsageByPid end, pid = %{public}d, cpuUsage = %{public}f", pid, cpuUsage);
     return DumpStatus::DUMP_OK;
 }
