@@ -1165,5 +1165,26 @@ HWTEST_F(HidumperDumpersTest, EventDumperTest004, TestSize.Level1)
     int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
+
+/**
+ * @tc.name: EventDumperTest005
+ * @tc.desc: Test EventDumperTest005
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, EventDumperTest005, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("-e"),
+        const_cast<char *>("--print"),
+        const_cast<char *>("-n"),
+        const_cast<char *>("0"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_INVALID_ARG);
+}
 } // namespace HiviewDFX
 } // namespace OHOS

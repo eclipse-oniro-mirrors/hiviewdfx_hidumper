@@ -283,7 +283,7 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
     while (loop) {
         int optionIndex = 0;
         int c = getopt_long(argc, argv, optStr, LONG_OPTIONS, &optionIndex);
-        DUMPER_HILOGI(MODULE_COMMON, "test getopt_long(%{public}d), optind(%{public}d)", c, optind);
+        DUMPER_HILOGD(MODULE_COMMON, "debug|getopt_long(), c=%{public}d, optind=%{public}d", c, optind);
         if (c == -1) {
             break;
         } else if (c == 0) {
@@ -391,7 +391,7 @@ DumpStatus DumpImplement::HandleOptionParameter(const std::string &optionName,
     } else if (optionName == "-t") {
         status = SetCmdIntegerParameter(optionValue, opts.timeInterval_);
     } else if (optionName == "-n") {
-        status = SetCmdIntegerParameter(optionValue, opts.showEventCount_);
+        status = SetShowCount(optionValue, opts.showEventCount_);
     } else if (optionName == "--list") {
         opts.processName_ = optionValue;
     } else if (optionName == "--print") {
@@ -406,8 +406,7 @@ DumpStatus DumpImplement::HandleOptionParameter(const std::string &optionName,
     } else if (optionName == "--ipc") {
         status = SetCmdIntegerParameter(optionValue, opts.ipcStatPid_);
     } else {
-        std::string errorStr = unrecognizedError_ + RemoveCharacterFromStr(optionValue, '-');
-        SendErrorMessage(errorStr);
+        SendErrorMessageIf(opts, optionValue);
         return DumpStatus::DUMP_FAIL;
     }
     return status;
@@ -727,6 +726,22 @@ DumpStatus DumpImplement::ParseShortCmdOption(int c, DumperOpts &opts, int argc,
     return DumpStatus::DUMP_OK;
 }
 
+DumpStatus DumpImplement::SetShowCount(const std::string &str, int &value)
+{
+    DumpStatus status = SetCmdIntegerParameter(str, value);
+    if (status != DumpStatus::DUMP_OK) {
+        return status;
+    }
+    if (value <= 0) {
+        DUMPER_HILOGE(MODULE_COMMON, "Invalid string arg %{public}s", str.c_str());
+        std::string errorStr = invalidError_ + str;
+        SendErrorMessage(errorStr);
+        dumperSysEventParams_->target.clear();
+        return DumpStatus::DUMP_INVALID_ARG;
+    }
+    return DumpStatus::DUMP_OK;
+}
+
 DumpStatus DumpImplement::SetCmdIntegerParameter(const std::string &str, int &value)
 {
     if (!IsNumericStr(str)) {
@@ -976,7 +991,12 @@ const sptr<ISystemAbilityManager> DumpImplement::GetSystemAbilityManager()
 void DumpImplement::CheckIncorrectCmdOption(const char *optStr, char *argv[])
 {
     if (optopt == 0) {
-        SendErrorMessage(unrecognizedError_ + RemoveCharacterFromStr(argv[optind - 1], '-'));
+        std::string optLongStr = RemoveCharacterFromStr(argv[optind - 1], '-');
+        if (optLongStr == "since" || optLongStr == "until") {
+            SendErrorMessage(requireError_ + optLongStr);
+            return;
+        }
+        SendErrorMessage(unrecognizedError_ + optLongStr);
     } else if (!IsShortOptionReqArg(optStr)) {
         std::string errorStr = unrecognizedError_;
         errorStr += optopt;
@@ -994,6 +1014,15 @@ bool DumpImplement::IsShortOptionReqArg(const char *optStr)
         }
     }
     return false;
+}
+
+void DumpImplement::SendErrorMessageIf(DumperOpts &opts, const std::string &optionValue)
+{
+    std::string errorStr = unrecognizedError_ + RemoveCharacterFromStr(optionValue, '-');
+    if (opts.isFaultLog_ && (opts.isEventList_ || opts.isEventDetail_)) {
+        errorStr = invalidError_ + RemoveCharacterFromStr(optionValue, '-');
+    }
+    SendErrorMessage(errorStr);
 }
 
 void DumpImplement::SendErrorMessage(const std::string &errorStr)

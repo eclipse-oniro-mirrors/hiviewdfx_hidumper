@@ -35,7 +35,7 @@ static const std::unordered_set<std::string> FAULTEVENTSET = {
     "JsError", "CppCrash", "ThreadBlock6S", "AppInputBlock", "LifecycleTimeout"
 };
 
-bool DumpEventInfo::DumpEventList(std::vector<HiSysEventRecord> &events, EventQueryParam &param)
+bool DumpEventInfo::DumpEventList(std::vector<HiSysEventRecord> &events, EventQueryParam &param, bool isSort)
 {
     long long startTime = param.startTime_ == 0 ? -1 : param.startTime_;
     long long endTime = param.endTime_ == 0 ? -1 : param.endTime_;
@@ -61,6 +61,9 @@ bool DumpEventInfo::DumpEventList(std::vector<HiSysEventRecord> &events, EventQu
     }
     auto queriedEvents = queryCallback->GetEvents();
     events.insert(events.end(), queriedEvents.begin(), queriedEvents.end());
+    if (isSort) {
+        SortEventsByTimeDesc(events);
+    }
     return true;
 }
 
@@ -100,6 +103,7 @@ EventDumpResult DumpEventInfo::DumpFaultEventListByPK(std::vector<HiSysEventReco
             events.emplace_back(event);
         }
     }
+    SortEventsByTimeDesc(events);
     return EventDumpResult::EVENT_DUMP_OK;
 }
 
@@ -168,6 +172,14 @@ void DumpEventInfo::FillQueryParam(EventQueryParam &param, const std::unordered_
     if (faultEventQuerySet.find("APP_FREEZE") != faultEventQuerySet.end()) {
         param.queryRule.emplace_back("RELIABILITY", std::vector<std::string>{"APP_FREEZE"});
     }
+}
+
+void DumpEventInfo::SortEventsByTimeDesc(std::vector<HiSysEventRecord>& events)
+{
+    std::sort(events.begin(), events.end(),
+        [](const HiSysEventRecord& a, const HiSysEventRecord& b) {
+            return a.GetTime() > b.GetTime();
+        });
 }
 } // namespace HiviewDFX
 } // namespace OHOS

@@ -100,7 +100,7 @@ bool EventListDumper::QueryEvents()
         {"KERNEL_VENDOR", {"PROCESS_KILL"}}
     };
     std::shared_ptr<DumpEventInfo> dumpEventInfo = std::make_shared<DumpEventInfo>();
-    return dumpEventInfo->DumpEventList(events_, param);
+    return dumpEventInfo->DumpEventList(events_, param, true);
 }
 
 std::vector<std::vector<std::string>> EventListDumper::BuildResults(std::unordered_map<std::string, int> &columnWidths)

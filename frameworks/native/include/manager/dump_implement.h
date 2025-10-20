@@ -57,6 +57,7 @@ private:
     DumpStatus HandleOptionParameter(const std::string &optionName,
         const std::string &optionValue, DumperOpts &opts, char *argv[]);
     DumpStatus SetCmdIntegerParameter(const std::string& str, int& value);
+    DumpStatus SetShowCount(const std::string &str, int &value);
     void PrintCommonUsage(std::string& str);
     void CmdHelp();
     void setExecutorList(std::vector<std::shared_ptr<HidumperExecutor>>& executors,
@@ -77,6 +78,7 @@ private:
     bool CheckGroupName(std::string& lastName, const std::string& curName);
     bool IsShortOptionReqArg(const char* optStr);
     void SendErrorMessage(const std::string& errorStr);
+    void SendErrorMessageIf(DumperOpts &opts, const std::string &optionValue);
     void SendPidErrorMessage(int pid);
     void SendReleaseAppErrorMessage(const std::string& opt);
     void SendReleaseVersionErrorMessage(const std::string& opt);

@@ -16,6 +16,7 @@
 #define HIVIEWDFX_HIDUMPER_DUMP_EVENT_INFO_H
 
 #include <unordered_set>
+#include <algorithm>
 
 #include "executor/event/event_query_callback.h"
 
@@ -40,7 +41,7 @@ public:
     DumpEventInfo();
     ~DumpEventInfo();
 
-    bool DumpEventList(std::vector<HiSysEventRecord> &events, EventQueryParam &param);
+    bool DumpEventList(std::vector<HiSysEventRecord> &events, EventQueryParam &param, bool isSort = false);
     EventDumpResult DumpFaultEventListByPK(std::vector<HiSysEventRecord> &events, EventQueryParam &param);
 private:
     EventDumpResult ExtractPkRunningIdsAndFaultTypes(const std::vector<HiSysEventRecord> &pkEvents,
@@ -48,6 +49,7 @@ private:
                                                      std::unordered_set<std::string> &faultEventQuerySet,
                                                      const EventQueryParam &param);
     void FillQueryParam(EventQueryParam &param, const std::unordered_set<std::string> &faultEventQuerySet);
+    void SortEventsByTimeDesc(std::vector<HiSysEventRecord>& events);
 };
 } // namespace HiviewDFX
 } // namespace OHOS
