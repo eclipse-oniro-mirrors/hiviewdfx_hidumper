@@ -796,6 +796,30 @@ HWTEST_F(HiDumperManagerTest, DumpTest040, TestSize.Level0)
 }
 
 /**
+ * @tc.name: DumpTest041
+ * @tc.desc: Test hidumper.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest041, TestSize.Level0)
+{
+    std::string cmd = "hidumper -e --print --since 2025-10-11 134";
+    std::string str = "hidumper: invalid arg: 134";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+}
+
+/**
+ * @tc.name: DumpTest042
+ * @tc.desc: Test hidumper.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest042, TestSize.Level0)
+{
+    std::string cmd = "hidumper -e --print --since";
+    std::string str = "hidumper: option requires an argument: since";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+}
+
+/**
  * @tc.name: IpcStatDumpTest001
  * @tc.desc: hidumper --ipc -a --start-stat
  * @tc.type: FUNC
