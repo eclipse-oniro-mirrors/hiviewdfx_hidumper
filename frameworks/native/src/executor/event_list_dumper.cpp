@@ -35,8 +35,7 @@ EventListDumper::~EventListDumper()
 {
 }
 
-static const std::vector<std::string> EVENTTITLES = { "time", "process_name",
-    "foreground", "reason", "record_id" };
+static const std::vector<std::string> EVENTTITLES = { "time", "foreground", "reason", "record_id", "process_name" };
 
 static const std::unordered_map<std::string, std::string> FIELDMAP = {
     {"time", "time_"},
@@ -69,7 +68,6 @@ DumpStatus EventListDumper::Execute()
     DUMPER_HILOGI(MODULE_COMMON, "info|EventListDumper Execute");
 
     if (!QueryEvents()) {
-        DUMPER_HILOGE(MODULE_COMMON, "error|EventListDumper Execute DumpEventList failed");
         return DumpStatus::DUMP_FAIL;
     }
     std::unordered_map<std::string, int> columnWidths;
@@ -78,6 +76,9 @@ DumpStatus EventListDumper::Execute()
     }
     auto results = BuildResults(columnWidths);
     if (results.empty()) {
+        vector<string> emptyResults;
+        emptyResults.emplace_back("no records found.");
+        dumpDatas_->push_back(emptyResults);
         DUMPER_HILOGI(MODULE_COMMON, "info|EventListDumper Execute no data");
         return DumpStatus::DUMP_OK;
     }
@@ -118,7 +119,7 @@ std::vector<std::vector<std::string>> EventListDumper::BuildResults(std::unorder
     }
 
     if (showEventCount_ > 0 && results.size() > static_cast<size_t>(showEventCount_)) {
-        results.erase(results.begin() + showEventCount_, results.end());
+        results.resize(static_cast<size_t>(showEventCount_));
     }
     return results;
 }

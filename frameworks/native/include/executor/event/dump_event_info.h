@@ -24,19 +24,30 @@ namespace HiviewDFX {
 struct EventQueryParam {
     long long startTime_;
     long long endTime_;
+    std::string processName_;
+    std::string eventId_;
     std::vector<std::pair<std::string, std::vector<std::string>>> queryRule;
+};
+
+enum EventDumpResult {
+    NONE_PROCESSKILL_EVENT = -3,
+    NOT_FAULT_EVENT = -2,
+    EVENT_DUMP_FAIL = -1,
+    EVENT_DUMP_OK = 0,
 };
 class DumpEventInfo {
 public:
     DumpEventInfo();
     ~DumpEventInfo();
 
-    bool DumpEventList(std::vector<HiSysEventRecord> &events, const EventQueryParam &param);
-    bool DumpFaultEventListByPK(std::vector<HiSysEventRecord> &events, EventQueryParam &param);
+    bool DumpEventList(std::vector<HiSysEventRecord> &events, EventQueryParam &param);
+    EventDumpResult DumpFaultEventListByPK(std::vector<HiSysEventRecord> &events, EventQueryParam &param);
 private:
-    bool ExtractPkRunningIdsAndFaultTypes(const std::vector<HiSysEventRecord> &pkEvents,
-                                          std::unordered_set<std::string> &pkRunningIdSet,
-                                          std::unordered_set<std::string> &faultEventQuerySet);
+    EventDumpResult ExtractPkRunningIdsAndFaultTypes(const std::vector<HiSysEventRecord> &pkEvents,
+                                                     std::unordered_set<std::string> &pkRunningIdSet,
+                                                     std::unordered_set<std::string> &faultEventQuerySet,
+                                                     const EventQueryParam &param);
+    void FillQueryParam(EventQueryParam &param, const std::unordered_set<std::string> &faultEventQuerySet);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

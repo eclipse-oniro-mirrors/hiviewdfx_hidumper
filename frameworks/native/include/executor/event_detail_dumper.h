@@ -31,7 +31,7 @@ public:
     DumpStatus Execute() override;
     DumpStatus AfterExecute() override;
 private:
-    bool QueryFaultEvents();
+    EventDumpResult QueryFaultEvents();
     void CloseFd();
     std::vector<std::string> FilterLogPaths();
     void ReadLogsByPaths(const std::vector<std::string> &logPaths);

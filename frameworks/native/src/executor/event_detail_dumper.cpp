@@ -47,13 +47,27 @@ DumpStatus EventDetailDumper::PreExecute(const shared_ptr<DumperParameter> &para
 DumpStatus EventDetailDumper::Execute()
 {
     DUMPER_HILOGI(MODULE_COMMON, "info|EventDetailDumper Execute");
-    if (!QueryFaultEvents()) {
-        DUMPER_HILOGE(MODULE_COMMON, "error|EventDetailDumper Execute DumpFaultEventListByPK failed");
+    auto eventResult = QueryFaultEvents();
+    if (eventResult == EventDumpResult::EVENT_DUMP_FAIL) {
         return DumpStatus::DUMP_FAIL;
+    } else if (eventResult == EventDumpResult::NONE_PROCESSKILL_EVENT) {
+        vector<string> tempResults;
+        tempResults.emplace_back("no faultlogs found.");
+        dumpDatas_->push_back(tempResults);
+        DUMPER_HILOGI(MODULE_COMMON, "no processkill events found");
+        return DumpStatus::DUMP_OK;
+    } else if (eventResult == EventDumpResult::NOT_FAULT_EVENT) {
+        vector<string> tempResults;
+        tempResults.emplace_back("this type of record does not have faultlog.");
+        dumpDatas_->push_back(tempResults);
+        return DumpStatus::DUMP_OK;
     }
 
     auto logPaths = FilterLogPaths();
     if (logPaths.empty()) {
+        vector<string> emptyResults;
+        emptyResults.emplace_back("no faultlogs found.");
+        dumpDatas_->push_back(emptyResults);
         DUMPER_HILOGI(MODULE_COMMON, "no fault logs found");
         return DumpStatus::DUMP_OK;
     }
@@ -64,11 +78,13 @@ DumpStatus EventDetailDumper::Execute()
     return DumpStatus::DUMP_OK;
 }
 
-bool EventDetailDumper::QueryFaultEvents()
+EventDumpResult EventDetailDumper::QueryFaultEvents()
 {
     EventQueryParam param;
     param.startTime_ = startTime_;
     param.endTime_ = endTime_;
+    param.processName_ = processName_;
+    param.eventId_ = eventId_;
 
     std::shared_ptr<DumpEventInfo> dumpEventInfo = std::make_shared<DumpEventInfo>();
     return dumpEventInfo->DumpFaultEventListByPK(events_, param);
@@ -79,22 +95,12 @@ std::vector<std::string> EventDetailDumper::FilterLogPaths()
     std::vector<std::string> logPaths;
     for (const auto &event : events_) {
         std::string value;
-        if (!processName_.empty() && event.GetParamValue("PROCESS_NAME", value) == 0) {
-            if (value.find(processName_) == std::string::npos) {
-                continue;
-            }
-        }
-        if (!eventId_.empty() && event.GetParamValue("id_", value) == 0) {
-            if (value.find(eventId_) != 0) {
-                continue;
-            }
-        }
         if (event.GetParamValue("LOG_PATH", value) == 0) {
             logPaths.emplace_back(value);
         }
     }
     if (showEventCount_ > 0 && logPaths.size() > static_cast<size_t>(showEventCount_)) {
-        logPaths.erase(logPaths.begin() + showEventCount_, logPaths.end());
+        logPaths.resize(static_cast<size_t>(showEventCount_));
     }
     return logPaths;
 }
@@ -102,13 +108,17 @@ std::vector<std::string> EventDetailDumper::FilterLogPaths()
 void EventDetailDumper::ReadLogsByPaths(const std::vector<std::string> &logPaths)
 {
     for (const auto &path : logPaths) {
-        std::vector<std::string> line_vector_blank;
-        line_vector_blank.push_back("");
-        std::vector<std::string> line_vector_filename;
-        line_vector_filename.push_back(path);
-        dumpDatas_->push_back(line_vector_blank);
-        dumpDatas_->push_back(line_vector_filename);
-        dumpDatas_->push_back(line_vector_blank);
+        std::vector<std::string> lineVectorBlank;
+        lineVectorBlank.push_back("");
+        std::vector<std::string> groupTitle;
+        groupTitle.emplace_back("-------------------------------[faultlog]-------------------------------");
+        std::vector<std::string> lineVectorFilename;
+        lineVectorFilename.push_back(path);
+        dumpDatas_->push_back(lineVectorBlank);
+        dumpDatas_->push_back(groupTitle);
+        dumpDatas_->push_back(lineVectorBlank);
+        dumpDatas_->push_back(lineVectorFilename);
+        dumpDatas_->push_back(lineVectorBlank);
 
         ReadSingleLogFile(path);
 
@@ -125,7 +135,7 @@ void EventDetailDumper::ReadSingleLogFile(const std::string &path)
     fd_ = DumpUtils::FdToRead(path);
     if (fd_ == -1) {
         std::vector<std::string> expiryNote;
-        expiryNote.emplace_back("Read failed, log may be outdated or file unreadable");
+        expiryNote.emplace_back("The faultlog has been deleted by the system due to expiration.");
         dumpDatas_->push_back(expiryNote);
         return;
     }
