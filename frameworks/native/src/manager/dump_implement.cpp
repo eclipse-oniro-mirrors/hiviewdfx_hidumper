@@ -1197,11 +1197,13 @@ bool DumpImplement::CheckDumpPermission(DumperOpts& opt)
     }
     // mem-jsheap + releaseApp
     if (opt.isDumpJsHeapMem_ && !DumpUtils::CheckAppDebugVersion(opt.dumpJsHeapMemPid_)) {
+        SendReleaseAppErrorMessage("--mem-jsheap");
         DUMPER_HILOGE(MODULE_COMMON, "DumpJsHeapMem false isUserMode %{public}d", isUserMode);
         return false;
     }
     // mem-cjheap + releaseApp
     if (opt.isDumpCjHeapMem_ && !DumpUtils::CheckAppDebugVersion(opt.dumpCjHeapMemPid_)) {
+        SendReleaseAppErrorMessage("--mem-cjheap");
         DUMPER_HILOGE(MODULE_COMMON, "DumpCjHeapMem false isUserMode %{public}d", isUserMode);
         return false;
     }
