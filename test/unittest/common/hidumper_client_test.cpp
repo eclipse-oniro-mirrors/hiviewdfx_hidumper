@@ -184,6 +184,25 @@ HWTEST_F(HidumperClientTest, ClientMainTest007, TestSize.Level0)
 }
 
 /**
+ * @tc.name: ClientMainTest008
+ * @tc.desc: Test the file does not exist.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperClientTest, ClientMainTest008, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--mem"),
+        const_cast<char *>("1"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    int fd = open("/no/such/file",  O_RDWR);
+    int ret = DumpClientMain::GetInstance().Main(argc, argv, fd);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+    DumpClientMain::GetInstance().~DumpClientMain();
+}
+
+/**
  * @tc.name: ManagerClientTest001
  * @tc.desc: Test emtpy argument list.
  * @tc.type: FUNC
