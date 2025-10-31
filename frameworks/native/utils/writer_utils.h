@@ -26,7 +26,7 @@ using DataHandler = std::function<bool(const std::string& content)>;
 
 void WriteStringIntoFd(const std::string& str, int fd);
 void WriteStringIntoFd(const std::vector<std::string>& strs, int fd);
-void WriteTitle(const std::string& str, int fd);
+void WriteTitle(const std::string& title, int fd);
 bool HandleStringFromFile(const std::string& path, const DataHandler& func);
 bool HandleStringFromCommand(const std::string& command, const DataHandler& func);
 bool LoadStringFromFile(const std::string& path, std::string& content);

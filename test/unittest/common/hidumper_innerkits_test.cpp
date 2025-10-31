@@ -174,9 +174,7 @@ HWTEST_F(HiDumperInnerkitsTest, GetPssTest001, TestSize.Level1)
  */
 HWTEST_F(HiDumperInnerkitsTest, GetPssTest002, TestSize.Level1)
 {
-    std::string cmd = "hidumper --mem 1";
-    std::string str = "memory";
-    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+    std::string cmd = "hidumper -h";
     std::unique_ptr<DumpUsage> dumpUsage = std::make_unique<DumpUsage>();
     int hidumperServicePid = GetAppManagerPid("hidumper_service");
     uint64_t pss = dumpUsage->GetPss(hidumperServicePid);

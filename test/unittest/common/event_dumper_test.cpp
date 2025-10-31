@@ -286,5 +286,19 @@ HWTEST_F(EventDumperTest, EventDetailDumper_LimitEventCount, TestSize.Level1)
     logPaths = eventDetailDumper->FilterLogPaths();
     ASSERT_TRUE(logPaths.size() == 1);
 }
+
+HWTEST_F(EventDumperTest, EventDetailDumper_ReadLogsByPaths, TestSize.Level1)
+{
+    auto parameter = std::make_shared<DumperParameter>();
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    std::shared_ptr<EventDetailDumper> eventDetailDumper = std::make_shared<EventDetailDumper>();
+    SetFaultEvents(eventDetailDumper->events_);
+    eventDetailDumper->PreExecute(parameter, dumpDatas);
+
+    std::vector<std::string> logPaths;
+    logPaths.emplace_back("/system/etc/hidumper/event_reason_config.json");
+    eventDetailDumper->ReadLogsByPaths(logPaths);
+    ASSERT_TRUE(!eventDetailDumper->dumpDatas_->empty());
+}
 } // namespace HiviewDFX
 } // namespace OHOS
