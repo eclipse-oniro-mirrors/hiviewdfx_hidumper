@@ -344,6 +344,14 @@ HWTEST_F(HidumperConfigUtilsTest, HidumperZipWriter001, TestSize.Level3)
     system("rm -rf /data/log/hidumpertest.zip");
 }
 
+HWTEST_F(HidumperConfigUtilsTest, HidumperZipWriter002, TestSize.Level3)
+{
+    string testzipfile = "";
+    auto zipwriter = std::make_shared<ZipWriter>(testzipfile);
+    ASSERT_FALSE(zipwriter->Open());
+    ASSERT_TRUE(zipwriter->Close());
+}
+
 HWTEST_F(HidumperConfigUtilsTest, HidumperFileUtils001, TestSize.Level3)
 {
     auto fileutils = std::make_shared<FileUtils>();
