@@ -842,7 +842,8 @@ HWTEST_F(HiDumperManagerTest, DumpTest043, TestSize.Level0)
 HWTEST_F(HiDumperManagerTest, DumpTest044, TestSize.Level0)
 {
     const std::string testFile = "test_hidumper.txt";
-    DumpUtils::FdToWrite(testFile);
+
+    EXPECT_FALSE(DumpUtils::FdToWrite(testFile));
 }
 
 /**
@@ -853,6 +854,7 @@ HWTEST_F(HiDumperManagerTest, DumpTest044, TestSize.Level0)
 HWTEST_F(HiDumperManagerTest, DumpTest045, TestSize.Level0)
 {
     const std::string testFile = "/no/such/file";
+
     EXPECT_FALSE(DumpUtils::DirectoryExists(testFile));
 }
 
