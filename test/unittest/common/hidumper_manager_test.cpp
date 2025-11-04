@@ -843,7 +843,7 @@ HWTEST_F(HiDumperManagerTest, DumpTest044, TestSize.Level0)
 {
     const std::string testFile = "test_hidumper.txt";
 
-    EXPECT_FALSE(DumpUtils::FdToWrite(testFile));
+    EXPECT_EQ(DumpUtils::FdToWrite(testFile), -1);
 }
 
 /**
