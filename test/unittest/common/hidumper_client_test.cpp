@@ -198,7 +198,7 @@ HWTEST_F(HidumperClientTest, ClientMainTest008, TestSize.Level0)
     int argc = sizeof(argv) / sizeof(argv[0]);
     int fd = open("/no/such/file",  O_RDWR);
     int ret = DumpClientMain::GetInstance().Main(argc, argv, fd);
-    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+    ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
     DumpClientMain::GetInstance().~DumpClientMain();
 }
 
