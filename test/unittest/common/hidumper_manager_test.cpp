@@ -30,6 +30,8 @@ namespace OHOS {
 namespace HiviewDFX {
 const int SCORE_ADJ = 1000;
 const std::string SCORE_ADJ_STR = "1000";
+const int TOP_OOM_ADJ = -1000;
+const std::string TOP_OOM_ADJ_STR = "-1000";
 const std::string TOOL_NAME = "hidumper";
 char g_fileName[] = "/tmp/test.XXXXXX";
 int g_fd = -1;
@@ -817,6 +819,86 @@ HWTEST_F(HiDumperManagerTest, DumpTest042, TestSize.Level0)
     std::string cmd = "hidumper -e --print --since";
     std::string str = "hidumper: option requires an argument: since";
     ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+}
+
+/**
+ * @tc.name: DumpTest043
+ * @tc.desc: Test hidumper.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest043, TestSize.Level0)
+{
+    DumpUtils::SetAdj(TOP_OOM_ADJ);
+    DumpUtils::BoostPriority();
+    std::string name = DumpUtils::ConvertSaIdToSaName(TOP_OOM_ADJ_STR);
+    ASSERT_TRUE(name == TOP_OOM_ADJ_STR);
+}
+
+/**
+ * @tc.name: DumpTest044
+ * @tc.desc: Test hidumper.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest044, TestSize.Level0)
+{
+    const std::string testFile = "test_hidumper.txt";
+
+    EXPECT_EQ(DumpUtils::FdToWrite(testFile), -1);
+}
+
+/**
+ * @tc.name: DumpTest045
+ * @tc.desc: Test hidumper.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest045, TestSize.Level0)
+{
+    const std::string testFile = "/no/such/file";
+
+    EXPECT_FALSE(DumpUtils::DirectoryExists(testFile));
+}
+
+/**
+ * @tc.name: DumpTest046
+ * @tc.desc: Test hidumper.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest046, TestSize.Level0)
+{
+    int testPid = -1;
+
+    EXPECT_FALSE(DumpUtils::IsCommercialVersion());
+    EXPECT_FALSE(DumpUtils::CheckAppDebugVersion(testPid));
+}
+
+/**
+ * @tc.name: DumpTest047
+ * @tc.desc: Test hidumper.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest047, TestSize.Level0)
+{
+    int invalidPid = 12345678;
+
+    EXPECT_FALSE(DumpUtils::CheckAppDebugVersion(invalidPid));
+}
+
+/**
+ * @tc.name: DumpTest048
+ * @tc.desc: Test hidumper.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest048, TestSize.Level0)
+{
+    auto rsPid = static_cast<int32_t>(HidumperTestUtils::GetInstance().GetPidByName("render_service"));
+    auto ret = DumpUtils::CheckAppDebugVersion(rsPid);
+
+    if (!ret) {
+        EXPECT_FALSE(ret);
+    } else {
+        std::cout << "is debug app." << std::endl;
+        EXPECT_TRUE(ret);
+    }
 }
 
 /**
