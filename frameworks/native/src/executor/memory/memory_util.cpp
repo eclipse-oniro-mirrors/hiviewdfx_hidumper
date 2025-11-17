@@ -102,7 +102,7 @@ bool MemoryUtil::RunCMD(const string &cmd, vector<string> &result)
     }
     // free memory
     if (buffer != nullptr) {
-        delete[] buffer;
+        free(buffer);
         buffer = nullptr;
     }
     pclose(fp);

@@ -153,7 +153,7 @@ void EventDetailDumper::ReadSingleLogFile(const std::string &path)
 
     while (!IsCanceled()) {
         read = getline(&lineBuffer, &len, fp_);
-        if (read == -1) {
+        if (read <= 0) {
             if (feof(fp_) == 0) {
                 DUMPER_HILOGE(MODULE_COMMON, "logPaths getline failed");
             }

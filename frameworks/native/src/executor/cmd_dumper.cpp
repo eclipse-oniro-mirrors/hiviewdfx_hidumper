@@ -125,7 +125,7 @@ DumpStatus CMDDumper::GetLineData(FILE* fp, StringMatrix dumpDatas)
     size_t len = 0;
     ssize_t read = 0;
     read = getline(&line_buffer, &len, fp);
-    if (read != -1) {
+    if (read > 0) {
         if (line_buffer[read - 1] == '\n') {
             line_buffer[read - 1] = '\0'; // replease \n
         }
