@@ -796,7 +796,7 @@ void DumpImplement::CmdHelp()
         "  -e --list [process_name] [-n num] [--since timestamp] [--until timestamp]  |dump list of abnormal exits\n"
         "  -e --print [process_name] [-n num] [--since timestamp] [--until timestamp]  |dump faultlogs of abnormal"
         " exits\n"
-        "  -e --print RECORD_ID        |dump faultlogs of the specified record\n"
+        "  -e --print record_id        |dump faultlogs of the specified record\n"
         "  --net [pid]                 |dump network information; if pid is specified,"
         " dump traffic usage of specified pid\n"
         "  --storage [pid]             |dump storage information; if pid is specified, dump /proc/pid/io\n"

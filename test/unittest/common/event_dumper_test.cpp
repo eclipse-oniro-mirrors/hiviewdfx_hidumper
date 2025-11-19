@@ -33,6 +33,43 @@ std::unordered_map<std::string, int> columnWidths = {
     {"record_id", 0},
 };
 
+constexpr const char* ORIGINS[] = {
+    "{\"domain_\":\"FRAMEWORK\",\"name_\":\"PROCESS_KILL\","
+    "\"time_\":1502965663170,\"PROCESS_NAME\":\"hidumper1 unittest\","
+    "\"FOREGROUND\":\"1\",\"id_\":\"14645518577780955344\","
+    "\"REASON\":\"LIFECYCLE_TIMEOUT\",\"APP_RUNNING_UNIQUE_ID\":\"1\"}",
+
+    "{\"domain_\":\"FRAMEWORK\",\"name_\":\"PROCESS_KILL\","
+    "\"time_\":1502965663175,\"PROCESS_NAME\":\"hidumper2 unittest\","
+    "\"FOREGROUND\":\"1\",\"id_\":\"14645518577780955345\","
+    "\"REASON\":\"Cpp Crash\",\"APP_RUNNING_UNIQUE_ID\":\"2\"}",
+
+    "{\"domain_\":\"FRAMEWORK\",\"name_\":\"PROCESS_KILL\","
+    "\"time_\":1502965663178,\"PROCESS_NAME\":\"Js Error unittest\","
+    "\"FOREGROUND\":\"1\",\"REASON\":\"Js Error\","
+    "\"APP_RUNNING_UNIQUE_ID\":\"3\"}",
+
+    "{\"domain_\":\"FRAMEWORK\",\"name_\":\"PROCESS_KILL\","
+    "\"time_\":4916632891988,\"PROCESS_NAME\":\"Js Error unittest\","
+    "\"FOREGROUND\":\"1\",\"id_\":\"3333518577780955356\","
+    "\"REASON\":\"THREAD_BLOCK_6S\",\"APP_RUNNING_UNIQUE_ID\":\"4\"}",
+
+    "{\"domain_\":\"FRAMEWORK\",\"name_\":\"PROCESS_KILL\","
+    "\"time_\":4916632892000,\"PROCESS_NAME\":\"Js Error unittest\","
+    "\"FOREGROUND\":\"1\",\"id_\":\"3333518577780955378\","
+    "\"REASON\":\"test5\",\"APP_RUNNING_UNIQUE_ID\":\"5\"}",
+
+    "{\"domain_\":\"FRAMEWORK\",\"name_\":\"PROCESS_KILL\","
+    "\"time_\":4916632892000,\"PROCESS_NAME\":\"\","
+    "\"FOREGROUND\":\"1\",\"id_\":\"333351857778095654656\","
+    "\"REASON\":\"THREAD_BLOCK_6S\",\"APP_RUNNING_UNIQUE_ID\":\"6\"}",
+
+    "{\"domain_\":\"FRAMEWORK\",\"name_\":\"PROCESS_KILL\","
+    "\"time_\":4916632892000,\"PROCESS_NAME\":\"Js Error unittest\","
+    "\"FOREGROUND\":\"1\",\"id_\":\"333351857778095564567\","
+    "\"REASON\":\"\",\"APP_RUNNING_UNIQUE_ID\":\"7\"}"
+};
+
 class EventDumperTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -59,40 +96,11 @@ void EventDumperTest::TearDown(void)
 
 void EventDumperTest::SetProcessKillEvents(std::vector<HiSysEventRecord> &events)
 {
-    constexpr char origin1[] = "{\"domain_\":\"FRAMEWORK\",\"name_\":\"PROCESS_KILL\","
-        "\"time_\":1502965663170,\"PROCESS_NAME\":\"hidumper1 unittest\","
-        "\"FOREGROUND\":\"1\",\"id_\":\"14645518577780955344\","
-        "\"REASON\":\"LIFECYCLE_TIMEOUT\",\"APP_RUNNING_UNIQUE_ID\":\"1\"}";
-    HiSysEventRecord record1(origin1);
-    events.emplace_back(record1);
-
-    constexpr char origin2[] = "{\"domain_\":\"FRAMEWORK\",\"name_\":\"PROCESS_KILL\","
-        "\"time_\":1502965663175,\"PROCESS_NAME\":\"hidumper2 unittest\","
-        "\"FOREGROUND\":\"1\",\"id_\":\"14645518577780955345\","
-        "\"REASON\":\"Cpp Crash\",\"APP_RUNNING_UNIQUE_ID\":\"2\"}";
-    HiSysEventRecord record2(origin2);
-    events.emplace_back(record2);
-
-    constexpr char origin3[] = "{\"domain_\":\"FRAMEWORK\",\"name_\":\"PROCESS_KILL\","
-        "\"time_\":1502965663178,\"PROCESS_NAME\":\"Js Error unittest\","
-        "\"FOREGROUND\":\"1\",\"id_\":\"3333518577780955345\","
-        "\"REASON\":\"Js Error\",\"APP_RUNNING_UNIQUE_ID\":\"3\"}";
-    HiSysEventRecord record3(origin3);
-    events.emplace_back(record3);
-
-    constexpr char origin4[] = "{\"domain_\":\"FRAMEWORK\",\"name_\":\"PROCESS_KILL\","
-        "\"time_\":4916632891988,\"PROCESS_NAME\":\"Js Error unittest\","
-        "\"FOREGROUND\":\"1\",\"id_\":\"3333518577780955356\","
-        "\"REASON\":\"THREAD_BLOCK_6S\",\"APP_RUNNING_UNIQUE_ID\":\"4\"}";
-    HiSysEventRecord record4(origin4);
-    events.emplace_back(record4);
-
-    constexpr char origin5[] = "{\"domain_\":\"FRAMEWORK\",\"name_\":\"PROCESS_KILL\","
-        "\"time_\":4916632892000,\"PROCESS_NAME\":\"Js Error unittest\","
-        "\"FOREGROUND\":\"1\",\"id_\":\"3333518577780955378\","
-        "\"REASON\":\"test5\",\"APP_RUNNING_UNIQUE_ID\":\"5\"}";
-    HiSysEventRecord record5(origin5);
-    events.emplace_back(record5);
+    events.clear();
+    for (const auto& origin : ORIGINS) {
+        HiSysEventRecord record(origin);
+        events.emplace_back(record);
+    }
 }
 void EventDumperTest::SetFaultEvents(std::vector<HiSysEventRecord> &events)
 {
@@ -211,8 +219,8 @@ HWTEST_F(EventDumperTest, EventListDumperSuccess, TestSize.Level1)
     auto parameter = std::make_shared<DumperParameter>();
     auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
     std::shared_ptr<EventListDumper> eventListDumper = std::make_shared<EventListDumper>();
-    SetProcessKillEvents(eventListDumper->events_);
     EventListPreExecute(eventListDumper);
+    SetProcessKillEvents(eventListDumper->events_);
     DumpStatus ret = DumpStatus::DUMP_FAIL;
     ret = eventListDumper->PreExecute(parameter, dumpDatas);
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
@@ -226,8 +234,8 @@ HWTEST_F(EventDumperTest, EventListDumperSuccess, TestSize.Level1)
 HWTEST_F(EventDumperTest, EventListDumper_CheckData, TestSize.Level1)
 {
     std::shared_ptr<EventListDumper> eventListDumper = std::make_shared<EventListDumper>();
-    SetProcessKillEvents(eventListDumper->events_);
     EventListPreExecute(eventListDumper);
+    SetProcessKillEvents(eventListDumper->events_);
 
     auto results = eventListDumper->BuildResults(columnWidths);
     ASSERT_TRUE(results.size() == 4);
@@ -237,8 +245,8 @@ HWTEST_F(EventDumperTest, EventListDumper_CheckData, TestSize.Level1)
 HWTEST_F(EventDumperTest, EventListDumper_FilterData, TestSize.Level1)
 {
     std::shared_ptr<EventListDumper> eventListDumper = std::make_shared<EventListDumper>();
-    SetProcessKillEvents(eventListDumper->events_);
     EventListPreExecute(eventListDumper);
+    SetProcessKillEvents(eventListDumper->events_);
 
     eventListDumper->processName_ = "hidumper1";
     auto results = eventListDumper->BuildResults(columnWidths);
@@ -252,8 +260,8 @@ HWTEST_F(EventDumperTest, EventListDumper_FilterData, TestSize.Level1)
 HWTEST_F(EventDumperTest, EventListDumper_LimitEventCount, TestSize.Level1)
 {
     std::shared_ptr<EventListDumper> eventListDumper = std::make_shared<EventListDumper>();
-    SetProcessKillEvents(eventListDumper->events_);
     EventListPreExecute(eventListDumper);
+    SetProcessKillEvents(eventListDumper->events_);
 
     eventListDumper->showEventCount_ = 1;
     auto results = eventListDumper->BuildResults(columnWidths);

@@ -128,10 +128,10 @@ bool EventListDumper::ShouldSkipEvent(const HiSysEventRecord& event)
 {
     std::string processName;
     std::string reason;
-    if (event.GetParamValue("PROCESS_NAME", processName) != 0) {
+    if (event.GetParamValue("PROCESS_NAME", processName) != 0 || processName.empty()) {
         return true;
     }
-    if (event.GetParamValue("REASON", reason) != 0) {
+    if (event.GetParamValue("REASON", reason) != 0 || reason.empty()) {
         return true;
     }
     if (!processName_.empty() && processName.find(processName_) == std::string::npos) {
@@ -147,13 +147,13 @@ std::vector<std::string> EventListDumper::BuildRow(const HiSysEventRecord& event
     for (const auto& title : EVENTTITLES) {
         std::string value;
         if (event.GetParamValue(FIELDMAP.at(title), value) != 0) {
-            row.emplace_back("NULL");
+            row.emplace_back("Null");
             continue;
         }
         if (title == "time") {
             value = StringUtils::GetInstance().UnixMsToString(event.GetTime());
         } else if (title == "foreground") {
-            value = (value == "1") ? "TRUE" : "FALSE";
+            value = (value == "1") ? "True" : "False";
         } else if (title == "reason") {
             std::string newValue = transformReason(value);
             if (newValue.empty()) {
@@ -192,7 +192,7 @@ void EventListDumper::FormatResults(const std::vector<std::vector<std::string>>&
         std::ostringstream oss;
         for (size_t i = 0; i < EVENTTITLES.size(); ++i) {
             const std::string& title = EVENTTITLES[i];
-            std::string value = (i < row.size()) ? row[i] : "NULL";
+            std::string value = (i < row.size()) ? row[i] : "Null";
             int width = std::min(columnWidths.at(title), MAX_WIDTH);
             oss << std::left << std::setw(width + LINE_SPACING) << value << END_BLANK;
         }
