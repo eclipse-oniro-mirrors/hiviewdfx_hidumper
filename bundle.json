@@ -42,7 +42,8 @@
                 "hisysevent",
                 "zlib",
                 "ffrt",
-                "cJSON"
+                "cJSON",
+                "memory_utils"
             ]
         },
         "hisysevent_config": [

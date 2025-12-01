@@ -118,6 +118,7 @@ ohos_source_set("dump_main") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "zlib:shared_libz",
+    "memory_utils:libmeminfo",
   ]
   defines = []
 

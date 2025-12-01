@@ -26,6 +26,7 @@
 #include "time.h"
 #include "graphic_memory_collector.h"
 #include "memory_collector.h"
+#include "meminfo.h"
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
@@ -203,6 +204,11 @@ private:
         StringMatrix result);
     void GetAshmem(const int32_t &pid, StringMatrix result, bool showAshmem);
     bool GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDmaBuf);
+    bool GetDmaBufByProc(const int32_t &pid, StringMatrix result, const std::vector<std::string>& showTitles);
+    bool DisposeDmaBufInfo(const std::vector<MemInfo::DmaNodeInfoWrapper>& dmaBufInfos,
+        const std::vector<std::string>& showTitles, StringMatrix result);
+    bool FillResultForDmaBuf(const std::vector<std::vector<std::string>>& dmaBufResults,
+        const std::vector<int>& columnWidths, StringMatrix result);
     int CalculateStars(const std::vector<int>& pssValues, int currentPSS);
     void WriteStdout(const std::string& s);
     void ClearPreviousLines(int lineCount);
