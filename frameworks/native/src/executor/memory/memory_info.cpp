@@ -903,6 +903,18 @@ bool MemoryInfo::GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDma
         DUMPER_HILOGD(MODULE_SERVICE, "showDmaBuf is false, skip GetDmaBuf");
         return false;
     }
+    std::vector<MemInfo::DmaNodeInfoWrapper> dmaBufInfos = MemInfo::GetDmaInfo(static_cast<int>(pid));
+    const std::vector<std::string> showTitles = { "Process", "pid", "fd", "size_bytes", "ino", "exp_pid",
+        "exp_task_comm", "buf_name", "exp_name", "buf_type", "leak_type" };
+    if (dmaBufInfos.empty()) {
+        DUMPER_HILOGW(MODULE_SERVICE, "GetDmaInfo return empty.");
+        return GetDmaBufByProc(pid, result, showTitles);
+    }
+    return DisposeDmaBufInfo(dmaBufInfos, showTitles, result);
+}
+
+bool MemoryInfo::GetDmaBufByProc(const int32_t &pid, StringMatrix result, const std::vector<std::string>& showTitles)
+{
     int32_t uid = GetProcUid(pid);
     if (uid < APP_UID) {
         DUMPER_HILOGD(MODULE_SERVICE, "Uid Verification failed for uid: %{public}d", uid);
@@ -917,8 +929,6 @@ bool MemoryInfo::GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDma
         DUMPER_HILOGE(MODULE_SERVICE, "GetDmaBufInfo error");
         return false;
     }
-    const std::unordered_set<std::string> showTitles = { "Process", "pid", "fd", "size_bytes", "ino", "exp_pid",
-        "exp_task_comm", "buf_name", "exp_name", "buf_type", "leak_type" };
     for (const auto& dmabuf : dmabufInfo) {
         std::istringstream ss(dmabuf);
         std::ostringstream oss;
@@ -927,11 +937,68 @@ bool MemoryInfo::GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDma
             if (!(ss >> value)) {
                 value = "NULL";
             }
-            if (showTitles.find(title) == showTitles.end()) {
+            if (std::find(showTitles.begin(), showTitles.end(), title) == showTitles.end()) {
                 continue;
             }
             int width = std::min(columnWidths[headerMap[title]], DMABUF_MAX_WIDTH);
             oss << std::left << std::setw(width + LINE_SPACING) << value << END_BLANK;
+        }
+        vector<string> tempResult;
+        tempResult.push_back(oss.str());
+        result->push_back(tempResult);
+    }
+    return true;
+}
+
+bool MemoryInfo::DisposeDmaBufInfo(const std::vector<MemInfo::DmaNodeInfoWrapper>& dmaBufInfos,
+                                   const std::vector<std::string>& showTitles, StringMatrix result)
+{
+    std::vector<std::vector<std::string>> dmaBufResults;
+    dmaBufResults.reserve(dmaBufInfos.size() + 1);
+
+    std::vector<int> columnWidths(showTitles.size());
+    for (size_t i = 0; i < showTitles.size(); ++i) {
+        columnWidths[i] = static_cast<int>(showTitles[i].length());
+    }
+
+    auto safeStr = [](const std::string& s) { return s.empty() ? "NULL" : s; };
+
+    auto ConvertDmaBufInfoToStrings = [&](const MemInfo::DmaNodeInfoWrapper& info) {
+        return std::vector<std::string>{
+            safeStr(info.process),
+            std::to_string(info.pid),
+            std::to_string(info.fd),
+            std::to_string(info.size_bytes),
+            std::to_string(info.ino),
+            std::to_string(info.exp_pid),
+            safeStr(info.exp_task_comm),
+            safeStr(info.buf_name),
+            safeStr(info.exp_name),
+            safeStr(info.buf_type),
+            safeStr(info.leak_type)
+        };
+    };
+
+    dmaBufResults.push_back(showTitles);
+    for (const auto& dmaBufInfo : dmaBufInfos) {
+        auto tempResult = ConvertDmaBufInfoToStrings(dmaBufInfo);
+        for (size_t i = 0; i < tempResult.size(); ++i) {
+            columnWidths[i] = std::max(columnWidths[i], static_cast<int>(tempResult[i].length()));
+        }
+        dmaBufResults.push_back(std::move(tempResult));
+    }
+
+    return FillResultForDmaBuf(dmaBufResults, columnWidths, result);
+}
+
+bool MemoryInfo::FillResultForDmaBuf(const std::vector<std::vector<std::string>>& dmaBufResults,
+                                     const std::vector<int>& columnWidths, StringMatrix result)
+{
+    for (const auto& row : dmaBufResults) {
+        std::ostringstream oss;
+        for (size_t i = 0; i < row.size(); ++i) {
+            int width = std::min(columnWidths[i], DMABUF_MAX_WIDTH);
+            oss << std::left << std::setw(width + LINE_SPACING) << row[i] << END_BLANK;
         }
         vector<string> tempResult;
         tempResult.push_back(oss.str());

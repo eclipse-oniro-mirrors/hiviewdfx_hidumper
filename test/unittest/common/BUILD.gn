@@ -257,6 +257,7 @@ ohos_unittest("HidumperMemoryTest") {
     "hiview:libucollection_utility",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
+    "memory_utils:libmeminfo",
     "samgr:samgr_proxy",
   ]
   defines = []
@@ -335,6 +336,7 @@ ohos_unittest("HidumperInnerkitsTest") {
     "hiview:libucollection_utility",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
+    "memory_utils:libmeminfo",
   ]
 }
 
@@ -356,6 +358,7 @@ ohos_unittest("GetHeapInfoTest") {
     "hiview:libucollection_utility",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
+    "memory_utils:libmeminfo",
   ]
   if (hidumper_ability_runtime_enable) {
     external_deps += [ "ability_runtime:app_manager" ]

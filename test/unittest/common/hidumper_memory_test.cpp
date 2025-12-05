@@ -32,6 +32,7 @@
 #include "executor/memory/smaps_memory_info.h"
 #include "hidumper_test_utils.h"
 #include "memory_collector.h"
+#include "meminfo.h"
 #include "string_ex.h"
 
 using namespace std;
@@ -135,6 +136,11 @@ const std::vector<std::pair<std::string, std::string>> TITLE_AND_VALUE = {
     {"brk heap", "100"},
     {"musl heap", "100"},
     {"mmap heap", "100"},
+};
+
+const std::vector<std::string> DMA_SHOW_TITLES = {
+    "Process", "pid", "fd", "size_bytes", "ino", "exp_pid",
+    "exp_task_comm", "buf_name", "exp_name", "buf_type", "leak_type"
 };
 using ValueMap = std::map<std::string, uint64_t>;
 using GroupMap = std::map<std::string, ValueMap>;
@@ -530,6 +536,7 @@ HWTEST_F(HidumperMemoryTest, MemoryInfo012, TestSize.Level1)
         pid_t cocPid = HidumperTestUtils::GetInstance().GetPidByName("com.ohos.contacts");
         ASSERT_TRUE(cocPid != -1);
         ASSERT_TRUE(memoryInfo->GetDmaBuf(cocPid, result, true));
+        ASSERT_TRUE(memoryInfo->GetDmaBufByProc(cocPid, result, DMA_SHOW_TITLES));
     }
 }
 
@@ -552,6 +559,32 @@ HWTEST_F(HidumperMemoryTest, MemoryInfo013, TestSize.Level1)
     }
 }
 
+/**
+ * @tc.name: MemoryInfo014
+ * @tc.desc: Test about dmabuf.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperMemoryTest, MemoryInfo014, TestSize.Level1)
+{
+    std::vector<MemInfo::DmaNodeInfoWrapper> dmaVec;
+    dmaVec.push_back({ "ProcessA", 1234, 10, 2048, 5678, 4321, "ExpTaskA", "BufferA", "ExpNameA", true,
+                      true, "", "ReclaimInfoA", "LeakTypeA" });
+    unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
+        make_unique<OHOS::HiviewDFX::MemoryInfo>();
+    shared_ptr<vector<vector<string>>> result = make_shared<vector<vector<string>>>();
+    memoryInfo->DisposeDmaBufInfo(dmaVec, DMA_SHOW_TITLES, result);
+    ASSERT_TRUE(result->size() == 2);
+
+    std::istringstream ss(result->at(1).at(0));
+    std::vector<std::string> data;
+    std::string token;
+    while (ss >> token) {
+        data.push_back(token);
+    }
+    ASSERT_TRUE(data.size() == DMA_SHOW_TITLES.size());
+    ASSERT_TRUE(data[1] == "1234");
+    ASSERT_TRUE(data[9] == "NULL");
+}
 /**
  * @tc.name: GetProcessInfo001
  * @tc.desc: Test GetProcessInfo ret.
