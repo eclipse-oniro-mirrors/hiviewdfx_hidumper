@@ -372,7 +372,6 @@ ohos_source_set("hidumpermemory_source") {
   ]
   deps = [ "${hidumper_utils_path}:utils" ]
   external_deps = [
-    "ability_base:configuration",
     "c_utils:utils",
     "drivers_interface_memorytracker:libmemorytracker_proxy_1.0",
     "eventhandler:libeventhandler",
