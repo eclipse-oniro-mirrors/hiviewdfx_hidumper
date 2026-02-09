@@ -37,6 +37,10 @@ config("zidl_cpu_config") {
   ]
 }
 
+config("hidumper_plugin_config") {
+  include_dirs = [ "${hidumper_plugins_path}" ]
+}
+
 config("dump_cpu_config") {
   visibility = [ "*:*" ]
 
@@ -366,11 +370,15 @@ ohos_source_set("hidumpermemory_source") {
 
   configs = [
     "${hidumper_utils_path}:utils_config",
+    ":hidumper_plugin_config",
     ":interface_include",
     "${hidumper_frameworks_path}:hidumper_include",
     "${hidumper_service_path}:service_config",
   ]
-  deps = [ "${hidumper_utils_path}:utils" ]
+  deps = [
+    "${hidumper_utils_path}:utils",
+    "${hidumper_plugins_path}:hidumper_plugin",
+  ]
   external_deps = [
     "ability_base:configuration",
     "c_utils:utils",
