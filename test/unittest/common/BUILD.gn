@@ -43,6 +43,7 @@ config("module_private_config") {
     "${hidumper_service_path}:interface_include",
     "${hidumper_service_path}/zidl/include",
     "${hidumper_service_path}/native/include",
+    "${hidumper_plugins_path}",
   ]
 
   cflags_cc = [ "-DDUMP_TEST_MODE" ]
@@ -192,6 +193,7 @@ ohos_unittest("HidumperMemoryTest") {
   deps = [
     #"${hidumper_service_path}:hidumperservice_source",
     "${hidumper_service_path}:hidumpermemory_source",
+    "${hidumper_plugins_path}:hidumper_plugin",
   ]
 
   external_deps = [

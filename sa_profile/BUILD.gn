@@ -14,7 +14,9 @@
 import("//build/ohos/sa_profile/sa_profile.gni")
 import("../hidumper.gni")
 
-ohos_sa_profile("hidumper_service_sa_profile") {
-  sources = [ "1212.json" ]
-  part_name = "${hidumper_part_name}"
+if (!hidumper_hiviewdfx_plugin_enable) {
+  ohos_sa_profile("hidumper_service_sa_profile") {
+    sources = [ "1212.json" ]
+    part_name = "${hidumper_part_name}"
+  }
 }

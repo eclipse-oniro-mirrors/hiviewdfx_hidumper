@@ -585,6 +585,32 @@ HWTEST_F(HidumperMemoryTest, MemoryInfo014, TestSize.Level1)
     ASSERT_TRUE(data[1] == "1234");
     ASSERT_TRUE(data[9] == "NULL");
 }
+
+/**
+ * @tc.name: MemoryInfo015
+ * @tc.desc: Test about ION.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperMemoryTest, MemoryInfo0015, TestSize.Level1)
+{
+    if (DumpUtils::IsHmKernel()) {
+        unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
+            make_unique<OHOS::HiviewDFX::MemoryInfo>();
+        shared_ptr<vector<vector<string>>> result = make_shared<vector<vector<string>>>();
+        memoryInfo->GetHiaiServerIon(INIT_PID, result);
+        ASSERT_TRUE(result->size() == 0);
+
+        FILE* file = popen("pidof render_service", "r");
+        char buffer[BUFFER_SIZE];
+        if ((file) && (fgets(buffer, sizeof(buffer), file) != nullptr)) {
+            pclose(file);
+        }
+        int rsPid = strtol(buffer, nullptr, 10);
+        memoryInfo->GetHiaiServerIon(rsPid, result);
+        ASSERT_TRUE(result->size() == 0);
+    }
+}
+
 /**
  * @tc.name: GetProcessInfo001
  * @tc.desc: Test GetProcessInfo ret.

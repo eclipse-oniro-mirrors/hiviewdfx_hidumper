@@ -23,6 +23,8 @@ hidumper_frameworks_path = "${hidumper_root_path}/frameworks/native"
 
 hidumper_client_path = "${hidumper_root_path}/client"
 
+hidumper_plugins_path = "${hidumper_root_path}/plugins"
+
 hidumper_service_path = "${hidumper_root_path}/services"
 
 hidumper_test_path = "${hidumper_root_path}/test"
@@ -45,6 +47,7 @@ declare_args() {
   hidumper_hiviewdfx_hisysevent_enable = true
   hidumper_hiviewdfx_hiview_enable = false
   hidumper_report_memmgr = false
+  hidumper_hiviewdfx_plugin_enable = false
   if (!defined(global_parts_info.ability_ability_runtime)) {
     hidumper_ability_runtime_enable = false
   }
@@ -68,4 +71,7 @@ declare_args() {
     hidumper_report_memmgr = true
   }
   hidumper_feature_support_usr_symlink = false
+  if (defined(global_parts_info.hmoshiviewdfx_programable_kernel_engine)) {
+    hidumper_hiviewdfx_plugin_enable = true
+  }
 }

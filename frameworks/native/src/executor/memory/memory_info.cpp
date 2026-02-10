@@ -25,6 +25,7 @@
 
 #include "dump_common_utils.h"
 #include "dump_utils.h"
+#include "dumper_plugin.h"
 #include "executor/memory/get_cma_info.h"
 #include "executor/memory/get_hardware_info.h"
 #include "executor/memory/get_kernel_info.h"
@@ -53,14 +54,10 @@ using namespace OHOS::HDI::Memorytracker::V1_0;
 namespace OHOS {
 namespace HiviewDFX {
 static const int PAGETAG_MIN_LEN = 2; // page tag min length
-static const std::string LIB = "libai_mnt_client.so";
-
 static const std::string UNKNOWN_PROCESS = "unknown";
 static const std::string PRE_BLANK = "   ";
 static const std::string END_BLANK = "  ";
 static const std::string MEMORY_LINE = "-------------------------------[memory]-------------------------------";
-constexpr char HIAI_MEM_INFO_FN[] = "HIAI_Memory_QueryAllUserAllocatedMemInfo";
-using HiaiFunc = int (*)(MemInfoData::HiaiUserAllocatedMemInfo*, int, int*);
 std::atomic<bool> g_isDumpMem = true;
 constexpr int SECOND_TO_MILLISECONDS = 1000;
 constexpr int MAX_STARS_NUM = 20;
@@ -92,10 +89,12 @@ MemoryInfo::MemoryInfo()
         bind(&MemoryInfo::SetHeapAlloc, this, placeholders::_1, placeholders::_2)));
     methodVec_.push_back(make_pair(MEMINFO_HEAP_FREE,
         bind(&MemoryInfo::SetHeapFree, this, placeholders::_1, placeholders::_2)));
+    LoadPlugin();
 }
 
 MemoryInfo::~MemoryInfo()
 {
+    UnloadPlugin();
 }
 
 void MemoryInfo::InsertMemoryTitle(StringMatrix result)
@@ -841,32 +840,22 @@ void MemoryInfo::GetHiaiServerIon(const int32_t &pid, StringMatrix result)
     if (GetProcName(pid) != "hiaiserver") {
         return;
     }
-    void *handle = dlopen(LIB.c_str(), RTLD_LAZY);
-    if (handle == nullptr) {
-        DUMPER_HILOGE(MODULE_SERVICE, "fail to open %{public}s.", LIB.c_str());
-        return;
-    }
-    HiaiFunc pfn = reinterpret_cast<HiaiFunc>(dlsym(handle, HIAI_MEM_INFO_FN));
-    if (pfn == nullptr) {
-        DUMPER_HILOGE(MODULE_SERVICE, "fail to dlsym %{public}s.", HIAI_MEM_INFO_FN);
-        dlclose(handle);
-        return;
-    }
-    MemInfoData::HiaiUserAllocatedMemInfo memInfos[HIAI_MAX_QUERIED_USER_MEMINFO_LIMIT] = {};
-
     int realSize = 0;
-    pfn(memInfos, HIAI_MAX_QUERIED_USER_MEMINFO_LIMIT, &realSize);
+    DumpMeminfo info[256];
+    if (!QueryMemInfo(info, realSize)) {
+        DUMPER_HILOGE(MODULE_SERVICE, "QueryMemInfo failed");
+        return;
+    }
     if (realSize > 0) {
         AddBlankLine(result);
         vector<string> vecIon;
         vecIon.push_back("HIAIServer ION:\n");
         for (int i = 0; i < realSize; i++) {
-            vecIon.push_back(GetProcName(memInfos[i].pid) + "(" + to_string(memInfos[i].pid) + "):" +
-                             to_string(memInfos[i].size / BYTE_PER_KB) + " kB\n");
+            vecIon.push_back(GetProcName(info[i].pid) + "(" + to_string(info[i].pid) + "):" +
+                             to_string(info[i].size / BYTE_PER_KB) + " kB\n");
         }
         result->push_back(vecIon);
     }
-    dlclose(handle);
 }
 
 void MemoryInfo::GetAshmem(const int32_t &pid, StringMatrix result, bool showAshmem)

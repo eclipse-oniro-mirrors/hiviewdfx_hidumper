@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("hidumper.gni")
 
 group("bin") {
   deps = [ "frameworks/native:hidumper" ]
@@ -20,12 +21,14 @@ group("service") {
   deps = [
     "frameworks/native:hidumperclient",
     "interfaces/innerkits:lib_dump_usage",
-    "sa_profile:hidumper_service_sa_profile",
     "services:event_reason_config",
     "services:hidumper_service.rc",
     "services:hidumpermemory",
     "services:hidumperservice",
   ]
+  if (!hidumper_hiviewdfx_plugin_enable) {
+    deps += [ "sa_profile:hidumper_service_sa_profile" ]
+  }
   if (build_variant == "root") {
     deps += [ "services:infos_config" ]
   }

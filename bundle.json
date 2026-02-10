@@ -88,6 +88,16 @@
                       ],
                       "header_base": "//base/hiviewdfx/hidumper/services/native/include/"
                     }
+                },
+                {
+                    "type": "so",
+                    "name": "//base/hiviewdfx/hidumper/plugins:hidumper_plugin",
+                    "header": {
+                    "header_files": [
+                        "dumper_plugin.h"
+                    ],
+                    "header_base": "//base/hiviewdfx/hidumper/plugins"
+                    }
                 }
             ],
             "test": [
