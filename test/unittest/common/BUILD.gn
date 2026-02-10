@@ -97,7 +97,6 @@ ohos_unittest("HidumperDumpersTest") {
   }
 
   external_deps = [
-    "ability_base:configuration",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
@@ -299,7 +298,6 @@ ohos_unittest("GetHeapInfoTest") {
   deps = [ "${hidumper_service_path}:hidumperservice_source" ]
   defines = []
   external_deps = [
-    "ability_base:configuration",
     "c_utils:utils",
     "hilog:libhilog",
     "hiview:libucollection_utility",
@@ -395,7 +393,6 @@ ohos_unittest("HidumperClientTest") {
   ]
 
   external_deps = [
-    "ability_base:configuration",
     "ability_runtime:app_manager",
     "c_utils:utils",
     "hilog:libhilog",
