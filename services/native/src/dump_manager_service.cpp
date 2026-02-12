@@ -20,7 +20,6 @@
 #include <sched.h>
 #include <string_ex.h>
 #include <sstream>
-#include <sys/syscall.h>
 #include <system_ability_definition.h>
 #include <thread>
 #include <queue>
