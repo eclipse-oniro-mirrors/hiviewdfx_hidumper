@@ -46,19 +46,19 @@ const int BUFFER_SIZE = 1024;
 constexpr int TEST_PSS_VALUE = 100;
 const std::vector<int> pssValues = {1000, 1050, 1020, 1030, 1010, 1020, 1040, 1050, 1030, 1060, 1010};
 string NULL_STR = "";
-const string FIRST_ROW_TMP = "                          Pss         Shared         Shared        Private";
+const string FIRST_ROW_TMP = "                             Pss         Shared         Shared        Private";
 const string FIRST_ROW = FIRST_ROW_TMP +
     "        Private           Swap        SwapPss           Heap           Heap           Heap ";
 const string SECOND_ROW_TMP =
-    "                        Total          Clean          Dirty          Clean          Dirty";
+    "                           Total          Clean          Dirty          Clean          Dirty";
 const string SECOND_ROW = SECOND_ROW_TMP +
     "          Total          Total           Size          Alloc           Free ";
 const string THIRD_ROW_TMP =
-    "                       ( kB )         ( kB )         ( kB )         ( kB )         ( kB )";
+    "                          ( kB )         ( kB )         ( kB )         ( kB )         ( kB )";
 const string THIRD_ROW = THIRD_ROW_TMP +
     "         ( kB )         ( kB )         ( kB )         ( kB )         ( kB ) ";
 const string FOURTH_ROW_TMP =
-    "              ---------------------------------------------------------------------------";
+    "                 ---------------------------------------------------------------------------";
 const string FOURTH_ROW = FOURTH_ROW_TMP +
     "---------------------------------------------------------------------------";
 const vector<string> MEMEORY_TITLE_VEC = {FIRST_ROW, SECOND_ROW, THIRD_ROW, FOURTH_ROW};
@@ -109,25 +109,29 @@ const std::map<MemoryItemType, MemoryClass> TYPE_TO_CLASS_MAP = {
     {MemoryItemType::MEMORY_ITEM_TYPE_OTHER, MemoryClass::MEMORY_CLASS_OTHER},
     {MemoryItemType::MEMORY_ITEM_TYPE_GRAPH_GL, MemoryClass::MEMORY_CLASS_GRAPH},
     {MemoryItemType::MEMORY_ITEM_TYPE_GRAPH_GRAPHICS, MemoryClass::MEMORY_CLASS_GRAPH},
+    {MemoryItemType::MEMORY_ITEM_TYPE_ANON_ARK_OBJECT, MemoryClass::MEMORY_CLASS_ARK_STATIC_HEAP},
+    {MemoryItemType::MEMORY_ITEM_TYPE_ANON_ARK_HUMONGOUS_OBJECT, MemoryClass::MEMORY_CLASS_ARK_STATIC_HEAP},
+    {MemoryItemType::MEMORY_ITEM_TYPE_ANON_ARK_NON_MOVABLE, MemoryClass::MEMORY_CLASS_ARK_STATIC_HEAP},
 };
 
 const std::vector<std::pair<std::string, std::string>> TITLE_AND_VALUE = {
     {"GL", "100"},
     {"Graph", "100"},
     {"ark ts heap", "100"},
+    {"arkts-static heap", "300"},
     {"guard", "100"},
     {"native heap", "900"},
     {".hap", "100"},
-    {"AnonPage other", "1100"},
+    {"AnonPage other", "800"},
     {"stack", "300"},
     {".db", "200"},
     {".so", "200"},
     {"dev", "200"},
     {"dmabuf", "100"},
     {".ttf", "100"},
-    {"FilePage other", "900"},
+    {"FilePage other", "1200"},
     {"---------------", ""},
-    {"Total", "4500"},
+    {"Total", "4800"},
     {"\n", ""},
     {"native heap:", ""},
     {"heap", "100"},

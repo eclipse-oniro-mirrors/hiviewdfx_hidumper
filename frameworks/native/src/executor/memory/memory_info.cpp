@@ -110,7 +110,7 @@ void MemoryInfo::InsertMemoryTitle(StringMatrix result)
     vector<string> line4;
 
     string space = " ";
-    StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, space);
+    StringUtils::GetInstance().SetWidth(TITLE_WIDTH_, BLANK_, false, space);
 
     string separator = "-";
     StringUtils::GetInstance().SetWidth(LINE_WIDTH_, SEPARATOR_, false, separator);
@@ -226,7 +226,9 @@ void MemoryInfo::SetDetailRet(const std::string& memoryClassStr, const std::uniq
         return;
     }
     vector<string> tempResult;
-    SetValueForRet(memoryClassStr, tempResult);
+    string tempTitle = memoryClassStr;
+    StringUtils::GetInstance().SetWidth(TITLE_WIDTH_, BLANK_, false, tempTitle);
+    tempResult.push_back(tempTitle + BLANK_);
     SetValueForRet(to_string(detail->totalPss), tempResult);
     SetValueForRet(to_string(detail->totalSharedClean), tempResult);
     SetValueForRet(to_string(detail->totalSharedDirty), tempResult);
@@ -265,7 +267,15 @@ void MemoryInfo::UpdateTotalDetail(const std::unique_ptr<ProcessMemoryDetail>& d
     uint64_t totalPrivateDirty = static_cast<uint64_t>(detail->totalPrivateDirty) + graphicsMemory_.gl +
         graphicsMemory_.graph;
     currentPss_ = detail->totalAllPss;
-    MemoryUtil::GetInstance().SetMemTotalValue(MEMINFO_TOTAL, lines, values);
+
+    string totalTitle = MEMINFO_TOTAL;
+    StringUtils::GetInstance().SetWidth(TITLE_WIDTH_, BLANK_, false, totalTitle);
+    values.push_back(totalTitle + BLANK_);
+
+    string separator = "-";
+    StringUtils::GetInstance().SetWidth(TITLE_WIDTH_, SEPARATOR_, false, separator);
+    lines.push_back(separator + SEPARATOR_);
+
     MemoryUtil::GetInstance().SetMemTotalValue(to_string(detail->totalAllPss), lines, values);
     MemoryUtil::GetInstance().SetMemTotalValue(to_string(detail->totalSharedClean), lines, values);
     MemoryUtil::GetInstance().SetMemTotalValue(to_string(detail->totalSharedDirty), lines, values);
@@ -540,7 +550,7 @@ void MemoryInfo::UpdateGraphicsMemoryRet(const string& title, const uint64_t& va
     valueMap.insert(pair<string, uint64_t>(MEMINFO_PRIVATE_DIRTY, value));
     vector<string> tempResult;
     string tempTitle = title;
-    StringUtils::GetInstance().SetWidth(LINE_WIDTH_, BLANK_, false, tempTitle);
+    StringUtils::GetInstance().SetWidth(TITLE_WIDTH_, BLANK_, false, tempTitle);
     tempResult.push_back(tempTitle + BLANK_);
     for (const auto &tag : MemoryFilter::GetInstance().VALUE_WITH_PID) {
         auto it = valueMap.find(tag);

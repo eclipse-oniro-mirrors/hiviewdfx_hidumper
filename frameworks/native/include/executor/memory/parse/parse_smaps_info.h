@@ -55,7 +55,7 @@ public:
 
 private:
     const std::vector<std::string> MEMORY_CLASS_VEC = {
-        "graph", "ark ts heap", ".db", "dev", "dmabuf", "guard", ".hap",
+        "graph", "ark ts heap", "arkts-static heap", ".db", "dev", "dmabuf", "guard", ".hap",
         "native heap", ".so", "stack", ".ttf", "other"
     };
     std::string memGroup_ = "";

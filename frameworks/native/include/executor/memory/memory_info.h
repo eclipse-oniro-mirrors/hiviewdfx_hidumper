@@ -76,6 +76,7 @@ private:
     };
     int rawParamFd_ = 0;
     const int LINE_WIDTH_ = 14;
+    const int TITLE_WIDTH_ = 17;
     const int RAM_WIDTH_ = 16;
     const size_t TYPE_SIZE = 2;
     const char SEPARATOR_ = '-';
@@ -91,11 +92,11 @@ private:
     const static int BYTE_PER_KB = 1024;
     const std::string ZERO = "0";
     const std::vector<std::string> MEMORY_CLASS_VEC = {
-        "graph", "ark ts heap", ".db", "dev", "dmabuf", "guard", ".hap",
+        "graph", "ark ts heap", "arkts-static heap", ".db", "dev", "dmabuf", "guard", ".hap",
         "native heap", ".so", "stack", ".ttf", "other"
     };
     const std::vector<std::string> MEMORY_PRINT_ORDER_VEC = {
-        "ark ts heap", "guard", "native heap", ".hap", "AnonPage other",
+        "ark ts heap", "arkts-static heap", "guard", "native heap", ".hap", "AnonPage other",
         "stack", ".db", ".so", "dev", "dmabuf", ".ttf"
     };
     const std::vector<std::string> NATIVE_HEAP_TAG = {"heap", "jemalloc meta", "jemalloc heap",
