@@ -38,6 +38,7 @@ DumpStatus JsHeapMemoryDumper::PreExecute(const shared_ptr<DumperParameter> &par
     needGc_ = true;
     needSnapshot_ = true;
     needLeakobj_ = parameter->GetOpts().isDumpJsHeapLeakobj_;
+    needClean_ = parameter->GetOpts().isDumpJsHeapClean_;
     /* In the arkts runtime, DumpFormat::BINARY is used to generate rawheap files. */
     needBinary_ = parameter->GetOpts().dumpJsRawHeap_;
     if (parameter->GetOpts().isDumpJsHeapMemGC_) {
@@ -61,6 +62,7 @@ DumpStatus JsHeapMemoryDumper::Execute()
     info.needSnapshot = needSnapshot_;
     info.needLeakobj = needLeakobj_;
     info.needBinary = needBinary_;
+    info.needClearNodeIdCache = needClean_;
 
     if (dumpDatas_ != nullptr && jsHeapInfo_ != nullptr) {
         bool ret = jsHeapInfo_->DumpJsHeapMemory(info);

@@ -67,6 +67,7 @@ static struct option LONG_OPTIONS[] = {{"cpufreq", no_argument, 0, 0},
     {"mem-cjheap", required_argument, 0, 0},
     {"gc", no_argument, 0, 0},
     {"leakobj", no_argument, 0, 0},
+    {"clean", no_argument, 0, 0},
     {"raw", no_argument, 0, 0},
     {"prune", no_argument, 0, 0},
     {"show-ashmem", no_argument, 0, 0},
@@ -540,6 +541,8 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts, const s
         return SetGCParam(opts);
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "leakobj")) {
         opts.isDumpJsHeapLeakobj_ = true;
+    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "clean")) {
+        return SetCleanParam(opts);
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "ipc")) {
         opts.isDumpIpc_ = true;
         dumperSysEventParams_->opt = "ipc";
@@ -630,6 +633,16 @@ DumpStatus DumpImplement::SetGCParam(DumperOpts &opt)
         status = DumpStatus::DUMP_OK;
     } else if (opt.isDumpCjHeapMem_) {
         opt.isDumpCjHeapMemGC_ = true;
+        status = DumpStatus::DUMP_OK;
+    }
+    return status;
+}
+
+DumpStatus DumpImplement::SetCleanParam(DumperOpts &opt)
+{
+    DumpStatus status = DumpStatus::DUMP_FAIL;
+    if (opt.isDumpJsHeapMem_) {
+        opt.isDumpJsHeapClean_ = true;
         status = DumpStatus::DUMP_OK;
     }
     return status;
@@ -814,7 +827,7 @@ void DumpImplement::CmdHelp()
         " detail information is stored in /data/log/hidumper/record_mem.txt.\n"
         "  --zip                       |compress output to /data/log/hidumper\n"
         "  --mem-smaps pid [-v]        |display statistic in /proc/pid/smaps, use -v specify more details\n"
-        "  --mem-jsheap pid [-T tid] [--gc] [--leakobj] [--raw]  |triggerGC, dumpHeapSnapshot, dumpRawHeap"
+        "  --mem-jsheap pid [-T tid] [--gc] [--leakobj] [--raw] [--clean]  |triggerGC, dumpHeapSnapshot, dumpRawHeap"
         " and dumpLeakList under pid and tid\n"
         "  --mem-cjheap pid [--gc]     |the pid should belong to the Cangjie process; triggerGC and"
         " dumpHeapSnapshot under pid\n"
