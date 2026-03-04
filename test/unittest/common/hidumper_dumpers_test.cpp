@@ -859,6 +859,26 @@ HWTEST_F(HidumperDumpersTest, JsHeapDumperTest007, TestSize.Level1)
 }
 
 /**
+ * @tc.name: JsHeapDumperTest008
+ * @tc.desc: Test JsHeapDumper with init pid and clean nodeId
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, JsHeapDumperTest008, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--mem-jsheap"),
+        const_cast<char *>("1"),
+        const_cast<char *>("--clean"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
  * @tc.name: HelpDumperTest001
  * @tc.desc: Test hidumper -h
  * @tc.type: FUNC
