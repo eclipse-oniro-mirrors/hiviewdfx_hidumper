@@ -34,6 +34,7 @@
 #include "memory_collector.h"
 #include "meminfo.h"
 #include "string_ex.h"
+#include "dumper_plugin.h"
 
 using namespace std;
 using namespace testing::ext;
@@ -608,6 +609,22 @@ HWTEST_F(HidumperMemoryTest, MemoryInfo0015, TestSize.Level1)
         int rsPid = strtol(buffer, nullptr, 10);
         memoryInfo->GetHiaiServerIon(rsPid, result);
         ASSERT_TRUE(result->size() == 0);
+    }
+}
+
+/**
+ * @tc.name: MemoryInfo016
+ * @tc.desc: Test about ION.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperMemoryTest, MemoryInfo0016, TestSize.Level1)
+{
+    if (DumpUtils::IsHmKernel()) {
+        LoadPlugin();
+        int realSize = 0;
+        DumpMeminfo info[256];
+        ASSERT_TRUE(QueryMemInfo(info, realSize));
+        UnloadPlugin();
     }
 }
 
