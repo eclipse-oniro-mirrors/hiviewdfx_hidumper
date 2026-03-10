@@ -87,6 +87,7 @@ ohos_source_set("dump_main") {
     "src/util/file_utils.cpp",
     "src/util/string_utils.cpp",
     "src/util/zip/zip_writer.cpp",
+    "src/util/zip_file_cleaner.cpp",
     "src/util/zip_utils.cpp",
   ]
 
