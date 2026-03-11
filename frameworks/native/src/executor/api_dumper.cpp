@@ -41,7 +41,7 @@ DumpStatus APIDumper::Execute()
 {
     DUMPER_HILOGI(MODULE_COMMON, "info|APIDumper Execute");
     AddApiRetIntoResult(GetDisplayVersion(), "BuildId");
-    AddApiRetIntoResult(GetOsReleaseType(), "RleaseType");
+    AddApiRetIntoResult(GetOsReleaseType(), "ReleaseType");
     AddApiRetIntoResult(GetVersionId(), "OsVersion");
     AddApiRetIntoResult(GetDeviceType(), "DeviceType");
     AddApiRetIntoResult(GetManufacture(), "Manufacture");
