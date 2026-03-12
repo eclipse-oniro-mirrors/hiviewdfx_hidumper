@@ -16,11 +16,12 @@
 #include "directory_ex.h"
 #include "common/dumper_constant.h"
 #include "hilog_wrapper.h"
+#include "util/zip_file_cleaner.h"
 namespace OHOS {
 namespace HiviewDFX {
 namespace {
 static const std::string TMP_FOLDER = "/data/log/hidumper/tmp/";
-static const int LOGFILE_MAX = 10;
+
 } // namespace
 DumpLogManager::DumpLogManager()
 {
@@ -53,41 +54,7 @@ void DumpLogManager::EraseLogs()
 {
     DUMPER_HILOGD(MODULE_COMMON, "EraseLogs enter|");
 
-    std::vector<std::string> allFiles;
-    GetDirFiles(ZIP_FOLDER, allFiles);
-
-    std::vector<std::string> zipFiles;
-    for (std::string str : allFiles) {
-        std::string filePath = IncludeTrailingPathDelimiter(ExtractFilePath(str));
-        std::string fileName = ExtractFileName(str);
-        std::string fileExt = ExtractFileExt(fileName);
-        DUMPER_HILOGD(MODULE_COMMON, "EraseLogs debug|"
-            "str=[%{public}s], filePath=[%{public}s], fileName=[%{public}s], fileExt=[%{public}s]",
-            str.c_str(), filePath.c_str(), fileName.c_str(), fileExt.c_str());
-
-        if ((filePath != ZIP_FOLDER) || (fileExt != ZIP_FILEEXT)) {
-            DUMPER_HILOGD(MODULE_COMMON, "EraseLogs debug|skip, str=[%{public}s]", str.c_str());
-            continue;
-        }
-
-        DUMPER_HILOGD(MODULE_COMMON, "EraseLogs debug|add, str=[%{public}s]", str.c_str());
-        zipFiles.push_back(str);
-    }
-    allFiles.clear();
-
-    std::sort(zipFiles.begin(), zipFiles.end(),
-        [] (const std::string &left, const std::string &right) {
-        return (right.compare(left) > 0);
-    });
-
-    int sum = static_cast<int>(zipFiles.size()) - LOGFILE_MAX;
-    DUMPER_HILOGD(MODULE_COMMON, "EraseLogs debug|sum=%{public}d", sum);
-    for (int i = 0; i < sum; i++) {
-        std::string &str = zipFiles[i];
-        DUMPER_HILOGD(MODULE_COMMON, "EraseLogs debug|del, str=[%{public}s]", str.c_str());
-        RemoveFile(str);
-    }
-
+    ZipFileCleaner::CleanOldFiles(ZIP_FOLDER);
     DUMPER_HILOGD(MODULE_COMMON, "EraseLogs leave|");
 }
 
