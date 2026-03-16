@@ -60,7 +60,7 @@ public:
     using PageType = std::vector<std::pair<std::string, uint64_t>>;
     using PageTypePair = std::pair<PageType, PageType>;
 
-    bool GetMemoryInfoByPid(const int32_t &pid, StringMatrix result, bool showAshmem, bool showDmaBuf);
+    bool GetMemoryInfoByPid(const int32_t &pid, StringMatrix result, bool showAshmem, bool showDmaBuf, bool showGpumem);
     void GetMemoryInfoByTimeInterval(int fd, const int32_t &pid, const int32_t &timeInterval);
     void SetReceivedSigInt(bool isReceivedSigInt);
     DumpStatus GetMemoryInfoNoPid(int fd, StringMatrix result);
@@ -82,6 +82,9 @@ private:
     const char SEPARATOR_ = '-';
     const char BLANK_ = ' ';
     const static int NAME_SIZE_ = 2;
+    const uint32_t GPU_MEM_TYPE = 3;
+    const uint32_t GPU_INFO_TYPE = 32;
+    const uint32_t GPU_DFX_LIMIT = 0;
     const int PID_WIDTH_ = 5;
     const int NAME_WIDTH_ = 20;
     const int PSS_WIDTH_ = 30;
@@ -205,6 +208,7 @@ private:
         StringMatrix result);
     void GetAshmem(const int32_t &pid, StringMatrix result, bool showAshmem);
     bool GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDmaBuf);
+    bool GetGpumem(const int32_t &pid, StringMatrix result, bool showGpumem);
     bool GetDmaBufByProc(const int32_t &pid, StringMatrix result, const std::vector<std::string>& showTitles);
     bool DisposeDmaBufInfo(const std::vector<MemInfo::DmaNodeInfoWrapper>& dmaBufInfos,
         const std::vector<std::string>& showTitles, StringMatrix result);

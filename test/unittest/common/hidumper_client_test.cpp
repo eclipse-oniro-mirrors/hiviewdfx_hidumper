@@ -468,5 +468,22 @@ HWTEST_F(HidumperClientTest, ManagerClientTest015, TestSize.Level0)
     int ret = DumpManagerClient::GetInstance().Request(args, STDOUT_FILENO);
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
+
+/**
+ * @tc.name: ManagerClientTest016
+ * @tc.desc: Test --mem 1 --show-gpumem.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperClientTest, ManagerClientTest016, TestSize.Level0)
+{
+    vector<u16string> args{
+        std::u16string(u"hidumper"),
+        std::u16string(u"--mem"),
+        std::u16string(u"1"),
+        std::u16string(u"--show-gpumem"),
+    };
+    int ret = DumpManagerClient::GetInstance().Request(args, STDOUT_FILENO);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
 } // namespace HiviewDFX
 } // namespace OHOS

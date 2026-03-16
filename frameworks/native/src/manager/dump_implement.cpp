@@ -72,6 +72,7 @@ static struct option LONG_OPTIONS[] = {{"cpufreq", no_argument, 0, 0},
     {"prune", no_argument, 0, 0},
     {"show-ashmem", no_argument, 0, 0},
     {"show-dmabuf", no_argument, 0, 0},
+    {"show-gpumem", no_argument, 0, 0},
     {"ipc", optional_argument, 0, 0},
     {"start-stat", no_argument, 0, 0},
     {"stop-stat", no_argument, 0, 0},
@@ -529,6 +530,8 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts, const s
         opts.showAshmem_ = true;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "show-dmabuf")) {
         opts.showDmaBuf_ = true;
+    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "show-gpumem")) {
+        opts.showGpumem_ = true;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-jsheap")) {
         return SetMemJsheapParam(opts);
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-cjheap")) {
@@ -823,6 +826,7 @@ void DumpImplement::CmdHelp()
         " dumped simplified memory information of specified pid\n"
         "  --mem [pid] [--show-ashmem]   |show ashmem info when dumping memory of specified pid\n"
         "  --mem [pid] [--show-dmabuf]   |show dmabuf info when dumping memory of specified pid\n"
+        "  --mem [pid] [--show-gpumem]   |show gpumem info when dumping memory of specified pid\n"
         "  --mem [pid] -t [timeInterval]  |dump process memory change information, press Ctrl+C to stop the export."
         " detail information is stored in /data/log/hidumper/record_mem.txt.\n"
         "  --zip                       |compress output to /data/log/hidumper\n"
