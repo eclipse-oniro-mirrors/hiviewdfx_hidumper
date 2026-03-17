@@ -487,8 +487,10 @@ void MemoryInfo::GetMemoryInfoByTimeInterval(int fd, const int32_t &pid, const i
 bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result, bool showAshmem, bool showDmaBuf)
 {
     std::lock_guard<std::mutex> lock(mutex_);
+    unique_ptr<ProcessMemoryDetail> processMemoryDetail = nullptr;
+    CollectProcessMemoryDetail(pid, processMemoryDetail);
     InsertMemoryTitle(result);
-    GetResult(pid, result);
+    GetResult(pid, result, processMemoryDetail);
     GetPurgByPid(pid, result);
     GetDma(graphicsMemory_.graph, result);
     GetDmaBuf(pid, result, showDmaBuf);
@@ -497,7 +499,8 @@ bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result, boo
     return true;
 }
 
-void MemoryInfo::GetResult(const int32_t& pid, StringMatrix result)
+void MemoryInfo::CollectProcessMemoryDetail(const int32_t& pid,
+                                            std::unique_ptr<ProcessMemoryDetail>& processMemoryDetail)
 {
     DUMPER_HILOGD(MODULE_SERVICE, "CollectProcessMemoryDetail pid:%{public}d start", pid);
     std::shared_ptr<UCollectUtil::MemoryCollector> collector = UCollectUtil::MemoryCollector::Create();
@@ -507,12 +510,36 @@ void MemoryInfo::GetResult(const int32_t& pid, StringMatrix result)
         DUMPER_HILOGE(MODULE_SERVICE, "collect process memory error, ret:%{public}d", collectRet.retCode);
         return;
     }
-    unique_ptr<ProcessMemoryDetail> processMemoryDetail = make_unique<ProcessMemoryDetail>(collectRet.data);
+    processMemoryDetail = make_unique<ProcessMemoryDetail>(collectRet.data);
     if (!processMemoryDetail) {
         DUMPER_HILOGE(MODULE_SERVICE, "processMemoryDetail is nullptr");
         return;
     }
+
+    vector<MemoryDetail> memoryDetails = processMemoryDetail->details;
+    int maxTitleWidth = 0;
+    for (const auto& memoryDetail : memoryDetails) {
+        MemoryClass memoryClass = memoryDetail.memoryClass;
+        if (static_cast<int>(memoryClass) < 0 || static_cast<size_t>(memoryClass) > MEMORY_CLASS_VEC.size()) {
+            continue;
+        }
+        string memoryClassStr = MEMORY_CLASS_VEC[static_cast<int>(memoryClass)];
+        maxTitleWidth = std::max(maxTitleWidth, static_cast<int>(memoryClassStr.length()));
+        if (memoryClassStr == MEMINFO_OTHER) {
+            maxTitleWidth = std::max(maxTitleWidth, static_cast<int>(MEMINFO_ANONPAGE_OTHER.length()));
+        }
+    }
+    TITLE_WIDTH_ = maxTitleWidth;
+
     DUMPER_HILOGD(MODULE_SERVICE, "CollectProcessMemoryDetail pid:%{public}d end", pid);
+}
+
+void MemoryInfo::GetResult(const int32_t& pid, StringMatrix result,
+                           std::unique_ptr<ProcessMemoryDetail>& processMemoryDetail)
+{
+    if (processMemoryDetail == nullptr) {
+        return;
+    }
     unique_ptr<MemoryDetail> nativeHeapDetail = {nullptr};
     UpdateResult(pid, processMemoryDetail, nativeHeapDetail, result);
     GetNativeHeap(nativeHeapDetail, result);

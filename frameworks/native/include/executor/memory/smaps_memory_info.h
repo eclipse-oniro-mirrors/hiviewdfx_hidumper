@@ -32,6 +32,9 @@ public:
     bool ShowMemorySmapsByPid(const int &pid, StringMatrix result, bool isShowSmapsInfo);
 
 private:
+    int categoryColumnWidth_ = 15;
+    int nameColumnWidthDetailed_ = 12;
+    int nameColumnWidthSummary_ = 18;
     void InsertSmapsTitle(StringMatrix result, bool isShowSmapsInfo);
     void SetValueForRet(const std::string& value, const int &width, std::vector<std::string>& tempResult);
     void SetOneRowMemInfo(const MemoryData &memoryData, bool isShowSmapsInfo, bool isSummary, StringMatrix result);

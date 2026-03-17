@@ -46,8 +46,6 @@ namespace HiviewDFX {
 static constexpr int LINE_WIDTH = 12;
 static constexpr int LINE_NAME_VAL_WIDTH = 60;
 static constexpr int LINE_START_VAL_WIDTH = 18;
-static constexpr int LINE_NAME_V_WIDTH = 16;
-static constexpr int LINE_MEMORY_CLASS_WIDTH = 15;
 static constexpr size_t TYPE_SIZE = 2;
 static constexpr size_t TYPE_MIN_SIZE = 1;
 static constexpr char BLANK = ' ';
@@ -85,12 +83,12 @@ void SmapsMemoryInfo::InsertSmapsTitle(StringMatrix result, bool isShowSmapsInfo
             string space = " ";
             StringUtils::GetInstance().SetWidth(LINE_WIDTH, BLANK, true, space);
             line1.push_back(space);
-            constexpr int LINE_NAME_KEY_WIDTH = 22;
             if (StringUtils::GetInstance().IsSameStr(title, "Name")) {
-                StringUtils::GetInstance().SetWidth(isShowSmapsInfo ? LINE_NAME_V_WIDTH : LINE_NAME_KEY_WIDTH,
-                    BLANK, false, title);
+                constexpr int NAME_EXTRA_WIDTH = 4;
+                int nameWidth = isShowSmapsInfo ? nameColumnWidthDetailed_ : nameColumnWidthSummary_;
+                StringUtils::GetInstance().SetWidth(nameWidth + NAME_EXTRA_WIDTH, BLANK, false, title);
             } else if (StringUtils::GetInstance().IsSameStr(title, "Category")) {
-                StringUtils::GetInstance().SetWidth(LINE_MEMORY_CLASS_WIDTH, BLANK, true, title);
+                StringUtils::GetInstance().SetWidth(categoryColumnWidth_, BLANK, true, title);
             } else {
                 StringUtils::GetInstance().SetWidth(StringUtils::GetInstance().IsSameStr(title, "Start") ?
                     LINE_START_VAL_WIDTH : LINE_WIDTH, BLANK, true, title);
@@ -140,10 +138,11 @@ void SmapsMemoryInfo::SetOneRowMemInfo(const MemoryData &memInfo, bool isShowSma
             memoryClass = "FilePage other";
         }
     }
-    SetValueForRet(memoryClass, LINE_MEMORY_CLASS_WIDTH, tempResult);
+    SetValueForRet(memoryClass, categoryColumnWidth_, tempResult);
     // set name
     string space = " ";
-    StringUtils::GetInstance().SetWidth(isShowSmapsInfo ? LINE_WIDTH : LINE_START_VAL_WIDTH, BLANK, false, space);
+    StringUtils::GetInstance().SetWidth(isShowSmapsInfo ? nameColumnWidthDetailed_ :
+        nameColumnWidthSummary_, BLANK, false, space);
     string value = isSummary ? "Summary" : memInfo.name;
     value = space + value;
     StringUtils::GetInstance().SetWidth(LINE_NAME_VAL_WIDTH, BLANK, true, value);
@@ -204,6 +203,18 @@ bool SmapsMemoryInfo::ShowMemorySmapsByPid(const int &pid, StringMatrix result, 
     if (!ret) {
         return false;
     }
+
+    const std::vector<std::string> MEMORY_CLASS_VEC = {
+        "graph", "ark ts heap", "arkts-static heap", ".db", "dev", "dmabuf", "guard", ".hap",
+        "native heap", ".so", "stack", ".ttf", "other"
+    };
+    int maxTitleWidth = 0;
+    for (const auto& classStr : MEMORY_CLASS_VEC) {
+        maxTitleWidth = std::max(maxTitleWidth, static_cast<int>(classStr.length()));
+    }
+    nameColumnWidthDetailed_ = categoryColumnWidth_ - maxTitleWidth + nameColumnWidthDetailed_;
+    nameColumnWidthSummary_ = categoryColumnWidth_ - maxTitleWidth + nameColumnWidthSummary_;
+    categoryColumnWidth_ = maxTitleWidth;
     InsertSmapsTitle(result, isShowSmapsAddress);
     if (isShowSmapsAddress) {
         UpdateShowAddressMemInfoResult(showAddressMemInfoVec, result);
