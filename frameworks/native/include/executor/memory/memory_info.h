@@ -76,7 +76,7 @@ private:
     };
     int rawParamFd_ = 0;
     const int LINE_WIDTH_ = 14;
-    const int TITLE_WIDTH_ = 17;
+    int TITLE_WIDTH_ = 17;
     const int RAM_WIDTH_ = 16;
     const size_t TYPE_SIZE = 2;
     const char SEPARATOR_ = '-';
@@ -139,7 +139,8 @@ private:
     MemInfoData::GraphicsMemory graphicsMemory_ = {0};
 
     void InsertMemoryTitle(StringMatrix result);
-    void GetResult(const int32_t& pid, StringMatrix result);
+    void GetResult(const int32_t& pid, StringMatrix result, std::unique_ptr<ProcessMemoryDetail>& processMemoryDetail);
+    void CollectProcessMemoryDetail(const int32_t& pid, std::unique_ptr<ProcessMemoryDetail>& processMemoryDetail);
     std::string AddKbUnit(const uint64_t &value) const;
     bool GetMemByProcessPid(const int32_t &pid, MemInfoData::MemUsage &usage);
     static bool GetSmapsInfoNoPid(const int32_t &pid, GroupMap &result);
