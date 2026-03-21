@@ -474,7 +474,7 @@ void MemoryInfo::GetMemoryInfoByTimeInterval(int fd, const int32_t &pid, const i
     int prevLineCount = 0;
     while (g_isDumpMem) {
         StringMatrix result = std::make_shared<std::vector<std::vector<std::string>>>();
-        GetMemoryInfoByPid(pid, result, false, false);
+        GetMemoryInfoByPid(pid, result, false, false, false);
         pssValues.push_back(static_cast<int>(currentPss_));
         PrintMemoryInfo(pssValues, &prevLineCount);
         RedirectMemoryInfo(static_cast<int>(pssValues.size()), result);
@@ -484,7 +484,8 @@ void MemoryInfo::GetMemoryInfoByTimeInterval(int fd, const int32_t &pid, const i
     DUMPER_HILOGI(MODULE_SERVICE, "GetMemoryInfoByTimeInterval timeInterval:%{public}d end", timeInterval);
 }
 
-bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result, bool showAshmem, bool showDmaBuf)
+bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result,
+                                    bool showAshmem, bool showDmaBuf, bool showGpumem)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     InsertMemoryTitle(result);
@@ -494,6 +495,7 @@ bool MemoryInfo::GetMemoryInfoByPid(const int32_t &pid, StringMatrix result, boo
     GetDmaBuf(pid, result, showDmaBuf);
     GetHiaiServerIon(pid, result);
     GetAshmem(pid, result, showAshmem);
+    GetGpumem(pid, result, showGpumem);
     return true;
 }
 
@@ -910,6 +912,32 @@ bool MemoryInfo::GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDma
         return GetDmaBufByProc(pid, result, showTitles);
     }
     return DisposeDmaBufInfo(dmaBufInfos, showTitles, result);
+}
+
+bool MemoryInfo::GetGpumem(const int32_t &pid, StringMatrix result, bool showGpumem)
+{
+    if (!showGpumem) {
+        DUMPER_HILOGD(MODULE_SERVICE, "showGpumem is false, skip GetGpumem");
+        return false;
+    }
+    AddBlankLine(result);
+    vector<string> title;
+    title.push_back("GPU:");
+    result->push_back(title);
+    std::string strs = CollectGpumem(pid, GPU_MEM_TYPE, GPU_INFO_TYPE, GPU_DFX_LIMIT);
+    std::vector<std::string> lines;
+    std::stringstream ss(strs);
+    std::string line;
+    while (std::getline(ss, line)) {
+        lines.push_back(line);
+    }
+    for (const auto& line : lines) {
+        std::cout << line << std::endl;
+        vector<string> tempResult;
+        tempResult.push_back(line);
+        result->push_back(tempResult);
+    }
+    return true;
 }
 
 bool MemoryInfo::GetDmaBufByProc(const int32_t &pid, StringMatrix result, const std::vector<std::string>& showTitles)

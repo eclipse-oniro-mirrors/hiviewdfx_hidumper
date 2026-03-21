@@ -65,6 +65,7 @@ void DumperOpts::ResetMemOptions()
     dumpMemPrune_ = false;
     showAshmem_ = false;
     showDmaBuf_ = false;
+    showGpumem_ = false;
     timeInterval_ = 0;
     memPid_ = -1;
 }
@@ -183,6 +184,7 @@ void DumperOpts::AssignMemOptions(const DumperOpts& opts)
     dumpMemPrune_ = opts.dumpMemPrune_;
     showAshmem_ = opts.showAshmem_;
     showDmaBuf_ = opts.showDmaBuf_;
+    showGpumem_ = opts.showGpumem_;
     isShowSmaps_ = opts.isShowSmaps_;
     isShowSmapsInfo_ = opts.isShowSmapsInfo_;
 }

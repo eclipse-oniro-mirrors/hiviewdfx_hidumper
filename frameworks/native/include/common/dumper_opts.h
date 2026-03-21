@@ -70,6 +70,7 @@ struct DumperOpts {
     bool isReceivedSigInt_;
     bool showAshmem_;
     bool showDmaBuf_;
+    bool showGpumem_;
     bool isEventList_;
     bool isEventDetail_;
 

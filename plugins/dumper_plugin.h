@@ -19,6 +19,7 @@
 #include <dlfcn.h>
 #include <cstdio>
 #include <cstdlib>
+#include <string>
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -43,11 +44,13 @@ struct Plugin {
     uint32_t version;
     const char *pluginName;
     void (*queryMemInfo)(DumpMeminfo[], int&);
+    std::string (*collectGpumem)(uint32_t pid, uint32_t cmdType, uint32_t infoType, uint32_t dfxLimit);
 };
 
 int32_t LoadPlugin(void);
 void UnloadPlugin(void);
 bool QueryMemInfo(DumpMeminfo infos[], int& realSize);
+std::string CollectGpumem(uint32_t pid, uint32_t cmdType, uint32_t infoType, uint32_t dfxLimit);
 
 } // namespace HiviewDFX
 } // namespace OHOS

@@ -633,6 +633,33 @@ HWTEST_F(HidumperMemoryTest, MemoryInfo0016, TestSize.Level1)
 }
 
 /**
+ * @tc.name: MemoryInfo017
+ * @tc.desc: Test about gpumem.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperMemoryTest, MemoryInfo017, TestSize.Level1)
+{
+    unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
+        make_unique<OHOS::HiviewDFX::MemoryInfo>();
+    shared_ptr<vector<vector<string>>> result = make_shared<vector<vector<string>>>();
+    int res = memoryInfo->GetGpumem(INIT_PID, result, true);
+    ASSERT_TRUE(res);
+
+    FILE* file = popen("pidof render_service", "r");
+    char buffer[BUFFER_SIZE];
+    if (file) {
+        if (fgets(buffer, sizeof(buffer), file) != nullptr) {};
+        pclose(file);
+    }
+    int rsPid = strtol(buffer, nullptr, 10);
+    int ret = memoryInfo->GetGpumem(rsPid, result, true);
+    if (DumpUtils::IsHmKernel()) {
+        ASSERT_TRUE(ret);
+    }
+}
+
+
+/**
  * @tc.name: GetProcessInfo001
  * @tc.desc: Test GetProcessInfo ret.
  * @tc.type: FUNC
