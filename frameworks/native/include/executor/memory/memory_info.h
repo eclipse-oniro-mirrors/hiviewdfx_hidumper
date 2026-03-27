@@ -209,6 +209,7 @@ private:
         StringMatrix result);
     void GetAshmem(const int32_t &pid, StringMatrix result, bool showAshmem);
     bool GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDmaBuf);
+    std::string CollectGpumem(uint32_t pid, uint32_t cmdType, uint32_t infoType, uint32_t dfxLimit);
     bool GetGpumem(const int32_t &pid, StringMatrix result, bool showGpumem);
     bool GetDmaBufByProc(const int32_t &pid, StringMatrix result, const std::vector<std::string>& showTitles);
     bool DisposeDmaBufInfo(const std::vector<MemInfo::DmaNodeInfoWrapper>& dmaBufInfos,

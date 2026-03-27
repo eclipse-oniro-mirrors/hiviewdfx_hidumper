@@ -21,6 +21,9 @@
 #include <numeric>
 #include <sstream>
 #include <thread>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
 #include <v1_0/imemory_tracker_interface.h>
 
 #include "dump_common_utils.h"
@@ -65,6 +68,35 @@ constexpr int ONE_STAR = 1;
 constexpr int APP_UID = 20000;
 constexpr int LINE_SPACING = 6;
 constexpr int DMABUF_MAX_WIDTH = 33;
+
+inline constexpr const char* const BBOX_PATH = "/dev/bbox";
+constexpr uint32_t MEMCHECK_MAGIC = 0x5377FEFA;
+constexpr uint32_t MEMCHECK_CMDINFO_MAXSIZE = (512 * 1024);
+constexpr int32_t MEMCHECK_COPYERR = 0x0;
+constexpr uint64_t MEMCHECK_OFFSET = 0x0;
+constexpr uint32_t MEMCHECKIO = 0xAF;
+constexpr uint32_t LOGGER_MEMCHECK_CMD_INFO = _IO(MEMCHECKIO, 7);
+
+enum cmdType {
+    CMD_NONE = 0,
+    CMD_SET_MEM_TYPE_LIMIT,
+    CMD_GET_MEM_TYPE_VALUE,
+    CMD_GET_MEM_DETAIL_INFO,
+    CMD_MAX
+};
+
+struct CmdInfo {
+    uint32_t magic { 0 };
+    uint32_t pid { 0 };
+    uint32_t cmdType { CMD_NONE };
+    uint32_t infoType { 0 };
+    uint32_t dfxLimit;
+    int32_t copyErr { 0 };
+    uint64_t offset { 0 };
+    uint64_t size { 0 };
+    uint64_t timestamp;
+    char data[0];
+};
 
 MemoryInfo::MemoryInfo()
 {
@@ -939,6 +971,49 @@ bool MemoryInfo::GetDmaBuf(const int32_t &pid, StringMatrix result, bool showDma
         return GetDmaBufByProc(pid, result, showTitles);
     }
     return DisposeDmaBufInfo(dmaBufInfos, showTitles, result);
+}
+
+std::string MemoryInfo::CollectGpumem(uint32_t pid, uint32_t cmdType, uint32_t infoType, uint32_t dfxLimit)
+{
+    DUMPER_HILOGI(MODULE_SERVICE, "CollectGpumem enter");
+    auto fd = open(BBOX_PATH, O_RDONLY);
+    if (fd < 0) {
+        DUMPER_HILOGE(MODULE_SERVICE, "failed to open %{public}s, err: %{public}d", BBOX_PATH, errno);
+        return "";
+    }
+    uint64_t stackSize = sizeof(CmdInfo) + MEMCHECK_CMDINFO_MAXSIZE;
+    auto cmdInfo = static_cast<CmdInfo *>(calloc(1, stackSize));
+    if (cmdInfo == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "failed to alloc memory");
+        close(fd);
+        return "";
+    }
+    auto cleanup = [cmdInfo, fd]() {
+        if (cmdInfo) {
+            free(cmdInfo);
+        }
+        if (fd >= 0) {
+            close(fd);
+        }
+    };
+    cmdInfo->magic = MEMCHECK_MAGIC;
+    cmdInfo->pid = static_cast<uint32_t>(pid);
+    cmdInfo->size = MEMCHECK_CMDINFO_MAXSIZE;
+    cmdInfo->cmdType = cmdType;
+    cmdInfo->infoType = infoType;
+    cmdInfo->copyErr = MEMCHECK_COPYERR;
+    cmdInfo->offset = MEMCHECK_OFFSET;
+    cmdInfo->dfxLimit = dfxLimit;
+    cmdInfo->timestamp = static_cast<uint64_t>(time(nullptr));
+    int32_t ret = ioctl(fd, LOGGER_MEMCHECK_CMD_INFO, cmdInfo);
+    if (ret != 0) {
+        DUMPER_HILOGE(MODULE_SERVICE, "ioctl read cmd info failed, ret: %{public}d, err: %{public}d", ret, errno);
+        cleanup();
+        return {};
+    }
+    std::string result = cmdInfo->data;
+    cleanup();
+    return result;
 }
 
 bool MemoryInfo::GetGpumem(const int32_t &pid, StringMatrix result, bool showGpumem)

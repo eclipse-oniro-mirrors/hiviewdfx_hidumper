@@ -69,21 +69,5 @@ bool QueryMemInfo(DumpMeminfo infos[], int& realSize)
         return false;
     }
 }
-
-std::string CollectGpumem(uint32_t pid, uint32_t cmdType, uint32_t infoType, uint32_t dfxLimit)
-{
-    Plugin* plugin = nullptr;
-    if (g_createPluginFn != nullptr) {
-        DUMPER_HILOGI(MODULE_SERVICE, "CollectGpumem get plugin.");
-        plugin = g_createPluginFn();
-    }
-    if (plugin != nullptr && plugin->collectGpumem != nullptr) {
-        std::string tempResult = plugin->collectGpumem(pid, cmdType, infoType, dfxLimit);
-        return tempResult;
-    } else {
-        DUMPER_HILOGE(MODULE_SERVICE, "CollectGpumem default do nothing.");
-        return "";
-    }
-}
 } // namespace HiviewDFX
 } // namespace OHOS
