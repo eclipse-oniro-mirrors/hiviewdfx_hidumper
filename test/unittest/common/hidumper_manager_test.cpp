@@ -88,8 +88,13 @@ void HiDumperManagerTest::TearDown(void)
 
 int HiDumperManagerTest::GetDumpResult(int argc, char *argv[])
 {
+    int dupFd = dup(g_fd);
+    if (dupFd == -1) {
+        printf("dup failed! errno = %s\n", DumpUtils::ErrnoToMsg(errno).c_str());
+        return DumpStatus::DUMP_FAIL;
+    }
     std::vector<std::u16string> args;
-    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, g_fd);
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, dupFd);
     return DumpImplement::GetInstance().Main(argc, argv, rawParam);
 }
 
@@ -461,8 +466,14 @@ HWTEST_F(HiDumperManagerTest, DumpTest020, TestSize.Level0)
         const_cast<char *>(""),
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+    int dupFd = dup(g_fd);
+    if (dupFd == -1) {
+        printf("dup failed! errno = %s\n", DumpUtils::ErrnoToMsg(errno).c_str());
+        ASSERT_EQ(DumpStatus::DUMP_FAIL, DumpStatus::DUMP_OK);
+        return;
+    }
     std::vector<std::u16string> args;
-    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, g_fd);
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, dupFd);
     std::string srcpath = "/data/log/hilog/";
     rawParam->SetFolder(srcpath);
     int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
