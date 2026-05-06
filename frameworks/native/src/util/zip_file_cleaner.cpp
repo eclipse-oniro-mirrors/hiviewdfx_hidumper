@@ -101,17 +101,17 @@ bool ZipFileCleaner::DeleteOldestFiles(int64_t totalSize, std::vector<FileInfo>&
 
 bool ZipFileCleaner::CleanOldFiles(const std::string &dirPath)
 {
-    DUMPER_HILOGI(MODULE_COMMON, "Start cleaning old zip files in: %{public}s", dirPath.c_str());
+    DUMPER_HILOGD(MODULE_COMMON, "Start cleaning old zip files in: %{public}s", dirPath.c_str());
 
     std::vector<FileInfo> files;
     int64_t totalSize = GetDirTotalSize(dirPath, files);
 
-    DUMPER_HILOGI(MODULE_COMMON, "Total zip files size: %{public}lldMB, max size: %{public}lldMB",
+    DUMPER_HILOGD(MODULE_COMMON, "Total zip files size: %{public}lldMB, max size: %{public}lldMB",
         (long long)(totalSize / BYTES_PER_MB),
         (long long)(ZIP_MAX_SIZE / BYTES_PER_MB));
 
     if (totalSize <= ZIP_MAX_SIZE && files.size() <= LOGFILE_MAX) {
-        DUMPER_HILOGI(MODULE_COMMON, "No need to clean, total size is under threshold");
+        DUMPER_HILOGD(MODULE_COMMON, "No need to clean, total size is under threshold");
         return true;
     }
     return DeleteOldestFiles(totalSize, files);

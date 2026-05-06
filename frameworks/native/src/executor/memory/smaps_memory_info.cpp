@@ -206,7 +206,7 @@ bool SmapsMemoryInfo::ShowMemorySmapsByPid(const int &pid, StringMatrix result, 
 
     const std::vector<std::string> MEMORY_CLASS_VEC = {
         "graph", "ark ts heap", "arkts-static heap", ".db", "dev", "dmabuf", "guard", ".hap",
-        "native heap", ".so", "stack", ".ttf", "arkweb-js heap", "arkweb-pa heap", "kotlin heap",
+        "native heap", ".so", "stack", ".ttf", "jsvm heap", "arkweb-js heap", "arkweb-pa heap", "kotlin heap",
         "rn-hermes heap", "dart heap", "other"
     };
     int maxTitleWidth = 0;
