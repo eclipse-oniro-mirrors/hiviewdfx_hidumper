@@ -96,13 +96,13 @@ private:
     const std::string ZERO = "0";
     const std::vector<std::string> MEMORY_CLASS_VEC = {
         "graph", "ark ts heap", "arkts-static heap", ".db", "dev", "dmabuf", "guard", ".hap",
-        "native heap", ".so", "stack", ".ttf", "arkweb-js heap", "arkweb-pa heap", "kotlin heap",
+        "native heap", ".so", "stack", ".ttf", "jsvm heap", "arkweb-js heap", "arkweb-pa heap", "kotlin heap",
         "rn-hermes heap", "dart heap", "other"
     };
     const std::vector<std::string> MEMORY_PRINT_ORDER_VEC = {
         "ark ts heap", "arkts-static heap", "guard", "native heap", ".hap", "AnonPage other",
-        "stack", ".db", ".so", "dev", "dmabuf", ".ttf", "arkweb-js heap", "arkweb-pa heap", "kotlin heap",
-        "rn-hermes heap", "dart heap"
+        "stack", ".db", ".so", "dev", "dmabuf", ".ttf", "jsvm heap", "arkweb-js heap", "arkweb-pa heap",
+        "kotlin heap", "rn-hermes heap", "dart heap"
     };
     const std::vector<std::string> NATIVE_HEAP_TAG = {"heap", "jemalloc meta", "jemalloc heap",
         "brk heap", "musl heap", "mmap heap"};
