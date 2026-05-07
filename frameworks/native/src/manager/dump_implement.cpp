@@ -67,10 +67,12 @@ static struct option LONG_OPTIONS[] = {{"cpufreq", no_argument, 0, 0},
     {"mem-smaps", required_argument, 0, 0},
     {"mem-jsheap", required_argument, 0, 0},
     {"mem-cjheap", required_argument, 0, 0},
-    {"mem-heap", optional_argument, 0, 0},
+    {"mem-heap", required_argument, 0, 0},
     {"native", optional_argument, 0, 0},
     {"kotlin", optional_argument, 0, 0},
     {"jsvm", optional_argument, 0, 0},
+    {"arkweb-js", optional_argument, 0, 0},
+    {"renderPid", required_argument, 0, 0},
     {"gc", no_argument, 0, 0},
     {"leakobj", no_argument, 0, 0},
     {"clean", no_argument, 0, 0},
@@ -434,6 +436,8 @@ DumpStatus DumpImplement::HandleOptionParameter(const std::string &optionName,
         status = SetCmdIntegerParameter(optionValue, opts.dumpHeapArgPid_);
     } else if (optionName == "--jsvm") {
         status = SetCmdIntegerParameter(optionValue, opts.dumpHeapArgPid_);
+    } else if (optionName == "--renderPid") {
+        status = SetCmdIntegerParameter(optionValue, opts.dumpHeapRenderPid_);
     } else {
         SendErrorMessageIf(opts, optionValue);
         return DumpStatus::DUMP_FAIL;
@@ -579,6 +583,11 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts, const s
         return SetKotlinParam(opts);
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "jsvm")) {
         return SetJsvmParam(opts);
+    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "arkweb-js")) {
+        return SetArkwebJsParam(opts);
+    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "renderPid")) {
+        std::string param = optarg ? optarg : "";
+        return SetRenderPidParam(opts, param);
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "raw")) {
         return SetRawParam(opts);
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "prune")) {
@@ -654,7 +663,11 @@ DumpStatus DumpImplement::SetMemHeapParam(DumperOpts &opt)
 {
     opt.isDumpHeapMem_ = true;
     dumperSysEventParams_->opt = "mem-heap";
-    return DumpStatus::DUMP_OK;
+    if (optarg == nullptr) {
+        DUMPER_HILOGE(MODULE_COMMON, "mem-heap nullptr");
+        return DumpStatus::DUMP_FAIL;
+    }
+    return SetCmdIntegerParameter(optarg, opt.dumpHeapMemPid_);
 }
 
 DumpStatus DumpImplement::SetNativeParam(DumperOpts &opt)
@@ -705,6 +718,43 @@ DumpStatus DumpImplement::SetJsvmParam(DumperOpts &opt)
     return status;
 }
 
+DumpStatus DumpImplement::SetArkwebJsParam(DumperOpts &opt)
+{
+    DumpStatus status = DumpStatus::DUMP_FAIL;
+    if (opt.isDumpHeapMem_) {
+        DUMPER_HILOGI(MODULE_COMMON, "SetArkwebJsParam success");
+        opt.isDumpHeapArkwebJs_ = true;
+        status = DumpStatus::DUMP_OK;
+    } else {
+        DUMPER_HILOGE(MODULE_COMMON, "arkweb-js param invalid");
+        SendErrorMessage("arkweb-js param invalid\n");
+        CmdHelp();
+        status = DumpStatus::DUMP_HELP;
+    }
+    return status;
+}
+
+DumpStatus DumpImplement::SetRenderPidParam(DumperOpts &opt, const std::string& param)
+{
+    DumpStatus status = DumpStatus::DUMP_FAIL;
+    if (opt.isDumpHeapArkwebJs_) {
+        DUMPER_HILOGI(MODULE_COMMON, "SetRenderPidParam success");
+        if (param.empty()) {
+            DUMPER_HILOGE(MODULE_COMMON, "renderPid param empty");
+            SendErrorMessage("renderPid param invalid: need a pid value\n");
+            CmdHelp();
+            return DumpStatus::DUMP_HELP;
+        }
+        status = SetCmdIntegerParameter(param, opt.dumpHeapRenderPid_);
+    } else {
+        DUMPER_HILOGE(MODULE_COMMON, "renderPid param invalid");
+        SendErrorMessage("renderPid param invalid: must follow --arkweb-js\n");
+        CmdHelp();
+        status = DumpStatus::DUMP_HELP;
+    }
+    return status;
+}
+
 DumpStatus DumpImplement::SetRawParam(DumperOpts &opt)
 {
     DumpStatus status = DumpStatus::DUMP_FAIL;
@@ -712,6 +762,17 @@ DumpStatus DumpImplement::SetRawParam(DumperOpts &opt)
         opt.dumpJsRawHeap_ = true;
         dumperSysEventParams_->opt = "mem-jsrawheap";
         status = DumpStatus::DUMP_OK;
+    } else if (opt.isDumpHeapArkwebJs_) {
+        if (opt.isDumpHeapMemGc_) {
+            DUMPER_HILOGE(MODULE_COMMON, "raw and gc cannot be used together for arkweb-js");
+            SendErrorMessage("--raw and --gc cannot be used together for arkweb-js\n");
+            CmdHelp();
+            status = DumpStatus::DUMP_HELP;
+        } else {
+            opt.dumpRawHeap_ = true;
+            dumperSysEventParams_->opt = "mem-arkwebjs-rawheap";
+            status = DumpStatus::DUMP_OK;
+        }
     } else if (opt.isDumpHeapMem_) {
         opt.dumpRawHeap_ = true;
         dumperSysEventParams_->opt = "mem-rawheap";
@@ -745,6 +806,16 @@ DumpStatus DumpImplement::SetGCParam(DumperOpts &opt)
     } else if (opt.isDumpCjHeapMem_) {
         opt.isDumpCjHeapMemGC_ = true;
         status = DumpStatus::DUMP_OK;
+    } else if (opt.isDumpHeapArkwebJs_) {
+        if (opt.dumpRawHeap_) {
+            DUMPER_HILOGE(MODULE_COMMON, "gc and raw cannot be used together for arkweb-js");
+            SendErrorMessage("--gc and --raw cannot be used together for arkweb-js\n");
+            CmdHelp();
+            status = DumpStatus::DUMP_HELP;
+        } else {
+            opt.isDumpHeapMemGc_ = true;
+            status = DumpStatus::DUMP_OK;
+        }
     }
     return status;
 }
@@ -967,6 +1038,7 @@ void DumpImplement::CmdHelp()
         "  --mem-cjheap pid [--gc]     |the pid should belong to the Cangjie process; triggerGC and"
         " dumpHeapSnapshot under pid\n"
         "  --mem-heap pid ARG [--leakobj] [--raw] [-T tid] |ARG must be one of --native | --kotlin | --jsvm.\n"
+        "  --mem-heap pid --arkweb-js [--renderPid renderPid] [--raw] [--gc] .\n"
         "  --ipc pid ARG               |ipc load statistic; pid must be specified or set to -a dump all"
         " processes. ARG must be one of --start-stat | --stop-stat | --stat\n";
 
@@ -1392,6 +1464,11 @@ void DumpImplement::ReportMemheap(const DumperOpts &opts)
         if (opts.dumpRawHeap_) {
             strType = "hidumperJsvmRawHeap";
         }
+    } else if (opts.isDumpHeapArkwebJs_) {
+        if (opts.isDumpHeapMemGc_) {
+            return; // gc only, no dump
+        }
+        strType = "hidumperArkwebJsHeap";
     } else {
         return;
     }
@@ -1484,7 +1561,8 @@ bool DumpImplement::CheckDumpHeapMemParameter(int argc, DumperOpts& opt)
     bool validArgc = argc >= ARG_COUNT_HEAP_MEM;
     bool validPid = (opt.dumpHeapMemPid_ > 0 && opt.dumpHeapArgPid_ == 0) ||
         (opt.dumpHeapMemPid_ == 0 && opt.dumpHeapArgPid_ > 0);
-    bool validArg = (opt.isDumpHeapNative_ + opt.isDumpHeapKotlin_ + opt.isDumpHeapJsvm_ == 1);
+    bool validArg = (opt.isDumpHeapNative_ + opt.isDumpHeapKotlin_ +
+        opt.isDumpHeapJsvm_ + opt.isDumpHeapArkwebJs_ == 1);
     DUMPER_HILOGI(MODULE_COMMON, "CheckDumpHeapMemParameter %{public}d", validArgc && validPid && validArg);
     return validArgc && validPid && validArg;
 }
