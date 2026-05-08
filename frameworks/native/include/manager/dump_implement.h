@@ -116,7 +116,6 @@ private:
     DumpStatus SetKotlinParam(DumperOpts &opt);
     DumpStatus SetJsvmParam(DumperOpts &opt);
     DumpStatus SetArkwebJsParam(DumperOpts &opt);
-    DumpStatus SetRenderPidParam(DumperOpts &opt, const std::string& param);
     DumpStatus SetRawParam(DumperOpts &opt);
     DumpStatus SetMemPruneParam(DumperOpts &opt);
     DumpStatus SetGCParam(DumperOpts &opt);

@@ -72,7 +72,6 @@ static struct option LONG_OPTIONS[] = {{"cpufreq", no_argument, 0, 0},
     {"kotlin", optional_argument, 0, 0},
     {"jsvm", optional_argument, 0, 0},
     {"arkweb-js", optional_argument, 0, 0},
-    {"renderPid", required_argument, 0, 0},
     {"gc", no_argument, 0, 0},
     {"leakobj", no_argument, 0, 0},
     {"clean", no_argument, 0, 0},
@@ -436,8 +435,6 @@ DumpStatus DumpImplement::HandleOptionParameter(const std::string &optionName,
         status = SetCmdIntegerParameter(optionValue, opts.dumpHeapArgPid_);
     } else if (optionName == "--jsvm") {
         status = SetCmdIntegerParameter(optionValue, opts.dumpHeapArgPid_);
-    } else if (optionName == "--renderPid") {
-        status = SetCmdIntegerParameter(optionValue, opts.dumpHeapRenderPid_);
     } else {
         SendErrorMessageIf(opts, optionValue);
         return DumpStatus::DUMP_FAIL;
@@ -585,9 +582,6 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts, const s
         return SetJsvmParam(opts);
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "arkweb-js")) {
         return SetArkwebJsParam(opts);
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "renderPid")) {
-        std::string param = optarg ? optarg : "";
-        return SetRenderPidParam(opts, param);
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "raw")) {
         return SetRawParam(opts);
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "prune")) {
@@ -724,31 +718,44 @@ DumpStatus DumpImplement::SetArkwebJsParam(DumperOpts &opt)
     if (opt.isDumpHeapMem_) {
         DUMPER_HILOGI(MODULE_COMMON, "SetArkwebJsParam success");
         opt.isDumpHeapArkwebJs_ = true;
+        int renderPid = opt.dumpHeapMemPid_;
+        opt.dumpHeapRenderPid_ = renderPid;
+        std::string renderProcName;
+        if (!DumpCommonUtils::GetProcessNameByPid(renderPid, renderProcName)) {
+            DUMPER_HILOGE(MODULE_COMMON, "GetProcessNameByPid failed for renderPid %{public}d", renderPid);
+            SendErrorMessage("Failed to get process name for pid " + std::to_string(renderPid) + "\n");
+            CmdHelp();
+            return DumpStatus::DUMP_HELP;
+        }
+        std::string mainProcName = renderProcName;
+        const std::string suffix = ":render";
+        if (mainProcName.length() > suffix.length() &&
+            mainProcName.substr(mainProcName.length() - suffix.length()) == suffix) {
+            mainProcName = mainProcName.substr(0, mainProcName.length() - suffix.length());
+        }
+        DUMPER_HILOGI(MODULE_COMMON, "renderPid=%{public}d, renderProcName=%{public}s, mainProcName=%{public}s",
+            renderPid, renderProcName.c_str(), mainProcName.c_str());
+        std::vector<DumpCommonUtils::PidInfo> pidInfos;
+        DumpCommonUtils::GetPidInfos(pidInfos, false);
+        int mainPid = -1;
+        for (const auto& info : pidInfos) {
+            if (info.name_ == mainProcName) {
+                mainPid = info.pid_;
+                break;
+            }
+        }
+        if (mainPid <= 0) {
+            DUMPER_HILOGE(MODULE_COMMON, "Failed to find main process for %{public}s", mainProcName.c_str());
+            SendErrorMessage("Failed to find main process with name " + mainProcName + "\n");
+            CmdHelp();
+            return DumpStatus::DUMP_HELP;
+        }
+        opt.dumpHeapArgPid_ = mainPid;
+        DUMPER_HILOGI(MODULE_COMMON, "Found mainPid=%{public}d for renderPid=%{public}d", mainPid, renderPid);
         status = DumpStatus::DUMP_OK;
     } else {
         DUMPER_HILOGE(MODULE_COMMON, "arkweb-js param invalid");
         SendErrorMessage("arkweb-js param invalid\n");
-        CmdHelp();
-        status = DumpStatus::DUMP_HELP;
-    }
-    return status;
-}
-
-DumpStatus DumpImplement::SetRenderPidParam(DumperOpts &opt, const std::string& param)
-{
-    DumpStatus status = DumpStatus::DUMP_FAIL;
-    if (opt.isDumpHeapArkwebJs_) {
-        DUMPER_HILOGI(MODULE_COMMON, "SetRenderPidParam success");
-        if (param.empty()) {
-            DUMPER_HILOGE(MODULE_COMMON, "renderPid param empty");
-            SendErrorMessage("renderPid param invalid: need a pid value\n");
-            CmdHelp();
-            return DumpStatus::DUMP_HELP;
-        }
-        status = SetCmdIntegerParameter(param, opt.dumpHeapRenderPid_);
-    } else {
-        DUMPER_HILOGE(MODULE_COMMON, "renderPid param invalid");
-        SendErrorMessage("renderPid param invalid: must follow --arkweb-js\n");
         CmdHelp();
         status = DumpStatus::DUMP_HELP;
     }
@@ -1038,7 +1045,7 @@ void DumpImplement::CmdHelp()
         "  --mem-cjheap pid [--gc]     |the pid should belong to the Cangjie process; triggerGC and"
         " dumpHeapSnapshot under pid\n"
         "  --mem-heap pid ARG [--leakobj] [--raw] [-T tid] |ARG must be one of --native | --kotlin | --jsvm.\n"
-        "  --mem-heap pid --arkweb-js [--renderPid renderPid] [--raw] [--gc] .\n"
+        "  --mem-heap pid --arkweb-js [--raw] [--gc].\n"
         "  --ipc pid ARG               |ipc load statistic; pid must be specified or set to -a dump all"
         " processes. ARG must be one of --start-stat | --stop-stat | --stat\n";
 

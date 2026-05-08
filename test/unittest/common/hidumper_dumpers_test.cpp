@@ -1369,7 +1369,7 @@ HWTEST_F(HidumperDumpersTest, ArkwebJsHeapDumperTest005, TestSize.Level1)
 
 /**
  * @tc.name: ArkwebJsHeapDumperTest006
- * @tc.desc: Test ArkwebJsHeapDumper with --renderPid without --arkweb-js (should fail).
+ * @tc.desc: Test ArkwebJsHeapDumper without --arkweb-js (should show help).
  * @tc.type: FUNC
  */
 HWTEST_F(HidumperDumpersTest, ArkwebJsHeapDumperTest006, TestSize.Level1)
@@ -1378,8 +1378,6 @@ HWTEST_F(HidumperDumpersTest, ArkwebJsHeapDumperTest006, TestSize.Level1)
         const_cast<char *>("hidumper"),
         const_cast<char *>("--mem-heap"),
         const_cast<char *>("1"),
-        const_cast<char *>("--renderPid"),
-        const_cast<char *>("2"),
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
     std::vector<std::u16string> args;
