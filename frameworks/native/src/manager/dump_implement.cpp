@@ -733,10 +733,6 @@ DumpStatus DumpImplement::SetRawParam(DumperOpts &opt)
         opt.dumpJsRawHeap_ = true;
         dumperSysEventParams_->opt = "mem-jsrawheap";
         status = DumpStatus::DUMP_OK;
-    } else if (opt.isDumpHeapArkwebJs_) {
-        opt.dumpRawHeap_ = true;
-        dumperSysEventParams_->opt = "mem-arkwebjs-rawheap";
-        status = DumpStatus::DUMP_OK;
     } else if (opt.isDumpHeapMem_) {
         opt.dumpRawHeap_ = true;
         dumperSysEventParams_->opt = "mem-rawheap";
@@ -770,7 +766,7 @@ DumpStatus DumpImplement::SetGCParam(DumperOpts &opt)
     } else if (opt.isDumpCjHeapMem_) {
         opt.isDumpCjHeapMemGC_ = true;
         status = DumpStatus::DUMP_OK;
-    } else if (opt.isDumpHeapArkwebJs_) {
+    } else if (opt.isDumpHeapMem_) {
         opt.isDumpHeapMemGc_ = true;
         status = DumpStatus::DUMP_OK;
     }
@@ -994,8 +990,8 @@ void DumpImplement::CmdHelp()
         " dumpRawHeap and dumpLeakList under pid and tid\n"
         "  --mem-cjheap pid [--gc]     |the pid should belong to the Cangjie process; triggerGC and"
         " dumpHeapSnapshot under pid\n"
-        "  --mem-heap pid ARG [--leakobj] [--raw] [-T tid] |ARG must be one of --native | --kotlin | --jsvm.\n"
-        "  --mem-heap pid --arkweb-js [--raw] [--gc].\n"
+        "  --mem-heap pid ARG [--leakobj] [--raw] [-T tid] [--gc] |ARG must be one of --native | --kotlin | --jsvm | "
+        "--arkweb-js.\n"
         "  --ipc pid ARG               |ipc load statistic; pid must be specified or set to -a dump all"
         " processes. ARG must be one of --start-stat | --stop-stat | --stat\n";
 
@@ -1522,7 +1518,7 @@ bool DumpImplement::CheckDumpHeapMemParameter(int argc, DumperOpts& opt)
         opt.isDumpHeapJsvm_ + opt.isDumpHeapArkwebJs_ == 1);
     DUMPER_HILOGI(MODULE_COMMON, "CheckDumpHeapMemParameter %{public}d", validArgc && validPid && validArg);
     if (opt.isDumpHeapArkwebJs_) {
-        return CheckArkwebJsParameter(opt);
+        return CheckArkwebJsParameter(opt) && validArgc && validPid && validArg;
     }
     return validArgc && validPid && validArg;
 }
