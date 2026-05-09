@@ -1551,10 +1551,10 @@ bool DumpImplement::CheckArkwebJsParameter(DumperOpts& opt)
     DUMPER_HILOGI(MODULE_COMMON, "renderPid=%{public}d, renderProcName=%{public}s, mainProcName=%{public}s",
         renderPid, renderProcName.c_str(), mainProcName.c_str());
     std::vector<DumpCommonUtils::PidInfo> pidInfos;
-    DumpCommonUtils::GetPidInfos(pidInfos, false);
+    DumpCommonUtils::GetPidInfos(pidInfos, true);
     int mainPid = -1;
     for (const auto& info : pidInfos) {
-        if (info.name_ == mainProcName) {
+        if (info.cmdline_ == mainProcName) {
             mainPid = info.pid_;
             break;
         }
