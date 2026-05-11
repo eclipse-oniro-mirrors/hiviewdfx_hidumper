@@ -33,12 +33,15 @@ AppExecFwk::MemDumpType HeapMemoryDumper::DetermineDumpType(
     bool isKotlin = parameter->GetOpts().isDumpHeapKotlin_;
     bool isNative = parameter->GetOpts().isDumpHeapNative_;
     bool isJsvm = parameter->GetOpts().isDumpHeapJsvm_;
+    bool isArkwebJs = parameter->GetOpts().isDumpHeapArkwebJs_;
     if (isKotlin) {
         return AppExecFwk::MemDumpType::KMP_KOTLIN;
     } else if (isNative) {
         return AppExecFwk::MemDumpType::NATIVE;
     } else if (isJsvm) {
         return AppExecFwk::MemDumpType::JSVM;
+    } else if (isArkwebJs) {
+        return AppExecFwk::MemDumpType::ARKWEB_JS;
     }
     return AppExecFwk::MemDumpType::INVALID;
 }
@@ -57,6 +60,12 @@ DumpStatus HeapMemoryDumper::PreExecute(const shared_ptr<DumperParameter> &param
         pid_ = parameter->GetOpts().dumpHeapMemPid_;
     }
     tid_ = parameter->GetOpts().threadId_;
+    renderPid_ = parameter->GetOpts().dumpHeapRenderPid_;
+    needGc_ = parameter->GetOpts().isDumpHeapMemGc_;
+    // If gc is requested, no dump needed
+    if (needGc_) {
+        needDump_ = false;
+    }
     dumpDatas_ = dumpDatas;
     dumpType_ = DetermineDumpType(parameter);
     return DumpStatus::DUMP_OK;
@@ -71,6 +80,9 @@ DumpStatus HeapMemoryDumper::Execute()
     info.needLeakobj = needLeakobj_;
     info.needRaw = needRaw_;
     info.mayReportToOEM = false;
+    info.renderPid = renderPid_;
+    info.needDump = needDump_;
+    info.needGc = needGc_;
 
     if (info.dumpType == AppExecFwk::MemDumpType::NATIVE && info.needLeakobj) {
         info.isSync = true;

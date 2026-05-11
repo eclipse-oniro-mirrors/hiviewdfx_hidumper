@@ -1260,5 +1260,130 @@ HWTEST_F(HidumperDumpersTest, EventDumperTest005, TestSize.Level1)
     int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
     ASSERT_EQ(ret, DumpStatus::DUMP_INVALID_ARG);
 }
+
+/**
+ * @tc.name: ArkwebJsHeapDumperTest001
+ * @tc.desc: Test ArkwebJsHeapDumper with init pid and --arkweb-js.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, ArkwebJsHeapDumperTest001, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--mem-heap"),
+        const_cast<char *>("1"),
+        const_cast<char *>("--arkweb-js"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: ArkwebJsHeapDumperTest002
+ * @tc.desc: Test ArkwebJsHeapDumper with --arkweb-js and --renderPid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, ArkwebJsHeapDumperTest002, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--mem-heap"),
+        const_cast<char *>("1"),
+        const_cast<char *>("--arkweb-js"),
+        const_cast<char *>("--renderPid"),
+        const_cast<char *>("2"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: ArkwebJsHeapDumperTest003
+ * @tc.desc: Test ArkwebJsHeapDumper with --arkweb-js and --gc.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, ArkwebJsHeapDumperTest003, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--mem-heap"),
+        const_cast<char *>("1"),
+        const_cast<char *>("--arkweb-js"),
+        const_cast<char *>("--gc"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: ArkwebJsHeapDumperTest004
+ * @tc.desc: Test ArkwebJsHeapDumper with --arkweb-js and --raw.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, ArkwebJsHeapDumperTest004, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--mem-heap"),
+        const_cast<char *>("1"),
+        const_cast<char *>("--arkweb-js"),
+        const_cast<char *>("--raw"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
+ * @tc.name: ArkwebJsHeapDumperTest005
+ * @tc.desc: Test ArkwebJsHeapDumper with --gc and --raw together (should fail).
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, ArkwebJsHeapDumperTest005, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--mem-heap"),
+        const_cast<char *>("1"),
+        const_cast<char *>("--arkweb-js"),
+        const_cast<char *>("--gc"),
+        const_cast<char *>("--raw"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_HELP);
+}
+
+/**
+ * @tc.name: ArkwebJsHeapDumperTest006
+ * @tc.desc: Test ArkwebJsHeapDumper without --arkweb-js (should show help).
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, ArkwebJsHeapDumperTest006, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--mem-heap"),
+        const_cast<char *>("1"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_HELP);
+}
 } // namespace HiviewDFX
 } // namespace OHOS
