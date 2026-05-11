@@ -856,7 +856,7 @@ HWTEST_F(HidumperDumpersTest, JsHeapDumperTest007, TestSize.Level1)
     std::vector<std::u16string> args;
     std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
     int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
-    ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
+    ASSERT_EQ(ret, DumpStatus::DUMP_HELP);
 }
 
 /**

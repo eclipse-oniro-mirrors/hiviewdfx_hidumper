@@ -70,7 +70,9 @@ static struct option LONG_OPTIONS[] = {{"cpufreq", no_argument, 0, 0},
     {"mem-heap", optional_argument, 0, 0},
     {"native", optional_argument, 0, 0},
     {"kotlin", optional_argument, 0, 0},
+    #ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
     {"jsvm", optional_argument, 0, 0},
+    #endif
     {"gc", no_argument, 0, 0},
     {"leakobj", no_argument, 0, 0},
     {"clean", no_argument, 0, 0},
@@ -432,9 +434,13 @@ DumpStatus DumpImplement::HandleOptionParameter(const std::string &optionName,
         status = SetCmdIntegerParameter(optionValue, opts.dumpHeapArgPid_);
     } else if (optionName == "--kotlin") {
         status = SetCmdIntegerParameter(optionValue, opts.dumpHeapArgPid_);
-    } else if (optionName == "--jsvm") {
+    }
+    #ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
+    else if (optionName == "--jsvm") {
         status = SetCmdIntegerParameter(optionValue, opts.dumpHeapArgPid_);
-    } else {
+    }
+    #endif
+    else {
         SendErrorMessageIf(opts, optionValue);
         return DumpStatus::DUMP_FAIL;
     }
@@ -577,9 +583,13 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts, const s
         return SetNativeParam(opts);
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "kotlin")) {
         return SetKotlinParam(opts);
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "jsvm")) {
+    }
+    #ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
+    else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "jsvm")) {
         return SetJsvmParam(opts);
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "raw")) {
+    }
+    #endif
+    else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "raw")) {
         return SetRawParam(opts);
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "prune")) {
         return SetMemPruneParam(opts);
@@ -966,7 +976,11 @@ void DumpImplement::CmdHelp()
         " dumpRawHeap and dumpLeakList under pid and tid\n"
         "  --mem-cjheap pid [--gc]     |the pid should belong to the Cangjie process; triggerGC and"
         " dumpHeapSnapshot under pid\n"
+        #ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
         "  --mem-heap pid ARG [--leakobj] [--raw] [-T tid] |ARG must be one of --native | --kotlin | --jsvm.\n"
+        #else
+        "  --mem-heap pid ARG [--leakobj] |ARG must be one of --native | --kotlin.\n"
+        #endif
         "  --ipc pid ARG               |ipc load statistic; pid must be specified or set to -a dump all"
         " processes. ARG must be one of --start-stat | --stop-stat | --stat\n";
 
