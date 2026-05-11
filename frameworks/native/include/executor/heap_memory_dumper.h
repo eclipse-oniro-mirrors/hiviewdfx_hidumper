@@ -43,6 +43,9 @@ private:
     std::string dumpResult_;
     int pid_ = 0;
     int tid_ = 0;
+    int renderPid_ = 0;
+    bool needDump_ = true;
+    bool needGc_ = false;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

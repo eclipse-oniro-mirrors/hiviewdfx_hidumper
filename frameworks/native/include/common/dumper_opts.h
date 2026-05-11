@@ -61,6 +61,9 @@ struct DumperOpts {
     bool isDumpHeapNative_;
     bool isDumpHeapKotlin_;
     bool isDumpHeapJsvm_;
+    bool isDumpHeapArkwebJs_;
+    int dumpHeapRenderPid_;
+    bool isDumpHeapMemGc_;
     bool dumpRawHeap_;
     bool isDumpHeapLeakobj_;
     int dumpHeapMemPid_;

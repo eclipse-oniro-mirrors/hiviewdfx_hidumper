@@ -138,6 +138,9 @@ void DumperOpts::ResetJsHeapOptions()
     isDumpHeapNative_ = false;
     isDumpHeapKotlin_ = false;
     isDumpHeapJsvm_ = false;
+    isDumpHeapArkwebJs_ = false;
+    dumpHeapRenderPid_ = 0;
+    isDumpHeapMemGc_ = false;
     dumpRawHeap_ = false;
     isDumpHeapLeakobj_ = false;
     dumpHeapMemPid_ = 0;
@@ -258,6 +261,9 @@ void DumperOpts::AssignJsHeapOptions(const DumperOpts& opts)
     isDumpHeapNative_ = opts.isDumpHeapNative_;
     isDumpHeapKotlin_ = opts.isDumpHeapKotlin_;
     isDumpHeapJsvm_ = opts.isDumpHeapJsvm_;
+    isDumpHeapArkwebJs_ = opts.isDumpHeapArkwebJs_;
+    dumpHeapRenderPid_ = opts.dumpHeapRenderPid_;
+    isDumpHeapMemGc_ = opts.isDumpHeapMemGc_;
     dumpRawHeap_ = opts.dumpRawHeap_;
     isDumpHeapLeakobj_ = opts.isDumpHeapLeakobj_;
     dumpHeapMemPid_ = opts.dumpHeapMemPid_;
