@@ -1000,16 +1000,12 @@ void DumpImplement::CmdHelp()
         " dumpRawHeap and dumpLeakList under pid and tid\n"
         "  --mem-cjheap pid [--gc]     |the pid should belong to the Cangjie process; triggerGC and"
         " dumpHeapSnapshot under pid\n"
-<<<<<<< master
         #ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
-        "  --mem-heap pid ARG [--leakobj] [--raw] [-T tid] |ARG must be one of --native | --kotlin | --jsvm.\n"
-        #else
-        "  --mem-heap pid ARG [--leakobj] |ARG must be one of --native | --kotlin.\n"
-        #endif
-=======
         "  --mem-heap pid ARG [--leakobj] [--raw] [-T tid] [--gc] |ARG must be one of --native | --kotlin | --jsvm | "
         "--arkweb-js.\n"
->>>>>>> master
+        #else
+        "  --mem-heap pid ARG [--leakobj] [--raw] [--gc] |ARG must be one of --native | --kotlin | --arkweb-js.\n"
+        #endif
         "  --ipc pid ARG               |ipc load statistic; pid must be specified or set to -a dump all"
         " processes. ARG must be one of --start-stat | --stop-stat | --stat\n";
 
