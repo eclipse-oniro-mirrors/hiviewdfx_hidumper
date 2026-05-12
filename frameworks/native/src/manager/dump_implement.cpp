@@ -1457,7 +1457,8 @@ bool DumpImplement::CheckDumpPermission(DumperOpts& opt)
         return false;
     }
     // mem-heap + releaseApp
-    if (opt.isDumpHeapMem_ && !DumpUtils::CheckAppDebugVersion(opt.dumpHeapMemPid_)) {
+    int heapPid = opt.dumpHeapArgPid_ > 0 ? opt.dumpHeapArgPid_ : opt.dumpHeapMemPid_;
+    if (opt.isDumpHeapMem_ && !DumpUtils::CheckAppDebugVersion(heapPid)) {
         SendReleaseAppErrorMessage("--mem-heap");
         DUMPER_HILOGE(MODULE_COMMON, "DumpHeapMem false isUserMode %{public}d", isUserMode);
         return false;
