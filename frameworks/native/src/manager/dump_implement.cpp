@@ -72,8 +72,8 @@ static struct option LONG_OPTIONS[] = {{"cpufreq", no_argument, 0, 0},
     {"kotlin", optional_argument, 0, 0},
     #ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
     {"jsvm", optional_argument, 0, 0},
-    #endif
     {"arkweb-js", optional_argument, 0, 0},
+    #endif
     {"gc", no_argument, 0, 0},
     {"leakobj", no_argument, 0, 0},
     {"clean", no_argument, 0, 0},
@@ -439,11 +439,11 @@ DumpStatus DumpImplement::HandleOptionParameter(const std::string &optionName,
     #ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
     else if (optionName == "--jsvm") {
         status = SetCmdIntegerParameter(optionValue, opts.dumpHeapArgPid_);
+    } else if (optionName == "--arkweb-js") {
+        status = SetCmdIntegerParameter(optionValue, opts.dumpHeapArgPid_);
     }
     #endif
-    else if (optionName == "--arkweb-js") {
-        status = SetCmdIntegerParameter(optionValue, opts.dumpHeapArgPid_);
-    } else {
+    else {
         SendErrorMessageIf(opts, optionValue);
         return DumpStatus::DUMP_FAIL;
     }
@@ -590,11 +590,11 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts, const s
     #ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
     else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "jsvm")) {
         return SetJsvmParam(opts);
+    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "arkweb-js")) {
+        return SetArkwebJsParam(opts);
     }
     #endif
-    else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "arkweb-js")) {
-        return SetArkwebJsParam(opts);
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "raw")) {
+    else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "raw")) {
         return SetRawParam(opts);
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "prune")) {
         return SetMemPruneParam(opts);
@@ -1004,7 +1004,7 @@ void DumpImplement::CmdHelp()
         "  --mem-heap pid ARG [--leakobj] [--raw] [-T tid] [--gc] |ARG must be one of --native | --kotlin | --jsvm | "
         "--arkweb-js.\n"
         #else
-        "  --mem-heap pid ARG [--leakobj] [--raw] [--gc] |ARG must be one of --native | --kotlin | --arkweb-js.\n"
+        "  --mem-heap pid ARG [--leakobj] |ARG must be one of --native | --kotlin.\n"
         #endif
         "  --ipc pid ARG               |ipc load statistic; pid must be specified or set to -a dump all"
         " processes. ARG must be one of --start-stat | --stop-stat | --stat\n";
