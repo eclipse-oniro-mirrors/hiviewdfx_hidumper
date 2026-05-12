@@ -70,7 +70,9 @@ static struct option LONG_OPTIONS[] = {{"cpufreq", no_argument, 0, 0},
     {"mem-heap", optional_argument, 0, 0},
     {"native", optional_argument, 0, 0},
     {"kotlin", optional_argument, 0, 0},
+    #ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
     {"jsvm", optional_argument, 0, 0},
+    #endif
     {"arkweb-js", optional_argument, 0, 0},
     {"gc", no_argument, 0, 0},
     {"leakobj", no_argument, 0, 0},
@@ -433,9 +435,13 @@ DumpStatus DumpImplement::HandleOptionParameter(const std::string &optionName,
         status = SetCmdIntegerParameter(optionValue, opts.dumpHeapArgPid_);
     } else if (optionName == "--kotlin") {
         status = SetCmdIntegerParameter(optionValue, opts.dumpHeapArgPid_);
-    } else if (optionName == "--jsvm") {
+    }
+    #ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
+    else if (optionName == "--jsvm") {
         status = SetCmdIntegerParameter(optionValue, opts.dumpHeapArgPid_);
-    } else if (optionName == "--arkweb-js") {
+    }
+    #endif
+    else if (optionName == "--arkweb-js") {
         status = SetCmdIntegerParameter(optionValue, opts.dumpHeapArgPid_);
     } else {
         SendErrorMessageIf(opts, optionValue);
@@ -580,9 +586,13 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts, const s
         return SetNativeParam(opts);
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "kotlin")) {
         return SetKotlinParam(opts);
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "jsvm")) {
+    }
+    #ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
+    else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "jsvm")) {
         return SetJsvmParam(opts);
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "arkweb-js")) {
+    }
+    #endif
+    else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "arkweb-js")) {
         return SetArkwebJsParam(opts);
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "raw")) {
         return SetRawParam(opts);
@@ -990,8 +1000,12 @@ void DumpImplement::CmdHelp()
         " dumpRawHeap and dumpLeakList under pid and tid\n"
         "  --mem-cjheap pid [--gc]     |the pid should belong to the Cangjie process; triggerGC and"
         " dumpHeapSnapshot under pid\n"
+        #ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
         "  --mem-heap pid ARG [--leakobj] [--raw] [-T tid] [--gc] |ARG must be one of --native | --kotlin | --jsvm | "
         "--arkweb-js.\n"
+        #else
+        "  --mem-heap pid ARG [--leakobj] [--raw] [--gc] |ARG must be one of --native | --kotlin | --arkweb-js.\n"
+        #endif
         "  --ipc pid ARG               |ipc load statistic; pid must be specified or set to -a dump all"
         " processes. ARG must be one of --start-stat | --stop-stat | --stat\n";
 
