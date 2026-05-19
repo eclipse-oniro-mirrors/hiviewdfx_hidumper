@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024-2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 #include "executor/memory/memory_info.h"
 #include "hilog_wrapper.h"
 #include "util/string_utils.h"
+
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
@@ -32,8 +33,8 @@ DumpHeapInfo::~DumpHeapInfo()
 bool DumpHeapInfo::DumpHeapMemory(OHOS::AppExecFwk::MemDumpInfo &info, std::string &dumpResult)
 {
     DUMPER_HILOGI(MODULE_SERVICE, "DumpHeapMemory pid:%{public}d, "
-        "dumpType:%{public}d, needLeakobj:%{public}d",
-        info.pid, info.dumpType, info.needLeakobj);
+        "dumpType:%{public}d, needLeakobj:%{public}d, isSync:%{public}d",
+        info.pid, info.dumpType, info.needLeakobj, info.isSync);
 #ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
     OHOS::sptr<OHOS::ISystemAbilityManager> systemAbilityManager =
         OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
@@ -43,10 +44,36 @@ bool DumpHeapInfo::DumpHeapMemory(OHOS::AppExecFwk::MemDumpInfo &info, std::stri
         DUMPER_HILOGE(MODULE_SERVICE, "DumpHeapMemory: Get the appManager is nullptr.");
         return false;
     }
-    int ret = appManager->DumpMem(info, dumpResult);
-    if (ret != ERR_OK) {
-        DUMPER_HILOGE(MODULE_SERVICE, "DumpHeapMemory return failed, ret is:%{public}d", ret);
-        return false;
+
+    if (info.isSync) {
+        sptr<MemDumpCallbackImpl> callback = new MemDumpCallbackImpl();
+        if (callback == nullptr) {
+            DUMPER_HILOGE(MODULE_SERVICE, "DumpHeapMemory: Create callback failed.");
+            return false;
+        }
+
+        int ret = appManager->DumpMem(info, callback);
+        if (ret != ERR_OK) {
+            DUMPER_HILOGE(MODULE_SERVICE, "DumpHeapMemory call failed, ret is:%{public}d", ret);
+            return false;
+        }
+
+        if (!callback->WaitForResult(dumpResult)) {
+            DUMPER_HILOGE(MODULE_SERVICE, "DumpHeapMemory wait result timeout");
+            return false;
+        }
+        if (dumpResult.empty()) {
+            DUMPER_HILOGE(MODULE_SERVICE, "DumpHeapMemory dumpResult is empty");
+            return false;
+        }
+        DUMPER_HILOGI(MODULE_SERVICE, "DumpHeapMemory: dumpResult:%{public}s", dumpResult.c_str());
+    } else {
+        int ret = appManager->DumpMem(info, nullptr);
+        if (ret != ERR_OK) {
+            DUMPER_HILOGE(MODULE_SERVICE, "DumpHeapMemory async call failed, ret is:%{public}d", ret);
+            return false;
+        }
+        DUMPER_HILOGI(MODULE_SERVICE, "DumpHeapMemory: async mode, no result returned");
     }
 #endif
     return true;
