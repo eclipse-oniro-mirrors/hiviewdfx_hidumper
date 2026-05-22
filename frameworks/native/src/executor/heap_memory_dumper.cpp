@@ -107,7 +107,12 @@ DumpStatus HeapMemoryDumper::AfterExecute()
     }
     if (needLeakobj_) {
         vector<string> result;
-        result.push_back(dumpResult_);
+        if (!dumpResult_.empty()) {
+            result.push_back(dumpResult_);
+        } else {
+            result.push_back("Failed to get native heap leak object info. "
+                "Please ensure the application is in foreground with screen on.");
+        }
         dumpDatas_->push_back(result);
     }
     return status_;
