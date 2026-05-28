@@ -1527,18 +1527,18 @@ bool DumpImplement::CheckUnableToDumpAll(int argc, DumperOpts& opt)
 bool DumpImplement::CheckDumpHeapMemParameter(int argc, DumperOpts& opt)
 {
     if (argc < ARG_COUNT_HEAP_MEM) {
-        SendErrorMessage("mem-heap param error: insufficient arguments, need at least --mem-heap pid ARG");
+        SendErrorMessage("mem-heap: insufficient arguments, need at least --mem-heap pid ARG");
         return false;
     }
     int argCount = opt.isDumpHeapNative_ + opt.isDumpHeapKotlin_ + opt.isDumpHeapJsvm_ + opt.isDumpHeapArkwebJs_;
     if (argCount != 1) {
-        SendErrorMessage("mem-heap param error: ARG must be one of --native | --kotlin | --jsvm | --arkweb-js");
+        SendErrorMessage("mem-heap: ARG must be one of --native | --kotlin | --jsvm | --arkweb-js");
         return false;
     }
     bool validPid = (opt.dumpHeapMemPid_ > 0 && opt.dumpHeapArgPid_ == 0) ||
         (opt.dumpHeapMemPid_ == 0 && opt.dumpHeapArgPid_ > 0);
     if (!validPid) {
-        SendErrorMessage("mem-heap param error: pid must be specified and specified only once");
+        SendErrorMessage("mem-heap: pid must be specified and specified only once");
         return false;
     }
     DUMPER_HILOGI(MODULE_COMMON, "mem-heap basic check passed, entering ARG-specific check");
@@ -1552,7 +1552,7 @@ bool DumpImplement::CheckArkwebJsParameter(DumperOpts& opt)
 {
     if (opt.isDumpHeapMemGc_ && opt.dumpRawHeap_) {
         DUMPER_HILOGE(MODULE_COMMON, "raw and gc cannot be used together for arkweb-js");
-        SendErrorMessage("mem-heap arkweb-js error: --raw and --gc cannot be used together");
+        SendErrorMessage("mem-heap arkweb-js: --raw and --gc cannot be used together");
         return false;
     }
     int renderPid = opt.dumpHeapArgPid_ > 0 ? opt.dumpHeapArgPid_ : opt.dumpHeapMemPid_;
@@ -1560,7 +1560,7 @@ bool DumpImplement::CheckArkwebJsParameter(DumperOpts& opt)
     std::string renderProcName;
     if (!DumpCommonUtils::GetProcessNameByPid(renderPid, renderProcName)) {
         DUMPER_HILOGE(MODULE_COMMON, "GetProcessNameByPid failed for renderPid %{public}d", renderPid);
-        SendErrorMessage("mem-heap arkweb-js error: cannot get process name for pid " + std::to_string(renderPid));
+        SendErrorMessage("mem-heap arkweb-js: cannot get process name for pid " + std::to_string(renderPid));
         return false;
     }
     std::string mainProcName = renderProcName;
@@ -1569,7 +1569,7 @@ bool DumpImplement::CheckArkwebJsParameter(DumperOpts& opt)
         mainProcName.substr(mainProcName.length() - suffix.length()) == suffix;
     if (!isRenderValid) {
         DUMPER_HILOGE(MODULE_COMMON, "Failed to get mian process name for renderPid %{public}d", renderPid);
-        SendErrorMessage("mem-heap arkweb-js error: pid " + std::to_string(renderPid) + " is not a valid render process");
+        SendErrorMessage("mem-heap arkweb-js: pid " + std::to_string(renderPid) + " is not a valid render process");
         return false;
     }
     mainProcName = mainProcName.substr(0, mainProcName.length() - suffix.length());
@@ -1586,7 +1586,7 @@ bool DumpImplement::CheckArkwebJsParameter(DumperOpts& opt)
     }
     if (mainPid <= 0) {
         DUMPER_HILOGE(MODULE_COMMON, "Failed to find main process for %{public}s", mainProcName.c_str());
-        SendErrorMessage("mem-heap arkweb-js error: cannot find main process for " + mainProcName);
+        SendErrorMessage("mem-heap arkweb-js: cannot find main process for " + mainProcName);
         return false;
     }
     opt.dumpHeapArgPid_ = opt.dumpHeapArgPid_ > 0 ? mainPid : 0;
