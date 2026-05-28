@@ -1526,16 +1526,26 @@ bool DumpImplement::CheckUnableToDumpAll(int argc, DumperOpts& opt)
 
 bool DumpImplement::CheckDumpHeapMemParameter(int argc, DumperOpts& opt)
 {
-    bool validArgc = argc >= ARG_COUNT_HEAP_MEM;
+    if (argc < ARG_COUNT_HEAP_MEM) {
+        SendErrorMessage("mem-heap param error: insufficient arguments, need at least --mem-heap pid ARG\n");
+        return false;
+    }
+    int argCount = opt.isDumpHeapNative_ + opt.isDumpHeapKotlin_ + opt.isDumpHeapJsvm_ + opt.isDumpHeapArkwebJs_;
+    if (argCount != 1) {
+        SendErrorMessage("mem-heap param error: ARG must be one of --native | --kotlin | --jsvm | --arkweb-js\n");
+        return false;
+    }
     bool validPid = (opt.dumpHeapMemPid_ > 0 && opt.dumpHeapArgPid_ == 0) ||
         (opt.dumpHeapMemPid_ == 0 && opt.dumpHeapArgPid_ > 0);
-    bool validArg = (opt.isDumpHeapNative_ + opt.isDumpHeapKotlin_ +
-        opt.isDumpHeapJsvm_ + opt.isDumpHeapArkwebJs_ == 1);
-    DUMPER_HILOGI(MODULE_COMMON, "CheckDumpHeapMemParameter %{public}d", validArgc && validPid && validArg);
-    if (opt.isDumpHeapArkwebJs_) {
-        return CheckArkwebJsParameter(opt) && validArgc && validPid && validArg;
+    if (!validPid) {
+        SendErrorMessage("mem-heap param error: pid must be specified and specified only once\n");
+        return false;
     }
-    return validArgc && validPid && validArg;
+    DUMPER_HILOGI(MODULE_COMMON, "mem-heap basic check passed, entering ARG-specific check");
+    if (opt.isDumpHeapArkwebJs_) {
+        return CheckArkwebJsParameter(opt);
+    }
+    return true;
 }
 
 bool DumpImplement::CheckArkwebJsParameter(DumperOpts& opt)
