@@ -18,6 +18,7 @@ config("utils_config") {
 }
 
 ohos_source_set("utils") {
+  branch_protector_ret = "pac_ret"
   sources = [ "native/src/permission.cpp" ]
 
   configs = [ ":utils_config" ]

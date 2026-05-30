@@ -68,6 +68,7 @@ idl_gen_interface("hidumpercpuservice_interface") {
 }
 
 ohos_source_set("zidl_client") {
+  branch_protector_ret = "pac_ret"
   sources = [ "zidl/src/dump_broker_proxy.cpp" ]
   output_values = get_target_outputs(":hidumpercpuservice_interface")
   sources += filter_include(output_values, [ "*service_proxy.cpp" ])
