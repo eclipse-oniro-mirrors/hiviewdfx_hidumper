@@ -1576,6 +1576,11 @@ bool DumpImplement::CheckArkwebJsParameter(DumperOpts& opt)
     }
     int renderPid = opt.dumpHeapArgPid_ > 0 ? opt.dumpHeapArgPid_ : opt.dumpHeapMemPid_;
     opt.dumpHeapRenderPid_ = renderPid;
+    return ValidateRenderProcessAndFindMainPid(renderPid, opt);
+}
+
+bool DumpImplement::ValidateRenderProcessAndFindMainPid(int renderPid, DumperOpts& opt)
+{
     std::string renderProcName;
     if (!DumpCommonUtils::GetProcessNameByPid(renderPid, renderProcName)) {
         DUMPER_HILOGE(MODULE_COMMON, "GetProcessNameByPid failed for renderPid %{public}d", renderPid);

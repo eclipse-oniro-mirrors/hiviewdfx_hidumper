@@ -107,6 +107,7 @@ private:
     DumpStatus ValidateDumpOptions(int argc, DumperOpts& opts);
     bool CheckDumpHeapMemParameter(int argc, DumperOpts& opt);
     bool CheckArkwebJsParameter(DumperOpts& opt);
+    bool ValidateRenderProcessAndFindMainPid(int renderPid, DumperOpts& opt);
     bool SetIpcStatParam(DumperOpts &opt, const std::string& param);
     DumpStatus ParseCmdOptionForA(DumperOpts &opt, char *argv[]);
     void ProcessDumpOptions(int clientPid, std::shared_ptr<DumperParameter> &dumpParameter, DumperOpts &opts);
