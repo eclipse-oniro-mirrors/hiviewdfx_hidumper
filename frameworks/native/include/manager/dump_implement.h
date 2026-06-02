@@ -104,6 +104,7 @@ private:
     bool CheckJsHeapPermission(int pid);
     bool CheckDumpPermission(DumperOpts &opt);
     bool CheckUnableToDumpAll(int argc, DumperOpts& opt);
+    DumpStatus ValidateDumpOptions(int argc, DumperOpts& opts);
     bool CheckDumpHeapMemParameter(int argc, DumperOpts& opt);
     bool CheckArkwebJsParameter(DumperOpts& opt);
     bool SetIpcStatParam(DumperOpts &opt, const std::string& param);

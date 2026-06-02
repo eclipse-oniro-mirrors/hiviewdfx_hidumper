@@ -335,6 +335,16 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
         }
         return DumpStatus::DUMP_HELP;
     }
+    DumpStatus dumpStatus = ValidateDumpOptions(argc, opts);
+    if (dumpStatus != DumpStatus::DUMP_OK) {
+        return dumpStatus;
+    }
+    RemoveDuplicateString(opts);
+    return DumpStatus::DUMP_OK;
+}
+
+DumpStatus DumpImplement::ValidateDumpOptions(int argc, DumperOpts& opts)
+{
     if (opts.isDumpJsHeapMem_ && !CheckJsHeapSingleParam(opts)) {
         return DumpStatus::DUMP_FAIL;
     }
@@ -347,7 +357,6 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
         CmdHelp();
         return DumpStatus::DUMP_HELP;
     }
-    RemoveDuplicateString(opts);
     return DumpStatus::DUMP_OK;
 }
 
@@ -1533,7 +1542,8 @@ bool DumpImplement::CheckDumpHeapMemParameter(int argc, DumperOpts& opt)
 {
     if (argc < ARG_COUNT_HEAP_MEM) {
         SendErrorMessage("Error [ARGUMENT]: Insufficient arguments for '--mem-heap' (requires at least pid and ARG).");
-        SendErrorMessage("Fix: Set '--mem-heap <pid> <ARG>' where <ARG> is one of --native, --kotlin, --jsvm, --arkweb-js.");
+        SendErrorMessage("Fix: Set '--mem-heap <pid> <ARG>' where <ARG> is one of "
+            "--native, --kotlin, --jsvm, --arkweb-js.");
         return false;
     }
     int argCount = opt.isDumpHeapNative_ + opt.isDumpHeapKotlin_ + opt.isDumpHeapJsvm_ + opt.isDumpHeapArkwebJs_;
@@ -1581,7 +1591,8 @@ bool DumpImplement::CheckArkwebJsParameter(DumperOpts& opt)
         DUMPER_HILOGE(MODULE_COMMON, "Failed to get mian process name for renderPid %{public}d", renderPid);
         SendErrorMessage("Error [ARGUMENT]: Invalid pid " + std::to_string(renderPid) +
             " for '--arkweb-js' (must be a render process ending with ':render').");
-        SendErrorMessage("Fix: Set '--mem-heap <render_pid> --arkweb-js' where <render_pid> is a valid render process.");
+        SendErrorMessage("Fix: Set '--mem-heap <render_pid> --arkweb-js' where "
+            "<render_pid> is a valid render process.");
         return false;
     }
     mainProcName = mainProcName.substr(0, mainProcName.length() - suffix.length());
