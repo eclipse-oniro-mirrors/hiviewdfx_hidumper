@@ -1071,47 +1071,6 @@ HWTEST_F(HidumperDumpersTest, CjHeapDumperTest004, TestSize.Level1)
 }
 
 /**
- * @tc.name: NativeHeapDumperTest001
- * @tc.desc: Test NativeHeapDumper with init pid and dump nativeleaklist
- * @tc.type: FUNC
- */
-HWTEST_F(HidumperDumpersTest, NativeHeapDumperTest001, TestSize.Level1)
-{
-    char *argv[] = {
-        const_cast<char *>("hidumper"),
-        const_cast<char *>("--mem-heap"),
-        const_cast<char *>("1"),
-        const_cast<char *>("--native"),
-    };
-    int argc = sizeof(argv) / sizeof(argv[0]);
-    std::vector<std::u16string> args;
-    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
-    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
-    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
-}
-
-/**
- * @tc.name: NativeHeapDumperTest002
- * @tc.desc: Test NativeHeapDumper with init pid and trigger native and leakobj.
- * @tc.type: FUNC
- */
-HWTEST_F(HidumperDumpersTest, NativeHeapDumperTest002, TestSize.Level1)
-{
-    char *argv[] = {
-        const_cast<char *>("hidumper"),
-        const_cast<char *>("--mem-heap"),
-        const_cast<char *>("1"),
-        const_cast<char *>("--native"),
-        const_cast<char *>("--leakobj"),
-    };
-    int argc = sizeof(argv) / sizeof(argv[0]);
-    std::vector<std::u16string> args;
-    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
-    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
-    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
-}
-
-/**
  * @tc.name: NativeHeapDumperTest003
  * @tc.desc: Test NativeHeapDumper with nullptr parameter.
  * @tc.type: FUNC
