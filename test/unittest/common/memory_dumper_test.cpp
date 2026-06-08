@@ -411,10 +411,6 @@ HWTEST_F(MemoryDumperTest, MemoryUtilTest005, TestSize.Level1)
     ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
     cmd = "hidumper --mem-cjheap 0";
     ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
-    cmd = "hidumper --mem-heap 100000 --native";
-    ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
-    cmd = "hidumper --mem-heap 0 --native";
-    ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
     cmd = "hidumper --ipc --stat 100000";
     ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
 }

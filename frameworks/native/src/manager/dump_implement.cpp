@@ -68,7 +68,6 @@ static struct option LONG_OPTIONS[] = {{"cpufreq", no_argument, 0, 0},
     {"mem-jsheap", required_argument, 0, 0},
     {"mem-cjheap", required_argument, 0, 0},
     {"mem-heap", optional_argument, 0, 0},
-    {"native", optional_argument, 0, 0},
     {"kotlin", optional_argument, 0, 0},
     {"jsvm", optional_argument, 0, 0},
     {"gc", no_argument, 0, 0},
@@ -428,8 +427,6 @@ DumpStatus DumpImplement::HandleOptionParameter(const std::string &optionName,
         status = SetCmdIntegerParameter(optionValue, opts.ipcStatPid_);
     } else if (optionName == "--mem-heap") {
         status = SetCmdIntegerParameter(optionValue, opts.dumpHeapMemPid_);
-    } else if (optionName == "--native") {
-        status = SetCmdIntegerParameter(optionValue, opts.dumpHeapArgPid_);
     } else if (optionName == "--kotlin") {
         status = SetCmdIntegerParameter(optionValue, opts.dumpHeapArgPid_);
     } else if (optionName == "--jsvm") {
@@ -573,8 +570,6 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts, const s
         return SetMemCjheapParam(opts);
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-heap")) {
         return SetMemHeapParam(opts);
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "native")) {
-        return SetNativeParam(opts);
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "kotlin")) {
         return SetKotlinParam(opts);
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "jsvm")) {
@@ -754,10 +749,6 @@ DumpStatus DumpImplement::SetLeakobjParam(DumperOpts &opt)
     DumpStatus status = DumpStatus::DUMP_FAIL;
     if (opt.isDumpJsHeapMem_) {
         opt.isDumpJsHeapLeakobj_ = true;
-        status = DumpStatus::DUMP_OK;
-    } else if (opt.isDumpHeapMem_ && opt.isDumpHeapNative_) {
-        DUMPER_HILOGI(MODULE_COMMON, "SetLeakobjParam success");
-        opt.isDumpHeapLeakobj_ = true;
         status = DumpStatus::DUMP_OK;
     } else {
         DUMPER_HILOGE(MODULE_COMMON, "leakobj param invalid");
@@ -966,7 +957,7 @@ void DumpImplement::CmdHelp()
         " dumpRawHeap and dumpLeakList under pid and tid\n"
         "  --mem-cjheap pid [--gc]     |the pid should belong to the Cangjie process; triggerGC and"
         " dumpHeapSnapshot under pid\n"
-        "  --mem-heap pid ARG [--leakobj] [--raw] [-T tid] |ARG must be one of --native | --kotlin | --jsvm.\n"
+        "  --mem-heap pid ARG [--raw] [-T tid] |ARG must be one of --kotlin | --jsvm.\n"
         "  --ipc pid ARG               |ipc load statistic; pid must be specified or set to -a dump all"
         " processes. ARG must be one of --start-stat | --stop-stat | --stat\n";
 
