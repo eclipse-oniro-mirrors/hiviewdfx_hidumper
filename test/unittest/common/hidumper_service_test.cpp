@@ -150,6 +150,37 @@ HWTEST_F(HidumperServiceTest, DumpManagerService004, TestSize.Level3)
 }
 
 /**
+ * @tc.name: DumpManagerService037
+ * @tc.desc: Test ScanPidOverLimit with invalid requestType.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperServiceTest, DumpManagerService037, TestSize.Level3)
+{
+    auto dumpManagerService = std::make_shared<DumpManagerService>();
+    std::vector<int32_t> pidList;
+
+    std::string requestType = "/fd";
+    int32_t ret = dumpManagerService->ScanPidOverLimit(requestType, 1, pidList);
+    ASSERT_TRUE(ret == 0);
+
+    requestType = "root";
+    ret = dumpManagerService->ScanPidOverLimit(requestType, 1, pidList);
+    ASSERT_TRUE(ret == 0);
+
+    requestType = "../etc";
+    ret = dumpManagerService->ScanPidOverLimit(requestType, 1, pidList);
+    ASSERT_TRUE(ret == 0);
+
+    requestType = "cwd";
+    ret = dumpManagerService->ScanPidOverLimit(requestType, 1, pidList);
+    ASSERT_TRUE(ret == 0);
+
+    requestType = "exe";
+    ret = dumpManagerService->ScanPidOverLimit(requestType, 1, pidList);
+    ASSERT_TRUE(ret == 0);
+}
+
+/**
  * @tc.name: DumpManagerService005
  * @tc.desc: Test DumpManagerService Request.
  * @tc.type: FUNC

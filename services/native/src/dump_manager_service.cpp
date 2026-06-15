@@ -25,6 +25,7 @@
 #include <thread>
 #include <queue>
 #include <unistd.h>
+#include <sys/stat.h>
 
 #include "common.h"
 #include "common/dumper_constant.h"
@@ -207,11 +208,16 @@ bool DumpManagerService::HasDumpPermission() const
 
 uint32_t DumpManagerService::GetFileDescriptorNums(int32_t pid, std::string requestType) const
 {
-    if (requestType.find("..") != std::string::npos) {
+    if (requestType.find("..") != std::string::npos || requestType.find('/') != std::string::npos) {
         DUMPER_HILOGE(MODULE_SERVICE, "requestType is invalid, please check!");
         return 0;
     }
     std::string taskPath = "/proc/" + std::to_string(pid) + "/" + requestType;
+    struct stat statBuf;
+    if (lstat(taskPath.c_str(), &statBuf) != 0 || !S_ISDIR(statBuf.st_mode)) {
+        DUMPER_HILOGE(MODULE_SERVICE, "path is not a valid directory!");
+        return 0;
+    }
     std::vector<std::string> fdList = DumpCommonUtils::GetSubNodes(taskPath, true);
     return fdList.size();
 }
