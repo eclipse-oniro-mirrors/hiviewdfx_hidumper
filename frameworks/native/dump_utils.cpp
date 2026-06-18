@@ -246,7 +246,7 @@ inline const std::map<int, std::string> saNameMap_ = {
     { MECH_BODY_SA_ID, "MechBodyController" },
     { XPERF_SERVICE_SA_ID, "XperfService" },
     { FUSION_CONN_SYS_ABILITY_ID, "PartnerDeviceAgent" },
-
+    { FUSION_RANGING_SYS_ABILITY_ID, "FusionRanging" },
     { DISK_MANAGER_SA_ID, "DiskManager" },
     { MIDI_SERVICE_ID, "MidiService" },
 };
