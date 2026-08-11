@@ -949,11 +949,19 @@ bool MemoryInfo::GetGpumem(const int32_t &pid, StringMatrix result, bool showGpu
         DUMPER_HILOGD(MODULE_SERVICE, "showGpumem is false, skip GetGpumem");
         return false;
     }
+    std::string strs = CollectGpumem(pid, GPU_MEM_TYPE, GPU_INFO_TYPE, GPU_DFX_LIMIT);
+    if (strs.empty()) {
+        AddBlankLine(result);
+        std::vector<std::string> hint;
+        hint.push_back("Error [RUNTIME]: gpumem plugin is not loaded; --show-gpumem is unavailable.");
+        result->push_back(hint);
+        DUMPER_HILOGE(MODULE_SERVICE, "CollectGpumem returns empty, gpumem plugin not loaded");
+        return false;
+    }
     AddBlankLine(result);
     vector<string> title;
     title.push_back("GPU:");
     result->push_back(title);
-    std::string strs = CollectGpumem(pid, GPU_MEM_TYPE, GPU_INFO_TYPE, GPU_DFX_LIMIT);
     std::vector<std::string> lines;
     std::stringstream ss(strs);
     std::string line;

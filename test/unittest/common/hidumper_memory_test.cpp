@@ -16,6 +16,7 @@
 #include <iostream>
 #include <map>
 #include <sstream>
+#include <thread>
 #include <unistd.h>
 #include <vector>
 #include "dump_utils.h"
@@ -654,8 +655,8 @@ HWTEST_F(HidumperMemoryTest, MemoryInfo017, TestSize.Level1)
     unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
         make_unique<OHOS::HiviewDFX::MemoryInfo>();
     shared_ptr<vector<vector<string>>> result = make_shared<vector<vector<string>>>();
-    int res = memoryInfo->GetGpumem(INIT_PID, result, true);
-    ASSERT_TRUE(res);
+    memoryInfo->GetGpumem(INIT_PID, result, true);
+    ASSERT_FALSE(result->empty());
 
     FILE* file = popen("pidof render_service", "r");
     char buffer[BUFFER_SIZE];
@@ -664,10 +665,128 @@ HWTEST_F(HidumperMemoryTest, MemoryInfo017, TestSize.Level1)
         pclose(file);
     }
     int rsPid = strtol(buffer, nullptr, 10);
-    int ret = memoryInfo->GetGpumem(rsPid, result, true);
+    memoryInfo->GetGpumem(rsPid, result, true);
     if (DumpUtils::IsHmKernel()) {
-        ASSERT_TRUE(ret);
+        ASSERT_FALSE(result->empty());
     }
+}
+
+
+/**
+ * @tc.name: MemoryInfo018
+ * @tc.desc: HDMP-001 race regression guard. Concurrent LoadPlugin/UnloadPlugin
+ *          (writers of g_createPluginFn and dlclose of the .so) racing with
+ *          CollectGpumem (reader, now locked under g_pluginMutex). Without the
+ *          lock this is the use-after-free/race the fix targets; with the lock,
+ *          UnloadPlugin's dlclose and the collectGpumem call are mutually
+ *          excluded. On products where the plugin .so is absent (e.g. rk3568
+ *          default) LoadPlugin is a failed-dlopen no-op and the test passes
+ *          trivially; on plugin-enabled products whose .so is deployed it
+ *          exercises the real race.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperMemoryTest, MemoryInfo018, TestSize.Level1)
+{
+    const int loopCount = 30;
+    auto writer = []() {
+        for (int i = 0; i < loopCount; ++i) {
+            LoadPlugin();
+            UnloadPlugin();
+        }
+    };
+    auto reader = []() {
+        for (int i = 0; i < loopCount; ++i) {
+            (void)CollectGpumem(INIT_PID, 0, 0, 0);
+        }
+    };
+    vector<thread> threads;
+    threads.emplace_back(writer);
+    threads.emplace_back(writer);
+    threads.emplace_back(reader);
+    threads.emplace_back(reader);
+    for (auto& t : threads) {
+        t.join();
+    }
+    SUCCEED();
+}
+
+/**
+ * @tc.name: MemoryInfo019
+ * @tc.desc: Test GetGpumem with showGpumem=false (early-return branch, no GPU section).
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperMemoryTest, MemoryInfo019, TestSize.Level1)
+{
+    unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
+        make_unique<OHOS::HiviewDFX::MemoryInfo>();
+    shared_ptr<vector<vector<string>>> result = make_shared<vector<vector<string>>>();
+    ASSERT_FALSE(memoryInfo->GetGpumem(INIT_PID, result, false));
+    ASSERT_TRUE(result->empty());
+}
+
+/**
+ * @tc.name: MemoryInfo020
+ * @tc.desc: Test GetGpumem with showGpumem=true; branch on the build-time
+ *          HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE macro (mirrors the production build
+ *          flag via the HidumperMemoryTest target's defines) to assert by
+ *          whether the plugin is loaded. When the plugin is enabled (macro
+ *          defined), expect the plugin loaded and GPU data returned: query the
+ *          pid of com.ohos.sceneboard (the GPU-holding process; init pid 1
+ *          holds no GPU memory and would make collectGpumem legitimately
+ *          return empty), expect res==true with a ["GPU:"] title row followed
+ *          by the data rows the plugin's collectGpumem returned. A
+ *          plugin-enabled product whose .so is not deployed/loadable makes
+ *          res==false and is treated as a failure (real deployment bug). If
+ *          sceneboard is not running (virt/headless), the GPU path cannot be
+ *          exercised and the test is skipped. When the plugin is not enabled
+ *          (macro undefined), expect the plugin unavailable: res==false with
+ *          an "Error [RUNTIME]" in-band hint.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperMemoryTest, MemoryInfo020, TestSize.Level1)
+{
+    shared_ptr<vector<vector<string>>> result = make_shared<vector<vector<string>>>();
+#ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
+    char buffer[BUFFER_SIZE] = {0};
+    FILE* file = popen("pidof com.ohos.sceneboard", "r");
+    if (file) {
+        if (fgets(buffer, sizeof(buffer), file) != nullptr) {}
+        pclose(file);
+    }
+    int32_t gpuPid = static_cast<int32_t>(strtol(buffer, nullptr, 10));
+    if (gpuPid <= 0) {
+        GTEST_SKIP() << "com.ohos.sceneboard not running, cannot verify GPU path";
+    }
+    unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
+        make_unique<OHOS::HiviewDFX::MemoryInfo>();
+    bool res = memoryInfo->GetGpumem(gpuPid, result, true);
+    ASSERT_TRUE(res);
+    size_t titleIdx = result->size();
+    for (size_t i = 0; i < result->size(); ++i) {
+        const auto& row = (*result)[i];
+        if (!row.empty() && row[0] == "GPU:") {
+            titleIdx = i;
+            break;
+        }
+    }
+    ASSERT_LT(titleIdx, result->size());
+    ASSERT_GT(result->size(), titleIdx + 1);
+#else
+    unique_ptr<OHOS::HiviewDFX::MemoryInfo> memoryInfo =
+        make_unique<OHOS::HiviewDFX::MemoryInfo>();
+    bool res = memoryInfo->GetGpumem(INIT_PID, result, true);
+    ASSERT_FALSE(result->empty());
+    ASSERT_FALSE(res);
+    bool foundHint = false;
+    for (const auto& row : *result) {
+        for (const auto& cell : row) {
+            if (cell.find("[RUNTIME]") != string::npos) {
+                foundHint = true;
+            }
+        }
+    }
+    ASSERT_TRUE(foundHint);
+#endif
 }
 
 

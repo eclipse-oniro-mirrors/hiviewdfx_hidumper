@@ -272,6 +272,9 @@ ohos_unittest("HidumperMemoryTest") {
   if (hidumper_report_memmgr) {
     defines += [ "HIDUMPER_MEMMGR_ENABLE" ]
   }
+  if (hidumper_hiviewdfx_plugin_enable) {
+    defines += [ "HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE" ]
+  }
   cflags = [
     "-Dprivate=public",  #allow test code access private members
   ]
