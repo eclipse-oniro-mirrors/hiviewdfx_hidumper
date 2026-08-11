@@ -264,6 +264,26 @@ HWTEST_F(HidumperClientTest, ManagerClientTest004, TestSize.Level0)
 }
 
 /**
+ * @tc.name: ManagerClientTest004_1
+ * @tc.desc: Test mamanage client ScanOrphanVnodeOverLimit.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperClientTest, ManagerClientTest004_1, TestSize.Level0)
+{
+    sptr<IDumpBroker> proxy_ {nullptr};
+    sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    ASSERT_TRUE(sam != nullptr) << "ManagerClientTest004_1 fail to get GetSystemAbilityManager";
+    sptr<IRemoteObject> remoteObject = sam->CheckSystemAbility(DFX_HI_DUMPER_SERVICE_ABILITY_ID);
+    ASSERT_TRUE(remoteObject != nullptr) << "Get SystemAbility failed.";
+    proxy_ = iface_cast<IDumpBroker>(remoteObject);
+    int32_t fdLeakThreshold = 100;
+    int32_t orphanVnodeThreshold = 10;
+    std::vector<std::string> topOrphanVnodeInfoList;
+    int ret = proxy_->ScanOrphanVnodeOverLimit(fdLeakThreshold, orphanVnodeThreshold, topOrphanVnodeInfoList);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+}
+
+/**
  * @tc.name: ManagerClientTest005
  * @tc.desc: Test mamanage client CountFdNums.
  * @tc.type: FUNC

@@ -150,6 +150,31 @@ HWTEST_F(HidumperServiceTest, DumpManagerService004, TestSize.Level3)
 }
 
 /**
+ * @tc.name: DumpManagerService038
+ * @tc.desc: Test DumpManagerService ScanOrphanVnodeOverLimit.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperServiceTest, DumpManagerService038, TestSize.Level3)
+{
+    auto dumpManagerService = std::make_shared<DumpManagerService>();
+    int32_t fdLeakThreshold = 100;
+    int32_t orphanVnodeThreshold = 10;
+    std::vector<std::string> topOrphanVnodeInfoList;
+    int32_t ret = dumpManagerService->ScanOrphanVnodeOverLimit(fdLeakThreshold, orphanVnodeThreshold,
+                                                                topOrphanVnodeInfoList);
+    ASSERT_TRUE(ret == 0);
+
+    ret = dumpManagerService->ScanOrphanVnodeOverLimit(0, 0, topOrphanVnodeInfoList);
+    ASSERT_TRUE(ret == 0);
+
+    ret = dumpManagerService->ScanOrphanVnodeOverLimit(-1, 10, topOrphanVnodeInfoList);
+    ASSERT_TRUE(ret != 0);
+
+    ret = dumpManagerService->ScanOrphanVnodeOverLimit(100, -1, topOrphanVnodeInfoList);
+    ASSERT_TRUE(ret != 0);
+}
+
+/**
  * @tc.name: DumpManagerService037
  * @tc.desc: Test ScanPidOverLimit with invalid requestType.
  * @tc.type: FUNC
