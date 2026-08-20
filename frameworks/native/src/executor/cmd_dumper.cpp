@@ -120,6 +120,10 @@ DumpStatus CMDDumper::GetCmdInterface(const std::string& cmd, StringMatrix dumpD
 
 DumpStatus CMDDumper::GetLineData(FILE* fp, StringMatrix dumpDatas)
 {
+    if (dumpDatas == nullptr) {
+        return DumpStatus::DUMP_FAIL;
+    }
+
     DumpStatus ret = DumpStatus::DUMP_MORE_DATA;
     char* line_buffer = nullptr;
     size_t len = 0;
