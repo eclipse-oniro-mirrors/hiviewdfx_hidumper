@@ -13,8 +13,12 @@
  * limitations under the License.
  */
 #include "executor/memory_dumper.h"
+#include "executor/memory/dump_arkts_heap_info.h"
 #include "dump_utils.h"
 #include <dlfcn.h>
+#include <fstream>
+#include <cstdio>
+#include "securec.h"
 #include "common/dumper_constant.h"
 
 using namespace std;
@@ -46,6 +50,7 @@ DumpStatus MemoryDumper::PreExecute(const shared_ptr<DumperParameter> &parameter
     showAshmem_ = parameter->GetOpts().showAshmem_;
     showDmabuf_ = parameter->GetOpts().showDmaBuf_;
     showGpumem_ = parameter->GetOpts().showGpumem_;
+    showArktsHeap_ = parameter->GetOpts().showArktsHeap_;
     dumpDatas_ = dumpDatas;
 
     isZip_ = parameter->GetOpts().IsDumpZip();
@@ -98,6 +103,12 @@ DumpStatus MemoryDumper::Execute()
 
 void MemoryDumper::GetMemByPid()
 {
+    bool hasArktsHeap = false;
+    if (showArktsHeap_) {
+        StartArktsHeapFetch(pid_);
+        hasArktsHeap = true;
+    }
+
     void *handle = dlopen(MEM_LIB.c_str(), RTLD_LAZY | RTLD_NODELETE);
     if (handle == nullptr) {
         DUMPER_HILOGE(MODULE_SERVICE, "fail to open %{public}s. errno:%{public}s", MEM_LIB.c_str(), dlerror());
@@ -116,6 +127,10 @@ void MemoryDumper::GetMemByPid()
         status_ = DumpStatus::DUMP_FAIL;
     }
     dlclose(handle);
+
+    if (hasArktsHeap) {
+        MergeArktsHeapResult();
+    }
 }
 
 void MemoryDumper::GetMemNoPid()
@@ -212,6 +227,80 @@ void MemoryDumper::SetReceivedSigInt()
     pfn(isReceivedSigInt_);
     status_ = DumpStatus::DUMP_OK;
     dlclose(handle);
+}
+
+void MemoryDumper::StartArktsHeapFetch(int32_t pid)
+{
+    arktsHeapFuture_ = std::async(std::launch::async, [pid]() -> string {
+        auto arktsHeapInfo = std::make_shared<DumpArktsHeapInfo>();
+        string result;
+        if (!arktsHeapInfo->GetArktsHeapSize(pid, result)) {
+            return "";
+        }
+        return result;
+    });
+}
+
+void MemoryDumper::MergeArktsHeapResult()
+{
+    string result;
+    bool gotResult = false;
+
+    if (arktsHeapFuture_.valid()) {
+        result = arktsHeapFuture_.get();
+        gotResult = !result.empty();
+    }
+
+    if (dumpDatas_ == nullptr) {
+        return;
+    }
+
+    vector<string> blankLine;
+    blankLine.push_back("");
+    dumpDatas_->push_back(blankLine);
+
+    vector<string> titleLine;
+    titleLine.push_back("arkts heap:");
+    dumpDatas_->push_back(titleLine);
+
+    vector<string> headerLine;
+    headerLine.push_back("tid               thread name                   arkts_heap(KB)");
+    dumpDatas_->push_back(headerLine);
+
+    if (gotResult) {
+        string tidStr = to_string(pid_);
+        string threadName = "unknown";
+        size_t heapSize = 0;
+        size_t pos = result.find('|');
+        if (pos != string::npos) {
+            threadName = result.substr(pos + 1);
+            const char* start = result.c_str();
+            char* end = nullptr;
+            errno = 0;
+            unsigned long long val = strtoull(start, &end, 10);
+            if (errno != 0 || end == start) {
+                DUMPER_HILOGE(MODULE_SERVICE, "Parse heapSize failed, result:%{public}s", result.c_str());
+                gotResult = false;
+            } else {
+                heapSize = static_cast<size_t>(val);
+            }
+        }
+        if (gotResult) {
+            DUMPER_HILOGI(MODULE_SERVICE, "arkts heap: tid:%{public}s, name:%{public}s, size:%{public}zu bytes",
+                tidStr.c_str(), threadName.c_str(), heapSize);
+            size_t heapSizeKB = heapSize / 1024;
+            char buf[256] = {0};
+            int32_t ret = snprintf_s(buf, sizeof(buf), sizeof(buf) - 1,
+                "%-18s%-30s%zu", tidStr.c_str(), threadName.c_str(), heapSizeKB);
+            if (ret < 0) {
+                DUMPER_HILOGE(MODULE_SERVICE, "snprintf_s failed");
+                return;
+            }
+            vector<string> dataLine;
+            dataLine.push_back(buf);
+            dumpDatas_->push_back(dataLine);
+        }
+    }
 }
 
 DumpStatus MemoryDumper::AfterExecute()

@@ -18,10 +18,12 @@
 #include <string>
 #include <map>
 #include <memory>
+#include <future>
 #include "hidumper_executor.h"
 
 namespace OHOS {
 namespace HiviewDFX {
+class DumpArktsHeapInfo;
 class MemoryDumper : public HidumperExecutor {
 public:
     MemoryDumper();
@@ -44,6 +46,7 @@ private:
     bool showAshmem_ = false;
     bool showDmabuf_ = false;
     bool showGpumem_ = false;
+    bool showArktsHeap_ = false;
     bool isZip_ = false;
 
     DumpStatus status_ = DUMP_FAIL;
@@ -55,12 +58,16 @@ private:
     using GetMemByTimeIntervalFunc = void (*)(int, int, int);
     using SetReceivedSigIntFunc = void (*)(bool);
 
+    std::future<std::string> arktsHeapFuture_;
+
     void GetMemByPid();
     void GetMemNoPid();
     void GetMemPruneNoPid();
     void GetMemSmapsByPid();
     void GetMemByTimeInterval();
     void SetReceivedSigInt();
+    void StartArktsHeapFetch(int32_t pid);
+    void MergeArktsHeapResult();
 };
 } // namespace HiviewDFX
 } // namespace OHOS
