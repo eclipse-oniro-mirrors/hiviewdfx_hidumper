@@ -14,6 +14,7 @@
  */
 
 #include "executor/memory/dump_arkts_heap_info.h"
+#include "executor/memory/dump_heap_info.h"
 
 #include <cstdlib>
 #include <cerrno>
@@ -32,9 +33,9 @@ DumpArktsHeapInfo::~DumpArktsHeapInfo() {}
 bool DumpArktsHeapInfo::GetArktsHeapSize(int32_t pid, std::string &result)
 {
 #ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
-    sptr<ArktsHeapDumpCallback> callback = new ArktsHeapDumpCallback();
+    sptr<MemDumpCallbackImpl> callback = new MemDumpCallbackImpl();
     if (callback == nullptr) {
-        DUMPER_HILOGE(MODULE_SERVICE, "Create ArktsHeapDumpCallback failed");
+        DUMPER_HILOGE(MODULE_SERVICE, "Create MemDumpCallbackImpl failed");
         return false;
     }
 
