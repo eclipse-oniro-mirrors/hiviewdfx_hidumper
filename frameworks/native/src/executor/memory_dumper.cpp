@@ -268,39 +268,41 @@ void MemoryDumper::MergeArktsHeapResult()
     dumpDatas_->push_back(headerLine);
 
     if (gotResult) {
-        string tidStr = to_string(pid_);
-        string threadName = "unknown";
-        size_t heapSize = 0;
-        size_t pos = result.find('|');
-        if (pos != string::npos) {
-            threadName = result.substr(pos + 1);
-            const char* start = result.c_str();
-            char* end = nullptr;
-            errno = 0;
-            unsigned long long val = strtoull(start, &end, 10);
-            if (errno != 0 || end == start) {
-                DUMPER_HILOGE(MODULE_SERVICE, "Parse heapSize failed, result:%{public}s", result.c_str());
-                gotResult = false;
-            } else {
-                heapSize = static_cast<size_t>(val);
-            }
-        }
-        if (gotResult) {
-            DUMPER_HILOGI(MODULE_SERVICE, "arkts heap: tid:%{public}s, name:%{public}s, size:%{public}zu bytes",
-                tidStr.c_str(), threadName.c_str(), heapSize);
-            size_t heapSizeKB = heapSize / 1024;
-            char buf[256] = {0};
-            int32_t ret = snprintf_s(buf, sizeof(buf), sizeof(buf) - 1,
-                "%-18s%-30s%zu", tidStr.c_str(), threadName.c_str(), heapSizeKB);
-            if (ret < 0) {
-                DUMPER_HILOGE(MODULE_SERVICE, "snprintf_s failed");
-                return;
-            }
-            vector<string> dataLine;
-            dataLine.push_back(buf);
-            dumpDatas_->push_back(dataLine);
-        }
+        AppendArktsHeapData(result);
     }
+}
+
+void MemoryDumper::AppendArktsHeapData(const std::string &result)
+{
+    string tidStr = to_string(pid_);
+    string threadName = "unknown";
+    size_t heapSize = 0;
+    size_t pos = result.find('|');
+    if (pos != string::npos) {
+        threadName = result.substr(pos + 1);
+        const char* start = result.c_str();
+        char* end = nullptr;
+        errno = 0;
+        unsigned long long val = strtoull(start, &end, 10);
+        if (errno != 0 || end == start) {
+            DUMPER_HILOGE(MODULE_SERVICE, "Parse heapSize failed, result:%{public}s", result.c_str());
+            return;
+        }
+        heapSize = static_cast<size_t>(val);
+    }
+    DUMPER_HILOGI(MODULE_SERVICE, "arkts heap: tid:%{public}s, name:%{public}s, size:%{public}zu bytes",
+        tidStr.c_str(), threadName.c_str(), heapSize);
+    size_t heapSizeKB = heapSize / 1024;
+    char buf[256] = {0};
+    int32_t ret = snprintf_s(buf, sizeof(buf), sizeof(buf) - 1,
+        "%-18s%-30s%zu", tidStr.c_str(), threadName.c_str(), heapSizeKB);
+    if (ret < 0) {
+        DUMPER_HILOGE(MODULE_SERVICE, "snprintf_s failed");
+        return;
+    }
+    vector<string> dataLine;
+    dataLine.push_back(buf);
+    dumpDatas_->push_back(dataLine);
 }
 
 DumpStatus MemoryDumper::AfterExecute()

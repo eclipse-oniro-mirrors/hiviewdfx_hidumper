@@ -68,6 +68,7 @@ private:
     void SetReceivedSigInt();
     void StartArktsHeapFetch(int32_t pid);
     void MergeArktsHeapResult();
+    void AppendArktsHeapData(const std::string &result);
 };
 } // namespace HiviewDFX
 } // namespace OHOS
