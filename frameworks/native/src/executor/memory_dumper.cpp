@@ -276,7 +276,7 @@ void MemoryDumper::MergeArktsHeapResult()
 
 bool MemoryDumper::ParseArktsHeapResult(const std::string &result, size_t &heapSize, string &threadName)
 {
-    const int base = 10; // decimal base
+    const int base = 10;
     size_t pos = result.find('|');
     if (pos == string::npos) {
         DUMPER_HILOGE(MODULE_SERVICE, "Invalid result format, no '|' found:%{public}s", result.c_str());

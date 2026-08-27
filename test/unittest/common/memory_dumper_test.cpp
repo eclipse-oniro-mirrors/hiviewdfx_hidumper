@@ -421,6 +421,109 @@ HWTEST_F(MemoryDumperTest, MemoryDumperTest020, TestSize.Level1)
 }
 
 /**
+ * @tc.name: MemoryDumperTest021
+ * @tc.desc: Test showArktsHeap_ flag is set correctly.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest021, TestSize.Level1)
+{
+    DumperOpts opts;
+    EXPECT_FALSE(opts.showArktsHeap_);
+    opts.showArktsHeap_ = true;
+    EXPECT_TRUE(opts.showArktsHeap_);
+}
+
+/**
+ * @tc.name: MemoryDumperTest022
+ * @tc.desc: Test showArktsHeap_ defaults false and survives reset/assign.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest022, TestSize.Level1)
+{
+    DumperOpts opts;
+    EXPECT_FALSE(opts.showArktsHeap_);
+    opts.ResetMemOptions();
+    EXPECT_FALSE(opts.showArktsHeap_);
+    DumperOpts other;
+    other.showArktsHeap_ = true;
+    opts.AssignMemOptions(other);
+    EXPECT_TRUE(opts.showArktsHeap_);
+}
+
+/**
+ * @tc.name: MemoryDumperTest023
+ * @tc.desc: Test MergeArktsHeapResult outputs header + data row on success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest023, TestSize.Level1)
+{
+    MemoryDumper dumper;
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    dumper.dumpDatas_ = dumpDatas;
+    dumper.pid_ = 1234;
+
+    std::promise<std::string> prom;
+    prom.set_value("1048576|test_thread");
+    dumper.arktsHeapFuture_ = prom.get_future();
+
+    dumper.MergeArktsHeapResult();
+
+    EXPECT_EQ(dumpDatas->size(), 4u);
+    EXPECT_STREQ((*dumpDatas)[1][0].c_str(), "arkts heap:");
+    EXPECT_TRUE((*dumpDatas)[2][0].find("tid") != std::string::npos);
+    EXPECT_TRUE((*dumpDatas)[3][0].find("1234") != std::string::npos);
+    EXPECT_TRUE((*dumpDatas)[3][0].find("test_thread") != std::string::npos);
+}
+
+/**
+ * @tc.name: MemoryDumperTest024
+ * @tc.desc: Test MergeArktsHeapResult outputs only header on failure.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest024, TestSize.Level1)
+{
+    MemoryDumper dumper;
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    dumper.dumpDatas_ = dumpDatas;
+    dumper.pid_ = 5678;
+
+    std::promise<std::string> prom;
+    prom.set_value("");
+    dumper.arktsHeapFuture_ = prom.get_future();
+
+    dumper.MergeArktsHeapResult();
+
+    EXPECT_EQ(dumpDatas->size(), 3u);
+    EXPECT_STREQ((*dumpDatas)[1][0].c_str(), "arkts heap:");
+}
+
+/**
+ * @tc.name: MemoryDumperTest025
+ * @tc.desc: Verify GetArktsHeapSize returns false on IPC failure with pid=1.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest025, TestSize.Level1)
+{
+    DumpArktsHeapInfo info;
+    std::string result;
+    bool ret = info.GetArktsHeapSize(1, result);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.name: MemoryDumperTest026
+ * @tc.desc: Verify GetArktsHeapSize returns false with non-existent pid=99999.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest026, TestSize.Level1)
+{
+    DumpArktsHeapInfo info;
+    std::string result;
+    bool ret = info.GetArktsHeapSize(99999, result);
+    EXPECT_FALSE(ret);
+}
+
+/**
  * @tc.name: MemoryUtilTest001
  * @tc.desc: Test IsNameLine has correct ret.
  * @tc.type: FUNC
@@ -538,109 +641,6 @@ HWTEST_F(MemoryDumperTest, MemoryUtilTest006, TestSize.Level1)
     cmd = "pidof hidumper";
     ASSERT_TRUE(MemoryUtil::GetInstance().RunCMD(cmd, vec));
     ASSERT_EQ(vec.size(), 0);
-}
-
-/**
- * @tc.name: MemoryDumperTest021
- * @tc.desc: Test showArktsHeap_ flag is set correctly.
- * @tc.type: FUNC
- */
-HWTEST_F(MemoryDumperTest, MemoryDumperTest021, TestSize.Level1)
-{
-    DumperOpts opts;
-    EXPECT_FALSE(opts.showArktsHeap_);
-    opts.showArktsHeap_ = true;
-    EXPECT_TRUE(opts.showArktsHeap_);
-}
-
-/**
- * @tc.name: MemoryDumperTest022
- * @tc.desc: Test showArktsHeap_ defaults false and survives reset/assign.
- * @tc.type: FUNC
- */
-HWTEST_F(MemoryDumperTest, MemoryDumperTest022, TestSize.Level1)
-{
-    DumperOpts opts;
-    EXPECT_FALSE(opts.showArktsHeap_);
-    opts.ResetMemOptions();
-    EXPECT_FALSE(opts.showArktsHeap_);
-    DumperOpts other;
-    other.showArktsHeap_ = true;
-    opts.AssignMemOptions(other);
-    EXPECT_TRUE(opts.showArktsHeap_);
-}
-
-/**
- * @tc.name: MemoryDumperTest023
- * @tc.desc: Test MergeArktsHeapResult outputs header + data row on success.
- * @tc.type: FUNC
- */
-HWTEST_F(MemoryDumperTest, MemoryDumperTest023, TestSize.Level1)
-{
-    MemoryDumper dumper;
-    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
-    dumper.dumpDatas_ = dumpDatas;
-    dumper.pid_ = 1234;
-
-    std::promise<std::string> prom;
-    prom.set_value("1048576|test_thread");
-    dumper.arktsHeapFuture_ = prom.get_future();
-
-    dumper.MergeArktsHeapResult();
-
-    EXPECT_EQ(dumpDatas->size(), 4u);
-    EXPECT_STREQ((*dumpDatas)[1][0].c_str(), "arkts heap:");
-    EXPECT_TRUE((*dumpDatas)[2][0].find("tid") != std::string::npos);
-    EXPECT_TRUE((*dumpDatas)[3][0].find("1234") != std::string::npos);
-    EXPECT_TRUE((*dumpDatas)[3][0].find("test_thread") != std::string::npos);
-}
-
-/**
- * @tc.name: MemoryDumperTest024
- * @tc.desc: Test MergeArktsHeapResult outputs only header on failure.
- * @tc.type: FUNC
- */
-HWTEST_F(MemoryDumperTest, MemoryDumperTest024, TestSize.Level1)
-{
-    MemoryDumper dumper;
-    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
-    dumper.dumpDatas_ = dumpDatas;
-    dumper.pid_ = 5678;
-
-    std::promise<std::string> prom;
-    prom.set_value("");
-    dumper.arktsHeapFuture_ = prom.get_future();
-
-    dumper.MergeArktsHeapResult();
-
-    EXPECT_EQ(dumpDatas->size(), 3u);
-    EXPECT_STREQ((*dumpDatas)[1][0].c_str(), "arkts heap:");
-}
-
-/**
- * @tc.name: MemoryDumperTest025
- * @tc.desc: Verify GetArktsHeapSize returns false on IPC failure with pid=1.
- * @tc.type: FUNC
- */
-HWTEST_F(MemoryDumperTest, MemoryDumperTest025, TestSize.Level1)
-{
-    DumpArktsHeapInfo info;
-    std::string result;
-    bool ret = info.GetArktsHeapSize(1, result);
-    EXPECT_FALSE(ret);
-}
-
-/**
- * @tc.name: MemoryDumperTest026
- * @tc.desc: Verify GetArktsHeapSize returns false with non-existent pid=99999.
- * @tc.type: FUNC
- */
-HWTEST_F(MemoryDumperTest, MemoryDumperTest026, TestSize.Level1)
-{
-    DumpArktsHeapInfo info;
-    std::string result;
-    bool ret = info.GetArktsHeapSize(99999, result);
-    EXPECT_FALSE(ret);
 }
 } // namespace HiviewDFX
 } // namespace OHOS
