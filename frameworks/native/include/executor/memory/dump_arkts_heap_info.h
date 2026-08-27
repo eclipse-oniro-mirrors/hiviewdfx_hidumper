@@ -19,6 +19,10 @@
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 #include "app_mem_dump_info.h"
+#ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
+#include "iremote_object.h"
+#include "app_mgr_interface.h"
+#endif
 #include <string>
 
 namespace OHOS {
@@ -30,6 +34,10 @@ public:
     ~DumpArktsHeapInfo();
 
     bool GetArktsHeapSize(int32_t pid, std::string &result);
+private:
+#ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
+    static OHOS::sptr<OHOS::AppExecFwk::IAppMgr> GetAppMgr();
+#endif
 };
 } // namespace HiviewDFX
 } // namespace OHOS

@@ -28,6 +28,7 @@
 #include "hdf_base.h"
 #include "executor/memory/memory_filter.h"
 #include "executor/memory/memory_util.h"
+#include "executor/memory/dump_arkts_heap_info.h"
 #include "hidumper_test_utils.h"
 #include "util/string_utils.h"
 
@@ -614,6 +615,32 @@ HWTEST_F(MemoryDumperTest, MemoryDumperTest024, TestSize.Level1)
 
     EXPECT_EQ(dumpDatas->size(), 3u);
     EXPECT_STREQ((*dumpDatas)[1][0].c_str(), "arkts heap:");
+}
+
+/**
+ * @tc.name: MemoryDumperTest025
+ * @tc.desc: Verify GetArktsHeapSize returns false on IPC failure with pid=1.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest025, TestSize.Level1)
+{
+    DumpArktsHeapInfo info;
+    std::string result;
+    bool ret = info.GetArktsHeapSize(1, result);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.name: MemoryDumperTest026
+ * @tc.desc: Verify GetArktsHeapSize returns false with non-existent pid=99999.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest026, TestSize.Level1)
+{
+    DumpArktsHeapInfo info;
+    std::string result;
+    bool ret = info.GetArktsHeapSize(99999, result);
+    EXPECT_FALSE(ret);
 }
 } // namespace HiviewDFX
 } // namespace OHOS

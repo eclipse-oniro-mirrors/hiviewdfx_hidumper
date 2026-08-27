@@ -235,6 +235,7 @@ ohos_unittest("MemoryDumperTest") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
   ]
   cflags = [
     "-Dprivate=public",  #allow test code access private members
@@ -574,35 +575,6 @@ ohos_unittest("ZipFileCleanerTest") {
   ]
 }
 
-ohos_unittest("DumpArktsHeapInfoTest") {
-  module_out_path = module_output_path
-
-  sources = [ "dump_arkts_heap_info_test.cpp" ]
-
-  configs = [ ":module_private_config" ]
-
-  deps = [ "${hidumper_service_path}:hidumperservice_source" ]
-
-  external_deps = [
-    "bounds_checking_function:libsec_shared",
-    "c_utils:utils",
-    "hilog:libhilog",
-    "ipc:ipc_core",
-    "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
-  ]
-
-  cflags = [
-    "-Dprivate=public",
-  ]
-
-  defines = []
-  if (hidumper_ability_runtime_enable) {
-    external_deps += [ "ability_runtime:app_manager" ]
-    defines += [ "HIDUMPER_ABILITY_RUNTIME_ENABLE" ]
-  }
-}
-
 ###############################################################################
 group("unittest") {
   testonly = true
@@ -625,7 +597,6 @@ group("unittest") {
     ":HidumperZidlTest",
     ":ZipFileCleanerTest",
     ":MemoryDumperTest",
-    ":DumpArktsHeapInfoTest",
     ":SADumperTest",
     ":StorageInfoTaskTest",
   ]

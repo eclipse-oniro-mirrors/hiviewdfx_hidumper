@@ -26,8 +26,12 @@ namespace HiviewDFX {
 
 static const int32_t ARKTS_HEAP_TIMEOUT_MS = 1000;
 
+DumpArktsHeapInfo::DumpArktsHeapInfo() {}
+
+DumpArktsHeapInfo::~DumpArktsHeapInfo() {}
+
 #ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
-static OHOS::sptr<OHOS::AppExecFwk::IAppMgr> GetAppMgr()
+OHOS::sptr<OHOS::AppExecFwk::IAppMgr> DumpArktsHeapInfo::GetAppMgr()
 {
     auto sam = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (sam == nullptr) {
@@ -37,10 +41,6 @@ static OHOS::sptr<OHOS::AppExecFwk::IAppMgr> GetAppMgr()
     return OHOS::iface_cast<OHOS::AppExecFwk::IAppMgr>(sam->GetSystemAbility(OHOS::APP_MGR_SERVICE_ID));
 }
 #endif
-
-DumpArktsHeapInfo::DumpArktsHeapInfo() {}
-
-DumpArktsHeapInfo::~DumpArktsHeapInfo() {}
 
 bool DumpArktsHeapInfo::GetArktsHeapSize(int32_t pid, std::string &result)
 {
