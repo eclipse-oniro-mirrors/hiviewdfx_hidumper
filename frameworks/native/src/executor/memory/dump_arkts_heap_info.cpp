@@ -26,6 +26,18 @@ namespace HiviewDFX {
 
 static const int32_t ARKTS_HEAP_TIMEOUT_MS = 1000;
 
+#ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
+static OHOS::sptr<OHOS::AppExecFwk::IAppMgr> GetAppMgr()
+{
+    auto sam = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (sam == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "GetSystemAbilityManager failed");
+        return nullptr;
+    }
+    return OHOS::iface_cast<OHOS::AppExecFwk::IAppMgr>(sam->GetSystemAbility(OHOS::APP_MGR_SERVICE_ID));
+}
+#endif
+
 DumpArktsHeapInfo::DumpArktsHeapInfo() {}
 
 DumpArktsHeapInfo::~DumpArktsHeapInfo() {}
@@ -34,10 +46,6 @@ bool DumpArktsHeapInfo::GetArktsHeapSize(int32_t pid, std::string &result)
 {
 #ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
     sptr<MemDumpCallbackImpl> callback = new MemDumpCallbackImpl();
-    if (callback == nullptr) {
-        DUMPER_HILOGE(MODULE_SERVICE, "Create MemDumpCallbackImpl failed");
-        return false;
-    }
 
     OHOS::AppExecFwk::MemDumpInfo info;
     info.pid = static_cast<uint32_t>(pid);
@@ -45,15 +53,7 @@ bool DumpArktsHeapInfo::GetArktsHeapSize(int32_t pid, std::string &result)
     info.isSync = true;
     info.needDump = false;
 
-    OHOS::sptr<OHOS::ISystemAbilityManager> sam =
-        OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (sam == nullptr) {
-        DUMPER_HILOGE(MODULE_SERVICE, "GetSystemAbilityManager failed");
-        return false;
-    }
-    OHOS::sptr<OHOS::AppExecFwk::IAppMgr> appManager =
-        OHOS::iface_cast<OHOS::AppExecFwk::IAppMgr>(
-            sam->GetSystemAbility(OHOS::APP_MGR_SERVICE_ID));
+    auto appManager = GetAppMgr();
     if (appManager == nullptr) {
         DUMPER_HILOGE(MODULE_SERVICE, "Get appManager failed");
         return false;
