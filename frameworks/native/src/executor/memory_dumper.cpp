@@ -25,6 +25,8 @@ using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
 static const std::string MEM_LIB = "libhidumpermemory.z.so";
+static const int32_t BYTES_PER_KB = 1024;
+static const int32_t ARKTS_HEAP_BUF_SIZE = 256;
 
 MemoryDumper::MemoryDumper()
 {
@@ -272,28 +274,47 @@ void MemoryDumper::MergeArktsHeapResult()
     }
 }
 
+bool MemoryDumper::ParseArktsHeapResult(const std::string &result, size_t &heapSize, string &threadName)
+{
+    const int base = 10; // decimal base
+    size_t pos = result.find('|');
+    if (pos == string::npos) {
+        DUMPER_HILOGE(MODULE_SERVICE, "Invalid result format, no '|' found:%{public}s", result.c_str());
+        return false;
+    }
+    if (pos + 1 >= result.size()) {
+        DUMPER_HILOGE(MODULE_SERVICE, "Thread name is empty:%{public}s", result.c_str());
+        return false;
+    }
+    threadName = result.substr(pos + 1);
+    const char* start = result.c_str();
+    char* end = nullptr;
+    errno = 0;
+    unsigned long long val = strtoull(start, &end, base);
+    if (errno != 0 || end == start) {
+        DUMPER_HILOGE(MODULE_SERVICE, "Parse heapSize failed, result:%{public}s", result.c_str());
+        return false;
+    }
+    if (val == 0) {
+        DUMPER_HILOGE(MODULE_SERVICE, "HeapSize is zero, invalid:%{public}s", result.c_str());
+        return false;
+    }
+    heapSize = static_cast<size_t>(val);
+    return true;
+}
+
 void MemoryDumper::AppendArktsHeapData(const std::string &result)
 {
-    string tidStr = to_string(pid_);
-    string threadName = "unknown";
     size_t heapSize = 0;
-    size_t pos = result.find('|');
-    if (pos != string::npos) {
-        threadName = result.substr(pos + 1);
-        const char* start = result.c_str();
-        char* end = nullptr;
-        errno = 0;
-        unsigned long long val = strtoull(start, &end, 10);
-        if (errno != 0 || end == start) {
-            DUMPER_HILOGE(MODULE_SERVICE, "Parse heapSize failed, result:%{public}s", result.c_str());
-            return;
-        }
-        heapSize = static_cast<size_t>(val);
+    string threadName;
+    if (!ParseArktsHeapResult(result, heapSize, threadName)) {
+        return;
     }
+    string tidStr = to_string(pid_);
     DUMPER_HILOGI(MODULE_SERVICE, "arkts heap: tid:%{public}s, name:%{public}s, size:%{public}zu bytes",
         tidStr.c_str(), threadName.c_str(), heapSize);
-    size_t heapSizeKB = heapSize / 1024;
-    char buf[256] = {0};
+    size_t heapSizeKB = heapSize / BYTES_PER_KB;
+    char buf[ARKTS_HEAP_BUF_SIZE] = {0};
     int32_t ret = snprintf_s(buf, sizeof(buf), sizeof(buf) - 1,
         "%-18s%-30s%zu", tidStr.c_str(), threadName.c_str(), heapSizeKB);
     if (ret < 0) {

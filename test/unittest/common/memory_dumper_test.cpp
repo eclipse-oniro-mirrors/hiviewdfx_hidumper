@@ -319,6 +319,107 @@ HWTEST_F(MemoryDumperTest, MemoryDumperTest014, TestSize.Level3)
 }
 
 /**
+ * @tc.name: MemoryDumperTest015
+ * @tc.desc: Test --show-arktsheap outputs arkts heap data row.
+ *           Use sceneboard when HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE is enabled,
+ *           use systemui when disabled.
+ * @tc.type: FUNC
+ * @tc.require: issueI5NWZQ
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest015, TestSize.Level3)
+{
+#ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
+    auto pid = static_cast<int32_t>(HidumperTestUtils::GetInstance().GetPidByName("com.ohos.sceneboard"));
+#else
+    auto pid = static_cast<int32_t>(HidumperTestUtils::GetInstance().GetPidByName("com.ohos.systemui"));
+#endif
+    int targetPid = pid > 0 ? pid : 1;
+    ASSERT_GT(targetPid, 0);
+    std::string cmd = "hidumper --mem " + std::to_string(targetPid) + " --show-arktsheap";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, "arkts heap:"));
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, "arkts_heap(KB)"));
+    std::string result;
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().GetSpecialLine(cmd, std::to_string(targetPid), result));
+    std::string heapSizeStr = HidumperTestUtils::GetInstance().GetValueInLine(result, 2);
+    ASSERT_TRUE(IsNumericStr(heapSizeStr));
+}
+
+/**
+ * @tc.name: MemoryDumperTest016
+ * @tc.desc: Verify AppendArktsHeapData outputs nothing when result has no delimiter '|'.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest016, TestSize.Level1)
+{
+    MemoryDumper dumper;
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    dumper.dumpDatas_ = dumpDatas;
+    dumper.pid_ = 100;
+    dumper.AppendArktsHeapData("no_delimiter_here");
+    EXPECT_EQ(dumpDatas->size(), 0u);
+}
+
+/**
+ * @tc.name: MemoryDumperTest017
+ * @tc.desc: Verify AppendArktsHeapData outputs nothing when thread name is empty after '|'.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest017, TestSize.Level1)
+{
+    MemoryDumper dumper;
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    dumper.dumpDatas_ = dumpDatas;
+    dumper.pid_ = 300;
+    dumper.AppendArktsHeapData("1048576|");
+    EXPECT_EQ(dumpDatas->size(), 0u);
+}
+
+/**
+ * @tc.name: MemoryDumperTest018
+ * @tc.desc: Verify AppendArktsHeapData outputs nothing when strtoull fails on non-numeric prefix.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest018, TestSize.Level1)
+{
+    MemoryDumper dumper;
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    dumper.dumpDatas_ = dumpDatas;
+    dumper.pid_ = 200;
+    dumper.AppendArktsHeapData("abc|thread");
+    EXPECT_EQ(dumpDatas->size(), 0u);
+}
+
+/**
+ * @tc.name: MemoryDumperTest019
+ * @tc.desc: Verify AppendArktsHeapData outputs nothing when heapSize is zero.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest019, TestSize.Level1)
+{
+    MemoryDumper dumper;
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    dumper.dumpDatas_ = dumpDatas;
+    dumper.pid_ = 400;
+    dumper.AppendArktsHeapData("0|thread");
+    EXPECT_EQ(dumpDatas->size(), 0u);
+}
+
+/**
+ * @tc.name: MemoryDumperTest020
+ * @tc.desc: Verify MergeArktsHeapResult outputs only headers when future is invalid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest020, TestSize.Level1)
+{
+    MemoryDumper dumper;
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    dumper.dumpDatas_ = dumpDatas;
+    dumper.MergeArktsHeapResult();
+    EXPECT_EQ(dumpDatas->size(), 3u);
+    EXPECT_STREQ((*dumpDatas)[1][0].c_str(), "arkts heap:");
+}
+
+/**
  * @tc.name: MemoryUtilTest001
  * @tc.desc: Test IsNameLine has correct ret.
  * @tc.type: FUNC
