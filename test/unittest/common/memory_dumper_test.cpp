@@ -540,11 +540,11 @@ HWTEST_F(MemoryDumperTest, MemoryUtilTest006, TestSize.Level1)
 }
 
 /**
- * @tc.name: ShowArktsHeapFlag_001
+ * @tc.name: MemoryDumperTest021
  * @tc.desc: Test showArktsHeap_ flag is set correctly.
  * @tc.type: FUNC
  */
-HWTEST_F(MemoryDumperTest, ShowArktsHeapFlag_001, TestSize.Level1)
+HWTEST_F(MemoryDumperTest, MemoryDumperTest021, TestSize.Level1)
 {
     DumperOpts opts;
     EXPECT_FALSE(opts.showArktsHeap_);
@@ -553,11 +553,11 @@ HWTEST_F(MemoryDumperTest, ShowArktsHeapFlag_001, TestSize.Level1)
 }
 
 /**
- * @tc.name: ShowArktsHeapNoFlag_001
+ * @tc.name: MemoryDumperTest022
  * @tc.desc: Test showArktsHeap_ defaults false and survives reset/assign.
  * @tc.type: FUNC
  */
-HWTEST_F(MemoryDumperTest, ShowArktsHeapNoFlag_001, TestSize.Level1)
+HWTEST_F(MemoryDumperTest, MemoryDumperTest022, TestSize.Level1)
 {
     DumperOpts opts;
     EXPECT_FALSE(opts.showArktsHeap_);
@@ -570,11 +570,11 @@ HWTEST_F(MemoryDumperTest, ShowArktsHeapNoFlag_001, TestSize.Level1)
 }
 
 /**
- * @tc.name: MergeArktsHeapSuccess_001
+ * @tc.name: MemoryDumperTest023
  * @tc.desc: Test MergeArktsHeapResult outputs header + data row on success.
  * @tc.type: FUNC
  */
-HWTEST_F(MemoryDumperTest, MergeArktsHeapSuccess_001, TestSize.Level1)
+HWTEST_F(MemoryDumperTest, MemoryDumperTest023, TestSize.Level1)
 {
     MemoryDumper dumper;
     auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
@@ -595,11 +595,11 @@ HWTEST_F(MemoryDumperTest, MergeArktsHeapSuccess_001, TestSize.Level1)
 }
 
 /**
- * @tc.name: MergeArktsHeapFailure_001
+ * @tc.name: MemoryDumperTest024
  * @tc.desc: Test MergeArktsHeapResult outputs only header on failure.
  * @tc.type: FUNC
  */
-HWTEST_F(MemoryDumperTest, MergeArktsHeapFailure_001, TestSize.Level1)
+HWTEST_F(MemoryDumperTest, MemoryDumperTest024, TestSize.Level1)
 {
     MemoryDumper dumper;
     auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
