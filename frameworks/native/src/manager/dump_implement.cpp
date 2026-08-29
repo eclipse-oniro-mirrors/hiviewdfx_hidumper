@@ -85,6 +85,7 @@ static struct option LONG_OPTIONS[] = {{"cpufreq", no_argument, 0, 0},
     #ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
     {"show-gpumem", no_argument, 0, 0},
     #endif
+    {"show-arktsheap", no_argument, 0, 0},
     {"ipc", optional_argument, 0, 0},
     {"start-stat", no_argument, 0, 0},
     {"stop-stat", no_argument, 0, 0},
@@ -586,7 +587,9 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts, const s
         opts.showGpumem_ = true;
     } 
     #endif
-    else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "fd")) {
+    else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "show-arktsheap")) {
+        opts.showArktsHeap_ = true;
+    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "fd")) {
         opts.isDumpFd_ = true;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "thread")) {
         opts.isDumpThread_ = true;
@@ -1006,6 +1009,7 @@ void DumpImplement::CmdHelp()
         #ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
         "  --mem [pid] [--show-gpumem]   |show gpumem info when dumping memory of specified pid\n"
         #endif
+        "  --mem [pid] [--show-arktsheap] |show arkts heap info when dumping memory of specified pid\n"
         "  --mem [pid] -t [timeInterval]  |dump process memory change information, press Ctrl+C to stop the export."
         " detail information is stored in /data/log/hidumper/record_mem.txt.\n"
         "  --zip                       |compress output to /data/log/hidumper\n"
