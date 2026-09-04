@@ -531,8 +531,12 @@ bool ConfigUtils::HandleDumpProcesses(std::vector<std::shared_ptr<DumpCfg>> &dum
     if (isUserMode) {
         if (!MergeDebugPidInfos(currentPidInfos_, dumperOpts.processPid_)) {
             DUMPER_HILOGE(MODULE_COMMON, "dump process failed");
-            int outputFd = dumperParam_->getClientCallback()->GetOutputFd();
-            SaveStringToFd(outputFd, "-p option only support debug application\n");
+            std::shared_ptr<RawParam> callback = dumperParam_->getClientCallback();
+            if (callback != nullptr) {
+                SaveStringToFd(callback->GetOutputFd(), "-p option only support debug application\n");
+            } else {
+                DUMPER_HILOGE(MODULE_COMMON, "client callback is nullptr");
+            }
             return false;
         }
     } else {

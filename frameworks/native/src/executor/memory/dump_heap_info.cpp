@@ -38,6 +38,10 @@ bool DumpHeapInfo::DumpHeapMemory(OHOS::AppExecFwk::MemDumpInfo &info, std::stri
 #ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
     OHOS::sptr<OHOS::ISystemAbilityManager> systemAbilityManager =
         OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (systemAbilityManager == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "DumpHeapMemory: GetSystemAbilityManager failed.");
+        return false;
+    }
     OHOS::sptr<OHOS::AppExecFwk::IAppMgr> appManager =
         OHOS::iface_cast<OHOS::AppExecFwk::IAppMgr>(systemAbilityManager->GetSystemAbility(OHOS::APP_MGR_SERVICE_ID));
     if (appManager == nullptr) {
