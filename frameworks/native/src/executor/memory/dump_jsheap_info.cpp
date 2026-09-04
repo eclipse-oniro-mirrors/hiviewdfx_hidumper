@@ -37,6 +37,10 @@ bool DumpJsHeapInfo::DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
 #ifdef HIDUMPER_ABILITY_RUNTIME_ENABLE
     OHOS::sptr<OHOS::ISystemAbilityManager> systemAbilityManager =
         OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (systemAbilityManager == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "DumpJsHeapMemory: GetSystemAbilityManager failed.");
+        return false;
+    }
     OHOS::sptr<OHOS::AppExecFwk::IAppMgr> appManager =
         OHOS::iface_cast<OHOS::AppExecFwk::IAppMgr>(systemAbilityManager->GetSystemAbility(OHOS::APP_MGR_SERVICE_ID));
     if (appManager == nullptr) {
