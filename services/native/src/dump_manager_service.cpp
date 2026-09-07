@@ -48,7 +48,6 @@ namespace {
 const std::string DUMPMGR_SERVICE_NAME = "HiDumperManagerService";
 auto dumpManagerService = DumpDelayedSpSingleton<DumpManagerService>::GetInstance();
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(dumpManagerService.GetRefPtr());
-static const int32_t HIPORFILER_UID = 3063;
 static const int32_t STOP_WAIT = 3;
 static const int32_t REQUEST_MAX = 5;
 static const uint32_t REQUESTID_MAX = 100000;
@@ -176,7 +175,7 @@ int32_t DumpManagerService::Request(std::vector<std::u16string> &args, int outfd
         return DumpStatus::DUMP_FAIL;
     }
     int32_t uid = IPCSkeleton::GetCallingUid();
-    if (!HasDumpPermission() && uid != HIPORFILER_UID) {
+    if (!HasDumpPermission()) {
         DUMPER_HILOGE(MODULE_SERVICE, "No dump permission, please check!, uid:%{public}d.", uid);
         HandleRequestError(args, outfd, static_cast<int32_t>(DumpStatus::DUMP_FAIL), "no dump permission");
         return DumpStatus::DUMP_FAIL;
