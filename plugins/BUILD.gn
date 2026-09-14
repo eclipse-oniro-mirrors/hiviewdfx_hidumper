@@ -44,4 +44,5 @@ ohos_shared_library("hidumper_plugin") {
   }
   subsystem_name = "${hidumper_subsystem_name}"
   part_name = "${hidumper_part_name}"
+  version_script = "hidumper_plugin.map"
 }

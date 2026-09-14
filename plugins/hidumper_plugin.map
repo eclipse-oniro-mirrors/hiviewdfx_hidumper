@@ -1,0 +1,11 @@
+{
+    global:
+        extern "C++" {
+            OHOS::HiviewDFX::LoadPlugin*;
+            OHOS::HiviewDFX::UnloadPlugin*;
+            OHOS::HiviewDFX::QueryMemInfo*;
+            OHOS::HiviewDFX::CollectGpumem*;
+        };
+    local:
+        *;
+};
