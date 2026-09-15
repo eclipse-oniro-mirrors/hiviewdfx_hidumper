@@ -142,7 +142,6 @@ private:
     std::shared_ptr<ExecutorFactoryMap> ptrExecutorFactoryMap_;
     mutable std::mutex mutexCmdLock_;
     std::shared_ptr<RawParam> ptrReqCtl_;
-    sptr<ISystemAbilityManager> sam_;
     std::string GetTime();
     std::string path_;
     static const int IPC_STAT_ARG_NUMS = 4;
