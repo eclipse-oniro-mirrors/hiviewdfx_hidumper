@@ -180,7 +180,7 @@ ohos_shared_library("hidumper_client") {
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
-  version_script = "hidumper.map"
+  version_script = "hidumper_client.map"
   subsystem_name = "${hidumper_subsystem_name}"
 
   part_name = "${hidumper_part_name}"
@@ -340,7 +340,7 @@ ohos_shared_library("hidumperservice") {
   external_deps = [ "hilog:libhilog" ]
   cflags = [ "-fstack-protector-strong" ]
   install_enable = true
-  version_script = "hidumper.map"
+  version_script = "hidumperservice.map"
   shlib_type = "sa"
   subsystem_name = "${hidumper_subsystem_name}"
   part_name = "${hidumper_part_name}"
