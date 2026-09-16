@@ -381,10 +381,10 @@ void DumpCommonUtils::ReportCmdUsage(const std::unique_ptr<DumperSysEventParams>
         DUMPER_HILOGE(MODULE_COMMON, "open hisysevent_tmp file error: %{public}d", errno);
         return;
     }
-    fdsan_exchange_owner_tag(fd, 0, FDTAG);
     std::string content = "";
     if (!OHOS::LoadStringFromFd(fd, content)) {
         DUMPER_HILOGE(MODULE_COMMON, "LoadStringFromFd error! %{public}d", errno);
+        fdsan_exchange_owner_tag(fd, 0, FDTAG);
         fdsan_close_with_tag(fd, FDTAG);
         return;
     }
@@ -393,6 +393,7 @@ void DumpCommonUtils::ReportCmdUsage(const std::unique_ptr<DumperSysEventParams>
         option = "ERROR_MESSAGE:" + param->errorMsg + "\n";
     if (content.find(option) != std::string::npos) {
         DUMPER_HILOGD(MODULE_COMMON, "hisysevent data contain option, not report");
+        fdsan_exchange_owner_tag(fd, 0, FDTAG);
         fdsan_close_with_tag(fd, FDTAG);
         return;
     }
@@ -405,11 +406,13 @@ void DumpCommonUtils::ReportCmdUsage(const std::unique_ptr<DumperSysEventParams>
         "ARGS", param->arguments, "ERROR_CODE", param->errorCode, "ERROR_MESSAGE", param->errorMsg);
     if (ret != 0) {
         DUMPER_HILOGE(MODULE_COMMON, "hisysevent report hidumper usage failed! ret %{public}d.", ret);
+        fdsan_exchange_owner_tag(fd, 0, FDTAG);
         fdsan_close_with_tag(fd, FDTAG);
         return;
     }
 #endif
     SaveStringToFd(fd, option.c_str());
+    fdsan_exchange_owner_tag(fd, 0, FDTAG);
     fdsan_close_with_tag(fd, FDTAG);
 }
 
