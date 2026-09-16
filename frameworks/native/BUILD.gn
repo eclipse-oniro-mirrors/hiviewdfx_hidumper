@@ -119,6 +119,7 @@ ohos_source_set("dump_main") {
     "cJSON:cjson",
     "c_utils:utils",
     "hdf_core:libhdi",
+    "hicollie:libhicollie",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "hisysevent:libhisyseventmanager",

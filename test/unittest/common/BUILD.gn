@@ -543,8 +543,8 @@ ohos_unittest("EventDumperTest") {
   ]
 
   external_deps = [
-    "cJSON:cjson",
     "c_utils:utils",
+    "hicollie:libhicollie",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "hisysevent:libhisyseventmanager",

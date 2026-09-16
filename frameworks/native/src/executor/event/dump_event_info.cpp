@@ -13,9 +13,13 @@
  * limitations under the License.
  */
 
+#include <cstdint>
+
+#include "common/dumper_constant.h"
 #include "executor/event/dump_event_info.h"
 #include "hilog_wrapper.h"
 #include "util/string_utils.h"
+#include "xcollie/process_kill_reason.h"
 using namespace std;
 namespace OHOS {
 namespace HiviewDFX {
@@ -34,6 +38,24 @@ static const std::unordered_set<std::string> FAULTEVENTSET = {
     "Js Error", "Cpp Crash", "THREAD_BLOCK_6S", "APP_INPUT_BLOCK", "LIFECYCLE_TIMEOUT",
     "JsError", "CppCrash", "ThreadBlock6S", "AppInputBlock", "LifecycleTimeout"
 };
+
+static bool IsPkEventCandidate(const HiSysEventRecord &event, const EventQueryParam &param, int64_t &killId)
+{
+    std::string processName;
+    std::string eventId;
+    if (event.GetParamValue("PROCESS_NAME", processName) != 0 ||
+        event.GetParamValue("id_", eventId) != 0 ||
+        event.GetParamValue(KILL_ID_KEY, killId) != 0) {
+        return false;
+    }
+    if (killId < INT32_MIN || killId > INT32_MAX) {
+        return false;
+    }
+    if (!param.processName_.empty() && processName.find(param.processName_) == std::string::npos) {
+        return false;
+    }
+    return param.eventId_.empty() || eventId.find(param.eventId_) == 0;
+}
 
 bool DumpEventInfo::DumpEventList(std::vector<HiSysEventRecord> &events, EventQueryParam &param, bool isSort)
 {
@@ -115,22 +137,12 @@ EventDumpResult DumpEventInfo::ExtractPkRunningIdsAndFaultTypes(const std::vecto
     bool notFaultEvents = false;
     for (const auto &event : pkEvents) {
         std::string runningId;
-        std::string reason;
-        std::string processName;
-        std::string eventId;
-        if (event.GetParamValue("PROCESS_NAME", processName) != 0 ||
-            event.GetParamValue("id_", eventId) != 0 ||
-            event.GetParamValue("REASON", reason) != 0) {
-            continue;
-        }
-        if (!param.processName_.empty() && processName.find(param.processName_) == std::string::npos) {
+        int64_t killId = 0;
+        if (!IsPkEventCandidate(event, param, killId)) {
             continue;
         }
 
-        if (!param.eventId_.empty() && eventId.find(param.eventId_) != 0) {
-            continue;
-        }
-
+        std::string reason = ProcessKillReason::GetKillReason(static_cast<int>(killId));
         if (FAULTEVENTSET.find(reason) == FAULTEVENTSET.end()) {
             notFaultEvents = true;
             continue;
@@ -143,7 +155,8 @@ EventDumpResult DumpEventInfo::ExtractPkRunningIdsAndFaultTypes(const std::vecto
                 faultEventQuerySet.insert("JS_ERROR");
             } else if (reason == "LIFECYCLE_TIMEOUT" || reason == "LifecycleTimeout") {
                 faultEventQuerySet.insert("SYS_FREEZE");
-            } else {
+            } else if (reason == "THREAD_BLOCK_6S" || reason == "ThreadBlock6S" ||
+                       reason == "APP_INPUT_BLOCK" || reason == "AppInputBlock") {
                 faultEventQuerySet.insert("APP_FREEZE");
             }
         }
