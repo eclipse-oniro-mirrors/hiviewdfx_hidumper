@@ -341,7 +341,6 @@ ohos_shared_library("hidumperservice") {
   cflags = [ "-fstack-protector-strong" ]
   install_enable = true
   version_script = "hidumperservice.map"
-  shlib_type = "sa"
   subsystem_name = "${hidumper_subsystem_name}"
   part_name = "${hidumper_part_name}"
 }
