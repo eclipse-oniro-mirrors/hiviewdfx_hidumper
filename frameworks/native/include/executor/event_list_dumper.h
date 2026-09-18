@@ -17,9 +17,9 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <cstdint>
 #include "hidumper_executor.h"
 #include "event/dump_event_info.h"
-#include "cJSON.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -33,16 +33,13 @@ public:
     DumpStatus AfterExecute() override;
 
 private:
-    DumpStatus ParseConfigFile();
-    DumpStatus ParseJsonContent(const std::string& content);
     bool QueryEvents();
     std::vector<std::vector<std::string>> BuildResults(std::unordered_map<std::string, int> &columnWidths);
     void FormatResults(const std::vector<std::vector<std::string>> &results,
                        const std::unordered_map<std::string, int> &columnWidths);
-    std::string transformReason(const std::string& value);
-    std::vector<std::string> BuildRow(const HiSysEventRecord& event,
+    std::vector<std::string> BuildRow(const HiSysEventRecord& event, int64_t killId,
                                       std::unordered_map<std::string, int>& columnWidths);
-    bool ShouldSkipEvent(const HiSysEventRecord& event);
+    bool ShouldSkipEvent(const HiSysEventRecord& event, int64_t &killId);
 
 private:
     StringMatrix dumpDatas_;
@@ -51,7 +48,6 @@ private:
     long long endTime_;
     int showEventCount_;
     std::vector<HiSysEventRecord> events_;
-    std::unordered_map<std::string, std::string> eventReasonMap_;
 };
 } // namespace HiviewDFX
 } // namespace OHOS

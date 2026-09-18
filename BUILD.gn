@@ -21,7 +21,6 @@ group("service") {
   deps = [
     "frameworks/native:hidumperclient",
     "interfaces/innerkits:lib_dump_usage",
-    "services:event_reason_config",
     "services:hidumper_service.rc",
     "services:hidumpermemory",
     "services:hidumperservice",

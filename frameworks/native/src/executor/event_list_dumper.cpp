@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 #include <iomanip>
-#include <fstream>
 #include <sstream>
 
 #include "executor/event_list_dumper.h"
 #include "util/string_utils.h"
+#include "xcollie/process_kill_reason.h"
 
 using namespace std;
 namespace OHOS {
@@ -26,6 +26,7 @@ namespace HiviewDFX {
 constexpr int LINE_SPACING = 6;
 constexpr int MAX_WIDTH = 32;
 static const std::string END_BLANK = "  ";
+static constexpr const char* INVALID_KILL_ID = "InvalidKillId";
 
 EventListDumper::EventListDumper() : startTime_(0), endTime_(0), showEventCount_(-1)
 {
@@ -41,11 +42,9 @@ static const std::unordered_map<std::string, std::string> FIELDMAP = {
     {"time", "time_"},
     {"process_name", "PROCESS_NAME"},
     {"foreground", "FOREGROUND"},
-    {"reason", "REASON"},
+    {"reason", KILL_ID_KEY},
     {"record_id", "id_"}
 };
-
-static constexpr const char* DEFAULT_CONFIG_PATH = "/system/etc/hidumper/event_reason_config.json";
 
 DumpStatus EventListDumper::PreExecute(const shared_ptr<DumperParameter> &parameter, StringMatrix dumpDatas)
 {
@@ -55,11 +54,6 @@ DumpStatus EventListDumper::PreExecute(const shared_ptr<DumperParameter> &parame
     startTime_ = parameter->GetOpts().startTime_;
     endTime_ = parameter->GetOpts().endTime_;
     dumpDatas_ = dumpDatas;
-    auto status = ParseConfigFile();
-    if (status != DumpStatus::DUMP_OK) {
-        DUMPER_HILOGE(MODULE_COMMON, "error|EventListDumper PreExecute ParseConfigFile failed");
-        return status;
-    }
     return DumpStatus::DUMP_OK;
 }
 
@@ -100,7 +94,10 @@ bool EventListDumper::QueryEvents()
         {"KERNEL_VENDOR", {"PROCESS_KILL"}}
     };
     std::shared_ptr<DumpEventInfo> dumpEventInfo = std::make_shared<DumpEventInfo>();
-    return dumpEventInfo->DumpEventList(events_, param, true);
+    bool ret = dumpEventInfo->DumpEventList(events_, param, true);
+    DUMPER_HILOGI(MODULE_COMMON, "info|EventListDumper QueryEvents ret=%{public}d, queried=%{public}zu",
+                  static_cast<int>(ret), events_.size());
+    return ret;
 }
 
 std::vector<std::vector<std::string>> EventListDumper::BuildResults(std::unordered_map<std::string, int> &columnWidths)
@@ -108,10 +105,11 @@ std::vector<std::vector<std::string>> EventListDumper::BuildResults(std::unorder
     std::vector<std::vector<std::string>> results;
 
     for (const auto &event : events_) {
-        if (ShouldSkipEvent(event)) {
+        int64_t killId = 0;
+        if (ShouldSkipEvent(event, killId)) {
             continue;
         }
-        auto row = BuildRow(event, columnWidths);
+        auto row = BuildRow(event, killId, columnWidths);
         if (row.empty() || row.size() != EVENTTITLES.size()) {
             continue;
         }
@@ -124,14 +122,13 @@ std::vector<std::vector<std::string>> EventListDumper::BuildResults(std::unorder
     return results;
 }
 
-bool EventListDumper::ShouldSkipEvent(const HiSysEventRecord& event)
+bool EventListDumper::ShouldSkipEvent(const HiSysEventRecord& event, int64_t &killId)
 {
     std::string processName;
-    std::string reason;
     if (event.GetParamValue("PROCESS_NAME", processName) != 0 || processName.empty()) {
         return true;
     }
-    if (event.GetParamValue("REASON", reason) != 0 || reason.empty()) {
+    if (event.GetParamValue(KILL_ID_KEY, killId) != 0 || killId < INT32_MIN || killId > INT32_MAX) {
         return true;
     }
     if (!processName_.empty() && processName.find(processName_) == std::string::npos) {
@@ -140,7 +137,7 @@ bool EventListDumper::ShouldSkipEvent(const HiSysEventRecord& event)
     return false;
 }
 
-std::vector<std::string> EventListDumper::BuildRow(const HiSysEventRecord& event,
+std::vector<std::string> EventListDumper::BuildRow(const HiSysEventRecord& event, int64_t killId,
                                                    std::unordered_map<std::string, int>& columnWidths)
 {
     std::vector<std::string> row;
@@ -155,11 +152,9 @@ std::vector<std::string> EventListDumper::BuildRow(const HiSysEventRecord& event
         } else if (title == "foreground") {
             value = (value == "1") ? "True" : "False";
         } else if (title == "reason") {
-            std::string newValue = transformReason(value);
-            if (newValue.empty()) {
+            value = ProcessKillReason::GetAppExitReason(static_cast<int>(killId));
+            if (value == INVALID_KILL_ID) {
                 return row;
-            } else {
-                value = newValue;
             }
         }
         if (static_cast<int>(value.size()) > columnWidths[title]) {
@@ -168,21 +163,6 @@ std::vector<std::string> EventListDumper::BuildRow(const HiSysEventRecord& event
         row.emplace_back(value);
     }
     return row;
-}
-
-std::string EventListDumper::transformReason(const std::string& value)
-{
-    auto it = eventReasonMap_.find(value);
-    if (it != eventReasonMap_.end()) {
-        return it->second;
-    }
-
-    auto valueIt = std::find_if(eventReasonMap_.begin(), eventReasonMap_.end(),
-                                [&value](const auto& kv) { return kv.second == value; });
-    if (valueIt != eventReasonMap_.end()) {
-        return value;
-    }
-    return "";
 }
 
 void EventListDumper::FormatResults(const std::vector<std::vector<std::string>>& results,
@@ -200,46 +180,6 @@ void EventListDumper::FormatResults(const std::vector<std::vector<std::string>>&
         tempResult.push_back(oss.str());
         dumpDatas_->push_back(tempResult);
     }
-}
-
-DumpStatus EventListDumper::ParseConfigFile()
-{
-    std::ifstream file(DEFAULT_CONFIG_PATH);
-    if (!file.is_open()) {
-        DUMPER_HILOGE(MODULE_COMMON, "Failed to open config file: %{public}s", DEFAULT_CONFIG_PATH);
-        return DumpStatus::DUMP_FAIL;
-    }
-
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    std::string content = buffer.str();
-    file.close();
-
-    return ParseJsonContent(content);
-}
-
-DumpStatus EventListDumper::ParseJsonContent(const std::string& content)
-{
-    auto root = std::unique_ptr<cJSON, decltype(&cJSON_Delete)>(cJSON_Parse(content.c_str()), cJSON_Delete);
-    if (root == nullptr) {
-        DUMPER_HILOGE(MODULE_COMMON, "Failed to parse JSON content");
-        return DumpStatus::DUMP_FAIL;
-    }
-
-    cJSON* eventConfigs = cJSON_GetObjectItem(root.get(), "event_reason_configs");
-    if (eventConfigs == nullptr || !cJSON_IsObject(eventConfigs)) {
-        DUMPER_HILOGE(MODULE_COMMON, "Missing or invalid 'event_reason_configs' field");
-        return DumpStatus::DUMP_FAIL;
-    }
-
-    cJSON* item = nullptr;
-    cJSON_ArrayForEach(item, eventConfigs) {
-        if (cJSON_IsString(item) && item->string != nullptr) {
-            eventReasonMap_[item->string] = item->valuestring;
-        }
-    }
-
-    return DumpStatus::DUMP_OK;
 }
 
 DumpStatus EventListDumper::AfterExecute()

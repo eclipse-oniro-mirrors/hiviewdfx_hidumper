@@ -88,6 +88,7 @@ inline const int64_t ZIP_MAX_SIZE = 100 * 1024 * 1024;
 inline const int64_t ZIP_TARGET_SIZE = 80 * 1024 * 1024;
 
 inline const std::string RELEASE_MODE = "Release";
+inline constexpr const char* KILL_ID_KEY = "KILL_ID";
 const uint64_t FDTAG = 0xD002D20;
 } // namespace HiviewDFX
 } // namespace OHOS
