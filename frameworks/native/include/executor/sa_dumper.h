@@ -15,8 +15,10 @@
 #ifndef SADUMPER_H
 #define SADUMPER_H
 #include <iservice_registry.h>
+#include <memory>
 #include <mutex>
 #include "hidumper_executor.h"
+#include "util/dump_fd_relay.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -39,9 +41,16 @@ private:
     std::mutex mutex_;
     std::string argsStr_;
     int outputFd_ = -1;
+    // fd actually handed to the remote SA: the relay write end when the relay is
+    // up, otherwise outputFd_ itself. Never closed here, the owner closes it.
+    int saDumpFd_ = -1;
     bool isZip_ = false;
+    std::shared_ptr<FdRelay> relay_;
 
     DumpStatus GetData(const std::string &name, const sptr<ISystemAbilityManager> &sam);
+    void StartRelay();
+    void StopRelay();
+    void WriteHeader(const std::string &content);
 };
 } // namespace HiviewDFX
 } // namespace OHOS

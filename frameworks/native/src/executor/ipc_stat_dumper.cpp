@@ -27,6 +27,7 @@
 #include "running_process_info.h"
 #include "securec.h"
 #include "system_ability_definition.h"
+#include "util/dump_fd_relay.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -212,7 +213,17 @@ DumpStatus IPCStatDumper::DoDumpIpcStat(sptr<IRemoteObject> &sa)
         DUMPER_HILOGE(MODULE_SERVICE, "sa dump failed\n");
         return DumpStatus::DUMP_FAIL;
     }
-    int ret = sa->Dump(rawParamFd, ipcDumpCmd_);
+    // Hand the SA a pipe owned by hidumper_service instead of the caller fd, so that
+    // the dump also survives shell pipes and redirections on release builds.
+    FdRelay relay(rawParamFd);
+    int dumpFd = rawParamFd;
+    if (relay.Start()) {
+        dumpFd = relay.GetProducerFd();
+    } else {
+        DUMPER_HILOGE(MODULE_SERVICE, "start fd relay failed, dump straight into the caller fd");
+    }
+    int ret = sa->Dump(dumpFd, ipcDumpCmd_);
+    relay.Finish();
     if (ret != ERR_OK) {
         DUMPER_HILOGE(MODULE_SERVICE, "system ability dump fail! ret:%{public}d\n", ret);
     }

@@ -22,6 +22,7 @@
 #include "file_ex.h"
 #include "securec.h"
 #include "common/dumper_constant.h"
+#include "util/dump_fd_relay.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -39,6 +40,7 @@ SADumper::SADumper(void)
 
 SADumper::~SADumper(void)
 {
+    StopRelay();
     if (isZip_ && outputFd_ >= 0) {
         fdsan_close_with_tag(outputFd_, FDTAG);
         outputFd_ = -1;
@@ -62,6 +64,7 @@ DumpStatus SADumper::PreExecute(const std::shared_ptr<DumperParameter> &paramete
     } else {
         outputFd_ = parameter->getClientCallback()->GetOutputFd();
     }
+    StartRelay();
 
     StringVector args = ptrDumpCfg_->args_->GetArgList();
     if (!args.empty() && names_.size() == 1) {
@@ -90,9 +93,9 @@ DumpStatus SADumper::GetData(const std::string &name, const sptr<ISystemAbilityM
     std::stringstream ss;
     ss << SEPARATOR_TEMPLATE << DumpUtils::ConvertSaIdToSaName(name) << SEPARATOR_TEMPLATE;
     std::lock_guard<std::mutex> lock(mutex_);
-    SaveStringToFd(outputFd_, "\n" + ABILITY_LINE + "\n");
-    SaveStringToFd(outputFd_, "\n\n" + ss.str() + "\n");
-    int result = sa->Dump(outputFd_, args_);
+    WriteHeader("\n" + ABILITY_LINE + "\n");
+    WriteHeader("\n\n" + ss.str() + "\n");
+    int result = sa->Dump(saDumpFd_, args_);
     if (result != ERR_OK) {
         DUMPER_HILOGE(MODULE_SERVICE, "system ability:%{public}s dump fail!ret:%{public}d\n", name.c_str(), result);
     }
@@ -123,7 +126,42 @@ DumpStatus SADumper::Execute()
 
 DumpStatus SADumper::AfterExecute()
 {
+    StopRelay();
     return DumpStatus::DUMP_OK;
+}
+
+void SADumper::StartRelay()
+{
+    saDumpFd_ = outputFd_;
+    relay_ = std::make_shared<FdRelay>(outputFd_);
+    if (!relay_->Start()) {
+        // Keep the legacy direct fd behaviour, a missing relay must not lose the dump.
+        DUMPER_HILOGE(MODULE_SERVICE, "start fd relay failed, dump straight into the caller fd");
+        relay_.reset();
+        return;
+    }
+    saDumpFd_ = relay_->GetProducerFd();
+}
+
+void SADumper::StopRelay()
+{
+    if (relay_ != nullptr) {
+        relay_->Finish();
+        relay_.reset();
+    }
+    saDumpFd_ = outputFd_;
+}
+
+void SADumper::WriteHeader(const std::string &content)
+{
+    if (relay_ != nullptr) {
+        // Queue the header into the pipe so that the caller fd keeps a single writer.
+        if (relay_->Write(content)) {
+            return;
+        }
+        DUMPER_HILOGE(MODULE_SERVICE, "relay write failed, fall back to the caller fd");
+    }
+    SaveStringToFd(outputFd_, content);
 }
 } // namespace HiviewDFX
 } // namespace OHOS
