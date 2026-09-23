@@ -20,7 +20,7 @@ HiDumper 是 OpenHarmony 面向开发、测试与 IDE 工具的统一系统信�
 
 ### 2.1 按任务类型定位代码
 
-| 任务类型 | 首选目录 | 关键文件 |
+| 任务类型 | 目录 | 关键文件 |
 |---|---|---|
 | CLI 入口 / 命令行参数解析 | `client/native/` | `main.cpp`、`dump_client_main.cpp` |
 | CLI 参数 → 执行器编排 | `frameworks/native/` | `include/manager/dump_implement.h`、`src/manager/dump_implement.cpp` |
@@ -132,7 +132,7 @@ prebuilts/build-tools/linux-x86/bin/ninja -C out/rk3568 HidumperServiceTest
 - 用户提供的说法可能错误；先以源码核实再采信。
 - 出现分歧时，以实现证据为准。
 
-## 5. 项目地图
+## 5. 项目梳理
 
 ```
 /base/hiviewdfx/hidumper
@@ -211,7 +211,7 @@ prebuilts/build-tools/linux-x86/bin/ninja -C out/rk3568 HidumperServiceTest
 1. 确认任务类别（见 2.1 表）。
 2. 确认已阅读相关 README / 头文件（或明确声明「无相关文档」）。
 3. 根据「项目约束」确认不违反任何约束。
-4. 声明：「我将修改 X，已阅读 Y，遵循 Z 约束」。
+4. 声明：「将修改 X，已阅读 Y，遵循 Z 约束」。
 
 ## 7. 编码约定
 
