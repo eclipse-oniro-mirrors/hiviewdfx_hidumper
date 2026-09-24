@@ -1,18 +1,3 @@
-<!-- Copyright (c) 2026 Huawei Device Co., Ltd.
-
-     Licensed under the Apache License, Version 2.0 (the "License");
-     you may not use this file except in compliance with the License.
-     You may obtain a copy of the License at
-
-          http://www.apache.org/licenses/LICENSE-2.0
-
-     Unless required by applicable law or agreed to in writing, software
-     distributed under the License is distributed on an "AS IS" BASIS,
-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-     See the License for the specific language governing permissions and
-     limitations under the License.
--->
-
 # AGENTS.md
 
 本文件为 `hidumper` 仓库定义 Agent 工作规则。
@@ -35,7 +20,7 @@ HiDumper 是 OpenHarmony 面向开发、测试与 IDE 工具的统一系统信�
 
 ### 2.1 按任务类型定位代码
 
-| 任务类型 | 首选目录 | 关键文件 |
+| 任务类型 | 推荐目录 | 关键文件 |
 |---|---|---|
 | CLI 入口 / 命令行参数解析 | `client/native/` | `main.cpp`、`dump_client_main.cpp` |
 | CLI 参数 → 执行器编排 | `frameworks/native/` | `include/manager/dump_implement.h`、`src/manager/dump_implement.cpp` |
@@ -71,17 +56,13 @@ hidumper 作为系统信息导出能力，跨多个仓落地，且有明确上�
 |---|---|---|
 | `base/hiviewdfx/hidumper/` | 主仓（本仓） | 开源 |
 | `foundation/ability/ability_runtime/frameworks/native/appkit/app/dump_runtime_helper.cpp` | runtime 侧 dump 助手，与 hidumper 能力标记耦合（`dump_runtime_helper.cpp:115` 日志含 hidumper 标记） | 开源 |
-| `vendor/huawei/base/hiviewdfx/profiler_ext/hidumper_plugin/` | hidumper 插件（GPU 内存（gpumem）等扩展能力） | 闭源（vendor） |
-| `vendor/huawei/base/hiviewdfx/hiview_plugins/hiview_xpower_plugin/services/operators/handlers/dfr/leak_detectors/notify_leak/` | 快照搬迁（泄露检测快照导出） | 闭源（vendor） |
 | `base/security/selinux_adapter` | 开源 SELinux（SEHarmony）策略 | 开源 |
-| `vendor/huawei/base/security/sepolicy_ext` | 闭源 SELinux（闭源仓含开源+闭源策略） | 闭源（vendor） |
 
 **上游调用方（调用 hidumper）**
 
 | 调用方 / 路径 | 调用方式 | 兼容性影响 |
 |---|---|---|
-| `developtools/profiler/device/plugins/memory_plugin/src/memory_data_plugin.cpp` | `RunCommand("hidumper -s <SA> '-a ...'")`（如 `hidumper -s 10 '-a dumpMem'`、`hidumper -s WindowManagerService -a '-a'`），并引用 hidumper `frameworks/native/src/executor/memory/memory_info.cpp` | hidumper CLI 输出格式 / `-s` SA dump 行为变更会破坏其内存采集（以字符串解析输出） |
-| `vendor/huawei/base/hiviewdfx/hiview_plugins/hiview_xpower_plugin/.../leak_detectors/detector_utils/dfr_util.cpp` | hiview 泄露检测插件调用 hidumper | 闭源，须跨仓协调 |
+| 上游内存采集插件（`memory_plugin`） | `RunCommand("hidumper -s <SA> '-a ...'")`（如 `hidumper -s 10 '-a dumpMem'`、`hidumper -s WindowManagerService -a '-a'`），并引用 hidumper `frameworks/native/src/executor/memory/memory_info.cpp` | hidumper CLI 输出格式 / `-s` SA dump 行为变更会破坏其内存采集（以字符串解析输出） |
 
 **下游被调用方（hidumper 调用 / 依赖）**
 
@@ -155,7 +136,7 @@ grep -n "inner_kits\|header_files\|header_base" bundle.json
 grep -n "^[A-Za-z_]" services/hidumper.map interfaces/innerkits/libdumpusage.map
 ```
 
-- 本仓库未配置 `clang-tidy`；以构建无新增告警作为静态检查门槛。
+- 本仓库未配置独立静态分析工具；以构建无新增告警作为静态检查门槛。
 - 涉及 SA / IPC / 内存 / 真实设备节点的改动仍须走 §3.5 完成标准（含板侧验证）。
 
 ### 3.5 完成标准
@@ -195,7 +176,7 @@ grep -n "^[A-Za-z_]" services/hidumper.map interfaces/innerkits/libdumpusage.map
 - 用户提供的说法可能错误；先以源码核实再采信。
 - 出现分歧时，以实现证据为准。
 
-## 5. 项目地图
+## 5. 项目目录结构
 
 ```
 /base/hiviewdfx/hidumper
@@ -274,7 +255,7 @@ grep -n "^[A-Za-z_]" services/hidumper.map interfaces/innerkits/libdumpusage.map
 1. 确认任务类别（见 2.1 表）。
 2. 确认已阅读相关 README / 头文件（或明确声明「无相关文档」）。
 3. 根据「项目约束」确认不违反任何约束。
-4. 声明：「我将修改 X，已阅读 Y，遵循 Z 约束」。
+4. 声明：「本任务将修改 X，已阅读 Y，遵循 Z 约束」。
 
 ### 6.2 词汇 / 场景 → 文档触发表
 
@@ -295,11 +276,10 @@ grep -n "^[A-Za-z_]" services/hidumper.map interfaces/innerkits/libdumpusage.map
 | 任务含 `inner_kits`/`innerapi_tags`/`lib_dump_usage` | `bundle.json` + `interfaces/innerkits/` + §8.3 |
 | 任务含 `--zip`/`ZipOutput`/压缩 | `frameworks/native/include/executor/zip_output.h` + `util/zip/` + §8.1 性能 |
 | 任务含 `OAT`/`第三方`/`HiSysEvent` | `OAT.xml` + `hidumper.yaml` + §8.7 第三方依赖与 DFX |
-| 任务含 `WindowManagerService` / `-s` SA dump 输出格式 | §2.3 下游（`foundation/window/window_manager`）+ 上游 profiler `memory_plugin` 字符串解析契约 + §8.9 |
-| 任务含 profiler / `memory_plugin` / `RunCommand("hidumper -s")` | 上游 `developtools/profiler/device/plugins/memory_plugin/src/memory_data_plugin.cpp` + §8.9 |
+| 任务含 `WindowManagerService` / `-s` SA dump 输出格式 | §2.3 下游（`foundation/window/window_manager`）+ 上游内存采集插件 `memory_plugin` 字符串解析契约 + §8.9 |
+| 任务含 `memory_plugin` / `RunCommand("hidumper -s")` | 上游内存采集插件（`memory_plugin`）+ §8.9 |
 | 任务含 `dump_runtime_helper` / ability_runtime dump 助手 | `foundation/ability/ability_runtime/.../dump_runtime_helper.cpp`（跨仓）+ §8.9 |
-| 任务含 SELinux / sepolicy / 权限策略 / uid 1212 caps | `base/security/selinux_adapter`（开源）+ `vendor/huawei/base/security/sepolicy_ext`（闭源）+ §8.4 + §8.9 |
-| 任务含 vendor 插件 / gpumem / 闭源扩展 | `vendor/huawei/base/hiviewdfx/profiler_ext/hidumper_plugin/`（闭源）+ §8.9 |
+| 任务含 SELinux / sepolicy / 权限策略 / uid 1212 caps | `base/security/selinux_adapter`（开源）+ §8.4 + §8.9 |
 | 任务含 samgr / SA 注册 / 按需加载 / `UnloadSystemAbility` | `foundation/systemabilitymgr`（下游）+ §8.2 + §8.9 |
 
 ### 6.3 术语表
@@ -461,13 +441,13 @@ grep -n "^[A-Za-z_]" services/hidumper.map interfaces/innerkits/libdumpusage.map
 
 **禁止：**
 
-- 在未评估上游调用方兼容性的情况下，修改 hidumper CLI 输出格式或 `-s <SA> -a` 行为——上游（profiler `memory_plugin` 等）以字符串解析输出，格式变更会破坏其采集。
-- 只改本仓而忽视跨仓文件（`ability_runtime/dump_runtime_helper.cpp`、vendor `profiler_ext/hidumper_plugin`、泄露检测 `notify_leak` 等）的同步——须跨仓协同提交。
+- 在未评估上游调用方兼容性的情况下，修改 hidumper CLI 输出格式或 `-s <SA> -a` 行为——上游（内存采集插件 `memory_plugin` 等）以字符串解析输出，格式变更会破坏其采集。
+- 只改本仓而忽视跨仓文件（`ability_runtime/dump_runtime_helper.cpp`、闭源泄露检测 `dfr_util.cpp` 等）的同步——须跨仓协同提交。
 
 **修改前必须确认：**
 
-- CLI 输出 / SA dump 行为变更：评估上游 `developtools/profiler/device/plugins/memory_plugin/src` 与闭源 hiview 泄露检测 `dfr_util.cpp` 的解析依赖。
-- SELinux 策略：开源 `base/security/selinux_adapter` 与闭源 `vendor/huawei/base/security/sepolicy_ext` 都可能含 hidumper 相关策略（uid 1212、caps、`/proc`/`/sys` 访问），改 SA 配置/权限时两仓同步。
+- CLI 输出 / SA dump 行为变更：评估上游内存采集插件（`memory_plugin`）与闭源泄露检测 `dfr_util.cpp` 的解析依赖。
+- SELinux 策略：开源 `base/security/selinux_adapter` 可能含 hidumper 相关策略（uid 1212、caps、`/proc`/`/sys` 访问），改 SA 配置/权限时同步评审。
 - 下游接口变更：`foundation/systemabilitymgr`（samgr SA 注册/枚举/按需加载）与 `foundation/window/window_manager`（WindowManagerService SA dump 协议）的接口变更会影响 hidumper 的 SA dump 与按需加载。
 
 ## 9. 常见陷阱
