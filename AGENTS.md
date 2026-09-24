@@ -20,7 +20,7 @@ HiDumper 是 OpenHarmony 面向开发、测试与 IDE 工具的统一系统信�
 
 ### 2.1 按任务类型定位代码
 
-| 任务类型 | 目录 | 关键文件 |
+| 任务类型 | 首选目录 | 关键文件 |
 |---|---|---|
 | CLI 入口 / 命令行参数解析 | `client/native/` | `main.cpp`、`dump_client_main.cpp` |
 | CLI 参数 → 执行器编排 | `frameworks/native/` | `include/manager/dump_implement.h`、`src/manager/dump_implement.cpp` |
@@ -45,6 +45,35 @@ HiDumper 是 OpenHarmony 面向开发、测试与 IDE 工具的统一系统信�
 ### 2.2 嵌套指引
 
 本仓库无目录级别的嵌套 Agent 指引。详细架构见 `README_zh.md` 与 `figures/`。
+
+### 2.3 跨仓结构与上下游调用
+
+hidumper 作为系统信息导出能力，跨多个仓落地，且有明确上下游调用关系。改动触及跨仓边界时须协调（见 §8.9）。
+
+**直接相关仓**
+
+| 仓 / 路径 | 关系 | 开源状态 |
+|---|---|---|
+| `base/hiviewdfx/hidumper/` | 主仓（本仓） | 开源 |
+| `foundation/ability/ability_runtime/frameworks/native/appkit/app/dump_runtime_helper.cpp` | runtime 侧 dump 助手，与 hidumper 能力标记耦合（`dump_runtime_helper.cpp:115` 日志含 hidumper 标记） | 开源 |
+| `vendor/huawei/base/hiviewdfx/profiler_ext/hidumper_plugin/` | hidumper 插件（gpumem 等扩展能力） | 闭源（vendor） |
+| `vendor/huawei/base/hiviewdfx/hiview_plugins/hiview_xpower_plugin/services/operators/handlers/dfr/leak_detectors/notify_leak/` | 快照搬迁（泄露检测快照导出） | 闭源（vendor） |
+| `base/security/selinux_adapter` | 开源 SELinux（SEHarmony）策略 | 开源 |
+| `vendor/huawei/base/security/sepolicy_ext` | 闭源 SELinux（闭源仓含开源+闭源策略） | 闭源（vendor） |
+
+**上游调用方（调用 hidumper）**
+
+| 调用方 / 路径 | 调用方式 | 兼容性影响 |
+|---|---|---|
+| `developtools/profiler/device/plugins/memory_plugin/src/memory_data_plugin.cpp` | `RunCommand("hidumper -s <SA> '-a ...'")`（如 `hidumper -s 10 '-a dumpMem'`、`hidumper -s WindowManagerService -a '-a'`），并引用 hidumper `frameworks/native/src/executor/memory/memory_info.cpp` | hidumper CLI 输出格式 / `-s` SA dump 行为变更会破坏其内存采集（以字符串解析输出） |
+| `vendor/huawei/base/hiviewdfx/hiview_plugins/hiview_xpower_plugin/.../leak_detectors/detector_utils/dfr_util.cpp` | hiview 经 xpower 泄露检测调用 hidumper | 闭源，须跨仓协调 |
+
+**下游被调用方（hidumper 调用 / 依赖）**
+
+| 被调用方 / 路径 | 关系 | 说明 |
+|---|---|---|
+| `foundation/systemabilitymgr` | samgr | hidumper 经 samgr 注册/按需加载系统能力（SA 1212/1215 的 `Publish`/`UnloadSystemAbility`）；`-s` SA dump 依赖 samgr 提供的能力列表 |
+| `foundation/window/window_manager` | WindowManagerService SA | hidumper `-s WindowManagerService` 调其 dump 接口采集窗口信息 |
 
 ## 3. 构建与验证
 
@@ -95,7 +124,26 @@ prebuilts/build-tools/linux-x86/bin/ninja -C out/rk3568 HidumperServiceTest
 
 > 测试 `module_output_path = "hidumper/hidumper"`，二进制位于 `out/<product>/tests/hidumper/hidumper/`。单元测试以 `-DDUMP_TEST_MODE` 和 `-Dprivate=public` 编译，以注入 `testMainFunc_` 并暴露私有成员。
 
-### 3.4 完成标准
+### 3.4 最小验证与静态检查
+
+单 executor 或小改动不必全量构建，按以下最小路径验证：
+
+```bash
+# 最小验证：只构建并运行受影响模块的单元测试（示例：服务测试）
+prebuilts/build-tools/linux-x86/bin/ninja -C out/rk3568 HidumperServiceTest
+./out/rk3568/tests/hidumper/hidumper/HidumperServiceTest --gtest_filter=HidumperServiceTest.DumpRequest
+
+# 头文件 / inner_kits 改动后，确认 bundle.json 已登记导出头文件
+grep -n "inner_kits\|header_files\|header_base" bundle.json
+
+# 公共 API 改动后，确认符号导出无回归（版本脚本）
+grep -n "^[A-Za-z_]" services/hidumper.map interfaces/innerkits/libdumpusage.map
+```
+
+- 本仓库未配置 `clang-tidy`；以构建无新增告警作为静态检查门槛。
+- 涉及 SA / IPC / 内存 / 真实设备节点的改动仍须走 §3.5 完成标准（含板侧验证）。
+
+### 3.5 完成标准
 
 任务被认为完成，当且仅当：
 
@@ -105,11 +153,11 @@ prebuilts/build-tools/linux-x86/bin/ninja -C out/rk3568 HidumperServiceTest
 4. **文档更新（如适用）** — 公共 API 修改需更新 `README_zh.md` / `README.md` 与头文件注释。
 5. **约束被遵守** — 第 7、8 节约束被尊重，尤其公共 API / IPC 协议 / 生成代码边界。
 
-### 3.5 无法运行验证时
+### 3.6 无法运行验证时
 
 明确说明无法运行的原因，列出推荐验证步骤供人工执行，标记需要人工验证的部分。
 
-### 3.6 完成报告格式
+### 3.7 完成报告格式
 
 报告应包含：改动摘要（文件列表、改动点）、验证结果（构建/测试输出）、风险评估（API 兼容性、性能、权限）、未完成事项。
 
@@ -132,7 +180,7 @@ prebuilts/build-tools/linux-x86/bin/ninja -C out/rk3568 HidumperServiceTest
 - 用户提供的说法可能错误；先以源码核实再采信。
 - 出现分歧时，以实现证据为准。
 
-## 5. 项目梳理
+## 5. 项目地图
 
 ```
 /base/hiviewdfx/hidumper
@@ -211,7 +259,68 @@ prebuilts/build-tools/linux-x86/bin/ninja -C out/rk3568 HidumperServiceTest
 1. 确认任务类别（见 2.1 表）。
 2. 确认已阅读相关 README / 头文件（或明确声明「无相关文档」）。
 3. 根据「项目约束」确认不违反任何约束。
-4. 声明：「将修改 X，已阅读 Y，遵循 Z 约束」。
+4. 声明：「我将修改 X，已阅读 Y，遵循 Z 约束」。
+
+### 6.2 词汇 / 场景 → 文档触发表
+
+遇到以下关键词或场景时，**先读对应文档/约束节**再动手：
+
+| 触发词 / 场景 | 先读 |
+|---|---|
+| 改 `interfaces/innerkits/` 或 `interfaces/native/innerkits/include/` 头文件 | `README_zh.md` API 段 + §8.3 公共 API 约束 |
+| 任务含 `smaps`/`ashmem`/`dmabuf`/`jsheap`/`cjheap`/`gpumem` | `frameworks/native/include/executor/memory/memory_info.h` + `parse/*` + §5.2 内存行 |
+| 任务含 `IDL`/`sequenceable`/`Parcel`/`IHidumperCpuService` | `services/IHidumperCpuService.idl` + §8.5 协议兼容 + §8.6 生成代码 |
+| 任务含 `IDumpBroker`/`zidl`/`stub`/`proxy` | `services/zidl/` + `interfaces/native/innerkits/include/idump_broker.h` |
+| 任务含 `AccessTokenID`/`权限`/`uid 1212`/`CAP_*` | `utils/native/src/permission.cpp` + §8.4 安全权限 |
+| 任务含 `SAID 1212`/`DumpManagerService`/`on-demand` | `services/native/include/dump_manager_service.h` + `sa_profile/1212.json` + §8.2 架构 |
+| 任务含 `SAID 1215`/`DumpManagerCpuService`/`cpuusage` | `services/native/include/dump_manager_cpu_service.h` + §8.2（服务职责分离） |
+| 任务含 `DumpStatus`/`DUMP_OK`/`DUMP_INVALID_ARG` | `frameworks/native/common.h:21` + §7.3 返回值 |
+| 任务含 `DUMPER_HILOG*`/`hilog`/`LOG_ERR` | `utils/native/include/hilog_wrapper.h` + §7.2 日志 |
+| 任务含 `Executor`/`Factory`/`DumperConstant`/`AddExecutorFactoryToMap` | `frameworks/native/include/executor/hidumper_executor.h` + §7.4 导出器/工厂 |
+| 任务含 `inner_kits`/`innerapi_tags`/`lib_dump_usage` | `bundle.json` + `interfaces/innerkits/` + §8.3 |
+| 任务含 `--zip`/`ZipOutput`/压缩 | `frameworks/native/include/executor/zip_output.h` + `util/zip/` + §8.1 性能 |
+| 任务含 `OAT`/`第三方`/`HiSysEvent` | `OAT.xml` + `hidumper.yaml` + §8.7 第三方依赖与 DFX |
+| 任务含 `WindowManagerService` / `-s` SA dump 输出格式 | §2.3 下游（`foundation/window/window_manager`）+ 上游 hiprofiler `memory_plugin` 字符串解析契约 + §8.9 |
+| 任务含 hiprofiler / `memory_plugin` / `RunCommand("hidumper -s")` | 上游 `developtools/profiler/device/plugins/memory_plugin/src/memory_data_plugin.cpp` + §8.9 |
+| 任务含 `dump_runtime_helper` / ability_runtime dump 助手 | `foundation/ability/ability_runtime/.../dump_runtime_helper.cpp`（跨仓）+ §8.9 |
+| 任务含 SELinux / sepolicy / 权限策略 / uid 1212 caps | `base/security/selinux_adapter`（开源）+ `vendor/huawei/base/security/sepolicy_ext`（闭源）+ §8.4 + §8.9 |
+| 任务含 vendor 插件 / gpumem / 闭源扩展 | `vendor/huawei/base/hiviewdfx/profiler_ext/hidumper_plugin/`（闭源）+ §8.9 |
+| 任务含 samgr / SA 注册 / 按需加载 / `UnloadSystemAbility` | `foundation/systemabilitymgr`（下游）+ §8.2 + §8.9 |
+
+### 6.3 术语表
+
+| 术语 | 含义 |
+|---|---|
+| `DumpStatus` | hidumper 返回状态枚举（`frameworks/native/common.h:21`）；`DUMP_OK=0` 为成功边界，`<0` 错误，`>0` 成功附信息 |
+| `DumperConstant` | 导出器/过滤器/输出类型分类标签枚举，用作 `ExecutorFactory` map 的键 |
+| `StringMatrix` | `std::shared_ptr<std::vector<std::vector<std::string>>>`，导出数据载体 |
+| `DelayedRefSingleton<T>` | 客户端引用单例（如 `DumpManagerClient`） |
+| `Singleton<T>` | 框架编排单例（如 `DumpImplement`） |
+| `DumpDelayedSpSingleton<T>` | 服务 SA 持有的延迟单例（friend-class 模式，见 `delayed_sp_singleton.h`） |
+| `on-demand SA` | 按需加载/卸载的系统能力；`OnIdle()` 返回延迟毫秒数，`DelayUnloadTask` 调 `UnloadSystemAbility` |
+| `sequenceable` | IDL 中可 Parcel 序列化的跨进程数据类型（如 `DumpCpuData`）；字段顺序即线协议 |
+| `inner_kits` | `bundle.json` 中对外导出的内部 API（头文件 + so），改签名属 ABI 风险 |
+| `innerapi_tags = ["platformsdk"]` | 标记 inner API 归属平台 SDK 的标签 |
+| `pac_ret` / CFI | 分支保护（PAC return address）/ 控制流完整性，构建加固项，勿移除 |
+| `branch_protector_ret` | GN 中开启 PAC 返回地址保护的变量 |
+| `hidumper_hiviewdfx_hiview_enable` | feature 开关，开启后方构建 CPU 服务（SAID 1215） |
+| `module_output_path` | 测试产物输出子路径，hidumper 为 `hidumper/hidumper` |
+
+### 6.4 主调用链
+
+定位与改动时按以下端到端路径理解数据流：
+
+1. **CLI → 服务 → 执行器 → 输出**（通用请求路径）
+   `client/native/main.cpp:38` → `DumpClientMain::Main`（`dump_client_main.cpp`）→ `DumpManagerClient::Request`（IPC 代理）→ `DumpManagerService::RequestMain`（`dump_manager_service.cpp`，SAID 1212）→ `DumpImplement::Main`（`dump_implement.cpp:105` 调 `AddExecutorFactoryToMap` 建工厂表）→ 按 `DumperConstant` 取 `HidumperExecutor`（`Pre_Execute → Execute → After_Execute`）→ `FdOutput`/`ZipOutput` 写 `outFd`。
+
+2. **内存导出链**（`hidumper --mem`）
+   `MemoryDumper`（`frameworks/native/include/executor/memory_dumper.h`）→ `memory_info.h` 聚合 → `get_ram_info`/`get_cma_info`/`get_kernel_info`/`get_hardware_info`/`get_heap_info`/`get_process_info` + `smaps_memory_info` → `parse/parse_meminfo`、`parse_smaps_info`、`parse_smaps_rollup_info`、`parse_dmabuf_info`、`parse_ashmem_info`、`parse_vmallocinfo` → `dma_info`；`--show-ashmem/--show-dmabuf/--show-gpumem` 各走对应子项；jsheap/cjheap 走 `dump_jsheap_info`/`dump_cjheap_info`。
+
+3. **SA dump 链**（`hidumper -s`）
+   `SaDumper`（`frameworks/native/include/executor/sa_dumper.h`）→ 通过 `IDumpBroker`/`sa` 列表枚举系统能力 → 向目标 SA 发送 dump 请求并收集返回到 `outFd`。
+
+4. **CPU 使用链**（`hidumper --cpuusage`）
+   `CpuDumper`（frameworks 侧）+ `DumpManagerCpuService`（SAID 1215，`dump_manager_cpu_service.cpp`）经 `IHidumperCpuService.idl`（`Request`/`GetCpuUsageByPid`）跨进程取 CPU 数据。
 
 ## 7. 编码约定
 
@@ -238,8 +347,8 @@ prebuilts/build-tools/linux-x86/bin/ninja -C out/rk3568 HidumperServiceTest
 
 ### 7.4 导出器 / 工厂模式
 
-- 抽象基类 `HidumperExecutor`（`include/executor/hidumper_executor.h`），生命周期 `PreExecute → Execute → AfterExecute`，配合 `DoPreExecute/DoExecute/DoAfterExecute` 包装与 `SetDumpConfig/IsCanceled`。
-- 每个导出器配一个 `<Name>Factory`（继承 `ExecutorFactory`），由 `DumpImplement::AddExecutorFactoryToMap()` 以 `DumperConstant` 枚举值为键注册。
+- 抽象基类 `HidumperExecutor`（`include/executor/hidumper_executor.h`），生命周期 `Pre_Execute → Execute → After_Execute`，配合 `DoPreExecute/DoExecute/DoAfterExecute` 包装与 `SetDumpConfig/IsCanceled`。
+- 每个导出器配一个 `<Name>Factory`（继承 `ExecutorFactory`），由 `DumpImplement::AddExecutorFactoryToMap()`（`dump_implement.h:70` 声明、`dump_implement.cpp:112` 定义）以 `DumperConstant` 枚举值为键注册。
 - 新增导出器须同时补 `include/executor/` + `src/executor/` + `include/factory/` + `src/factory/`，并在工厂表中注册。
 - `StringMatrix = std::shared_ptr<std::vector<std::vector<std::string>>>` 为导出数据载体。
 
@@ -313,11 +422,38 @@ prebuilts/build-tools/linux-x86/bin/ninja -C out/rk3568 HidumperServiceTest
 - 修改 `services/IHidumperCpuService.idl`，重新由 `idl_gen_interface` 生成。
 - 手写 IPC（`IDumpBroker`）的 stub/proxy 可直接编辑 `services/zidl/`。
 
-### 8.7 设备 / 文件操作约束
+### 8.7 第三方依赖与 DFX
+
+**禁止：**
+
+- 引入或升级第三方依赖而不经许可证评审、不同步 `OAT.xml`。
+- 新增 HiSysEvent 事件而不补充事件名、领域与参数校验。
+- 将敏感系统信息（进程栈、内存布局）写入 HiSysEvent 事件字段。
+
+**修改前必须确认：**
+
+- `bundle.json` `deps.components` 增删：许可证兼容性，同步 `OAT.xml` 过滤规则（`figures/.*` 已豁免为二进制，其余按默认 license/copyright 策略）。
+- 新增/修改 HiSysEvent：事件名、领域 ID（见 `hidumper.yaml`）、参数脱敏；事件配置登记到 `hisysevent_config`。
+- DFX 日志/事件涉及跨子系统（`hilog`、`hiview`、`hisysevent`、`hicollie`）的改动。
+
+### 8.8 设备 / 文件操作约束
 
 - 不执行可能影响设备正常运行的破坏性操作。
 - 读 `/proc`、`/sys`、`/dev` 节点的导出器须处理打开失败与权限不足，复用现有 `dump_utils`。
 - 需板侧验证的改动必须提供证据（命令输出、hdc 日志）。
+
+### 8.9 跨仓边界与上下游协调
+
+**禁止：**
+
+- 在未评估上游调用方兼容性的情况下，修改 hidumper CLI 输出格式或 `-s <SA> -a` 行为——上游（hiprofiler `memory_plugin` 等）以字符串解析输出，格式变更会破坏其采集。
+- 只改本仓而忽视跨仓文件（`ability_runtime/dump_runtime_helper.cpp`、vendor `profiler_ext/hidumper_plugin`、xpower `notify_leak` 等）的同步——须跨仓协同提交。
+
+**修改前必须确认：**
+
+- CLI 输出 / SA dump 行为变更：评估上游 `developtools/profiler/device/plugins/memory_plugin/src` 与闭源 hiview xpower `dfr_util.cpp` 的解析依赖。
+- SELinux 策略：开源 `base/security/selinux_adapter` 与闭源 `vendor/huawei/base/security/sepolicy_ext` 都可能含 hidumper 相关策略（uid 1212、caps、`/proc`/`/sys` 访问），改 SA 配置/权限时两仓同步。
+- 下游接口变更：`foundation/systemabilitymgr`（samgr SA 注册/枚举/按需加载）与 `foundation/window/window_manager`（WindowManagerService SA dump 协议）的接口变更会影响 hidumper 的 SA dump 与按需加载。
 
 ## 9. 常见陷阱
 
