@@ -448,7 +448,7 @@ int32_t DumpManagerService::ScanOrphanVnodeOverLimit(int32_t fdLeakThreshold, in
     std::vector<int32_t> pids = DumpCommonUtils::GetAllPids();
     for (const auto &pid : pids) {
         uint32_t fdNums = GetFileDescriptorNums(pid, "fd");
-        if (fdNums < fdLeakThreshold) {
+        if (fdNums < static_cast<uint32_t>(fdLeakThreshold)) {
             continue;
         }
         std::vector<std::pair<std::string, int32_t>> topLinks;

@@ -35,7 +35,7 @@ using DumpManagerServiceTestMainFunc = std::function<void(int argc, char *argv[]
 
 struct OrphanVnodeInfo {
     int32_t pid;
-    int32_t fdNum;
+    uint32_t fdNum;
     std::string processName;
     std::vector<std::pair<std::string, int32_t>> topLinks;
 };
