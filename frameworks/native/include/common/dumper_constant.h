@@ -84,6 +84,7 @@ inline const std::string ZIP_FOLDER = "/data/log/hidumper/";
 inline const std::string HISYSEVENT_TMP_FILE = "/data/log/hidumper/hisysevent.tmp";
 
 inline const std::string RELEASE_MODE = "Release";
+const uint64_t FDTAG = 0xD002D20;
 } // namespace HiviewDFX
 } // namespace OHOS
 #endif // HIDUMPER_SERVICES_DUMPER_CONSTANT_H

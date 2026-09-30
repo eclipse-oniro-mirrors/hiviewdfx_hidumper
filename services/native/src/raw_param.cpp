@@ -20,6 +20,7 @@
 #include <unistd.h>
 #include "hilog_wrapper.h"
 #include "dump_manager_service.h"
+#include "common/dumper_constant.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -82,7 +83,8 @@ void RawParam::CloseOutputFd()
     DUMPER_HILOGD(MODULE_SERVICE, "enter|outfd=%{public}d", outfd_);
     if (outfd_ > -1) {
         DUMPER_HILOGD(MODULE_SERVICE, "debug|outfd=%{public}d", outfd_);
-        close(outfd_);
+        fdsan_exchange_owner_tag(outfd_, 0, FDTAG);
+        fdsan_close_with_tag(outfd_, FDTAG);
     }
     outfd_ = -1;
     DUMPER_HILOGD(MODULE_SERVICE, "leave|outfd=%{public}d", outfd_);
