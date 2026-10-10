@@ -43,6 +43,7 @@ constexpr size_t SHARE_REASON_CASE_COUNT = 8;
 constexpr size_t KILL_APPLICATION_GROUP_COUNT = 4;
 constexpr size_t FAULT_TYPE_CASE_COUNT = 5;
 constexpr size_t FAULT_TYPE_KIND_COUNT = 4;
+constexpr size_t FREEZE_EVENT_PAIR_COUNT = 2;
 constexpr size_t SINGLE_FAULT_RULE_COUNT = 1;
 constexpr size_t JS_ERROR_RULE_COUNT = 2;
 constexpr long long QUERY_START_TIME = 100;
@@ -342,6 +343,25 @@ HWTEST_F(EventDumperTest, DumpEventInfo_ExtractAllFaultTypes, TestSize.Level1)
     ASSERT_TRUE(outcome.faultTypes_.count("SYS_FREEZE") == 1);
     ASSERT_TRUE(outcome.faultTypes_.count("JS_ERROR") == 1);
     ASSERT_TRUE(outcome.faultTypes_.count("CPP_CRASH") == 1);
+}
+
+HWTEST_F(EventDumperTest, DumpEventInfo_LifecycleTimeoutCoversBothFreezeEvents, TestSize.Level1)
+{
+    auto outcome = RunExtractPk({ MakePkRecord(ProcessKillReason::REASON_LIFECYCLE_TIMEOUT, "301") });
+    ASSERT_TRUE(outcome.result_ == EventDumpResult::EVENT_DUMP_OK);
+    ASSERT_TRUE(outcome.runningIds_.count("301") == 1);
+    ASSERT_EQ(outcome.faultTypes_.size(), FREEZE_EVENT_PAIR_COUNT);
+    ASSERT_TRUE(outcome.faultTypes_.count("SYS_FREEZE") == 1);
+    ASSERT_TRUE(outcome.faultTypes_.count("APP_FREEZE") == 1);
+
+    EventQueryParam param;
+    std::shared_ptr<DumpEventInfo> dumpEventInfo = std::make_shared<DumpEventInfo>();
+    dumpEventInfo->FillQueryParam(param, outcome.faultTypes_);
+    ASSERT_EQ(param.queryRule.size(), FREEZE_EVENT_PAIR_COUNT);
+    for (const auto &rule : param.queryRule) {
+        ASSERT_EQ(rule.first, "RELIABILITY");
+        ASSERT_EQ(rule.second.size(), SINGLE_FAULT_RULE_COUNT);
+    }
 }
 
 HWTEST_F(EventDumperTest, DumpEventInfo_FillQueryParam, TestSize.Level1)

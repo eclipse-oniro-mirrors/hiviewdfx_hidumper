@@ -154,7 +154,12 @@ EventDumpResult DumpEventInfo::ExtractPkRunningIdsAndFaultTypes(const std::vecto
             } else if (reason == "Js Error" || reason == "JsError") {
                 faultEventQuerySet.insert("JS_ERROR");
             } else if (reason == "LIFECYCLE_TIMEOUT" || reason == "LifecycleTimeout") {
+                // hiview freeze_detector reports a lifecycle timeout as SYS_FREEZE or as
+                // APP_FREEZE according to the per application report_lifecycle_as_appfreeze
+                // switch, so both events are queried. The record is still pinned down exactly
+                // by APP_RUNNING_UNIQUE_ID below.
                 faultEventQuerySet.insert("SYS_FREEZE");
+                faultEventQuerySet.insert("APP_FREEZE");
             } else if (reason == "THREAD_BLOCK_6S" || reason == "ThreadBlock6S" ||
                        reason == "APP_INPUT_BLOCK" || reason == "AppInputBlock") {
                 faultEventQuerySet.insert("APP_FREEZE");
