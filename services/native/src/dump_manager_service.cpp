@@ -142,7 +142,6 @@ void DumpManagerService::HandleRequestError(std::vector<std::u16string> &args, i
     const int32_t& errorCode, const std::string& errorMsg)
 {
     if (outfd > -1) {
-        fdsan_exchange_owner_tag(outfd, 0, FDTAG);
         fdsan_close_with_tag(outfd, FDTAG);
     }
     int callerPpid = -1;
@@ -167,6 +166,9 @@ void DumpManagerService::HandleRequestError(std::vector<std::u16string> &args, i
 
 int32_t DumpManagerService::Request(std::vector<std::u16string> &args, int outfd)
 {
+    if (outfd > -1) {
+        fdsan_exchange_owner_tag(outfd, 0, FDTAG);
+    }
     if (blockRequest_) {
         HandleRequestError(args, outfd, static_cast<int32_t>(DumpStatus::DUMP_FAIL), "request has blocked");
         return DumpStatus::DUMP_FAIL;

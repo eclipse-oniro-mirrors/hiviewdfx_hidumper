@@ -35,7 +35,6 @@ MemoryDumper::MemoryDumper()
 MemoryDumper::~MemoryDumper()
 {
     if (isZip_ && rawParamFd_ >= 0) {
-        fdsan_exchange_owner_tag(rawParamFd_, 0, FDTAG);
         fdsan_close_with_tag(rawParamFd_, FDTAG);
         rawParamFd_ = -1;
     }
@@ -64,8 +63,10 @@ DumpStatus MemoryDumper::PreExecute(const shared_ptr<DumperParameter> &parameter
     std::string logDefaultPath_ = callback->GetFolder() + "log.txt";
     if (isZip_) {
         rawParamFd_ = DumpUtils::FdToWrite(logDefaultPath_);
+        fdsan_exchange_owner_tag(rawParamFd_, 0, FDTAG);
     } else {
         rawParamFd_ = parameter->getClientCallback()->GetOutputFd();
+        fdsan_exchange_owner_tag(rawParamFd_, 0, FDTAG);
     }
     return DumpStatus::DUMP_OK;
 }

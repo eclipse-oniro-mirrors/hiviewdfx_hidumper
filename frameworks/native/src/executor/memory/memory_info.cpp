@@ -447,6 +447,7 @@ void MemoryInfo::RedirectMemoryInfo(int timeIndex, StringMatrix result)
         DUMPER_HILOGE(MODULE_COMMON, "write to record_mem.txt failed");
         return;
     }
+    fdsan_exchange_owner_tag(redirectFd, 0, FDTAG);
     string timeTitle = "\ntimes:" + to_string(timeIndex) + "\n";
     write(redirectFd, timeTitle.c_str(), strlen(timeTitle.c_str()));
     for (size_t i = 0; i < result->size(); i++) {
@@ -461,7 +462,6 @@ void MemoryInfo::RedirectMemoryInfo(int timeIndex, StringMatrix result)
             }
         }
     }
-    fdsan_exchange_owner_tag(redirectFd, 0, FDTAG);
     fdsan_close_with_tag(redirectFd, FDTAG);
 }
 

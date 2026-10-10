@@ -37,7 +37,6 @@ ZipFolderOutput::~ZipFolderOutput()
 {
     DUMPER_HILOGD(MODULE_COMMON, "release|");
     if (fd_ > FD_UNSET) {
-        fdsan_exchange_owner_tag(fd_, 0, FDTAG);
         fdsan_close_with_tag(fd_, FDTAG);
     }
 
@@ -61,6 +60,7 @@ DumpStatus ZipFolderOutput::PreExecute(const std::shared_ptr<DumperParameter>& p
         }
         logDefaultPath_ = callback->GetFolder() + LOG_DEFAULT;
         fd_= DumpUtils::FdToWrite(logDefaultPath_);
+        fdsan_exchange_owner_tag(fd_, 0, FDTAG);
     }
 
     if (fd_ < 0) {
@@ -120,7 +120,6 @@ void ZipFolderOutput::Reset()
 {
     if (fd_ > FD_UNSET) {
         DUMPER_HILOGD(MODULE_COMMON, "Reset debug|close");
-        fdsan_exchange_owner_tag(fd_, 0, FDTAG);
         fdsan_close_with_tag(fd_, FDTAG);
     }
     fd_ = FD_UNSET;
