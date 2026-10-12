@@ -66,7 +66,6 @@ DumpStatus MemoryDumper::PreExecute(const shared_ptr<DumperParameter> &parameter
         fdsan_exchange_owner_tag(rawParamFd_, 0, FDTAG);
     } else {
         rawParamFd_ = parameter->getClientCallback()->GetOutputFd();
-        fdsan_exchange_owner_tag(rawParamFd_, 0, FDTAG);
     }
     return DumpStatus::DUMP_OK;
 }

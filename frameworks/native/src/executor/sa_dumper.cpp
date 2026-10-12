@@ -61,7 +61,6 @@ DumpStatus SADumper::PreExecute(const std::shared_ptr<DumperParameter> &paramete
         fdsan_exchange_owner_tag(outputFd_, 0, FDTAG);
     } else {
         outputFd_ = parameter->getClientCallback()->GetOutputFd();
-        fdsan_exchange_owner_tag(outputFd_, 0, FDTAG);
     }
 
     StringVector args = ptrDumpCfg_->args_->GetArgList();
