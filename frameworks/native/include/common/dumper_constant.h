@@ -15,6 +15,7 @@
 #ifndef HIDUMPER_SERVICES_DUMPER_CONSTANT_H
 #define HIDUMPER_SERVICES_DUMPER_CONSTANT_H
 
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <iostream>
@@ -89,7 +90,7 @@ inline const int64_t ZIP_TARGET_SIZE = 80 * 1024 * 1024;
 
 inline const std::string RELEASE_MODE = "Release";
 inline constexpr const char* KILL_ID_KEY = "KILL_ID";
-const uint64_t FDTAG = 0xD002D20;
+const uint64_t FDTAG = (((uint64_t)0xD002D20 << 32) | 0x01);
 } // namespace HiviewDFX
 } // namespace OHOS
 #endif // HIDUMPER_SERVICES_DUMPER_CONSTANT_H
