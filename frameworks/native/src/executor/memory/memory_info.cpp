@@ -47,6 +47,7 @@
 #include "string_ex.h"
 #include "util/string_utils.h"
 #include "util/file_utils.h"
+#include "common/dumper_constant.h"
 
 using namespace std;
 using namespace OHOS::HDI::Memorytracker::V1_0;
@@ -436,6 +437,7 @@ void MemoryInfo::RedirectMemoryInfo(int timeIndex, StringMatrix result)
         DUMPER_HILOGE(MODULE_COMMON, "write to record_mem.txt failed");
         return;
     }
+    fdsan_exchange_owner_tag(redirectFd, 0, FDTAG);
     string timeTitle = "\ntimes:" + to_string(timeIndex) + "\n";
     write(redirectFd, timeTitle.c_str(), strlen(timeTitle.c_str()));
     for (size_t i = 0; i < result->size(); i++) {
@@ -450,7 +452,7 @@ void MemoryInfo::RedirectMemoryInfo(int timeIndex, StringMatrix result)
             }
         }
     }
-    close(redirectFd);
+    fdsan_close_with_tag(redirectFd, FDTAG);
 }
 
 void MemoryInfo::GetMemoryInfoByTimeInterval(int fd, const int32_t &pid, const int32_t &timeInterval)

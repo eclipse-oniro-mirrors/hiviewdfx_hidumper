@@ -42,6 +42,7 @@
 
 #include "system_ability_definition.h"
 #include "hilog_wrapper.h"
+#include "common/dumper_constant.h"
 
 #ifdef HIDUMPER_BUNDLEMANAGER_FRAMEWORK_ENABLE
 #include "application_info.h"
@@ -266,7 +267,8 @@ void DumpUtils::SetAdj(int adj)
         return;
     }
     dprintf(fd, "%d", adj);
-    close(fd);
+    fdsan_exchange_owner_tag(fd, 0, FDTAG);
+    fdsan_close_with_tag(fd, FDTAG);
 }
 
 void DumpUtils::BoostPriority()

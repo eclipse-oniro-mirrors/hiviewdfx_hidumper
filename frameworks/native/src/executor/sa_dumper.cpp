@@ -21,6 +21,7 @@
 #include "dump_utils.h"
 #include "file_ex.h"
 #include "securec.h"
+#include "common/dumper_constant.h"
 
 namespace OHOS {
 namespace HiviewDFX {
@@ -39,7 +40,7 @@ SADumper::SADumper(void)
 SADumper::~SADumper(void)
 {
     if (isZip_ && outputFd_ >= 0) {
-        close(outputFd_);
+        fdsan_close_with_tag(outputFd_, FDTAG);
         outputFd_ = -1;
     }
 }
@@ -57,6 +58,7 @@ DumpStatus SADumper::PreExecute(const std::shared_ptr<DumperParameter> &paramete
     std::string logDefaultPath_ = callback->GetFolder() + LOG_TXT;
     if (isZip_) {
         outputFd_ = DumpUtils::FdToWrite(logDefaultPath_);
+        fdsan_exchange_owner_tag(outputFd_, 0, FDTAG);
     } else {
         outputFd_ = parameter->getClientCallback()->GetOutputFd();
     }

@@ -15,6 +15,7 @@
 #ifndef HIDUMPER_SERVICES_DUMPER_CONSTANT_H
 #define HIDUMPER_SERVICES_DUMPER_CONSTANT_H
 
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <iostream>
@@ -84,7 +85,7 @@ inline const std::string ZIP_FOLDER = "/data/log/hidumper/";
 inline const std::string HISYSEVENT_TMP_FILE = "/data/log/hidumper/hisysevent.tmp";
 
 inline const std::string RELEASE_MODE = "Release";
-const uint64_t FDTAG = 0xD002D20;
+const uint64_t FDTAG = (((uint64_t)0xD002D20 << 32) | 0x01);
 } // namespace HiviewDFX
 } // namespace OHOS
 #endif // HIDUMPER_SERVICES_DUMPER_CONSTANT_H
