@@ -14,6 +14,7 @@
  */
 #include "executor/event_detail_dumper.h"
 #include "dump_utils.h"
+#include "common/dumper_constant.h"
 
 using namespace std;
 namespace OHOS {
@@ -142,7 +143,8 @@ void EventDetailDumper::ReadSingleLogFile(const std::string &path)
     fp_ = fdopen(fd_, "r");
     if (fp_ == nullptr) {
         DUMPER_HILOGE(MODULE_COMMON, "logPaths fdopen failed");
-        close(fd_);
+        fdsan_exchange_owner_tag(fd_, 0, FDTAG);
+        fdsan_close_with_tag(fd_, FDTAG);
         fd_ = -1;
         return;
     }
@@ -188,7 +190,8 @@ void EventDetailDumper::CloseFd()
         fp_ = nullptr;
         fd_ = -1;
     } else if (fd_ >= 0) {
-        close(fd_);
+        fdsan_exchange_owner_tag(fd_, 0, FDTAG);
+        fdsan_close_with_tag(fd_, FDTAG);
         fd_ = -1;
     }
 };
