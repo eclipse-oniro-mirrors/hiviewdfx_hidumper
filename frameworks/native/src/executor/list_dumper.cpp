@@ -15,6 +15,7 @@
 #include "executor/list_dumper.h"
 
 #include "dump_utils.h"
+#include "iservice_registry.h"
 #include "manager/dump_implement.h"
 #include "util/config_utils.h"
 namespace OHOS {
@@ -49,8 +50,9 @@ DumpStatus ListDumper::Execute()
     std::vector<std::string> list;
     if (target_ == ConfigUtils::STR_ABILITY) {
         header = ABILITY_HEADER;
-        auto sma = DumpImplement::GetInstance().GetSystemAbilityManager();
+        auto sma = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         if (sma == nullptr) {
+            DUMPER_HILOGE(MODULE_COMMON, "SystemAbilityManager not found.");
             return DumpStatus::DUMP_OK;
         }
         std::vector<std::u16string> abilities = sma->ListSystemAbilities();

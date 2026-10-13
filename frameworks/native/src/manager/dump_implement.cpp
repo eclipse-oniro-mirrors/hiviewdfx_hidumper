@@ -1197,15 +1197,6 @@ bool DumpImplement::CheckGroupName(std::string &lastName, const std::string &cur
     return true;
 }
 
-const sptr<ISystemAbilityManager> DumpImplement::GetSystemAbilityManager()
-{
-    sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (sam == nullptr) {
-        DUMPER_HILOGE(MODULE_COMMON, "SystemAbilityManager not found.");
-    }
-    return sam;
-}
-
 void DumpImplement::CheckIncorrectCmdOption(const char *optStr, char *argv[])
 {
     if (optopt == 0) {

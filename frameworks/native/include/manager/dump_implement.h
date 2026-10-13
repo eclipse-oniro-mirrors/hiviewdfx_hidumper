@@ -37,7 +37,6 @@ public:
     DumpImplement(DumpImplement const &) = delete;
     void operator=(DumpImplement const &) = delete;
     DumpStatus Main(int argc, char *argv[], const std::shared_ptr<RawParam>& reqCtl);
-    const sptr<ISystemAbilityManager> GetSystemAbilityManager();
 
 private:
     DumpStatus InitHandle(int argc, char *argv[], const std::shared_ptr<RawParam> &reqCtl,
