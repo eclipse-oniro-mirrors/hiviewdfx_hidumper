@@ -33,15 +33,7 @@ DumpManagerCpuClient::~DumpManagerCpuClient()
 
 int32_t DumpManagerCpuClient::Request(DumpCpuData &dumpCpuData)
 {
-    if (Connect() != ERR_OK) {
-        DUMPER_HILOGE(MODULE_CPU_CLIENT, "debug|cpu connect error");
-        return DumpStatus::DUMP_FAIL;
-    }
-    sptr<IHidumperCpuService> proxy;
-    {
-        std::lock_guard<std::mutex> lock(mutex_);
-        proxy = proxy_;
-    }
+    sptr<IHidumperCpuService> proxy = GetProxy();
     if (proxy == nullptr) {
         DUMPER_HILOGE(MODULE_CPU_CLIENT, "cpu proxy is null");
         return DumpStatus::DUMP_FAIL;
@@ -52,21 +44,27 @@ int32_t DumpManagerCpuClient::Request(DumpCpuData &dumpCpuData)
 
 int32_t DumpManagerCpuClient::GetCpuUsageByPid(int32_t pid, double &cpuUsage)
 {
-    if (Connect() != ERR_OK) {
-        DUMPER_HILOGE(MODULE_CPU_CLIENT, "cpu connect error");
-        return DumpStatus::DUMP_FAIL;
-    }
-    sptr<IHidumperCpuService> proxy;
-    {
-        std::lock_guard<std::mutex> lock(mutex_);
-        proxy = proxy_;
-    }
+    sptr<IHidumperCpuService> proxy = GetProxy();
     if (proxy == nullptr) {
         DUMPER_HILOGE(MODULE_CPU_CLIENT, "cpu proxy is null");
         return DumpStatus::DUMP_FAIL;
     }
     int32_t ret = proxy->GetCpuUsageByPid(pid, cpuUsage);
     return ret;
+}
+
+sptr<IHidumperCpuService> DumpManagerCpuClient::GetProxy()
+{
+    if (Connect() != ERR_OK) {
+        DUMPER_HILOGE(MODULE_CPU_CLIENT, "cpu connect error");
+        return nullptr;
+    }
+    sptr<IHidumperCpuService> proxy;
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        proxy = proxy_;
+    }
+    return proxy;
 }
 
 ErrCode DumpManagerCpuClient::Connect()

@@ -44,6 +44,7 @@ private:
         DISALLOW_COPY_AND_MOVE(DumpManagerCpuDeathRecipient);
     };
 private:
+    sptr<IHidumperCpuService> GetProxy();
     void ResetProxy(const wptr<IRemoteObject>& remote);
     ErrCode OnDemandStart(sptr<ISystemAbilityManager> sam, sptr<IRemoteObject> &remoteObject);
 private:
