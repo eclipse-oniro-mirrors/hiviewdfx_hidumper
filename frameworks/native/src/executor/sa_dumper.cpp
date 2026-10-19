@@ -117,6 +117,13 @@ DumpStatus SADumper::Execute()
         std::transform(vct.begin(), vct.end(), std::back_inserter(names_), Str16ToStr8);
     }
     for (size_t i = 0; i < names_.size(); ++i) {
+        // The consumer is gone (e.g. "hidumper -s ... | grep -m1 x"): skip the rest,
+        // mirroring AOSP dumpsys writeDump which stops on the first write failure.
+        if ((relay_ != nullptr) && relay_->IsOutputBroken()) {
+            DUMPER_HILOGW(MODULE_SERVICE, "consumer gone, skip the remaining %{public}zu system abilities",
+                names_.size() - i);
+            break;
+        }
         if (GetData(names_[i], sam) != DumpStatus::DUMP_OK) {
             DUMPER_HILOGI(MODULE_SERVICE, "system ability:%{public}s execute fail!\n", names_[i].c_str());
         }
