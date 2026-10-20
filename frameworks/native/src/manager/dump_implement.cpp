@@ -1432,6 +1432,9 @@ void DumpImplement::ReportMemheap(const DumperOpts &opts)
     }
     std::string strType;
     if (opts.isDumpHeapKotlin_) {
+        if (opts.isDumpHeapMemGc_) {
+            return; // gc only, no dump
+        }
         strType = "hidumperKmpHeap";
     } else if (opts.isDumpHeapNative_) {
         strType = "hidumperNativeHeap";
