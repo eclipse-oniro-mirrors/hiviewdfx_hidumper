@@ -155,9 +155,14 @@ void FdRelay::DrainLoop()
 {
     char buf[RELAY_BUF_SIZE] = {0};
     int32_t idleMs = 0;
+    // Total time spent in the closing_ phase. Each loop iteration costs at most
+    // RELAY_POLL_TIMEOUT_MS wall time, so counting the nominal timeout per iteration
+    // over-estimates the elapsed time and the hard cap fires at or before its real
+    // value -- the safe direction when the peer misbehaves.
+    int32_t closingMs = 0;
     bool running = true;
     while (running) {
-        running = DrainOnce(buf, RELAY_BUF_SIZE, idleMs);
+        running = DrainOnce(buf, RELAY_BUF_SIZE, idleMs, closingMs);
     }
     // Release the read end so that a producer still writing gets EPIPE right away
     // instead of blocking on a pipe nobody drains any more.
@@ -165,12 +170,24 @@ void FdRelay::DrainLoop()
 }
 
 // One poll / read / forward cycle. Returns false once the loop has to end.
-bool FdRelay::DrainOnce(char *buf, size_t cap, int32_t &idleMs)
+bool FdRelay::DrainOnce(char *buf, size_t cap, int32_t &idleMs, int32_t &closingMs)
 {
     struct pollfd pfd = {};
     pfd.fd = readFd_;
     pfd.events = POLLIN;
     int rc = poll(&pfd, 1, RELAY_POLL_TIMEOUT_MS);
+    if (closing_.load()) {
+        // Every legitimate writer is already closed at this point, so the drain only
+        // waits for the buffered tail plus EOF. Bound the TOTAL wait as well: the
+        // idle-based grace alone is defeated by a remote that keeps writing.
+        closingMs += RELAY_POLL_TIMEOUT_MS;
+        if (closingMs >= RELAY_EOF_HARD_LIMIT_MS) {
+            producerLeak_.store(true);
+            DUMPER_HILOGE(MODULE_COMMON, "producer fd still open %{public}d ms after closing the write end "
+                "while data keeps arriving, the remote writes periodically, stop relaying", closingMs);
+            return false;
+        }
+    }
     if (rc < 0) {
         if (errno == EINTR) {
             return true;

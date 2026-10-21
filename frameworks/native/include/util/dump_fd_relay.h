@@ -29,6 +29,17 @@ constexpr int32_t RELAY_POLL_TIMEOUT_MS = 200;
 // Upper bound for waiting on EOF once Finish() closed our write end. Only reached
 // when the remote side kept a copy of the producer fd open.
 constexpr int32_t RELAY_EOF_GRACE_MS = 2000;
+// Absolute upper bound for the TOTAL wait on EOF once Finish() closed our write end.
+// RELAY_EOF_GRACE_MS only bounds *silence*: a remote that kept the producer fd and
+// writes at intervals shorter than the grace keeps resetting the idle counter, so the
+// drain loop -- and Finish()'s pthread_join -- would never return, the request would
+// never complete and its REQUEST_MAX slot would stay occupied forever. Once our write
+// end is closed every legitimate writer is provably gone (IPCObjectStub::OnRemoteDump
+// closes its dup before the binder reply returns), so bytes still arriving come from
+// a misbehaving remote and cutting them off loses no legitimate data.
+// Keep below STOP_WAIT (30s) in dump_manager_service.cpp so the unload path can
+// still watch the relay finish gracefully.
+constexpr int32_t RELAY_EOF_HARD_LIMIT_MS = 10000;
 // Must stay within the 16 byte pthread name limit including the terminator.
 constexpr char RELAY_THREAD_NAME[] = "hidumper_relay";
 
@@ -95,7 +106,7 @@ public:
 private:
     static void *DrainThreadEntry(void *arg);
     void DrainLoop();
-    bool DrainOnce(char *buf, size_t cap, int32_t &idleMs);
+    bool DrainOnce(char *buf, size_t cap, int32_t &idleMs, int32_t &closingMs);
     bool CountIdleOnce(int32_t &idleMs);
     bool ForwardChunk(char *buf, size_t cap);
     void CloseWriteEnd();
