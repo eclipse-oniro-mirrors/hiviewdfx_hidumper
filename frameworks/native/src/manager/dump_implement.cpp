@@ -1561,6 +1561,12 @@ bool DumpImplement::CheckDumpHeapMemParameter(int argc, DumperOpts& opt)
     if (opt.isDumpHeapArkwebJs_) {
         return CheckArkwebJsParameter(opt);
     }
+    if (opt.isDumpHeapKotlin_ && opt.dumpRawHeap_) {
+        DUMPER_HILOGE(MODULE_COMMON, "raw is not supported for kotlin");
+        SendErrorMessage("Error [ARGUMENT]: '--raw' is not supported with '--kotlin'.");
+        SendErrorMessage("Fix: Remove '--raw' from the command.");
+        return false;
+    }
     return true;
 }
 
