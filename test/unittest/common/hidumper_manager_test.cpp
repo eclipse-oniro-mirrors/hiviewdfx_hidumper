@@ -952,6 +952,47 @@ HWTEST_F(HiDumperManagerTest, DumpTest050, TestSize.Level0)
 }
 
 /**
+ * @tc.name: MemoryDumperTest51
+ * @tc.desc: Test --kotlin --raw is rejected.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest051, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("--mem-heap"),
+        const_cast<char *>(std::to_string(getpid()).c_str()),
+        const_cast<char *>("--kotlin"),
+        const_cast<char *>("--raw"),
+        const_cast<char *>(""),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_EQ(ret, DumpStatus::DUMP_HELP);
+}
+
+/**
+ * @tc.name: MemoryDumperTest52
+ * @tc.desc: Test --kotlin --gc --raw is rejected.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, DumpTest052, TestSize.Level0)
+{
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("--mem-heap"),
+        const_cast<char *>(std::to_string(getpid()).c_str()),
+        const_cast<char *>("--kotlin"),
+        const_cast<char *>("--gc"),
+        const_cast<char *>("--raw"),
+        const_cast<char *>(""),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+    int ret = GetDumpResult(argc, argv);
+    ASSERT_EQ(ret, DumpStatus::DUMP_HELP);
+}
+
+/**
  * @tc.name: IpcStatDumpTest001
  * @tc.desc: hidumper --ipc -a --start-stat
  * @tc.type: FUNC
