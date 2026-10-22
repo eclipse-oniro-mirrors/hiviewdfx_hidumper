@@ -1569,7 +1569,12 @@ bool DumpImplement::CheckDumpHeapMemParameter(int argc, DumperOpts& opt)
 
 bool DumpImplement::CheckKmpParameter(DumperOpts& opt)
 {
-    DUMPER_HILOGI(MODULE_COMMON, "CheckKmpParameter passed");
+    if (opt.dumpRawHeap_ || opt.isDumpJsHeapCombine_) {
+        DUMPER_HILOGE(MODULE_COMMON, "only --gc is supported for KMP");
+        SendErrorMessage("Error [ARGUMENT]: Only '--gc' is supported for KMP heap.");
+        SendErrorMessage("Fix: Remove unsupported options from the command.");
+        return false;
+    }
     return true;
 }
 
