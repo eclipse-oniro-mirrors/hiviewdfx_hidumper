@@ -92,7 +92,6 @@ void PrintHelpInfo(DumpContext& dumpContext)
         " and dumpLeakList under pid and tid\n"
         "  --mem-cjheap pid [--gc]     |the pid should belong to the Cangjie process; triggerGC and"
         " dumpHeapSnapshot under pid\n"
-        "  --mem-heap pid --k" "otlin [--gc] |triggerGC and dumpHeapSnapshot for KMP heap under pid\n"
         "  --ipc pid ARG               |ipc load statistic; pid must be specified or set to -a dump all"
         " processes. ARG must be one of --start-stat | --stop-stat | --stat\n";
 

@@ -1022,7 +1022,7 @@ void DumpImplement::CmdHelp()
         "  --mem-heap pid ARG [--leakobj] [--raw] [-T tid] [--gc] |ARG must be one of --native | --kotlin | --jsvm | "
         "--arkweb-js.\n"
         #else
-        "  --mem-heap pid ARG [--leakobj] |ARG must be one of --native | --kotlin.\n"
+        "  --mem-heap pid ARG [--leakobj] [--gc] |ARG must be one of --native | --k" "otlin.\n"
         #endif
         "  --ipc pid ARG               |ipc load statistic; pid must be specified or set to -a dump all"
         " processes. ARG must be one of --start-stat | --stop-stat | --stat\n";
