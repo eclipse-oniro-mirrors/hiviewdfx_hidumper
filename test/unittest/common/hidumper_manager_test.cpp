@@ -953,7 +953,7 @@ HWTEST_F(HiDumperManagerTest, DumpTest050, TestSize.Level0)
 
 /**
  * @tc.name: MemoryDumperTest51
- * @tc.desc: Test KMP heap raw option is rejected.
+ * @tc.desc: Test KMP heap gc command has correct ret.
  * @tc.type: FUNC
  */
 HWTEST_F(HiDumperManagerTest, DumpTest051, TestSize.Level0)
@@ -963,17 +963,17 @@ HWTEST_F(HiDumperManagerTest, DumpTest051, TestSize.Level0)
         const_cast<char *>("--mem-heap"),
         const_cast<char *>(std::to_string(getpid()).c_str()),
         const_cast<char *>("--k" "otlin"),
-        const_cast<char *>("--raw"),
+        const_cast<char *>("--gc"),
         const_cast<char *>(""),
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     int ret = GetDumpResult(argc, argv);
-    ASSERT_EQ(ret, DumpStatus::DUMP_HELP);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
 
 /**
  * @tc.name: MemoryDumperTest52
- * @tc.desc: Test KMP heap gc and raw are rejected.
+ * @tc.desc: Test KMP heap snapshot command has correct ret.
  * @tc.type: FUNC
  */
 HWTEST_F(HiDumperManagerTest, DumpTest052, TestSize.Level0)
@@ -983,13 +983,11 @@ HWTEST_F(HiDumperManagerTest, DumpTest052, TestSize.Level0)
         const_cast<char *>("--mem-heap"),
         const_cast<char *>(std::to_string(getpid()).c_str()),
         const_cast<char *>("--k" "otlin"),
-        const_cast<char *>("--gc"),
-        const_cast<char *>("--raw"),
         const_cast<char *>(""),
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     int ret = GetDumpResult(argc, argv);
-    ASSERT_EQ(ret, DumpStatus::DUMP_HELP);
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
 }
 
 /**

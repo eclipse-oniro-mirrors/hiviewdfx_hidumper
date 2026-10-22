@@ -1561,12 +1561,15 @@ bool DumpImplement::CheckDumpHeapMemParameter(int argc, DumperOpts& opt)
     if (opt.isDumpHeapArkwebJs_) {
         return CheckArkwebJsParameter(opt);
     }
-    if (opt.isDumpHeapKotlin_ && opt.dumpRawHeap_) {
-        DUMPER_HILOGE(MODULE_COMMON, "raw is not supported for KMP heap");
-        SendErrorMessage("Error [ARGUMENT]: '--raw' is not supported for KMP heap.");
-        SendErrorMessage("Fix: Remove '--raw' from the command.");
-        return false;
+    if (opt.isDumpHeapKotlin_) {
+        return CheckKmpParameter(opt);
     }
+    return true;
+}
+
+bool DumpImplement::CheckKmpParameter(DumperOpts& opt)
+{
+    DUMPER_HILOGI(MODULE_COMMON, "CheckKmpParameter passed");
     return true;
 }
 
