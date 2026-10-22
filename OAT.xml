@@ -62,6 +62,8 @@ Note:If the text contains special characters, please escape them according to th
 		</filefilter>
 		<filefilter name="binaryFileTypePolicyFilter" desc="Filters for binary file policies">
 			<filteritem type="filepath" name="figures/.*" desc="self developed pictures used in readme documents"/>
+			<filteritem type="filename" name="openharmony_sx.p7b" desc="generic OpenHarmony test certificate profile signing the function-test HAP (same file as base/powermgr/power_manager)"/>
+			<filteritem type="filename" name="*.png" desc="self-developed icon resources of the function-test HAP (same pattern as base/powermgr/power_manager)"/>
 		</filefilter>
 	</filefilterlist>
 	</oatconfig>

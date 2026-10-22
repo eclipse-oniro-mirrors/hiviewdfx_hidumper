@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "hidumper function test target app"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "hidumper function test targets"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "HidumperFuncTest"
+    }
+  ]
+}

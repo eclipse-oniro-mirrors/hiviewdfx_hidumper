@@ -575,6 +575,41 @@ ohos_unittest("ZipFileCleanerTest") {
   ]
 }
 
+ohos_unittest("HidumperFunctionTest") {
+  module_out_path = module_output_path
+
+  sources = [
+    "hidumper_function_test.cpp",
+    "hidumper_function_test_env.cpp",
+    "hidumper_test_utils.cpp",
+  ]
+
+  configs = [ ":module_private_config" ]
+
+  # The function-test HAP targets do not exist in CI precise (tdd) builds (see
+  # hidumper.gni ohos_module_precise_build), so the dependency is conditional.
+  # Full builds and the part compile keep the HAPs wired into the test resources.
+  deps = []
+  if (!ohos_module_precise_build) {
+    deps += [ "//base/hiviewdfx/hidumper/test/resource/hidumper_func_hap:hidumper_func_hap" ]
+  }
+
+  external_deps = [
+    "bounds_checking_function:libsec_shared",
+    "c_utils:utils",
+  ]
+
+  resource_config_file = "//base/hiviewdfx/hidumper/test/resource/ohos_test.xml"
+
+  defines = []
+  if (hidumper_hiviewdfx_hiview_enable) {
+    defines += [ "HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE" ]
+  }
+  if (hidumper_hiviewdfx_plugin_enable) {
+    defines += [ "HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE" ]
+  }
+}
+
 ###############################################################################
 group("unittest") {
   testonly = true
@@ -588,6 +623,7 @@ group("unittest") {
     ":HidumperConfigUtilsTest",
     ":HidumperDataInventoryTest",
     ":HidumperDumpersTest",
+    ":HidumperFunctionTest",
     ":HidumperInnerkitsTest",
     ":HidumperManagerTest",
     ":HidumperMemoryTest",
