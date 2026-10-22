@@ -953,7 +953,7 @@ HWTEST_F(HiDumperManagerTest, DumpTest050, TestSize.Level0)
 
 /**
  * @tc.name: MemoryDumperTest51
- * @tc.desc: Test --kotlin --raw is rejected.
+ * @tc.desc: Test KMP heap raw option is rejected.
  * @tc.type: FUNC
  */
 HWTEST_F(HiDumperManagerTest, DumpTest051, TestSize.Level0)
@@ -973,7 +973,7 @@ HWTEST_F(HiDumperManagerTest, DumpTest051, TestSize.Level0)
 
 /**
  * @tc.name: MemoryDumperTest52
- * @tc.desc: Test --kotlin --gc --raw is rejected.
+ * @tc.desc: Test KMP heap gc and raw are rejected.
  * @tc.type: FUNC
  */
 HWTEST_F(HiDumperManagerTest, DumpTest052, TestSize.Level0)
