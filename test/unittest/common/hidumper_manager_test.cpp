@@ -962,7 +962,7 @@ HWTEST_F(HiDumperManagerTest, DumpTest051, TestSize.Level0)
         const_cast<char *>(TOOL_NAME.c_str()),
         const_cast<char *>("--mem-heap"),
         const_cast<char *>(std::to_string(getpid()).c_str()),
-        const_cast<char *>("--k" "otlin"),
+        const_cast<char *>("--kotlin"),
         const_cast<char *>("--gc"),
         const_cast<char *>(""),
     };
@@ -982,7 +982,7 @@ HWTEST_F(HiDumperManagerTest, DumpTest052, TestSize.Level0)
         const_cast<char *>(TOOL_NAME.c_str()),
         const_cast<char *>("--mem-heap"),
         const_cast<char *>(std::to_string(getpid()).c_str()),
-        const_cast<char *>("--k" "otlin"),
+        const_cast<char *>("--kotlin"),
         const_cast<char *>(""),
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
