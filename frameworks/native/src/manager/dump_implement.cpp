@@ -1569,7 +1569,10 @@ bool DumpImplement::CheckDumpHeapMemParameter(int argc, DumperOpts& opt)
 
 bool DumpImplement::CheckKmpParameter(DumperOpts& opt)
 {
-    if (!opt.dumpRawHeap_ && !opt.isDumpJsHeapCombine_) {
+    int extraCount = static_cast<int>(opt.isDumpHeapMemGc_)
+        + static_cast<int>(opt.dumpRawHeap_)
+        + static_cast<int>(opt.isDumpJsHeapCombine_);
+    if (extraCount == 0 || (extraCount == 1 && opt.isDumpHeapMemGc_)) {
         return true;
     }
     DUMPER_HILOGE(MODULE_COMMON, "only --gc is supported for KMP");
