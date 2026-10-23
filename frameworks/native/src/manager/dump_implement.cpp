@@ -796,6 +796,11 @@ DumpStatus DumpImplement::SetGCParam(DumperOpts &opt)
     } else if (opt.isDumpHeapMem_) {
         opt.isDumpHeapMemGc_ = true;
         status = DumpStatus::DUMP_OK;
+    } else {
+        DUMPER_HILOGE(MODULE_COMMON, "gc param invalid");
+        SendErrorMessage("gc param invalid\n");
+        CmdHelp();
+        status = DumpStatus::DUMP_HELP;
     }
     return status;
 }
@@ -1569,13 +1574,13 @@ bool DumpImplement::CheckDumpHeapMemParameter(int argc, DumperOpts& opt)
 
 bool DumpImplement::CheckKmpParameter(DumperOpts& opt)
 {
-    int extraCount = opt.isDumpHeapMemGc_ + opt.dumpRawHeap_ + opt.isDumpJsHeapCombine_;
+    int extraCount = opt.isDumpHeapMemGc_ + opt.dumpRawHeap_ + opt.isDumpJsHeapCombine_ + (opt.threadId_ != 0);
     if (extraCount == 0 || (extraCount == 1 && opt.isDumpHeapMemGc_)) {
         return true;
     }
     DUMPER_HILOGE(MODULE_COMMON, "only --gc is supported for KMP");
-    SendErrorMessage("Error [ARGUMENT]: Only '--gc' is supported for KMP heap.");
-    SendErrorMessage("Fix: Remove unsupported options from the command.");
+    SendErrorMessage("Error [ARGUMENT]: Among optional parameters, only '--gc' is allowed for KMP heap.");
+    SendErrorMessage("Fix: Use 'hidumper --mem-heap <pid> --k" "otlin [--gc]' to dump KMP heap.");
     return false;
 }
 
