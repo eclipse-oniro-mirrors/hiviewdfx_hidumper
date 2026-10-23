@@ -1569,13 +1569,13 @@ bool DumpImplement::CheckDumpHeapMemParameter(int argc, DumperOpts& opt)
 
 bool DumpImplement::CheckKmpParameter(DumperOpts& opt)
 {
-    if (opt.dumpRawHeap_ || opt.isDumpJsHeapCombine_) {
-        DUMPER_HILOGE(MODULE_COMMON, "only --gc is supported for KMP");
-        SendErrorMessage("Error [ARGUMENT]: Only '--gc' is supported for KMP heap.");
-        SendErrorMessage("Fix: Remove unsupported options from the command.");
-        return false;
+    if (!opt.dumpRawHeap_ && !opt.isDumpJsHeapCombine_) {
+        return true;
     }
-    return true;
+    DUMPER_HILOGE(MODULE_COMMON, "only --gc is supported for KMP");
+    SendErrorMessage("Error [ARGUMENT]: Only '--gc' is supported for KMP heap.");
+    SendErrorMessage("Fix: Remove unsupported options from the command.");
+    return false;
 }
 
 bool DumpImplement::CheckArkwebJsParameter(DumperOpts& opt)
