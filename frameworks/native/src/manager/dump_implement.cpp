@@ -1580,7 +1580,7 @@ bool DumpImplement::CheckKmpParameter(DumperOpts& opt)
     }
     DUMPER_HILOGE(MODULE_COMMON, "only --gc is supported for KMP");
     SendErrorMessage("Error [ARGUMENT]: Among optional parameters, only '--gc' is allowed for KMP heap.");
-    SendErrorMessage("Fix: Use 'hidumper --mem-heap <pid> --k" "otlin [--gc]' to dump KMP heap.");
+    SendErrorMessage("Fix: Use 'hidumper --mem-heap <pid> --kotlin [--gc]' to dump KMP heap.");
     return false;
 }
 
