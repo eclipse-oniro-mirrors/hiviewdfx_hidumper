@@ -1569,9 +1569,7 @@ bool DumpImplement::CheckDumpHeapMemParameter(int argc, DumperOpts& opt)
 
 bool DumpImplement::CheckKmpParameter(DumperOpts& opt)
 {
-    int extraCount = static_cast<int>(opt.isDumpHeapMemGc_)
-        + static_cast<int>(opt.dumpRawHeap_)
-        + static_cast<int>(opt.isDumpJsHeapCombine_);
+    int extraCount = opt.isDumpHeapMemGc_ + opt.dumpRawHeap_ + opt.isDumpJsHeapCombine_;
     if (extraCount == 0 || (extraCount == 1 && opt.isDumpHeapMemGc_)) {
         return true;
     }
