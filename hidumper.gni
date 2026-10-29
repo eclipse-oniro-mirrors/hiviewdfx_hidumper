@@ -40,6 +40,16 @@ hidumper_fuzz_output_path = "hidumper/hidumper"
 system_type = "default"
 
 declare_args() {
+  # Set by the CI precise-build flow: the tdd labels pass
+  # ohos_module_precise_build=true (with ohos_precise_config) through gn args,
+  # while full product builds leave it at the default. The precise pools carry
+  # SDK states that cannot build model-6 hvigor HAP projects (no usable 26.x
+  # SDK components and no license-accepted download path), so the function-test
+  # HAP resources are kept out of those builds. Declared here because older
+  # build/ revisions do not declare it; a value passed on the gn command line
+  # overrides the default.
+  ohos_module_precise_build = false
+
   hidumper_ability_runtime_enable = true
   hidumper_ablility_base_enable = false
   hidumper_netmanager_base_enable = true

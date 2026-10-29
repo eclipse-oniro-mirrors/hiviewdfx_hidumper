@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "module_test_desc",
+      "value": "hidumper function test module"
+    },
+    {
+      "name": "TestAbility_desc",
+      "value": "hidumper function test ability"
+    },
+    {
+      "name": "TestAbility_label",
+      "value": "HidumperFuncTest"
+    }
+  ]
+}
