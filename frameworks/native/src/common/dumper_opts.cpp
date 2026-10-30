@@ -67,6 +67,7 @@ void DumperOpts::ResetMemOptions()
     showDmaBuf_ = false;
     showGpumem_ = false;
     showArktsHeap_ = false;
+    showLeakThread_ = false;
     timeInterval_ = 0;
     memPid_ = -1;
 }
@@ -201,6 +202,7 @@ void DumperOpts::AssignMemOptions(const DumperOpts& opts)
     showDmaBuf_ = opts.showDmaBuf_;
     showGpumem_ = opts.showGpumem_;
     showArktsHeap_ = opts.showArktsHeap_;
+    showLeakThread_ = opts.showLeakThread_;
     isShowSmaps_ = opts.isShowSmaps_;
     isShowSmapsInfo_ = opts.isShowSmapsInfo_;
 }

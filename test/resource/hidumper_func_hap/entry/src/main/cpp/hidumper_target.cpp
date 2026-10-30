@@ -15,9 +15,10 @@
 /*
  * hidumper_target.cpp - synthetic dump targets for hidumper function UT.
  *
- * Provides three self-driven targets inside this app process so that
- * `hidumper --mem-heap <pid> --native|--jsvm|--kotlin` has a deterministic
- * victim without depending on third-party apps:
+ * Provides self-driven targets inside this app process so that the hidumper
+ * heap-family dump commands (--mem-heap ARG family) and
+ * `hidumper --mem <pid> --show-leakthread` have a deterministic victim
+ * without depending on third-party apps:
  *   1. Native malloc worker   : keeps the native heap populated/churning.
  *   2. JSVM worker            : creates a JSVM isolate and periodically runs
  *                               a script, so RequestInterrupt-based heap
@@ -27,6 +28,10 @@
  *                               resolved at runtime; graceful when absent).
  *                               The callback writes a synthetic snapshot
  *                               (>1024 bytes) into the faultloggerd fd.
+ *   4. Thread-stack leak      : leakThreadStacks(n) creates n joinable threads
+ *                               running a deep optnone chain that exit without
+ *                               join/detach, leaking their [anon:stack] regions
+ *                               (ported from the threadStackLeak demo).
  */
 #include <atomic>
 #include <cstdint>
@@ -38,6 +43,7 @@
 #include <utility>
 #include <vector>
 
+#include <pthread.h>
 #include <unistd.h>
 
 #include <napi/native_api.h>
@@ -68,6 +74,13 @@ constexpr int JSVM_STATE_LIB_MISSING = -3;
 // RegisterKmpListener negative codes (also stored in g_kmpState)
 constexpr int KMP_STATE_NO_LIB = -1;
 constexpr int KMP_STATE_NO_SYMBOL = -2;
+// Thread-stack-leak probe (UT case LeakThread_DumpDetect_059)
+constexpr int32_t LEAK_THREAD_STACK_SIZE = 1024 * 1024; // 1MB stack per leaked thread
+constexpr int32_t LEAK_THREAD_DEFAULT_COUNT = 12;
+constexpr int32_t LEAK_THREAD_COUNT_LIMIT = 100;
+constexpr int32_t LEAK_CHAIN_DEPTH = 5;          // recursion depth of the in-thread call chain
+constexpr size_t LEAK_CHAIN_PAD_WORDS = 64;      // residual footprint per chain frame
+constexpr useconds_t LEAK_THREAD_WORK_US = 1000; // thread life before exit
 
 std::atomic<bool> g_started { false };
 std::atomic<int> g_mallocState { 0 }; // 0=init 1=running -1=failed
@@ -322,12 +335,81 @@ napi_value TriggerSegv(napi_env env, napi_callback_info info)
     return result;
 }
 
+/*
+ * Thread-stack-leak probe for `hidumper --mem <pid> --show-leakthread` (UT case
+ * LeakThread_DumpDetect_059). Ported from the verification demo
+ * dfr_opensource_sync/project/threadStackLeak (leaklib.cpp/napi_init.cpp), consolidated
+ * into this library: what matters for the detector is that the chain runs INSIDE the
+ * child thread, so the residual stack keeps return addresses in an executable map of
+ * this process (libhidumper_target.so) that the unwind scanner can recover.
+ *
+ * Recursive LEAK_CHAIN_DEPTH-layer call chain; optnone keeps every recursion frame real
+ * (no tail-call collapse or inlining), and the volatile locals leave a residual footprint
+ * on the leaked stack.
+ */
+__attribute__((optnone)) void *LeakThreadChain(void *arg, int32_t depth)
+{
+    volatile int pad[LEAK_CHAIN_PAD_WORDS] = { 0 };
+    pad[0] = depth; // tag each frame with its depth for debugging
+    if (depth <= 0) {
+        usleep(LEAK_THREAD_WORK_US); // exit quickly so the stack turns into an orphan while still mapped
+        return arg;
+    }
+    return LeakThreadChain(arg, depth - 1);
+}
+
+__attribute__((optnone)) void *LeakThreadEntry(void *arg)
+{
+    return LeakThreadChain(arg, LEAK_CHAIN_DEPTH);
+}
+
+/*
+ * Creates `count` joinable threads that run the deep chain and exit. They are
+ * deliberately NEVER joined nor detached, so each 1MB [anon:stack:<tid>] region stays
+ * mapped after the tid dies: a deterministic thread-stack leak the detector must find
+ * (the count line reports it and the unwound body carries this library's frames).
+ */
+napi_value LeakThreadStacks(napi_env env, napi_callback_info info)
+{
+    int32_t count = LEAK_THREAD_DEFAULT_COUNT;
+    size_t argc = 1;
+    napi_value args[1] = { nullptr };
+    napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
+    if (argc >= 1) {
+        napi_get_value_int32(env, args[0], &count);
+    }
+    if (count <= 0) {
+        count = 1;
+    }
+    if (count > LEAK_THREAD_COUNT_LIMIT) {
+        count = LEAK_THREAD_COUNT_LIMIT; // safety cap
+    }
+    int32_t created = 0;
+    for (int32_t i = 0; i < count; i++) {
+        pthread_t tid;
+        pthread_attr_t attr;
+        pthread_attr_init(&attr);
+        pthread_attr_setstacksize(&attr, LEAK_THREAD_STACK_SIZE);
+        if (pthread_create(&tid, &attr, LeakThreadEntry, nullptr) == 0) {
+            created++;
+            /* Intentionally: NO pthread_join, NO pthread_detach -> the thread stack leaks. */
+        }
+        pthread_attr_destroy(&attr);
+    }
+    OH_LOG_INFO(LOG_APP, "leakThreadStacks created %{public}d unjoined threads", created);
+    napi_value result = nullptr;
+    napi_create_int32(env, created, &result);
+    return result;
+}
+
 napi_value Init(napi_env env, napi_value exports)
 {
     napi_property_descriptor desc[] = {
         { "start", nullptr, Start, nullptr, nullptr, nullptr, napi_default, nullptr },
         { "status", nullptr, Status, nullptr, nullptr, nullptr, napi_default, nullptr },
         { "TriggerSegv", nullptr, TriggerSegv, nullptr, nullptr, nullptr, napi_default, nullptr },
+        { "leakThreadStacks", nullptr, LeakThreadStacks, nullptr, nullptr, nullptr,
+          napi_default, nullptr },
     };
     napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc);
     return exports;

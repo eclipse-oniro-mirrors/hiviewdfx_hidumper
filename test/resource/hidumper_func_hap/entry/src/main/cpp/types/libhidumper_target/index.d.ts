@@ -17,3 +17,5 @@ export const start: () => boolean;
 export const status: () => string;
 
 export const TriggerSegv: () => void;
+
+export const leakThreadStacks: (count: number) => number;

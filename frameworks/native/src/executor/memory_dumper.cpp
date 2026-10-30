@@ -14,6 +14,7 @@
  */
 #include "executor/memory_dumper.h"
 #include "executor/memory/dump_arkts_heap_info.h"
+#include "executor/memory/dump_heap_info.h"
 #include "dump_utils.h"
 #include <dlfcn.h>
 #include <fstream>
@@ -52,6 +53,7 @@ DumpStatus MemoryDumper::PreExecute(const shared_ptr<DumperParameter> &parameter
     showDmabuf_ = parameter->GetOpts().showDmaBuf_;
     showGpumem_ = parameter->GetOpts().showGpumem_;
     showArktsHeap_ = parameter->GetOpts().showArktsHeap_;
+    showLeakThread_ = parameter->GetOpts().showLeakThread_;
     dumpDatas_ = dumpDatas;
 
     isZip_ = parameter->GetOpts().IsDumpZip();
@@ -110,6 +112,11 @@ void MemoryDumper::GetMemByPid()
         StartArktsHeapFetch(pid_);
         hasArktsHeap = true;
     }
+    bool hasLeakThread = false;
+    if (showLeakThread_) {
+        StartLeakThreadFetch(pid_);
+        hasLeakThread = true;
+    }
 
     void *handle = dlopen(MEM_LIB.c_str(), RTLD_LAZY | RTLD_NODELETE);
     if (handle == nullptr) {
@@ -132,6 +139,9 @@ void MemoryDumper::GetMemByPid()
 
     if (hasArktsHeap) {
         MergeArktsHeapResult();
+    }
+    if (hasLeakThread) {
+        MergeLeakThreadResult();
     }
 }
 
@@ -324,6 +334,71 @@ void MemoryDumper::AppendArktsHeapData(const std::string &result)
     vector<string> dataLine;
     dataLine.push_back(buf);
     dumpDatas_->push_back(dataLine);
+}
+
+void MemoryDumper::StartLeakThreadFetch(int32_t pid)
+{
+    DUMPER_HILOGI(MODULE_SERVICE, "leak thread fetch start, pid:%{public}d", pid);
+    leakThreadFuture_ = std::async(std::launch::async, [pid]() -> string {
+        // reuse the --mem-heap channel (DumpHeapInfo -> AppMgrService DumpMem); the
+        // THREAD_STACK_LEAK result is reported through the dump callback, so isSync waits for it
+        auto heapInfo = std::make_shared<DumpHeapInfo>();
+        OHOS::AppExecFwk::MemDumpInfo info;
+        info.pid = static_cast<uint32_t>(pid);
+        info.dumpType = OHOS::AppExecFwk::MemDumpType::THREAD_STACK_LEAK;
+        info.isSync = true;
+        info.needDump = false;
+        string result;
+        if (!heapInfo->DumpHeapMemory(info, result)) {
+            // channel-side reasons (sam/AppMgr unavailable, IPC failure, callback timeout,
+            // empty result) are logged inside DumpHeapInfo; mark the boundary here
+            DUMPER_HILOGE(MODULE_SERVICE,
+                "leak thread fetch failed in DumpHeapMemory channel, pid:%{public}d", pid);
+            return "";
+        }
+        // log the size only: the payload carries application thread stacks (sensitive data)
+        DUMPER_HILOGI(MODULE_SERVICE, "leak thread fetch success, pid:%{public}d, size:%{public}zu",
+            pid, result.size());
+        return result;
+    });
+}
+
+void MemoryDumper::MergeLeakThreadResult()
+{
+    string result;
+    bool gotResult = false;
+
+    if (leakThreadFuture_.valid()) {
+        result = leakThreadFuture_.get();
+        gotResult = !result.empty();
+    } else {
+        DUMPER_HILOGE(MODULE_SERVICE, "leak thread future is invalid, fetch was not started");
+    }
+
+    if (dumpDatas_ == nullptr) {
+        DUMPER_HILOGE(MODULE_SERVICE, "MergeLeakThreadResult dumpDatas_ is nullptr");
+        return;
+    }
+
+    if (!gotResult) {
+        // same presentation as the arkts heap section on failure: title only, no data row
+        DUMPER_HILOGE(MODULE_SERVICE,
+            "leak thread result is empty, only print the title (fetch failed or app not dumpable)");
+    }
+
+    vector<string> blankLine;
+    blankLine.push_back("");
+    dumpDatas_->push_back(blankLine);
+
+    vector<string> titleLine;
+    titleLine.push_back("leakthread:");
+    dumpDatas_->push_back(titleLine);
+
+    if (gotResult) {
+        vector<string> dataLine;
+        dataLine.push_back(result);
+        dumpDatas_->push_back(dataLine);
+    }
 }
 
 DumpStatus MemoryDumper::AfterExecute()

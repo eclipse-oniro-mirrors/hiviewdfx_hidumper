@@ -524,6 +524,138 @@ HWTEST_F(MemoryDumperTest, MemoryDumperTest026, TestSize.Level1)
 }
 
 /**
+ * @tc.name: MemoryDumperTest027
+ * @tc.desc: Test showLeakThread_ flag is set correctly.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest027, TestSize.Level1)
+{
+    DumperOpts opts;
+    EXPECT_FALSE(opts.showLeakThread_);
+    opts.showLeakThread_ = true;
+    EXPECT_TRUE(opts.showLeakThread_);
+}
+
+/**
+ * @tc.name: MemoryDumperTest028
+ * @tc.desc: Test showLeakThread_ defaults false and survives reset/assign.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest028, TestSize.Level1)
+{
+    DumperOpts opts;
+    EXPECT_FALSE(opts.showLeakThread_);
+    opts.ResetMemOptions();
+    EXPECT_FALSE(opts.showLeakThread_);
+    DumperOpts other;
+    other.showLeakThread_ = true;
+    opts.AssignMemOptions(other);
+    EXPECT_TRUE(opts.showLeakThread_);
+}
+
+/**
+ * @tc.name: MemoryDumperTest029
+ * @tc.desc: Functional test: "hidumper --mem <non-app pid> --show-leakthread" prints
+ *           the only-supported-for-application error.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest029, TestSize.Level3)
+{
+    std::string cmd = "hidumper --mem 1 --show-leakthread";
+    std::string str = "[ERROR]: The --show-leakthread option is only supported for application.";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+}
+
+/**
+ * @tc.name: MemoryDumperTest030
+ * @tc.desc: Functional test: "hidumper --mem <app pid> --show-leakthread" prints leakthread
+ *           result on eng/debug device (debug-signed check is only enforced in user mode),
+ *           otherwise prints the permission error message.
+ *           Use launcher (application uid) as target, fallback to init when not running.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest030, TestSize.Level3)
+{
+    auto pid = static_cast<int32_t>(HidumperTestUtils::GetInstance().GetPidByName("com.ohos.launcher"));
+    int targetPid = pid > 0 ? pid : 1;
+    ASSERT_GT(targetPid, 0);
+    std::string cmd = "hidumper --mem " + std::to_string(targetPid) + " --show-leakthread";
+    bool hasLeakThread = HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, "leakthread:");
+    if (hasLeakThread) {
+        // the data line returned by runtime contains both counts
+        std::string result;
+        ASSERT_TRUE(HidumperTestUtils::GetInstance().GetSpecialLine(cmd, "total thread count:", result));
+        ASSERT_TRUE(result.find("leak thread stack count:") != std::string::npos);
+    } else {
+        // target is not an application or not a debug-signed application (user mode device)
+        ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, "[ERROR]:"));
+    }
+}
+
+/**
+ * @tc.name: MemoryDumperTest031
+ * @tc.desc: Test MergeLeakThreadResult outputs blank line + title + data row on success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest031, TestSize.Level1)
+{
+    MemoryDumper dumper;
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    dumper.dumpDatas_ = dumpDatas;
+
+    std::promise<std::string> prom;
+    prom.set_value("total thread count: 28, leak thread stack count: 20\n");
+    dumper.leakThreadFuture_ = prom.get_future();
+
+    dumper.MergeLeakThreadResult();
+
+    EXPECT_EQ(dumpDatas->size(), 3u);
+    EXPECT_STREQ((*dumpDatas)[0][0].c_str(), "");
+    EXPECT_STREQ((*dumpDatas)[1][0].c_str(), "leakthread:");
+    EXPECT_STREQ((*dumpDatas)[2][0].c_str(), "total thread count: 28, leak thread stack count: 20\n");
+}
+
+/**
+ * @tc.name: MemoryDumperTest032
+ * @tc.desc: Test MergeLeakThreadResult outputs title only (no data row) when future yields
+ *           empty result, same presentation as the arkts heap section on failure.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest032, TestSize.Level1)
+{
+    MemoryDumper dumper;
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    dumper.dumpDatas_ = dumpDatas;
+
+    std::promise<std::string> prom;
+    prom.set_value("");
+    dumper.leakThreadFuture_ = prom.get_future();
+
+    dumper.MergeLeakThreadResult();
+
+    EXPECT_EQ(dumpDatas->size(), 2u);
+    EXPECT_STREQ((*dumpDatas)[0][0].c_str(), "");
+    EXPECT_STREQ((*dumpDatas)[1][0].c_str(), "leakthread:");
+}
+
+/**
+ * @tc.name: MemoryDumperTest033
+ * @tc.desc: Test StartLeakThreadFetch + MergeLeakThreadResult with non-existent pid=99999
+ *           outputs title only (AppMgr rejects the unknown pid, no data row is appended).
+ * @tc.type: FUNC
+ */
+HWTEST_F(MemoryDumperTest, MemoryDumperTest033, TestSize.Level1)
+{
+    MemoryDumper dumper;
+    auto dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
+    dumper.dumpDatas_ = dumpDatas;
+    dumper.StartLeakThreadFetch(99999);
+    dumper.MergeLeakThreadResult();
+    EXPECT_EQ(dumpDatas->size(), 2u);
+    EXPECT_STREQ((*dumpDatas)[1][0].c_str(), "leakthread:");
+}
+
+/**
  * @tc.name: MemoryUtilTest001
  * @tc.desc: Test IsNameLine has correct ret.
  * @tc.type: FUNC

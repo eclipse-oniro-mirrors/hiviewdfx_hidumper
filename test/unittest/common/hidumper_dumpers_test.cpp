@@ -1379,5 +1379,75 @@ HWTEST_F(HidumperDumpersTest, ArkwebJsHeapDumperTest006, TestSize.Level1)
     int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
     ASSERT_EQ(ret, DumpStatus::DUMP_HELP);
 }
+
+/**
+ * @tc.name: LeakThreadDumperTest001
+ * @tc.desc: Test --mem <non-app pid> --show-leakthread is rejected (only supported for application).
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, LeakThreadDumperTest001, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--mem"),
+        const_cast<char *>("1"),
+        const_cast<char *>("--show-leakthread"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_HELP);
+}
+
+/**
+ * @tc.name: LeakThreadDumperTest002
+ * @tc.desc: Test --show-leakthread without '--mem <pid>' is rejected.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, LeakThreadDumperTest002, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--show-leakthread"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_HELP);
+}
+
+/**
+ * @tc.name: LeakThreadDumperTest003
+ * @tc.desc: Test --mem without pid plus --show-leakthread is rejected.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, LeakThreadDumperTest003, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--mem"),
+        const_cast<char *>("--show-leakthread"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+    ASSERT_EQ(ret, DumpStatus::DUMP_HELP);
+}
+
+/**
+ * @tc.name: LeakThreadDumperTest004
+ * @tc.desc: Test IsApplicationPid returns false for system process and non-existent pid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, LeakThreadDumperTest004, TestSize.Level1)
+{
+    // init is a system process (uid <= APP_UID_LIMIT)
+    ASSERT_FALSE(DumpImplement::GetInstance().IsApplicationPid(DEFAULT_PID));
+    // non-existent pid, GetProcessInfo fails
+    ASSERT_FALSE(DumpImplement::GetInstance().IsApplicationPid(-1));
+}
 } // namespace HiviewDFX
 } // namespace OHOS

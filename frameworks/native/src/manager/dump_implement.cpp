@@ -86,6 +86,7 @@ static struct option LONG_OPTIONS[] = {{"cpufreq", no_argument, 0, 0},
     {"show-gpumem", no_argument, 0, 0},
     #endif
     {"show-arktsheap", no_argument, 0, 0},
+    {"show-leakthread", no_argument, 0, 0},
     {"ipc", optional_argument, 0, 0},
     {"start-stat", no_argument, 0, 0},
     {"stop-stat", no_argument, 0, 0},
@@ -354,6 +355,10 @@ DumpStatus DumpImplement::ValidateDumpOptions(int argc, DumperOpts& opts)
         CmdHelp();
         return DumpStatus::DUMP_HELP;
     }
+    if (opts.showLeakThread_ && !CheckShowLeakthreadParameter(opts)) {
+        CmdHelp();
+        return DumpStatus::DUMP_HELP;
+    }
     if (CheckUnableToDumpAll(argc, opts)) {
         CmdHelp();
         return DumpStatus::DUMP_HELP;
@@ -589,6 +594,8 @@ DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts, const s
     #endif
     else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "show-arktsheap")) {
         opts.showArktsHeap_ = true;
+    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "show-leakthread")) {
+        return SetShowLeakthreadParam(opts);
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "fd")) {
         opts.isDumpFd_ = true;
     } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "thread")) {
@@ -780,6 +787,22 @@ DumpStatus DumpImplement::SetMemPruneParam(DumperOpts &opt)
         opt.dumpMemPrune_ = true;
         dumperSysEventParams_->opt = "mem";
         status = DumpStatus::DUMP_OK;
+    }
+    return status;
+}
+
+DumpStatus DumpImplement::SetShowLeakthreadParam(DumperOpts &opt)
+{
+    DumpStatus status = DumpStatus::DUMP_FAIL;
+    if (opt.isDumpMem_) {
+        opt.showLeakThread_ = true;
+        status = DumpStatus::DUMP_OK;
+    } else {
+        DUMPER_HILOGE(MODULE_COMMON, "show-leakthread param invalid");
+        SendErrorMessage("Error [ARGUMENT]: Invalid arguments for '--show-leakthread' (requires '--mem <pid>').");
+        SendErrorMessage("Fix: Set '--mem <pid> --show-leakthread' where <pid> is a valid application process id.");
+        CmdHelp();
+        status = DumpStatus::DUMP_HELP;
     }
     return status;
 }
@@ -1015,6 +1038,7 @@ void DumpImplement::CmdHelp()
         "  --mem [pid] [--show-gpumem]   |show gpumem info when dumping memory of specified pid\n"
         #endif
         "  --mem [pid] [--show-arktsheap] |show arkts heap info when dumping memory of specified pid\n"
+        "  --mem [pid] [--show-leakthread] |show leak thread stack info when dumping memory of specified pid\n"
         "  --mem [pid] -t [timeInterval]  |dump process memory change information, press Ctrl+C to stop the export."
         " detail information is stored in /data/log/hidumper/record_mem.txt.\n"
         "  --zip                       |compress output to /data/log/hidumper\n"
@@ -1280,6 +1304,21 @@ void DumpImplement::SendReleaseAppErrorMessage(const std::string& opt)
     dprintf(rawParamFd, onlySupportDebugSignedAppMessage_.c_str(), opt.c_str());
 }
 
+void DumpImplement::SendNotAppErrorMessage(const std::string& opt)
+{
+    if (ptrReqCtl_ == nullptr) {
+        DUMPER_HILOGE(MODULE_COMMON, "ptrReqCtl_ == nullptr");
+        return;
+    }
+    int rawParamFd = ptrReqCtl_->GetOutputFd();
+    if (rawParamFd < 0) {
+        DUMPER_HILOGE(MODULE_COMMON, "rawParamFd < 0");
+        return;
+    }
+    std::string onlySupportAppMessage = "[ERROR]: The %s option is only supported for application.\n";
+    dprintf(rawParamFd, onlySupportAppMessage.c_str(), opt.c_str());
+}
+
 void DumpImplement::SendReleaseVersionErrorMessage(const std::string& opt)
 {
     if (ptrReqCtl_ == nullptr) {
@@ -1524,6 +1563,14 @@ bool DumpImplement::CheckDumpPermission(DumperOpts& opt)
         DUMPER_HILOGE(MODULE_COMMON, "DumpHeapMem false isUserMode %{public}d", isUserMode);
         return false;
     }
+    // show-leakthread + releaseApp, the non-application case is reported by ValidateDumpOptions
+    if (opt.showLeakThread_ && IsApplicationPid(opt.memPid_) &&
+        !DumpUtils::CheckAppDebugVersion(opt.memPid_)) {
+        SendReleaseAppErrorMessage("--show-leakthread");
+        DUMPER_HILOGE(MODULE_COMMON, "ShowLeakThread false isUserMode %{public}d, pid:%{public}d",
+            isUserMode, opt.memPid_);
+        return false;
+    }
     if (opt.isDumpMem_ && opt.timeInterval_ > 0) {
         SendReleaseVersionErrorMessage("-t");
         DUMPER_HILOGE(MODULE_COMMON, "Show mem false, isUserMode:%{public}d, pid:%{public}d, timeInterval_:%{public}d",
@@ -1582,6 +1629,39 @@ bool DumpImplement::CheckKmpParameter(DumperOpts& opt)
     SendErrorMessage("Error [ARGUMENT]: Among optional parameters, only '--gc' is allowed for KMP heap.");
     SendErrorMessage("Fix: Use 'hidumper --mem-heap <pid> --kotlin' or 'hidumper --mem-heap <pid> --kotlin --gc'");
     return false;
+}
+
+bool DumpImplement::IsApplicationPid(int pid)
+{
+    DumpCommonUtils::PidInfo pidInfo;
+    if (!DumpCommonUtils::GetProcessInfo(pid, pidInfo)) {
+        DUMPER_HILOGE(MODULE_COMMON, "GetProcessInfo failed for pid %{public}d", pid);
+        return false;
+    }
+    if (pidInfo.uid_ <= APP_UID_LIMIT) {
+        DUMPER_HILOGD(MODULE_COMMON, "pid %{public}d is not an application, uid:%{public}d", pid, pidInfo.uid_);
+        return false;
+    }
+    return true;
+}
+
+bool DumpImplement::CheckShowLeakthreadParameter(DumperOpts& opt)
+{
+    // showLeakThread_ can only be set after '--mem' (see SetShowLeakthreadParam),
+    // here only the pid itself needs validation
+    if (opt.memPid_ <= 0) {
+        DUMPER_HILOGE(MODULE_COMMON, "show-leakthread requires '--mem <pid>', memPid:%{public}d", opt.memPid_);
+        SendErrorMessage("Error [ARGUMENT]: Invalid arguments for '--show-leakthread' (requires '--mem <pid>').");
+        SendErrorMessage("Fix: Set '--mem <pid> --show-leakthread' where <pid> is a valid application process id.");
+        return false;
+    }
+    if (!IsApplicationPid(opt.memPid_)) {
+        DUMPER_HILOGE(MODULE_COMMON, "pid %{public}d is not an application", opt.memPid_);
+        SendNotAppErrorMessage("--show-leakthread");
+        return false;
+    }
+    DUMPER_HILOGI(MODULE_COMMON, "show-leakthread check passed, pid:%{public}d", opt.memPid_);
+    return true;
 }
 
 bool DumpImplement::CheckArkwebJsParameter(DumperOpts& opt)

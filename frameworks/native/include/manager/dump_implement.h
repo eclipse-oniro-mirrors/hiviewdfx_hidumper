@@ -80,6 +80,7 @@ private:
     void SendErrorMessageIf(DumperOpts &opts, const std::string &optionValue);
     void SendPidErrorMessage(int pid);
     void SendReleaseAppErrorMessage(const std::string& opt);
+    void SendNotAppErrorMessage(const std::string& opt);
     void SendReleaseVersionErrorMessage(const std::string& opt);
     void SendPermissionCheckErrorMessage(const std::string& opt, bool isProfileable,
         bool isInhouse, bool isDeveloperMode);
@@ -105,6 +106,8 @@ private:
     bool CheckUnableToDumpAll(int argc, DumperOpts& opt);
     DumpStatus ValidateDumpOptions(int argc, DumperOpts& opts);
     bool CheckDumpHeapMemParameter(int argc, DumperOpts& opt);
+    bool CheckShowLeakthreadParameter(DumperOpts& opt);
+    bool IsApplicationPid(int pid);
     bool CheckArkwebJsParameter(DumperOpts& opt);
     bool CheckKmpParameter(DumperOpts& opt);
     bool ValidateRenderProcessAndFindMainPid(int renderPid, DumperOpts& opt);
@@ -121,6 +124,7 @@ private:
     DumpStatus SetArkwebJsParam(DumperOpts &opt);
     DumpStatus SetRawParam(DumperOpts &opt);
     DumpStatus SetMemPruneParam(DumperOpts &opt);
+    DumpStatus SetShowLeakthreadParam(DumperOpts &opt);
     DumpStatus SetGCParam(DumperOpts &opt);
     DumpStatus SetLeakobjParam(DumperOpts &opt);
     DumpStatus SetCleanParam(DumperOpts &opt);
@@ -146,6 +150,8 @@ private:
     std::string path_;
     static const int IPC_STAT_ARG_NUMS = 4;
     static const int HIVIEW_UID = 1201;
+    // uid of application process is greater than APP_UID_LIMIT
+    static const int APP_UID_LIMIT = 20000;
     static const int ARG_COUNT_NO_PARAM = 1;
     static const int ARG_COUNT_WITH_ZIP = 2;
     static const int ARG_COUNT_HEAP_MEM = 4;

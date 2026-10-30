@@ -1748,5 +1748,123 @@ HWTEST_F(HidumperFunctionTest, Faultlog_PrintId_056, TestSize.Level2)
         "the printed faultlog does not belong to the bundle record " << recordId << ": " << printed.output;
 }
 
+/* ============================== leak thread (--mem --show-leakthread) ============================== */
+
+/**
+ * @tc.name: LeakThread_Reject_057
+ * @tc.desc: Command: hidumper --show-leakthread; hidumper --mem <non-app pid> --show-leakthread
+ *           Function: option validation of the leak-thread command.
+ *           Pass with plugin disabled: without '--mem <pid>' the tool shows the
+ *           'Error [ARGUMENT]' prompt with the fix hint; against a non-application pid it shows
+ *           '[ERROR]: The --show-leakthread option is only supported for application.'; both
+ *           rejections are followed by the usage help.
+ *           Pass with plugin enabled: same as plugin-disabled (the checks are not gated by the
+ *           plugin macro nor by the build mode).
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperFunctionTest, LeakThread_Reject_057, TestSize.Level1)
+{
+    CmdResult noMem = RunHidumper("--show-leakthread");
+    ASSERT_TRUE(Contains(noMem, "Error [ARGUMENT]")) << noMem.output;
+    ASSERT_TRUE(Contains(noMem, "requires '--mem <pid>'")) << noMem.output;
+    ASSERT_TRUE(Contains(noMem, "usage:")) << noMem.output;
+
+    CmdResult nonApp = RunHidumper("--mem " + std::to_string(INIT_PID) + " --show-leakthread");
+    ASSERT_TRUE(Contains(nonApp,
+        "[ERROR]: The --show-leakthread option is only supported for application.")) << nonApp.output;
+    ASSERT_TRUE(Contains(nonApp, "usage:")) << nonApp.output;
+}
+
+/**
+ * @tc.name: LeakThread_Dump_058
+ * @tc.desc: Command: hidumper --mem <app pid> --show-leakthread
+ *           Function: leaked thread stack detection end-to-end through the mem-heap channel
+ *           (CLI -> 1212 -> AppMgrService -> app DumpRuntimeHelper -> callback -> stdout).
+ *           Pass with plugin disabled: on a debuggable (eng) device the fixed 'leakthread:'
+ *           title carries the runtime answer 'total thread count: N, leak thread stack count: M'
+ *           below; on a user device with a release-signed target the mem-heap style
+ *           debug-signed rejection is shown instead.
+ *           Pass with plugin enabled: same as plugin-disabled.
+ *           Notes: the target is the dedicated HAP when available, else the launcher; the
+ *           debug-signed application check is only enforced in user mode (CheckDumpPermission),
+ *           so the branch taken is decided by the device shape, both are valid presentations.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperFunctionTest, LeakThread_Dump_058, TestSize.Level3)
+{
+    int32_t pid = NO_PID;
+    if (FuncTestHapAvailable()) {
+        pid = StartFuncTestHap();
+    }
+    if (pid <= 0) {
+        pid = GetPidByName("com.ohos.launcher");
+    }
+    if (pid <= 0) {
+        GTEST_SKIP() << "no application target is available (neither the dedicated HAP nor the "
+                        "launcher is running)";
+    }
+    CmdResult result = RunHidumper("--mem " + std::to_string(pid) + " --show-leakthread");
+    if (Contains(result, "leakthread:")) {
+        /* Debuggable device (or debug-signed target): the regular --mem memory dump must stay
+         * intact and the fixed leakthread title carries the count line below it. */
+        ASSERT_TRUE(Contains(result, SECTION_MEMORY)) << result.output;
+        ASSERT_LT(result.output.find(SECTION_MEMORY), result.output.find("leakthread:")) <<
+            "the leakthread section must be appended below the memory dump";
+        ASSERT_TRUE(HasContentBelow(result.output, "leakthread:")) << result.output;
+        ASSERT_TRUE(Contains(result, "total thread count:")) << result.output;
+        ASSERT_TRUE(Contains(result, "leak thread stack count:")) << result.output;
+    } else {
+        /* User device with a release-signed target: rejected with the mem-heap style prompt. */
+        ASSERT_TRUE(Contains(result, "debug-signed application")) << result.output;
+    }
+}
+
+/**
+ * @tc.name: LeakThread_DumpDetect_059
+ * @tc.desc: Command: aa start --ps hdaction leakThreads; hidumper --mem <hap pid>
+ *           --show-leakthread
+ *           Function: leaked-thread-stack DETECTION against a provisioned leak inside the
+ *           dedicated HAP: leakThreadStacks() (ported from the threadStackLeak demo) creates
+ *           LEAK_THREAD_COUNT joinable threads running a 5-layer optnone chain that exit
+ *           without join/detach, orphaning their [anon:stack:<tid>] regions.
+ *           Pass with plugin disabled: on a debuggable device the count line reports at least
+ *           the provisioned number of leaked stacks and the unwound body carries tid frames
+ *           resolved into libhidumper_target.so (the chain that ran inside the leaked
+ *           threads); on a user device with the release-signed HAP the debug-signed rejection
+ *           is shown instead.
+ *           Pass with plugin enabled: same as plugin-disabled.
+ *           Notes: the runtime prints at most 10 unwound stacks but the count line reports
+ *           the true total, so the ">=" oracle stays valid across repeated deliveries.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperFunctionTest, LeakThread_DumpDetect_059, TestSize.Level3)
+{
+    if (!FuncTestHapAvailable()) {
+        GTEST_SKIP() << "the dedicated target HAP is unavailable in this environment "
+                        "(neither installed nor pushed to an installable location)";
+    }
+    int32_t pid = StartFuncTestHap();
+    ASSERT_GT(pid, NO_PID) << "the dedicated target HAP (" << FUNC_TEST_HAP_BUNDLE <<
+                           ") failed to start although it ships with the test resources";
+    CmdResult action = StartHapAction("leakThreads");
+    ASSERT_TRUE(Contains(action, "successfully")) << action.output;
+    /* The provisioned threads exit ~1ms after creation; wait so the kernel has reaped the
+     * tids and their stacks read as orphans to the detector. */
+    std::this_thread::sleep_for(std::chrono::seconds(LEAK_THREAD_SETTLE_SEC));
+
+    CmdResult result = RunHidumper("--mem " + std::to_string(pid) + " --show-leakthread");
+    if (!Contains(result, "leakthread:")) {
+        /* User device with the release-signed HAP: rejected with the mem-heap style prompt. */
+        ASSERT_TRUE(Contains(result, "debug-signed application")) << result.output;
+        return;
+    }
+    int32_t leakCount = ParsePrefixedNumber(result.output, "leak thread stack count:");
+    ASSERT_GE(leakCount, LEAK_THREAD_COUNT) <<
+        "the provisioned leak was not detected: " << result.output;
+    /* The unwound body must carry frames of the chain that ran inside the leaked threads. */
+    ASSERT_TRUE(Contains(result, "tid:")) << result.output;
+    ASSERT_TRUE(Contains(result, "libhidumper_target.so")) << result.output;
+}
+
 } // namespace HiviewDFX
 } // namespace OHOS
