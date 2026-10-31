@@ -796,6 +796,11 @@ DumpStatus DumpImplement::SetGCParam(DumperOpts &opt)
     } else if (opt.isDumpHeapMem_) {
         opt.isDumpHeapMemGc_ = true;
         status = DumpStatus::DUMP_OK;
+    } else {
+        DUMPER_HILOGE(MODULE_COMMON, "gc param invalid");
+        SendErrorMessage("gc param invalid\n");
+        CmdHelp();
+        status = DumpStatus::DUMP_HELP;
     }
     return status;
 }
@@ -1022,7 +1027,7 @@ void DumpImplement::CmdHelp()
         "  --mem-heap pid ARG [--leakobj] [--raw] [-T tid] [--gc] |ARG must be one of --native | --kotlin | --jsvm | "
         "--arkweb-js.\n"
         #else
-        "  --mem-heap pid ARG [--leakobj] |ARG must be one of --native | --kotlin.\n"
+        "  --mem-heap pid ARG [--leakobj] [--gc] |ARG must be one of --native | --kotlin.\n"
         #endif
         "  --ipc pid ARG               |ipc load statistic; pid must be specified or set to -a dump all"
         " processes. ARG must be one of --start-stat | --stop-stat | --stat\n";
@@ -1432,6 +1437,9 @@ void DumpImplement::ReportMemheap(const DumperOpts &opts)
     }
     std::string strType;
     if (opts.isDumpHeapKotlin_) {
+        if (opts.isDumpHeapMemGc_) {
+            return; // gc only, no dump
+        }
         strType = "hidumperKmpHeap";
     } else if (opts.isDumpHeapNative_) {
         strType = "hidumperNativeHeap";
@@ -1558,7 +1566,22 @@ bool DumpImplement::CheckDumpHeapMemParameter(int argc, DumperOpts& opt)
     if (opt.isDumpHeapArkwebJs_) {
         return CheckArkwebJsParameter(opt);
     }
+    if (opt.isDumpHeapKotlin_) {
+        return CheckKmpParameter(opt);
+    }
     return true;
+}
+
+bool DumpImplement::CheckKmpParameter(DumperOpts& opt)
+{
+    int extraCount = opt.isDumpHeapMemGc_ + opt.dumpRawHeap_ + opt.isDumpHeapLeakobj_ + (opt.threadId_ != 0);
+    if (extraCount == 0 || (extraCount == 1 && opt.isDumpHeapMemGc_)) {
+        return true;
+    }
+    DUMPER_HILOGE(MODULE_COMMON, "only --gc is supported for KMP");
+    SendErrorMessage("Error [ARGUMENT]: Among optional parameters, only '--gc' is allowed for KMP heap.");
+    SendErrorMessage("Fix: Use 'hidumper --mem-heap <pid> --kotlin' or 'hidumper --mem-heap <pid> --kotlin --gc'");
+    return false;
 }
 
 bool DumpImplement::CheckArkwebJsParameter(DumperOpts& opt)
