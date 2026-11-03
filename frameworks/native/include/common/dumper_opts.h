@@ -84,6 +84,7 @@ struct DumperOpts {
     bool showDmaBuf_;
     bool showGpumem_;
     bool showArktsHeap_;
+    bool showLeakThread_;
     bool isEventList_;
     bool isEventDetail_;
     bool isDumpFd_;

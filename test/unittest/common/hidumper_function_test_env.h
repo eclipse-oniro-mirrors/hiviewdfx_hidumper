@@ -69,6 +69,14 @@ constexpr int32_t TARGET_PROBE_TIMEOUT_SEC = 30;
 
 constexpr int32_t LEAKLIST_WAIT_SEC = 20;
 
+/* Number of unjoined threads the target HAP leaks per 'leakThreads' hdaction; must match
+ * LEAK_THREAD_COUNT in EntryAbility.ets. The detector's count line is asserted >= this. */
+constexpr int32_t LEAK_THREAD_COUNT = 12;
+
+/* Wait after provisioning the leak so the created threads (~1ms life) have exited and
+ * their stacks turned into orphans the detector classifies as leaked. */
+constexpr int32_t LEAK_THREAD_SETTLE_SEC = 3;
+
 constexpr int32_t POLL_INTERVAL_MS = 1000;
 
 constexpr int32_t SETTLE_ROUNDS = 2;

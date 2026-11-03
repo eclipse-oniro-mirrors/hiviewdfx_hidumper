@@ -16,6 +16,7 @@ import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
 import jsLeakWatcher from '@ohos.hiviewdfx.jsLeakWatcher';
+import hidumperTarget from 'libhidumper_target.so';
 
 const DOMAIN = 0xFDF0;
 const TAG = 'HidumperFuncTest';
@@ -35,10 +36,19 @@ const GARBAGE_CHUNK_REPEAT = 50;
  * survives every GC - a deterministic leak entry carrying the marker string the UT asserts
  * inside the artifact content. */
 const LEAK_PROBE_MARKER = 'HidumperFuncLeakProbe';
+/* Thread-stack-leak probe for `hidumper --mem <pid> --show-leakthread` (UT case
+ * LeakThread_DumpDetect_059): the native side creates this many joinable threads that
+ * exit without join/detach, deterministically leaking their [anon:stack] regions.
+ * Must match LEAK_THREAD_COUNT in hidumper_function_test_env.h. */
+const LEAK_THREAD_COUNT = 12;
 
 interface GarbageItem {
   idx: number;
   tag: string;
+}
+
+interface LeakThreadTarget {
+  leakThreadStacks(count: number): number;
 }
 
 class LeakProbe {
@@ -80,7 +90,8 @@ export default class EntryAbility extends UIAbility {
   }
 
   /* Driven by the function UT:
-   *   aa start -b <bundle> -a EntryAbility --ps hdaction holdGarbage|dropGarbage|fillGarbage */
+   *   aa start -b <bundle> -a EntryAbility
+   *     --ps hdaction holdGarbage|dropGarbage|fillGarbage|leakThreads */
   private handleTestAction(want: Want): void {
     const params = want.parameters;
     if (params === undefined) {
@@ -99,6 +110,13 @@ export default class EntryAbility extends UIAbility {
       const garbage = EntryAbility.buildGarbage();
       hilog.info(DOMAIN, TAG, 'fillGarbage built %{public}d chunks, dropping reference',
         garbage.length);
+    } else if (action === 'leakThreads') {
+      /* Provision a deterministic thread-stack leak for --show-leakthread: the threads
+       * exit ~1ms later without join/detach, orphaning their [anon:stack] regions.
+       * Repeat deliveries accumulate leaks, which the UT's ">=" oracle tolerates. */
+      const target = hidumperTarget as LeakThreadTarget;
+      const created = target.leakThreadStacks(LEAK_THREAD_COUNT);
+      hilog.info(DOMAIN, TAG, 'leakThreads: created %{public}d unjoined threads', created);
     }
   }
 

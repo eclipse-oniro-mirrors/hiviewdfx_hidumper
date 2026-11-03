@@ -151,7 +151,7 @@ The procedure is as follows:
     hidumper --cpufreq
     ```
 
-16. Run the **hidumper --mem [pid] [--prune] [--show-ashmem] [--show-dmabuf] [--show-gpumem]** command to obtain all memory usage information of the process whose PID has been specified; If --prune is specified, export simplified memory information quickly; By specified the specific PID and time, the memory change information of PID can be printed out.If the --show-ashmem option is specified, detailed information regarding ashmem usage will be appended to the output. For application processes, when the --show-dmabuf flag is enabled, comprehensive details pertaining to DMA memory will be additionally printed. If the --show-gpumem option is specified, then the GPU details are printed.
+16. Run the **hidumper --mem [pid] [--prune] [--show-ashmem] [--show-dmabuf] [--show-gpumem] [--show-leakthread]** command to obtain all memory usage information of the process whose PID has been specified; If --prune is specified, export simplified memory information quickly; By specified the specific PID and time, the memory change information of PID can be printed out.If the --show-ashmem option is specified, detailed information regarding ashmem usage will be appended to the output. For application processes, when the --show-dmabuf flag is enabled, comprehensive details pertaining to DMA memory will be additionally printed. If the --show-gpumem option is specified, then the GPU details are printed. If the --show-leakthread option is specified, the leaked thread stack information of the specified application process is appended below the memory usage output (only supported for application processes, and a debug-signed application is required in user mode).
 
     ```
     hidumper --mem
@@ -161,6 +161,7 @@ The procedure is as follows:
     hidumper --mem 1024 --show-ashmem
     hidumper --mem 1024 --show-dmabuf
     hidumper --mem 1024 --show-gpumem
+    hidumper --mem 1024 --show-leakthread
     ```
 
 17. Run the **hidumper --zip** command to compress data to the **/data/log/hidumper** directory.

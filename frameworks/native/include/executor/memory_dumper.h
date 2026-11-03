@@ -47,6 +47,7 @@ private:
     bool showDmabuf_ = false;
     bool showGpumem_ = false;
     bool showArktsHeap_ = false;
+    bool showLeakThread_ = false;
     bool isZip_ = false;
 
     DumpStatus status_ = DUMP_FAIL;
@@ -59,6 +60,7 @@ private:
     using SetReceivedSigIntFunc = void (*)(bool);
 
     std::future<std::string> arktsHeapFuture_;
+    std::future<std::string> leakThreadFuture_;
 
     void GetMemByPid();
     void GetMemNoPid();
@@ -70,6 +72,8 @@ private:
     void MergeArktsHeapResult();
     bool ParseArktsHeapResult(const std::string &result, size_t &heapSize, std::string &threadName);
     void AppendArktsHeapData(const std::string &result);
+    void StartLeakThreadFetch(int32_t pid);
+    void MergeLeakThreadResult();
 };
 } // namespace HiviewDFX
 } // namespace OHOS
