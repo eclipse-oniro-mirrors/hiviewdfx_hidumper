@@ -878,6 +878,8 @@ HWTEST_F(HidumperFunctionTest, Smaps_Verbose_034, TestSize.Level3)
  * @tc.name: MemDetail_Ashmem_035
  * @tc.desc: Command: hidumper --mem <hap pid> --show-ashmem
  *           Function: per-descriptor ashmem detail of the own application.
+ *           Pass on emulator: only the unsupported message is printed (the capability is
+ *           macro-gated out in ValidateDumpOptions; no help text).
  *           Pass with plugin disabled: judged success directly.
  *           Pass with plugin enabled: the [memory] report carries data below and the 'Total
  *           Ashmem:' header carries the per-descriptor data below (the HAP holds ashmem, verified:
@@ -890,6 +892,14 @@ HWTEST_F(HidumperFunctionTest, Smaps_Verbose_034, TestSize.Level3)
  */
 HWTEST_F(HidumperFunctionTest, MemDetail_Ashmem_035, TestSize.Level3)
 {
+#ifdef IS_EMULATOR
+    /* Emulator build: the flag is rejected in ValidateDumpOptions with the sole message and
+     * without the help text; no ashmem section may appear. */
+    CmdResult emuResult = RunHidumper("--mem " + std::to_string(INIT_PID) + " --show-ashmem");
+    ASSERT_TRUE(Contains(emuResult, ERR_EMULATOR_UNSUPPORTED)) << emuResult.output;
+    ASSERT_EQ(emuResult.output.find("|help text for the tool"), std::string::npos) << emuResult.output;
+    return;
+#endif
     if (!PLUGIN_ENABLED) {
         /* Reserved (RK3568/board): --show-ashmem is not adapted on this image yet - the kernel
          * exports the legacy header "Process name Process ID fd ashmem_name size" and no
@@ -919,6 +929,8 @@ HWTEST_F(HidumperFunctionTest, MemDetail_Ashmem_035, TestSize.Level3)
  * @tc.name: MemDetail_Dmabuf_036
  * @tc.desc: Command: hidumper --mem <pid> --show-dmabuf
  *           Function: DMA aggregate on top of the base report.
+ *           Pass on emulator: only the unsupported message is printed (the capability is
+ *           macro-gated out in ValidateDumpOptions; no help text).
  *           Pass with plugin disabled: the [memory] section, 'DMA:' and a numeric 'Dma:' value
  *           appear.
  *           Pass with plugin enabled: same as plugin-disabled.
@@ -926,6 +938,14 @@ HWTEST_F(HidumperFunctionTest, MemDetail_Ashmem_035, TestSize.Level3)
  */
 HWTEST_F(HidumperFunctionTest, MemDetail_Dmabuf_036, TestSize.Level3)
 {
+#ifdef IS_EMULATOR
+    /* Emulator build: the flag is rejected in ValidateDumpOptions with the sole message and
+     * without the help text; no DMA aggregate may appear. */
+    CmdResult emuResult = RunHidumper("--mem " + std::to_string(INIT_PID) + " --show-dmabuf");
+    ASSERT_TRUE(Contains(emuResult, ERR_EMULATOR_UNSUPPORTED)) << emuResult.output;
+    ASSERT_EQ(emuResult.output.find("|help text for the tool"), std::string::npos) << emuResult.output;
+    return;
+#endif
     std::string processName;
     int32_t pid = PickUiProcessPid(processName);
     if (pid <= 0) {
@@ -967,6 +987,10 @@ HWTEST_F(HidumperFunctionTest, MemDetail_ArktsHeap_037, TestSize.Level3)
  * @tc.name: MemDetail_GpuMem_038
  * @tc.desc: Command: hidumper --mem <pid> --show-gpumem
  *           Function: GPU memory detail.
+ *           Pass on emulator: with the plugin enabled only the unsupported message is printed
+ *           (the capability is macro-gated out in ValidateDumpOptions; no help text); with the
+ *           plugin disabled the option is not compiled in at all and stays an unknown-arg
+ *           rejection.
  *           Pass with plugin disabled: judged success directly.
  *           Pass with plugin enabled: against the fixed GPU holders (sceneboard, then
  *           render_service; absence fails the case) the [memory] section and the 'GPU:' header
@@ -978,6 +1002,19 @@ HWTEST_F(HidumperFunctionTest, MemDetail_ArktsHeap_037, TestSize.Level3)
  */
 HWTEST_F(HidumperFunctionTest, MemDetail_GpuMem_038, TestSize.Level3)
 {
+#ifdef IS_EMULATOR
+    CmdResult emuProbe = RunHidumper("--mem " + std::to_string(INIT_PID) + " --show-gpumem");
+    if (PLUGIN_ENABLED) {
+        /* The option is compiled in but gated out on emulator builds: sole message, no help. */
+        ASSERT_TRUE(Contains(emuProbe, ERR_EMULATOR_UNSUPPORTED)) << emuProbe.output;
+        ASSERT_EQ(emuProbe.output.find("|help text for the tool"), std::string::npos) << emuProbe.output;
+    } else {
+        /* The option is not compiled in at all: unknown-arg rejection before the emulator gate. */
+        ASSERT_TRUE(Contains(emuProbe, "option pid missed") || Contains(emuProbe, "invalid arg"))
+            << emuProbe.output;
+    }
+    return;
+#endif
     /* Environment-adaptive entry: when the option is not compiled into this build the tool
      * shows that it does not exist (verified board presentation) and the case is judged
      * success directly per the reservation rule. */
