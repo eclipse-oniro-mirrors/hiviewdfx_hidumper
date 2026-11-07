@@ -1332,5 +1332,80 @@ HWTEST_F(HiDumperManagerTest, FdThreadDumpTest008, TestSize.Level0)
     int ret = GetDumpResult(argc, argv);
     ASSERT_EQ(ret, DumpStatus::DUMP_HELP);
 }
+
+/**
+ * @tc.name: MemDetailDumpTest001
+ * @tc.desc: Test --mem with --show-ashmem has correct ret on emulator and real device.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, MemDetailDumpTest001, TestSize.Level0)
+{
+    std::string pid = std::to_string(getpid());
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("--mem"),
+        const_cast<char *>(pid.c_str()),
+        const_cast<char *>("--show-ashmem"),
+        const_cast<char *>(""),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+    int ret = GetDumpResult(argc, argv);
+#ifdef IS_EMULATOR
+    ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
+#else
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+#endif
+}
+
+/**
+ * @tc.name: MemDetailDumpTest002
+ * @tc.desc: Test --mem with --show-dmabuf has correct ret on emulator and real device.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, MemDetailDumpTest002, TestSize.Level0)
+{
+    std::string pid = std::to_string(getpid());
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("--mem"),
+        const_cast<char *>(pid.c_str()),
+        const_cast<char *>("--show-dmabuf"),
+        const_cast<char *>(""),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+    int ret = GetDumpResult(argc, argv);
+#ifdef IS_EMULATOR
+    ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
+#else
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+#endif
+}
+
+/**
+ * @tc.name: MemDetailDumpTest003
+ * @tc.desc: Test --mem with --show-gpumem has correct ret on emulator and real device.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HiDumperManagerTest, MemDetailDumpTest003, TestSize.Level0)
+{
+    std::string pid = std::to_string(getpid());
+    char *argv[] = {
+        const_cast<char *>(TOOL_NAME.c_str()),
+        const_cast<char *>("--mem"),
+        const_cast<char *>(pid.c_str()),
+        const_cast<char *>("--show-gpumem"),
+        const_cast<char *>(""),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+    int ret = GetDumpResult(argc, argv);
+#if !defined(HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE)
+    // plugin disabled: '--show-gpumem' is not a recognized option, rejected at parse stage
+    ASSERT_EQ(ret, DumpStatus::DUMP_INVALID_ARG);
+#elif defined(IS_EMULATOR)
+    ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
+#else
+    ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+#endif
+}
 } // namespace HiviewDFX
 } // namespace OHOS

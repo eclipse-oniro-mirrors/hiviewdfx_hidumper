@@ -66,10 +66,16 @@ HWTEST_F(HidumperCpuServiceTest, HidumperCpuServiceTest001, TestSize.Level3)
 /**
  * @tc.name: HidumperCpuServiceTest002
  * @tc.desc: Test of send request to dump spuusage.
+ *           Skip on emulator: the kernel has no ucollection driver (/dev/ucollection is
+ *           absent, apply_ucollection.sh is only wired for real boards), so CPU stat
+ *           collection cannot succeed there; real devices require DUMP_OK.
  * @tc.type: FUNC
  */
 HWTEST_F(HidumperCpuServiceTest, HidumperCpuServiceTest002, TestSize.Level3)
 {
+#ifdef IS_EMULATOR
+    GTEST_SKIP() << "emulator kernel has no ucollection driver, CPU stat collection is unsupported";
+#endif
     auto dumpManagerCpuService = std::make_shared<DumpManagerCpuService>();
     dumpManagerCpuService->StartService();
     dumpManagerCpuService->OnStart();
@@ -81,10 +87,16 @@ HWTEST_F(HidumperCpuServiceTest, HidumperCpuServiceTest002, TestSize.Level3)
 /**
  * @tc.name: HidumperCpuServiceTest003
  * @tc.desc: Test of send request to dump spuusage.
+ *           Skip on emulator: the kernel has no ucollection driver (/dev/ucollection is
+ *           absent), so per-pid CPU usage collection cannot succeed there; real devices
+ *           require DUMP_OK.
  * @tc.type: FUNC
  */
 HWTEST_F(HidumperCpuServiceTest, HidumperCpuServiceTest003, TestSize.Level3)
 {
+#ifdef IS_EMULATOR
+    GTEST_SKIP() << "emulator kernel has no ucollection driver, CPU usage collection is unsupported";
+#endif
     auto dumpManagerCpuService = std::make_shared<DumpManagerCpuService>();
     dumpManagerCpuService->StartService();
     double cpuUsage;

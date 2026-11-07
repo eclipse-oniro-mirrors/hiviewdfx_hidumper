@@ -445,12 +445,19 @@ HWTEST_F(HidumperFunctionTest, Process_ChildOracle_017, TestSize.Level2)
  * @tc.name: Cpu_Freq_018
  * @tc.desc: Command: hidumper --cpufreq
  *           Function: per-core CPU frequency.
+ *           Skip on emulator: the KVM guest exposes no cpufreq sysfs (the per-cpu
+ *           /sys/devices/system/cpu/cpuN/cpufreq directories are absent, acpi-cpufreq never
+ *           attaches), so real frequency data cannot be produced; the command only echoes
+ *           failed reads.
  *           Pass with plugin disabled: the [cpufreq] header carries data below.
  *           Pass with plugin enabled: same as plugin-disabled.
  * @tc.type: FUNC
  */
 HWTEST_F(HidumperFunctionTest, Cpu_Freq_018, TestSize.Level2)
 {
+#ifdef IS_EMULATOR
+    GTEST_SKIP() << "KVM guest exposes no cpufreq sysfs, real frequency data is unsupported";
+#endif
     CmdResult result = RunHidumper("--cpufreq");
     ASSERT_TRUE(Contains(result, SECTION_CPUFREQ)) << result.output;
     ASSERT_TRUE(HasContentBelow(result.output, SECTION_CPUFREQ)) << result.output;
@@ -460,6 +467,9 @@ HWTEST_F(HidumperFunctionTest, Cpu_Freq_018, TestSize.Level2)
  * @tc.name: Cpu_Usage_019
  * @tc.desc: Command: hidumper --cpuusage
  *           Function: whole-device CPU usage report.
+ *           Skip on emulator: the kernel has no ucollection driver, SA 1215 collection fails
+ *           and the report degrades to the bare [cpuusage] header (no 'Load average:' data),
+ *           so there is no meaningful content to assert.
  *           Pass with plugin disabled: the [cpuusage] section appears and the 'Load average:'
  *           header carries data below.
  *           Pass with plugin enabled: same as plugin-disabled.
@@ -469,6 +479,9 @@ HWTEST_F(HidumperFunctionTest, Cpu_Freq_018, TestSize.Level2)
  */
 HWTEST_F(HidumperFunctionTest, Cpu_Usage_019, TestSize.Level3)
 {
+#ifdef IS_EMULATOR
+    GTEST_SKIP() << "emulator kernel has no ucollection driver, cpuusage data is unsupported";
+#endif
     if (!HIVIEW_ENABLED) {
         /* Reserved: this build does not compile the option in (both current devices do;
          * unreachable in practice), judged success directly. */
@@ -485,6 +498,9 @@ HWTEST_F(HidumperFunctionTest, Cpu_Usage_019, TestSize.Level3)
  * @tc.name: Cpu_UsagePid_020
  * @tc.desc: Command: hidumper --cpuusage 1
  *           Function: per-pid CPU usage for a fixed documented subject.
+ *           Skip on emulator: the kernel has no ucollection driver, SA 1215 collection fails
+ *           and the report degrades to the bare [cpuusage] header (no 'Load average:' data),
+ *           so there is no meaningful content to assert.
  *           Pass with plugin disabled: the [cpuusage] section appears and the 'Load average:'
  *           header carries data below.
  *           Pass with plugin enabled: same as plugin-disabled.
@@ -496,6 +512,9 @@ HWTEST_F(HidumperFunctionTest, Cpu_Usage_019, TestSize.Level3)
  */
 HWTEST_F(HidumperFunctionTest, Cpu_UsagePid_020, TestSize.Level3)
 {
+#ifdef IS_EMULATOR
+    GTEST_SKIP() << "emulator kernel has no ucollection driver, cpuusage data is unsupported";
+#endif
     if (!HIVIEW_ENABLED) {
         /* Reserved: this build does not compile the option in (both current devices do;
          * unreachable in practice), judged success directly. */
@@ -878,6 +897,8 @@ HWTEST_F(HidumperFunctionTest, Smaps_Verbose_034, TestSize.Level3)
  * @tc.name: MemDetail_Ashmem_035
  * @tc.desc: Command: hidumper --mem <hap pid> --show-ashmem
  *           Function: per-descriptor ashmem detail of the own application.
+ *           Pass on emulator: only the unsupported message is printed (the capability is
+ *           macro-gated out in ValidateDumpOptions; no help text).
  *           Pass with plugin disabled: judged success directly.
  *           Pass with plugin enabled: the [memory] report carries data below and the 'Total
  *           Ashmem:' header carries the per-descriptor data below (the HAP holds ashmem, verified:
@@ -890,6 +911,14 @@ HWTEST_F(HidumperFunctionTest, Smaps_Verbose_034, TestSize.Level3)
  */
 HWTEST_F(HidumperFunctionTest, MemDetail_Ashmem_035, TestSize.Level3)
 {
+#ifdef IS_EMULATOR
+    /* Emulator build: the flag is rejected in ValidateDumpOptions with the sole message and
+     * without the help text; no ashmem section may appear. */
+    CmdResult emuResult = RunHidumper("--mem " + std::to_string(INIT_PID) + " --show-ashmem");
+    ASSERT_TRUE(Contains(emuResult, ERR_EMULATOR_UNSUPPORTED)) << emuResult.output;
+    ASSERT_EQ(emuResult.output.find("|help text for the tool"), std::string::npos) << emuResult.output;
+    return;
+#endif
     if (!PLUGIN_ENABLED) {
         /* Reserved (RK3568/board): --show-ashmem is not adapted on this image yet - the kernel
          * exports the legacy header "Process name Process ID fd ashmem_name size" and no
@@ -919,6 +948,8 @@ HWTEST_F(HidumperFunctionTest, MemDetail_Ashmem_035, TestSize.Level3)
  * @tc.name: MemDetail_Dmabuf_036
  * @tc.desc: Command: hidumper --mem <pid> --show-dmabuf
  *           Function: DMA aggregate on top of the base report.
+ *           Pass on emulator: only the unsupported message is printed (the capability is
+ *           macro-gated out in ValidateDumpOptions; no help text).
  *           Pass with plugin disabled: the [memory] section, 'DMA:' and a numeric 'Dma:' value
  *           appear.
  *           Pass with plugin enabled: same as plugin-disabled.
@@ -926,6 +957,14 @@ HWTEST_F(HidumperFunctionTest, MemDetail_Ashmem_035, TestSize.Level3)
  */
 HWTEST_F(HidumperFunctionTest, MemDetail_Dmabuf_036, TestSize.Level3)
 {
+#ifdef IS_EMULATOR
+    /* Emulator build: the flag is rejected in ValidateDumpOptions with the sole message and
+     * without the help text; no DMA aggregate may appear. */
+    CmdResult emuResult = RunHidumper("--mem " + std::to_string(INIT_PID) + " --show-dmabuf");
+    ASSERT_TRUE(Contains(emuResult, ERR_EMULATOR_UNSUPPORTED)) << emuResult.output;
+    ASSERT_EQ(emuResult.output.find("|help text for the tool"), std::string::npos) << emuResult.output;
+    return;
+#endif
     std::string processName;
     int32_t pid = PickUiProcessPid(processName);
     if (pid <= 0) {
@@ -967,6 +1006,10 @@ HWTEST_F(HidumperFunctionTest, MemDetail_ArktsHeap_037, TestSize.Level3)
  * @tc.name: MemDetail_GpuMem_038
  * @tc.desc: Command: hidumper --mem <pid> --show-gpumem
  *           Function: GPU memory detail.
+ *           Pass on emulator: with the plugin enabled only the unsupported message is printed
+ *           (the capability is macro-gated out in ValidateDumpOptions; no help text); with the
+ *           plugin disabled the option is not compiled in at all and stays an unknown-arg
+ *           rejection.
  *           Pass with plugin disabled: judged success directly.
  *           Pass with plugin enabled: against the fixed GPU holders (sceneboard, then
  *           render_service; absence fails the case) the [memory] section and the 'GPU:' header
@@ -978,6 +1021,19 @@ HWTEST_F(HidumperFunctionTest, MemDetail_ArktsHeap_037, TestSize.Level3)
  */
 HWTEST_F(HidumperFunctionTest, MemDetail_GpuMem_038, TestSize.Level3)
 {
+#ifdef IS_EMULATOR
+    CmdResult emuProbe = RunHidumper("--mem " + std::to_string(INIT_PID) + " --show-gpumem");
+    if (PLUGIN_ENABLED) {
+        /* The option is compiled in but gated out on emulator builds: sole message, no help. */
+        ASSERT_TRUE(Contains(emuProbe, ERR_EMULATOR_UNSUPPORTED)) << emuProbe.output;
+        ASSERT_EQ(emuProbe.output.find("|help text for the tool"), std::string::npos) << emuProbe.output;
+    } else {
+        /* The option is not compiled in at all: unknown-arg rejection before the emulator gate. */
+        ASSERT_TRUE(Contains(emuProbe, "option pid missed") || Contains(emuProbe, "invalid arg"))
+            << emuProbe.output;
+    }
+    return;
+#endif
     /* Environment-adaptive entry: when the option is not compiled into this build the tool
      * shows that it does not exist (verified board presentation) and the case is judged
      * success directly per the reservation rule. */
@@ -1009,6 +1065,9 @@ HWTEST_F(HidumperFunctionTest, MemDetail_GpuMem_038, TestSize.Level3)
  * @tc.name: ChildTarget_MemoryFloor_039
  * @tc.desc: Command: hidumper --mem <child pid> + hidumper --mem-smaps <child pid>
  *           Function: memory floors against the child's fully touched 32 MiB heap block.
+ *           Skip on emulator: the kernel is built without CONFIG_ANON_VMA_NAME, so musl
+ *           cannot name malloc VMAs ([anon:native_heap:*]) and the 'native heap' row the
+ *           floor oracle reads stays empty (the block classifies into 'AnonPage other').
  *           Pass with plugin disabled: the 'native heap' and Total rows plus the smaps Summary
  *           Rss/Pss are all at or above the 28 MiB floor.
  *           Pass with plugin enabled: same as plugin-disabled.
@@ -1017,6 +1076,10 @@ HWTEST_F(HidumperFunctionTest, MemDetail_GpuMem_038, TestSize.Level3)
  */
 HWTEST_F(HidumperFunctionTest, ChildTarget_MemoryFloor_039, TestSize.Level3)
 {
+#ifdef IS_EMULATOR
+    GTEST_SKIP() << "emulator kernel has no CONFIG_ANON_VMA_NAME, native heap classification "
+                    "of the touched block is unsupported";
+#endif
     TargetChildGuard child;
     std::string failReason;
     if (!child.Start(failReason)) {
@@ -1369,6 +1432,13 @@ HWTEST_F(HidumperFunctionTest, MemHeap_Native_047, TestSize.Level3)
         GTEST_SUCCEED();
         return;
     }
+    if (!PLUGIN_ENABLED) {
+        /* Reserved (64-bit build without the closed-source companion part, e.g. the emulator
+         * image): the native heap snapshot tracker ships with the companion part only, so no
+         * artifact can ever be produced here; skipped per the reservation rule (the 32-bit
+         * board above takes the same reservation via the arch gate). */
+        GTEST_SKIP() << "the closed-source native heap tracker is absent in this build";
+    }
     int32_t pid = NO_PID;
     std::string processName;
     ArtifactCheck check;
@@ -1412,6 +1482,12 @@ HWTEST_F(HidumperFunctionTest, MemHeap_NativeLeakobj_048, TestSize.Level3)
          * reservation rule. */
         GTEST_SUCCEED();
         return;
+    }
+    if (!PLUGIN_ENABLED) {
+        /* Reserved (64-bit build without the closed-source companion part, e.g. the emulator
+         * image): the memleak helper library ships with the companion part only, so the
+         * 'bytes leak' report can never be produced here; skipped per the reservation rule. */
+        GTEST_SKIP() << "the closed-source memleak helper library is absent in this build";
     }
     int32_t pid = NO_PID;
     std::string processName;
@@ -1827,6 +1903,9 @@ HWTEST_F(HidumperFunctionTest, LeakThread_Dump_058, TestSize.Level3)
  *           dedicated HAP: leakThreadStacks() (ported from the threadStackLeak demo) creates
  *           LEAK_THREAD_COUNT joinable threads running a 5-layer optnone chain that exit
  *           without join/detach, orphaning their [anon:stack:<tid>] regions.
+ *           Skip on emulator: the kernel is built without CONFIG_ANON_VMA_NAME, so thread
+ *           stacks carry no [anon:stack:<tid>] names and the orphan-stack detector
+ *           structurally cannot find the provisioned leak there.
  *           Pass with plugin disabled: on a debuggable device the count line reports at least
  *           the provisioned number of leaked stacks and the unwound body carries tid frames
  *           resolved into libhidumper_target.so (the chain that ran inside the leaked
@@ -1839,6 +1918,10 @@ HWTEST_F(HidumperFunctionTest, LeakThread_Dump_058, TestSize.Level3)
  */
 HWTEST_F(HidumperFunctionTest, LeakThread_DumpDetect_059, TestSize.Level3)
 {
+#ifdef IS_EMULATOR
+    GTEST_SKIP() << "emulator kernel has no CONFIG_ANON_VMA_NAME, orphan thread stack "
+                    "detection is unsupported";
+#endif
     if (!FuncTestHapAvailable()) {
         GTEST_SKIP() << "the dedicated target HAP is unavailable in this environment "
                         "(neither installed nor pushed to an installable location)";

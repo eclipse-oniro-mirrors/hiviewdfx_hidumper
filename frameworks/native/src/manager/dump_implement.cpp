@@ -350,6 +350,9 @@ DumpStatus DumpImplement::ValidateDumpOptions(int argc, DumperOpts& opts)
     if (opts.isDumpJsHeapMem_ && !CheckJsHeapSingleParam(opts)) {
         return DumpStatus::DUMP_FAIL;
     }
+    if (opts.isDumpMem_ && !CheckMemDetailParamSupported(opts)) {
+        return DumpStatus::DUMP_FAIL;
+    }
     if (opts.isDumpHeapMem_ && !CheckDumpHeapMemParameter(argc, opts)) {
         SendErrorMessage("");
         CmdHelp();
@@ -1742,6 +1745,20 @@ bool DumpImplement::CheckJsHeapSingleParam(const DumperOpts &opt)
         return false;
     }
     return true;
+}
+
+bool DumpImplement::CheckMemDetailParamSupported(const DumperOpts &opt)
+{
+    if (!opt.showAshmem_ && !opt.showDmaBuf_ && !opt.showGpumem_) {
+        return true;
+    }
+#ifdef IS_EMULATOR
+    DUMPER_HILOGE(MODULE_COMMON, "--show-ashmem/--show-dmabuf/--show-gpumem is not supported on the emulator.");
+    SendErrorMessage("The capability is not supported on the emulator at this time.");
+    return false;
+#else
+    return true;
+#endif
 }
 } // namespace HiviewDFX
 } // namespace OHOS

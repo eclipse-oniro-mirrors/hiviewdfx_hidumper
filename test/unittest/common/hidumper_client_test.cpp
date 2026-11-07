@@ -33,6 +33,31 @@ namespace OHOS {
 namespace HiviewDFX {
 const std::string TOOL_NAME = "hidumper";
 const int BUFFER_SIZE = 1024;
+/* Emulator builds macro-gate the --mem detail options out in ValidateDumpOptions; the
+ * service-side parse status is not propagated through Request (StartRequest always answers
+ * DUMP_OK), so the message written to the output fd is the discriminator. */
+const std::string EMU_UNSUPPORTED_MSG = "The capability is not supported on the emulator at this time.";
+const std::string SECTION_MEMORY_TAG = "[memory]";
+const std::string ERR_MISS_SHOW_GPUMEM = "option pid missed. showgpumem";
+const int PIPE_PAIR_SIZE = 2;
+const int PIPE_READ = 0;
+const int PIPE_WRITE = 1;
+
+/* Drain a pipe fd until EOF. The service finishes writing before Request returns,
+ * so the write end must be closed by the caller first. Pipe fds follow the same
+ * transfer path as the CLI's redirected stdout (proven by the function tests). */
+static std::string DrainFd(int fd)
+{
+    std::string content;
+    char buf[BUFFER_SIZE] = {0};
+    ssize_t n = 0;
+    while ((n = read(fd, buf, sizeof(buf) - 1)) > 0) {
+        buf[n] = '\0';
+        content += buf;
+    }
+    return content;
+}
+
 class HidumperClientTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -474,7 +499,11 @@ HWTEST_F(HidumperClientTest, ManagerClientTest014, TestSize.Level0)
 
 /**
  * @tc.name: ManagerClientTest015
- * @tc.desc: Test --mem 1 --show-dmabuf.
+ * @tc.desc: Test --mem 1 --show-dmabuf. On emulator builds the capability is macro-gated
+ *           out in ValidateDumpOptions: the output fd only carries the unsupported message;
+ *           on real devices the [memory] report with the DMA aggregate is produced.
+ *           Note: the service pops the last argument as the caller ppid (RawParam::Init),
+ *           mirroring DumpClientMain::SetCmdArgs, so a trailing ppid argument is appended.
  * @tc.type: FUNC
  */
 HWTEST_F(HidumperClientTest, ManagerClientTest015, TestSize.Level0)
@@ -484,14 +513,30 @@ HWTEST_F(HidumperClientTest, ManagerClientTest015, TestSize.Level0)
         std::u16string(u"--mem"),
         std::u16string(u"1"),
         std::u16string(u"--show-dmabuf"),
+        Str8ToStr16(std::to_string(getppid())),
     };
-    int ret = DumpManagerClient::GetInstance().Request(args, STDOUT_FILENO);
+    int pipeFd[PIPE_PAIR_SIZE] = {-1, -1};
+    ASSERT_EQ(pipe(pipeFd), 0);
+    int ret = DumpManagerClient::GetInstance().Request(args, pipeFd[PIPE_WRITE]);
+    close(pipeFd[PIPE_WRITE]);
+    std::string output = DrainFd(pipeFd[PIPE_READ]);
+    close(pipeFd[PIPE_READ]);
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+#ifdef IS_EMULATOR
+    ASSERT_NE(output.find(EMU_UNSUPPORTED_MSG), std::string::npos) << output;
+#else
+    ASSERT_NE(output.find(SECTION_MEMORY_TAG), std::string::npos) << output;
+    ASSERT_NE(output.find("DMA:"), std::string::npos) << output;
+#endif
 }
 
 /**
  * @tc.name: ManagerClientTest016
- * @tc.desc: Test --mem 1 --show-gpumem.
+ * @tc.desc: Test --mem 1 --show-gpumem. On emulator builds (plugin enabled) the capability is
+ *           macro-gated out in ValidateDumpOptions: the output fd only carries the unsupported
+ *           message; without the plugin the option is not compiled in at all and the output
+ *           carries the unknown-option rejection; on real devices with the plugin the [memory]
+ *           report is produced. The trailing ppid argument mirrors DumpClientMain::SetCmdArgs.
  * @tc.type: FUNC
  */
 HWTEST_F(HidumperClientTest, ManagerClientTest016, TestSize.Level0)
@@ -501,9 +546,22 @@ HWTEST_F(HidumperClientTest, ManagerClientTest016, TestSize.Level0)
         std::u16string(u"--mem"),
         std::u16string(u"1"),
         std::u16string(u"--show-gpumem"),
+        Str8ToStr16(std::to_string(getppid())),
     };
-    int ret = DumpManagerClient::GetInstance().Request(args, STDOUT_FILENO);
+    int pipeFd[PIPE_PAIR_SIZE] = {-1, -1};
+    ASSERT_EQ(pipe(pipeFd), 0);
+    int ret = DumpManagerClient::GetInstance().Request(args, pipeFd[PIPE_WRITE]);
+    close(pipeFd[PIPE_WRITE]);
+    std::string output = DrainFd(pipeFd[PIPE_READ]);
+    close(pipeFd[PIPE_READ]);
     ASSERT_EQ(ret, DumpStatus::DUMP_OK);
+#if !defined(HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE)
+    ASSERT_NE(output.find(ERR_MISS_SHOW_GPUMEM), std::string::npos) << output;
+#elif defined(IS_EMULATOR)
+    ASSERT_NE(output.find(EMU_UNSUPPORTED_MSG), std::string::npos) << output;
+#else
+    ASSERT_NE(output.find(SECTION_MEMORY_TAG), std::string::npos) << output;
+#endif
 }
 
 /**

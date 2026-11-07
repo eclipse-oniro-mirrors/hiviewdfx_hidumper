@@ -135,6 +135,7 @@ private:
     DumpStatus CheckArgs(int argc, char* argv[]);
     bool IsNewStructSupport(std::shared_ptr<DumperParameter> ptrDumperParameter);
     bool CheckJsHeapSingleParam(const DumperOpts &opt);
+    bool CheckMemDetailParamSupported(const DumperOpts &opt);
 
 private:
     using ExecutorFactoryMap = std::map<int, std::shared_ptr<ExecutorFactory>>;

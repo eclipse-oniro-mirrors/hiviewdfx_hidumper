@@ -189,6 +189,9 @@ extern const std::string SMAPS_VERBOSE_HEADER;
  * process has ashmem at all, so the header is what actually proves the flag took effect. */
 /* Written by the ArkTS runtime for every virtual machine it collected. */
 extern const std::string ERR_MISS_UNKNOWN_OPT;
+/* Sole message printed by a capability that is macro-gated out on emulator builds; the tool
+ * deliberately shows no help text in that case. */
+extern const std::string ERR_EMULATOR_UNSUPPORTED;
 /* Always-present system processes, used to find one that can serve a data-dependent capability. */
 extern const std::vector<std::string> SYSTEM_PROBE_TARGETS;
 const int32_t UNKNOWN_RECORD_ID = 999;

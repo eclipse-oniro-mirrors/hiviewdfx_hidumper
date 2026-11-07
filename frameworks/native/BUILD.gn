@@ -164,6 +164,10 @@ ohos_source_set("dump_main") {
     defines += [ "HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE" ]
   }
 
+  if (is_emulator) {
+    defines += [ "IS_EMULATOR" ]
+  }
+
   subsystem_name = "hiviewdfx"
 
   part_name = "hidumper"

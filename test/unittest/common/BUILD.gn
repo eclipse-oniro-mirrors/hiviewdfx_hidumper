@@ -413,6 +413,12 @@ ohos_unittest("HidumperManagerTest") {
   if (hidumper_hiviewdfx_hiview_enable) {
     defines += [ "HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE" ]
   }
+  if (hidumper_hiviewdfx_plugin_enable) {
+    defines += [ "HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE" ]
+  }
+  if (is_emulator) {
+    defines += [ "IS_EMULATOR" ]
+  }
 
   cflags = [
     "-Dprivate=public",  #allow test code access private members
@@ -449,6 +455,9 @@ ohos_unittest("HidumperCpuServiceTest") {
     external_deps += [ "ability_runtime:app_manager" ]
     defines += [ "HIDUMPER_ABILITY_BASE_ENABLE" ]
   }
+  if (is_emulator) {
+    defines += [ "IS_EMULATOR" ]
+  }
 
   cflags = [
     "-Dprivate=public",  #allow test code access private members
@@ -479,6 +488,14 @@ ohos_unittest("HidumperClientTest") {
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
+
+  defines = []
+  if (hidumper_hiviewdfx_plugin_enable) {
+    defines += [ "HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE" ]
+  }
+  if (is_emulator) {
+    defines += [ "IS_EMULATOR" ]
+  }
 
   cflags = [
     "-Dprivate=public",  #allow test code access private members
@@ -607,6 +624,9 @@ ohos_unittest("HidumperFunctionTest") {
   }
   if (hidumper_hiviewdfx_plugin_enable) {
     defines += [ "HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE" ]
+  }
+  if (is_emulator) {
+    defines += [ "IS_EMULATOR" ]
   }
 }
 

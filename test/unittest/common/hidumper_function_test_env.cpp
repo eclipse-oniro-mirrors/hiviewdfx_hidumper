@@ -132,6 +132,8 @@ const std::string SMAPS_VERBOSE_HEADER = "Perm        Start             End";
 
 const std::string ERR_MISS_UNKNOWN_OPT = "hidumper: option pid missed. definitelynotanoption";
 
+const std::string ERR_EMULATOR_UNSUPPORTED = "The capability is not supported on the emulator at this time.";
+
 const std::vector<std::string> SYSTEM_PROBE_TARGETS = {"render_service", "foundation", "hiview",
     "hilogd", "com.ohos.sceneboard", "com.ohos.launcher"};
 
