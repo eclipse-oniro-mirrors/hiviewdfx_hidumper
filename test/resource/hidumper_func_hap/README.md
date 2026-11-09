@@ -76,11 +76,23 @@ hdc -t <serial> shell "bm install -p /data/test/resource/hidumper/HidumperFuncHa
 
 - hvigor 对联网机器会做 SDK license 校验且 prebuilts SDK 无 licenses/*.sha256 →
   离线（CI）环境自然通过；联网本地构建需自行补齐 SDK licenses 或改用离线方式。
-- `compileSdkVersion`（26.0.0）必须命中编译机 `prebuilts/ohos-sdk/linux/` 实存的 SDK：
-  26.0.1 在部分 CI 池缺失，26.0.0.25（`26/` 目录，meta 3.0.0）与 hvigor 6 管理模式不兼容
-  （"The SDK management mode has changed"），真 26.0.0(.38+) 目录是各全量池实证可用交集。
-  指向缺失版本时 hvigor 会联网下载并被 SDK license 校验拦截（dayu200_tdd 实证）。
-- CI precise（tdd）池的 SDK 过旧、无法构建任何 model-6 hvigor 工程，且 license 存储位于
-  SDK 根/用户目录、仓库侧无法满足：HAP 目标经 `ohos_module_precise_build`（CI tdd 标签
-  gn args 实证为 true，全量构建缺省 false）条件从 precise 构建图排除（全量产品构建与
-  部件独立编译不受影响），见 hidumper.gni 与两处 BUILD.gn。
+- `compileSdkVersion`（26.1.0）必须命中编译机 `prebuilts/ohos-sdk/linux/` 实存
+  SDK 的 `platformVersion`：API26 起 hvigor 以各组件 `oh-uni-package.json` 的
+  `platformVersion`（点分制）做**精确**版本匹配（sdkmanager-common
+  `configFullApiVersion`/`compareApiVersion`，按 major.minor.patch 数值比较，
+  非前缀/区间）。本 HAP 含 native（`entry/src/main/cpp`），故 ets/js/toolchains/
+  previewer/native 五个组件的 `platformVersion` 必须**一致**等于 pin，任一不符
+  → hvigor 联网下载缺失组件 → 被 SDK license 校验拦截（dayu200_tdd 实证）。
+  - pin 定 "26.1.0"：与树内先例（power_dialog、telephony_data、Settings_FaceAuth
+    三个 HAP 均 26.1.0）及 master `api_full_version`（build/version.gni）、官方
+    `ohos-sdk-full-linux` 下载版本（build/prebuilts_config.json）一致。
+  - 坑：daily-build Canary 快照可能**内部不一致**（native 先升到 "26.1.0"、
+    ets/js/toolchains/previewer 仍是 "26"≡26.0.0），此时任何单一 pin 都建不出
+    含 native 的 HAP（26.1.0 缺那 4 个、26.0.0 缺 native）。CI 池用的是五组件
+    一致的 26.1.0；本地若拿到不一致 Canary，需把 4 个滞后组件的 `platformVersion`
+    归一到 "26.1.0" 才能本地复现（`26/`=26.0.0.25 meta 3.0.0 与 hvigor 6 不兼容，
+    "The SDK management mode has changed"）。
+- CI precise（tdd）池经 tool_dayu200 `copy_sdk.sh` 将池级 `prebuilts/ohos-sdk/`
+  复制进构建工作区；HAP 目标不再从 precise 构建图排除（历史上曾因池内无可用
+  26.x SDK 而以 `ohos_module_precise_build` 条件隔离，池更新到一致 26.1.0 后解除，
+  precise gn 二进制会据 changed-file→target 映射把两个 ohos_app 动作选入 `precise`）。

@@ -603,13 +603,9 @@ ohos_unittest("HidumperFunctionTest") {
 
   configs = [ ":module_private_config" ]
 
-  # The function-test HAP targets do not exist in CI precise (tdd) builds (see
-  # hidumper.gni ohos_module_precise_build), so the dependency is conditional.
-  # Full builds and the part compile keep the HAPs wired into the test resources.
-  deps = []
-  if (!ohos_module_precise_build) {
-    deps += [ "//base/hiviewdfx/hidumper/test/resource/hidumper_func_hap:hidumper_func_hap" ]
-  }
+  deps = [
+    "//base/hiviewdfx/hidumper/test/resource/hidumper_func_hap:hidumper_func_hap",
+  ]
 
   external_deps = [
     "bounds_checking_function:libsec_shared",
