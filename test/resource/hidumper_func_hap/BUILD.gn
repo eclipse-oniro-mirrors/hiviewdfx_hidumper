@@ -20,50 +20,45 @@ import("../../../hidumper.gni")
 # (requires java 11+ and the developtools/hapsigner repo, same materials as
 # the GN default signing in build/ohos_var.gni).
 
-# Excluded from CI precise (tdd) builds: those pools carry SDK states that cannot
-# build model-6 hvigor projects (no 26.x components, no license-accepted download
-# path). Full product builds and the independent part compile still build the HAPs.
-if (!ohos_module_precise_build) {
-  ohos_app("hidumper_func_hap_resource") {
-    certificate_profile = "signature/openharmony_sx.p7b"
-    hap_name = "HidumperFuncHap"
-    hap_out_dir = "$root_out_dir/tests/unittest/hidumper/hidumper/resource"
-    subsystem_name = "hiviewdfx"
-    part_name = "hidumper"
-    testonly = true
-    js_build_mode = "release"
-    sdk_home = "//prebuilts/ohos-sdk/linux"
-    sdk_type_name = [ "sdk.dir" ]
-    assemble_type = "assembleHap"
-    build_level = "module"
-    build_modules = [ "entry" ]
-  }
+ohos_app("hidumper_func_hap_resource") {
+  certificate_profile = "signature/openharmony_sx.p7b"
+  hap_name = "HidumperFuncHap"
+  hap_out_dir = "$root_out_dir/tests/unittest/hidumper/hidumper/resource"
+  subsystem_name = "hiviewdfx"
+  part_name = "hidumper"
+  testonly = true
+  js_build_mode = "release"
+  sdk_home = "//prebuilts/ohos-sdk/linux"
+  sdk_type_name = [ "sdk.dir" ]
+  assemble_type = "assembleHap"
+  build_level = "module"
+  build_modules = [ "entry" ]
+}
 
-  ohos_app("hidumper_func_hap_ohos_test") {
-    certificate_profile = "signature/openharmony_sx.p7b"
-    hap_name = "HidumperFuncHapOhosTest"
-    hap_out_dir = "$root_out_dir/tests/unittest/hidumper/hidumper/resource"
-    subsystem_name = "hiviewdfx"
-    part_name = "hidumper"
-    testonly = true
-    test_hap = true
-    test_module = "entry"
-    js_build_mode = "release"
-    sdk_home = "//prebuilts/ohos-sdk/linux"
-    sdk_type_name = [ "sdk.dir" ]
+ohos_app("hidumper_func_hap_ohos_test") {
+  certificate_profile = "signature/openharmony_sx.p7b"
+  hap_name = "HidumperFuncHapOhosTest"
+  hap_out_dir = "$root_out_dir/tests/unittest/hidumper/hidumper/resource"
+  subsystem_name = "hiviewdfx"
+  part_name = "hidumper"
+  testonly = true
+  test_hap = true
+  test_module = "entry"
+  js_build_mode = "release"
+  sdk_home = "//prebuilts/ohos-sdk/linux"
+  sdk_type_name = [ "sdk.dir" ]
 
-    # Both HAP actions run hvigor inside this one project directory; a cold
-    # .hvigor cache makes two concurrent hvigor instances race on
-    # dependencyMap/intermediates (EEXIST/ENOENT mkdir, ohosTest SyscapTransform
-    # missing rpcid.json). Depending on the main HAP serializes them.
-    deps = [ ":hidumper_func_hap_resource" ]
-  }
+  # Both HAP actions run hvigor inside this one project directory; a cold
+  # .hvigor cache makes two concurrent hvigor instances race on
+  # dependencyMap/intermediates (EEXIST/ENOENT mkdir, ohosTest SyscapTransform
+  # missing rpcid.json). Depending on the main HAP serializes them.
+  deps = [ ":hidumper_func_hap_resource" ]
+}
 
-  group("hidumper_func_hap") {
-    testonly = true
-    deps = [
-      ":hidumper_func_hap_ohos_test",
-      ":hidumper_func_hap_resource",
-    ]
-  }
+group("hidumper_func_hap") {
+  testonly = true
+  deps = [
+    ":hidumper_func_hap_ohos_test",
+    ":hidumper_func_hap_resource",
+  ]
 }
