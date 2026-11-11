@@ -118,7 +118,7 @@ DumpStatus SADumper::Execute()
     }
     for (size_t i = 0; i < names_.size(); ++i) {
         // The consumer is gone (e.g. "hidumper -s ... | grep -m1 x"): skip the rest,
-        // mirroring AOSP dumpsys writeDump which stops on the first write failure.
+        // stopping on the first output failure instead of issuing more binder calls.
         if ((relay_ != nullptr) && relay_->IsOutputBroken()) {
             DUMPER_HILOGW(MODULE_SERVICE, "consumer gone, skip the remaining %{public}zu system abilities",
                 names_.size() - i);
