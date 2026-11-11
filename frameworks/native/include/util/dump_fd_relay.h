@@ -53,9 +53,10 @@ constexpr char RELAY_THREAD_NAME[] = "hidumper_relay";
  * label of the shell/hdcd pipe that reached us over IPC. Every sadomain and
  * hdfdomain is already allowed to use and write such an fd through the
  * use_hidumper macro in
- * sepolicy/ohos_policy/hiviewdfx/hidumper/system/hidumper_service.te, which
- * makes the dump output survive pipes, redirections and release builds without
- * any per-domain policy exception.
+ * sepolicy/ohos_policy/hiviewdfx/hidumper/system/hidumper_service.te. This keeps
+ * the SA-to-service write path working on release builds without per-domain
+ * exceptions for the relay pipe. Forwarding to the caller's fd still relies on
+ * the existing SELinux permissions, exactly as the direct-output path did.
  *
  * The draining runs on its own thread because IRemoteObject::Dump() is a
  * synchronous call: the SA writes while the call is in flight and would block
