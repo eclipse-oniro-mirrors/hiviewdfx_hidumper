@@ -48,11 +48,9 @@ void DumpDelayedSpSingleton<T>::DestroyInstance()
 template<typename T>
 sptr<T> DumpDelayedSpSingleton<T>::GetInstance()
 {
-    if (!instance_) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        if (instance_ == nullptr) {
-            instance_ = new T();
-        }
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (instance_ == nullptr) {
+        instance_ = new T();
     }
     return instance_;
 }

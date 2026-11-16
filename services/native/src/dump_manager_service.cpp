@@ -100,7 +100,10 @@ void DumpManagerService::OnStop()
         return;
     }
     DUMPER_HILOGD(MODULE_SERVICE, "enter|");
-    blockRequest_ = true;
+    {
+        unique_lock<mutex> lock(mutex_);
+        blockRequest_ = true;
+    }
     CancelAllRequest();
     for (int i = 0; i < STOP_WAIT; i++) {
         {
@@ -112,7 +115,10 @@ void DumpManagerService::OnStop()
         sleep(1);
     }
     started_ = false;
-    blockRequest_ = false;
+    {
+        unique_lock<mutex> lock(mutex_);
+        blockRequest_ = false;
+    }
     DUMPER_HILOGD(MODULE_SERVICE, "leave|");
 }
 
@@ -122,13 +128,19 @@ int32_t DumpManagerService::OnIdle(const SystemAbilityOnDemandReason& idleReason
         idleReason.GetId(), idleReason.GetName().c_str(), GetRequestSum());
 
     if (idleReason.GetId() == OnDemandReasonId::INTERFACE_CALL) {
-        if (GetRequestSum() == 0) {
-            started_ = false;
-            return UNLOAD_IMMEDIATELY;
-        } else {
-            GetIdleRequest();
-            return DYNAMIC_EXIT_DELAY_TIME;
+        bool noRequest = false;
+        {
+            unique_lock<mutex> lock(mutex_);
+            noRequest = requestRawParamMap_.empty();
+            if (noRequest) {
+                started_ = false; // set in the same critical section as the empty check
+            }
         }
+        if (noRequest) {
+            return UNLOAD_IMMEDIATELY;
+        }
+        GetIdleRequest();
+        return DYNAMIC_EXIT_DELAY_TIME;
     } else {
         return UNLOAD_IMMEDIATELY;
     }
@@ -177,33 +189,25 @@ int32_t DumpManagerService::Request(std::vector<std::u16string> &args, int outfd
     if (outfd > -1) {
         fdsan_exchange_owner_tag(outfd, 0, FDTAG);
     }
-    if (blockRequest_) {
-        HandleRequestError(args, outfd, static_cast<int32_t>(DumpStatus::DUMP_FAIL), "request has blocked");
-        return DumpStatus::DUMP_FAIL;
-    }
-    if (!started_) {
-        DUMPER_HILOGE(MODULE_SERVICE, "hidumper_service has stopped.");
-        HandleRequestError(args, outfd, static_cast<int32_t>(DumpStatus::DUMP_FAIL), "request has stopped");
-        return DumpStatus::DUMP_FAIL;
-    }
     int32_t uid = IPCSkeleton::GetCallingUid();
     if (!HasDumpPermission()) {
         DUMPER_HILOGE(MODULE_SERVICE, "No dump permission, please check!, uid:%{public}d.", uid);
         HandleRequestError(args, outfd, static_cast<int32_t>(DumpStatus::DUMP_FAIL), "no dump permission");
         return DumpStatus::DUMP_FAIL;
     }
-    int sum = GetRequestSum();
-    DUMPER_HILOGD(MODULE_SERVICE, "debug|sum=%{public}d", sum);
-    if (sum >= REQUEST_MAX) {
-        DUMPER_HILOGE(MODULE_SERVICE, "sum is greater than the request max, sum:%{public}d.", sum);
-        HandleRequestError(args, outfd, static_cast<int32_t>(DumpStatus::DUMP_FAIL), "request sum reached max");
-        return DumpStatus::DUMP_REQUEST_MAX;
-    } else if (sum == 0) {
+    int32_t errorCode = static_cast<int32_t>(DumpStatus::DUMP_OK);
+    std::string errorMsg;
+    bool initLog = false;
+    std::shared_ptr<RawParam> rawParam = TryAddRequest(args, outfd, errorCode, errorMsg, initLog);
+    if (rawParam == nullptr) {
+        HandleRequestError(args, outfd, errorCode, errorMsg);
+        return errorCode;
+    }
+    if (initLog) {
         DumpLogManager::Init();
     }
     DelayUnloadTask();
     DUMPER_HILOGD(MODULE_SERVICE, "enter|");
-    const std::shared_ptr<RawParam> rawParam = AddRequestRawParam(args, outfd);
     int32_t ret = StartRequest(rawParam);
     DUMPER_HILOGD(MODULE_SERVICE, "leave|ret=%{public}d", ret);
     return ret;
@@ -585,6 +589,11 @@ int DumpManagerService::GetRequestSum()
 std::shared_ptr<RawParam> DumpManagerService::AddRequestRawParam(std::vector<std::u16string> &args, int outfd)
 {
     unique_lock<mutex> lock(mutex_);
+    return AddRequestRawParamLocked(args, outfd);
+}
+
+std::shared_ptr<RawParam> DumpManagerService::AddRequestRawParamLocked(std::vector<std::u16string> &args, int outfd)
+{
     uint32_t requestId = 0;
     do { // find a requestId
         requestId = GetRequestId();
@@ -599,6 +608,33 @@ std::shared_ptr<RawParam> DumpManagerService::AddRequestRawParam(std::vector<std
         std::make_shared<RawParam>(calllingUid, calllingPid, requestId, args, outfd);
     requestRawParamMap_.insert(std::make_pair(requestId, requestHandle));
     return requestHandle;
+}
+
+std::shared_ptr<RawParam> DumpManagerService::TryAddRequest(std::vector<std::u16string> &args, int outfd,
+    int32_t &errorCode, std::string &errorMsg, bool &initLog)
+{
+    unique_lock<mutex> lock(mutex_);
+    if (blockRequest_) {
+        errorCode = static_cast<int32_t>(DumpStatus::DUMP_FAIL);
+        errorMsg = "request has blocked";
+        return nullptr;
+    }
+    if (!started_) {
+        DUMPER_HILOGE(MODULE_SERVICE, "hidumper_service has stopped.");
+        errorCode = static_cast<int32_t>(DumpStatus::DUMP_FAIL);
+        errorMsg = "request has stopped";
+        return nullptr;
+    }
+    int sum = static_cast<int>(requestRawParamMap_.size());
+    DUMPER_HILOGD(MODULE_SERVICE, "debug|sum=%{public}d", sum);
+    if (sum >= REQUEST_MAX) {
+        DUMPER_HILOGE(MODULE_SERVICE, "sum is greater than the request max, sum:%{public}d.", sum);
+        errorCode = static_cast<int32_t>(DumpStatus::DUMP_REQUEST_MAX);
+        errorMsg = "request sum reached max";
+        return nullptr;
+    }
+    initLog = (sum == 0);
+    return AddRequestRawParamLocked(args, outfd);
 }
 
 void DumpManagerService::EraseRequestRawParam(const std::shared_ptr<RawParam> rawParam)

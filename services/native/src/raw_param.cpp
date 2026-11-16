@@ -123,12 +123,12 @@ uint32_t RawParam::GetRequestId()
 
 bool RawParam::IsCanceled()
 {
-    return canceled_;
+    return canceled_.load(std::memory_order_acquire);
 }
 
 bool RawParam::IsFinished()
 {
-    return (canceled_ || finished_ || hasError_);
+    return (canceled_.load(std::memory_order_acquire) || finished_ || hasError_);
 }
 
 bool RawParam::HasError()
@@ -138,7 +138,7 @@ bool RawParam::HasError()
 
 void RawParam::Cancel()
 {
-    canceled_ = true;
+    canceled_.store(true, std::memory_order_release);
     DUMPER_HILOGD(MODULE_SERVICE, "debug|reqId=%{public}u", reqId_);
 }
 
@@ -207,7 +207,8 @@ void RawParam::UpdateProgress(uint64_t progress)
     }
 }
 
-RawParam::ClientDeathRecipient::ClientDeathRecipient(uint32_t reqId, bool &deathed) : reqId_(reqId), deathed_(deathed)
+RawParam::ClientDeathRecipient::ClientDeathRecipient(uint32_t reqId, std::atomic<bool> &deathed)
+    : reqId_(reqId), deathed_(deathed)
 {}
 
 void RawParam::ClientDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
@@ -220,7 +221,7 @@ void RawParam::ClientDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &rem
         return;
     }
     DUMPER_HILOGD(MODULE_SERVICE, "enter|reqId=%{public}d", reqId_);
-    deathed_ = true;
+    deathed_.store(true, std::memory_order_release);
     DUMPER_HILOGD(MODULE_SERVICE, "leave|reqId=%{public}d", reqId_);
 }
 
