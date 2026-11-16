@@ -1449,5 +1449,95 @@ HWTEST_F(HidumperDumpersTest, LeakThreadDumperTest004, TestSize.Level1)
     // non-existent pid, GetProcessInfo fails
     ASSERT_FALSE(DumpImplement::GetInstance().IsApplicationPid(-1));
 }
+
+/**
+ * @tc.name: JsvmHeapDumperTest001
+ * @tc.desc: Test JsvmHeapDumper with --gc and --raw together (should fail).
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, JsvmHeapDumperTest001, TestSize.Level1)
+{
+    char *argv[] = {
+        const_cast<char *>("hidumper"),
+        const_cast<char *>("--mem-heap"),
+        const_cast<char *>("1"),
+        const_cast<char *>("--jsvm"),
+        const_cast<char *>("--gc"),
+        const_cast<char *>("--raw"),
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]);
+    std::vector<std::u16string> args;
+    std::shared_ptr<RawParam> rawParam = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    int ret = DumpImplement::GetInstance().Main(argc, argv, rawParam);
+#ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
+    ASSERT_EQ(ret, DumpStatus::DUMP_HELP);
+#else
+    ASSERT_EQ(ret, DumpStatus::DUMP_INVALID_ARG);
+#endif
+}
+
+/**
+ * @tc.name: CheckJsvmParameterTest001
+ * @tc.desc: Test CheckJsvmParameter rejects --gc and --raw together.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, CheckJsvmParameterTest001, TestSize.Level1)
+{
+    DumperOpts opt;
+    opt.isDumpHeapMemGc_ = true;
+    opt.dumpRawHeap_ = true;
+    std::vector<std::u16string> args;
+    DumpImplement::GetInstance().ptrReqCtl_ = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    bool ret = DumpImplement::GetInstance().CheckJsvmParameter(opt);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.name: CheckJsvmParameterTest002
+ * @tc.desc: Test CheckJsvmParameter accepts --gc only.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, CheckJsvmParameterTest002, TestSize.Level1)
+{
+    DumperOpts opt;
+    opt.isDumpHeapMemGc_ = true;
+    opt.dumpRawHeap_ = false;
+    std::vector<std::u16string> args;
+    DumpImplement::GetInstance().ptrReqCtl_ = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    bool ret = DumpImplement::GetInstance().CheckJsvmParameter(opt);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.name: CheckJsvmParameterTest003
+ * @tc.desc: Test CheckJsvmParameter accepts --raw only.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, CheckJsvmParameterTest003, TestSize.Level1)
+{
+    DumperOpts opt;
+    opt.isDumpHeapMemGc_ = false;
+    opt.dumpRawHeap_ = true;
+    std::vector<std::u16string> args;
+    DumpImplement::GetInstance().ptrReqCtl_ = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    bool ret = DumpImplement::GetInstance().CheckJsvmParameter(opt);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.name: CheckJsvmParameterTest004
+ * @tc.desc: Test CheckJsvmParameter accepts no extra flags.
+ * @tc.type: FUNC
+ */
+HWTEST_F(HidumperDumpersTest, CheckJsvmParameterTest004, TestSize.Level1)
+{
+    DumperOpts opt;
+    opt.isDumpHeapMemGc_ = false;
+    opt.dumpRawHeap_ = false;
+    std::vector<std::u16string> args;
+    DumpImplement::GetInstance().ptrReqCtl_ = std::make_shared<RawParam>(0, 1, 0, args, -1);
+    bool ret = DumpImplement::GetInstance().CheckJsvmParameter(opt);
+    EXPECT_TRUE(ret);
+}
 } // namespace HiviewDFX
 } // namespace OHOS
