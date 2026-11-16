@@ -171,6 +171,25 @@ ohos_unittest("StorageInfoTaskTest") {
   ]
 }
 
+ohos_unittest("DumpFdRelayTest") {
+  module_out_path = module_output_path
+
+  sources = [ "dump_fd_relay_test.cpp" ]
+
+  configs = [
+    "${hidumper_utils_path}:utils_config",
+    ":module_private_config",
+  ]
+
+  deps = [ "${hidumper_service_path}:hidumperservice_source" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+}
+
 ohos_unittest("HidumperOutputTest") {
   module_out_path = module_output_path
 
@@ -633,6 +652,7 @@ group("unittest") {
   deps = [
     # deps file
     ":DumpCommonUtilsTest",
+    ":DumpFdRelayTest",
     ":EventDumperTest",
     ":GetHeapInfoTest",
     ":HidumperClientTest",

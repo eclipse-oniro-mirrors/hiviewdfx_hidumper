@@ -48,7 +48,11 @@ namespace {
 const std::string DUMPMGR_SERVICE_NAME = "HiDumperManagerService";
 auto dumpManagerService = DumpDelayedSpSingleton<DumpManagerService>::GetInstance();
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(dumpManagerService.GetRefPtr());
-static const int32_t STOP_WAIT = 3;
+// 30s: enough for a full "-s" dump (~5s measured) with margin, and still within the
+// 60s SamgrXCollie budget for OnStop (samgr_xcollie.h:24). The wait loop in OnStop
+// breaks as soon as the request map drains, so short requests pay nothing. The old
+// value (3s) truncated any in-flight request longer than that on every unload race.
+static const int32_t STOP_WAIT = 30;
 static const int32_t REQUEST_MAX = 5;
 static const uint32_t REQUESTID_MAX = 100000;
 const std::string TASK_ID = "unload";
@@ -88,7 +92,11 @@ void DumpManagerService::OnStart()
 
 void DumpManagerService::OnStop()
 {
-    if (!started_) {
+    if (!started_ && (GetRequestSum() == 0)) {
+        // OnIdle sets started_=false before returning UNLOAD_IMMEDIATELY; a request
+        // that slipped in just before must not be abandoned here, otherwise the
+        // process exits mid-dump and whatever the fd relay has not forwarded yet is
+        // lost silently (the "relay finished" log dies with the process).
         return;
     }
     DUMPER_HILOGD(MODULE_SERVICE, "enter|");

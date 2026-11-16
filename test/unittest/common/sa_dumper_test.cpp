@@ -123,7 +123,7 @@ HWTEST_F(SADumperTest, SADumperTest006, TestSize.Level3)
 
 
 /**
- * @tc.name: SADumperTest009
+ * @tc.name: SADumperTest007
  * @tc.desc: Test SA RenderService result contain "Graphic".
  * @tc.type: FUNC
  * @tc.require: issueI5NWZQ
@@ -138,7 +138,7 @@ HWTEST_F(SADumperTest, SADumperTest007, TestSize.Level3)
 }
 
 /**
- * @tc.name: SADumperTest010
+ * @tc.name: SADumperTest008
  * @tc.desc: Test zip SA RenderService result not contain "Graphic".
  * @tc.type: FUNC
  * @tc.require: issueI5NWZQ
@@ -151,7 +151,7 @@ HWTEST_F(SADumperTest, SADumperTest008, TestSize.Level3)
 }
 
 /**
- * @tc.name: SADumperTest011
+ * @tc.name: SADumperTest009
  * @tc.desc: Test SA AbilityManagerService result contain "AppRunningRecord".
  * @tc.type: FUNC
  * @tc.require: issueI5NWZQ
@@ -163,20 +163,65 @@ HWTEST_F(SADumperTest, SADumperTest009, TestSize.Level3)
     ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
 }
 
+// SADumperTest011-013 are declared ahead of SADumperTest010 on purpose.
+// SADumperTest010 spawns detached threads whose assertions fire after it has
+// already returned, and gtest books such a late failure against whichever test
+// happens to be running at that moment. Keeping SADumperTest010 last preserves
+// the attribution this file had before the cases below were appended.
+/**
+ * @tc.name: SADumperTest011
+ * @tc.desc: SA dump output survives a shell pipe, the SA writes into a hidumper_service owned pipe.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SADumperTest, SADumperTest011, TestSize.Level3)
+{
+    std::string cmd = "hidumper -s BatteryService -a -i | grep capacity";
+    std::string str = "capacity";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+}
+
 /**
  * @tc.name: SADumperTest012
+ * @tc.desc: SA dump output survives a shell redirection to a file.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SADumperTest, SADumperTest012, TestSize.Level3)
+{
+    std::string path = "/data/log/hidumper/BatteryService.txt";
+    std::string cmd = "hidumper -s BatteryService -a -i > " + path;
+    std::string str = "capacity";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistStrInFile(cmd, str, path));
+    system("rm -rf /data/log/hidumper/BatteryService.txt");
+}
+
+/**
+ * @tc.name: SADumperTest013
+ * @tc.desc: hidumper_service survives a consumer that exits before the dump is done.
+ * @tc.type: FUNC
+ */
+HWTEST_F(SADumperTest, SADumperTest013, TestSize.Level3)
+{
+    std::string cmd = "hidumper -s BatteryService -a -i | grep -m1 capacity";
+    std::string str = "capacity";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
+    std::string probe = "hidumper -s BatteryService -a -i | grep capacity";
+    ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(probe, str));
+}
+
+/**
+ * @tc.name: SADumperTest010
  * @tc.desc: Test mutilthread for class member variable.
  * @tc.type: FUNC
  */
 HWTEST_F(SADumperTest, SADumperTest010, TestSize.Level3)
 {
     for (int i = 0; i < THREAD_EXECUTE_NUM; i++) {
-        std::thread([&]() mutable {
+        std::thread([]() mutable {
             std::string cmd = "hidumper --cpuusage 1";
             std::string str = "Pss";
             ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
         }).detach();
-        std::thread([&]() mutable {
+        std::thread([]() mutable {
             std::string cmd = "hidumper -s 1201";
             std::string str = "Plugins";
             ASSERT_TRUE(HidumperTestUtils::GetInstance().IsExistInCmdResult(cmd, str));
