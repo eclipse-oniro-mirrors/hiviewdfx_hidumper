@@ -655,7 +655,7 @@ HWTEST_F(HiDumperManagerTest, DumpTest030, TestSize.Level0)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     int ret = GetDumpResult(argc, argv);
-    ASSERT_EQ(ret, DumpStatus::DUMP_FAIL);
+    ASSERT_EQ(ret, DumpStatus::DUMP_INVALID_ARG);
 }
 
 /**
