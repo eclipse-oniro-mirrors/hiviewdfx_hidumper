@@ -56,48 +56,52 @@
 #include <unordered_set>
 namespace OHOS {
 namespace HiviewDFX {
-static struct option LONG_OPTIONS[] = {{"cpufreq", no_argument, 0, 0},
+static struct option LONG_OPTIONS[] = {
+    {"cpufreq", no_argument, 0, static_cast<int>(OptionType::CPUFREQ)},
 #ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
-    {"cpuusage", optional_argument, 0, 0},
+    {"cpuusage", optional_argument, 0, static_cast<int>(OptionType::CPUUSAGE)},
 #endif
-    {"mem", optional_argument, 0, 0},
-    {"net", no_argument, 0, 0},
-    {"storage", no_argument, 0, 0},
-    {"zip", no_argument, 0, 0},
-    {"mem-smaps", required_argument, 0, 0},
-    {"mem-jsheap", required_argument, 0, 0},
-    {"mem-cjheap", required_argument, 0, 0},
-    {"mem-heap", optional_argument, 0, 0},
-    {"native", optional_argument, 0, 0},
-    {"kotlin", optional_argument, 0, 0},
-    #ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
-    {"jsvm", optional_argument, 0, 0},
-    {"arkweb-js", optional_argument, 0, 0},
-    #endif
-    {"gc", no_argument, 0, 0},
-    {"leakobj", no_argument, 0, 0},
-    {"clean", no_argument, 0, 0},
-    {"raw", no_argument, 0, 0},
-    {"single", no_argument, 0, 0},
-    {"prune", no_argument, 0, 0},
-    {"show-ashmem", no_argument, 0, 0},
-    {"show-dmabuf", no_argument, 0, 0},
-    #ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
-    {"show-gpumem", no_argument, 0, 0},
-    #endif
-    {"show-arktsheap", no_argument, 0, 0},
-    {"show-leakthread", no_argument, 0, 0},
-    {"ipc", optional_argument, 0, 0},
-    {"start-stat", no_argument, 0, 0},
-    {"stop-stat", no_argument, 0, 0},
-    {"stat", no_argument, 0, 0},
-    {"list", no_argument, 0, 0},
-    {"print", no_argument, 0, 0},
-    {"since", required_argument, 0, 0},
-    {"until", required_argument, 0, 0},
-    {"fd", no_argument, 0, 0},
-    {"thread", no_argument, 0, 0},
+    {"mem", optional_argument, 0, static_cast<int>(OptionType::MEM)},
+    {"net", optional_argument, 0, static_cast<int>(OptionType::NET)},
+    {"storage", optional_argument, 0, static_cast<int>(OptionType::STORAGE)},
+    {"zip", no_argument, 0, static_cast<int>(OptionType::ZIP)},
+    {"mem-smaps", required_argument, 0, static_cast<int>(OptionType::MEM_SMAPS)},
+    {"mem-jsheap", required_argument, 0, static_cast<int>(OptionType::MEM_JSHEAP)},
+    {"mem-cjheap", required_argument, 0, static_cast<int>(OptionType::MEM_CJHEAP)},
+    {"mem-heap", optional_argument, 0, static_cast<int>(OptionType::MEM_HEAP)},
+    {"native", optional_argument, 0, static_cast<int>(OptionType::NATIVE)},
+    {"kotlin", optional_argument, 0, static_cast<int>(OptionType::KOTLIN)},
+#ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
+    {"jsvm", optional_argument, 0, static_cast<int>(OptionType::JSVM)},
+    {"arkweb-js", optional_argument, 0, static_cast<int>(OptionType::ARKWEB_JS)},
+#endif
+    {"gc", no_argument, 0, static_cast<int>(OptionType::GC)},
+    {"leakobj", no_argument, 0, static_cast<int>(OptionType::LEAKOBJ)},
+    {"clean", no_argument, 0, static_cast<int>(OptionType::CLEAN)},
+    {"raw", no_argument, 0, static_cast<int>(OptionType::RAW)},
+    {"single", no_argument, 0, static_cast<int>(OptionType::SINGLE)},
+    {"prune", no_argument, 0, static_cast<int>(OptionType::PRUNE)},
+    {"show-ashmem", no_argument, 0, static_cast<int>(OptionType::SHOW_ASHMEM)},
+    {"show-dmabuf", no_argument, 0, static_cast<int>(OptionType::SHOW_DMABUF)},
+#ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
+    {"show-gpumem", no_argument, 0, static_cast<int>(OptionType::SHOW_GPUMEM)},
+#endif
+    {"show-arktsheap", no_argument, 0, static_cast<int>(OptionType::SHOW_ARKTSHEAP)},
+    {"show-leakthread", no_argument, 0, static_cast<int>(OptionType::SHOW_LEAKTHREAD)},
+    {"ipc", optional_argument, 0, static_cast<int>(OptionType::IPC)},
+    {"start-stat", no_argument, 0, static_cast<int>(OptionType::START_STAT)},
+    {"stop-stat", no_argument, 0, static_cast<int>(OptionType::STOP_STAT)},
+    {"stat", no_argument, 0, static_cast<int>(OptionType::STAT)},
+    {"list", optional_argument, 0, static_cast<int>(OptionType::LIST)},
+    {"print", optional_argument, 0, static_cast<int>(OptionType::PRINT)},
+    {"since", required_argument, 0, static_cast<int>(OptionType::SINCE)},
+    {"until", required_argument, 0, static_cast<int>(OptionType::UNTIL)},
+    {"fd", no_argument, 0, static_cast<int>(OptionType::FD)},
+    {"thread", no_argument, 0, static_cast<int>(OptionType::THREAD)},
     {0, 0, 0, 0}};
+
+static constexpr char OPT_STR[] = "-hlc::sa:ep::vT:t:n:";
+static constexpr int MAX_CMD_ARGS = 64;
 
 thread_local std::unique_ptr<DumperSysEventParams> DumpImplement::dumperSysEventParams_{nullptr};
 
@@ -298,36 +302,42 @@ bool DumpImplement::IsHidumperClientProcess(int pid)
     return ret;
 }
 
-DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOpts &opts)
+DumpStatus DumpImplement::ParseOptions(int processedArgc, char **processedArgv, char **originalArgv, DumperOpts &opts)
 {
-    optind = 0; // reset getopt_long
-    opterr = 0; // getopt not show error info
-    const char optStr[] = "-hlcsa:epvT:t:n:";
+    (void)originalArgv;
+    optind = 0;
+    opterr = 0;
     bool loop = true;
     while (loop) {
         int optionIndex = 0;
-        int c = getopt_long(argc, argv, optStr, LONG_OPTIONS, &optionIndex);
+        int c = getopt_long(processedArgc, processedArgv, OPT_STR, LONG_OPTIONS, &optionIndex);
         DUMPER_HILOGD(MODULE_COMMON, "debug|getopt_long(), c=%{public}d, optind=%{public}d", c, optind);
         if (c == -1) {
             break;
-        } else if (c == 0) {
-            DumpStatus status = ParseLongCmdOption(argc, opts, LONG_OPTIONS, optionIndex, argv);
-            if (status != DumpStatus::DUMP_OK) {
-                return status;
-            }
         } else if (c == 'h') {
             CmdHelp();
             return DumpStatus::DUMP_HELP;
         } else if (c == '?') {
-            CheckIncorrectCmdOption(optStr, argv);
+            CheckIncorrectCmdOption(OPT_STR, processedArgv);
             return DumpStatus::DUMP_INVALID_ARG;
+        } else if (c >= static_cast<int>(OptionType::CPUFREQ)) {
+            OptionType optType = static_cast<OptionType>(c);
+            DumpStatus status = HandleLongOption(optType, opts, processedArgc, processedArgv);
+            if (status != DumpStatus::DUMP_OK) {
+                return status;
+            }
         } else {
-            DumpStatus status = ParseShortCmdOption(c, opts, argc, argv);
+            DumpStatus status = ParseShortCmdOption(c, opts, processedArgc, processedArgv);
             if (status != DumpStatus::DUMP_OK) {
                 return status;
             }
         }
     }
+    return DumpStatus::DUMP_OK;
+}
+
+DumpStatus DumpImplement::ValidateParsedOptions(int argc, DumperOpts &opts)
+{
     DumpStatus status = CheckProcessAlive(opts);
     if (status != DumpStatus::DUMP_OK) {
         return status;
@@ -344,6 +354,21 @@ DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOp
     }
     RemoveDuplicateString(opts);
     return DumpStatus::DUMP_OK;
+}
+
+DumpStatus DumpImplement::CmdParseWithParameter(int argc, char *argv[], DumperOpts &opts)
+{
+    int processedArgc;
+    char **processedArgv;
+    if (!PreprocessArguments(argc, argv, LONG_OPTIONS, processedArgc, processedArgv)) {
+        DUMPER_HILOGE(MODULE_COMMON, "Failed to preprocess arguments");
+        return DumpStatus::DUMP_INVALID_ARG;
+    }
+    DumpStatus status = ParseOptions(processedArgc, processedArgv, argv, opts);
+    if (status != DumpStatus::DUMP_OK) {
+        return status;
+    }
+    return ValidateParsedOptions(argc, opts);
 }
 
 DumpStatus DumpImplement::ValidateDumpOptions(int argc, DumperOpts& opts)
@@ -389,89 +414,241 @@ DumpStatus DumpImplement::CmdParseWithParameter(std::shared_ptr<DumperParameter>
     return ret;
 }
 
-DumpStatus DumpImplement::SetCmdParameter(int argc, char *argv[], DumperOpts &opts)
+const DumpImplement::LongOptionHandlerMap DumpImplement::longOptionHandlers_ = {
+    {OptionType::CPUFREQ, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().HandleSimpleOption(opts, opts.isDumpCpuFreq_, "cpufreq");
+    }},
+#ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
+    {OptionType::CPUUSAGE, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().HandleDumpOptionWithPid(
+            opts, opts.isDumpCpuUsage_, opts.cpuUsagePid_, "cpuusage");
+    }},
+#endif
+    {OptionType::MEM, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().HandleMemOption(opts);
+    }},
+    {OptionType::NET, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().HandleNetOption(opts);
+    }},
+    {OptionType::STORAGE, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().HandleStorageOption(opts);
+    }},
+    {OptionType::ZIP, [](DumperOpts &opts, int, char *[]) {
+        opts.path_ = ZIP_FOLDER + DumpImplement::GetInstance().GetTime() + ".zip";
+        return DumpStatus::DUMP_OK;
+    }},
+    {OptionType::MEM_SMAPS, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().SetMemSmapsParam(opts);
+    }},
+    {OptionType::SHOW_ASHMEM, [](DumperOpts &opts, int, char *[]) {
+        opts.showAshmem_ = true;
+        return DumpStatus::DUMP_OK;
+    }},
+    {OptionType::SHOW_DMABUF, [](DumperOpts &opts, int, char *[]) {
+        opts.showDmaBuf_ = true;
+        return DumpStatus::DUMP_OK;
+    }},
+#ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
+    {OptionType::SHOW_GPUMEM, [](DumperOpts &opts, int, char *[]) {
+        opts.showGpumem_ = true;
+        return DumpStatus::DUMP_OK;
+    }},
+#endif
+    {OptionType::SHOW_ARKTSHEAP, [](DumperOpts &opts, int, char *[]) {
+        opts.showArktsHeap_ = true;
+        return DumpStatus::DUMP_OK;
+    }},
+    {OptionType::SHOW_LEAKTHREAD, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().SetShowLeakthreadParam(opts);
+    }},
+    {OptionType::MEM_JSHEAP, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().SetMemJsheapParam(opts);
+    }},
+    {OptionType::MEM_CJHEAP, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().SetMemCjheapParam(opts);
+    }},
+    {OptionType::MEM_HEAP, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().SetMemHeapParam(opts);
+    }},
+    {OptionType::NATIVE, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().SetNativeParam(opts);
+    }},
+    {OptionType::KOTLIN, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().SetKotlinParam(opts);
+    }},
+#ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
+    {OptionType::JSVM, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().SetJsvmParam(opts);
+    }},
+    {OptionType::ARKWEB_JS, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().SetArkwebJsParam(opts);
+    }},
+#endif
+    {OptionType::RAW, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().SetRawParam(opts);
+    }},
+    {OptionType::PRUNE, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().SetMemPruneParam(opts);
+    }},
+    {OptionType::GC, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().SetGCParam(opts);
+    }},
+    {OptionType::LEAKOBJ, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().SetLeakobjParam(opts);
+    }},
+    {OptionType::CLEAN, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().SetCleanParam(opts);
+    }},
+    {OptionType::SINGLE, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().SetHeapCombineParam(opts);
+    }},
+    {OptionType::IPC, [](DumperOpts &opts, int argc, char *[]) {
+        return DumpImplement::GetInstance().HandleIpcOption(opts, argc);
+    }},
+    {OptionType::START_STAT, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().HandleIpcStatOption(opts, "start-stat");
+    }},
+    {OptionType::STOP_STAT, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().HandleIpcStatOption(opts, "stop-stat");
+    }},
+    {OptionType::STAT, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().HandleIpcStatOption(opts, "stat");
+    }},
+    {OptionType::LIST, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().HandleListOption(opts);
+    }},
+    {OptionType::PRINT, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().HandlePrintOption(opts);
+    }},
+    {OptionType::SINCE, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().HandleEventOption(opts, "since");
+    }},
+    {OptionType::UNTIL, [](DumperOpts &opts, int, char *[]) {
+        return DumpImplement::GetInstance().HandleEventOption(opts, "until");
+    }},
+    {OptionType::FD, [](DumperOpts &opts, int, char *[]) {
+        opts.isDumpFd_ = true;
+        return DumpStatus::DUMP_OK;
+    }},
+    {OptionType::THREAD, [](DumperOpts &opts, int, char *[]) {
+        opts.isDumpThread_ = true;
+        return DumpStatus::DUMP_OK;
+    }}
+};
+
+DumpStatus DumpImplement::HandleLongOption(OptionType optType, DumperOpts &opts, int argc, char *argv[])
 {
-    DumpStatus status = DumpStatus::DUMP_OK;
-    DUMPER_HILOGD(MODULE_COMMON,
-                  "debug|SetCmdParameter optind is %{public}d"
-                  " argc is  %{public}d",
-                  optind,
-                  argc);
-    if (optind > 1 && optind <= argc) {
-        std::string optionName = argv[optind - ARG_INDEX_OFFSET_LAST_OPTION];
-        std::string optionValue = argv[optind - 1];
-        status = HandleOptionParameter(optionName, optionValue, opts, argv);
-        if (status == DumpStatus::DUMP_FAIL) {
-            return status;
-        }
+    auto it = longOptionHandlers_.find(optType);
+    if (it != longOptionHandlers_.end()) {
+        return it->second(opts, argc, argv);
     }
-    return status;
+    DUMPER_HILOGE(MODULE_COMMON, "HandleLongOption unhandled optType %{public}d", static_cast<int>(optType));
+    return DumpStatus::DUMP_OK;
 }
 
-DumpStatus DumpImplement::HandleOptionParameter(const std::string &optionName,
-                                                const std::string &optionValue, DumperOpts &opts, char *argv[])
+DumpStatus DumpImplement::HandleDumpOptionWithPid(DumperOpts &opts, bool &flag, int &pid, const std::string &optName)
 {
-    DumpStatus status = DumpStatus::DUMP_OK;
-    bool hiviewEnable = false;
-#ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
-    hiviewEnable = true;
-#endif
+    flag = true;
+    dumperSysEventParams_->opt = optName;
+    if (optarg != nullptr) {
+        return SetCmdIntegerParameter(optarg, pid);
+    }
+    return DumpStatus::DUMP_OK;
+}
 
-    if (hiviewEnable && optionName == "--cpuusage") {
-        status = SetCmdIntegerParameter(optionValue, opts.cpuUsagePid_);
-    } else if (optionName == "--mem") {
-        if (optionValue == "SIGINT") {
+DumpStatus DumpImplement::HandleSimpleOption(DumperOpts &opts, bool &flag, const std::string &optName)
+{
+    flag = true;
+    dumperSysEventParams_->opt = optName;
+    return DumpStatus::DUMP_OK;
+}
+
+DumpStatus DumpImplement::HandleMemOption(DumperOpts &opts)
+{
+    opts.isDumpMem_ = true;
+    dumperSysEventParams_->opt = "mem";
+    if (optarg != nullptr) {
+        if (std::string(optarg) == "SIGINT") {
             opts.isReceivedSigInt_ = true;
         } else {
-            status = SetCmdIntegerParameter(optionValue, opts.memPid_);
+            return SetCmdIntegerParameter(optarg, opts.memPid_);
         }
-    } else if (optionName == "--net") {
-        status = SetCmdIntegerParameter(optionValue, opts.netPid_);
-    } else if (optionName == "--storage") {
-        status = SetCmdIntegerParameter(optionValue, opts.storagePid_);
-    } else if (optionName == "-c") {
-        opts.systemArgs_.push_back(optionValue);
-        dumperSysEventParams_->subOpt = optionValue;
-    } else if (optionName == "-p") {
-        status = SetCmdIntegerParameter(optionValue, opts.processPid_);
-    } else if (optionName == "-T") {
-        status = SetCmdIntegerParameter(optionValue, opts.threadId_);
-    } else if (optionName == "-t") {
-        status = SetCmdIntegerParameter(optionValue, opts.timeInterval_);
-    } else if (optionName == "-n") {
-        status = SetShowCount(optionValue, opts.showEventCount_);
-    } else if (optionName == "--list") {
-        opts.processName_ = optionValue;
-    } else if (optionName == "--print") {
-        if (IsNumericStr(optionValue)) {
-            opts.eventId_ = optionValue;
+    }
+    return DumpStatus::DUMP_OK;
+}
+
+DumpStatus DumpImplement::HandleNetOption(DumperOpts &opts)
+{
+    return HandleDumpOptionWithPid(opts, opts.isDumpNet_, opts.netPid_, "net");
+}
+
+DumpStatus DumpImplement::HandleStorageOption(DumperOpts &opts)
+{
+    return HandleDumpOptionWithPid(opts, opts.isDumpStorage_, opts.storagePid_, "storage");
+}
+
+DumpStatus DumpImplement::HandleIpcOption(DumperOpts &opts, int argc)
+{
+    opts.isDumpIpc_ = true;
+    dumperSysEventParams_->opt = "ipc";
+    if (optarg != nullptr) {
+        // 有 pid（--ipc=<pid> 拼接后），期望 processedArgc == IPC_STAT_ARG_NUMS - 1
+        if (argc != IPC_STAT_ARG_NUMS - 1) {
+            DUMPER_HILOGE(MODULE_COMMON, "ipc stat cmd args invalid");
+            SendErrorMessage("ipc stat cmd args invalid\n");
+            CmdHelp();
+            return DumpStatus::DUMP_HELP;
+        }
+        return SetCmdIntegerParameter(optarg, opts.ipcStatPid_);
+    }
+    // 无 pid，期望 -a（不拼接），processedArgc == IPC_STAT_ARG_NUMS
+    if (argc != IPC_STAT_ARG_NUMS) {
+        DUMPER_HILOGE(MODULE_COMMON, "ipc stat cmd args invalid");
+        SendErrorMessage("ipc stat cmd args invalid\n");
+        CmdHelp();
+        return DumpStatus::DUMP_HELP;
+    }
+    return DumpStatus::DUMP_OK;
+}
+
+DumpStatus DumpImplement::HandleListOption(DumperOpts &opts)
+{
+    if (optarg != nullptr) {
+        opts.processName_ = optarg;
+    }
+    return HandleEventOption(opts, "list");
+}
+
+DumpStatus DumpImplement::HandlePrintOption(DumperOpts &opts)
+{
+    if (optarg != nullptr) {
+        if (IsNumericStr(optarg)) {
+            opts.eventId_ = optarg;
         } else {
-            opts.processName_ = optionValue;
+            opts.processName_ = optarg;
         }
-    } else if (IsSADumperOption(argv)) {
-        opts.abilitieNames_.push_back(optionValue);
-        dumperSysEventParams_->target += optionValue;
-    } else if (optionName == "--ipc") {
-        status = SetCmdIntegerParameter(optionValue, opts.ipcStatPid_);
-    } else if (optionName == "--mem-heap") {
-        status = SetCmdIntegerParameter(optionValue, opts.dumpHeapMemPid_);
-    } else if (optionName == "--native") {
-        status = SetCmdIntegerParameter(optionValue, opts.dumpHeapArgPid_);
-    } else if (optionName == "--kotlin") {
-        status = SetCmdIntegerParameter(optionValue, opts.dumpHeapArgPid_);
     }
-    #ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
-    else if (optionName == "--jsvm") {
-        status = SetCmdIntegerParameter(optionValue, opts.dumpHeapArgPid_);
-    } else if (optionName == "--arkweb-js") {
-        status = SetCmdIntegerParameter(optionValue, opts.dumpHeapArgPid_);
+    return HandleEventOption(opts, "print");
+}
+
+DumpStatus DumpImplement::HandleIpcStatOption(DumperOpts &opts, const std::string &param)
+{
+    if (!opts.isDumpIpc_) {
+        DUMPER_HILOGE(MODULE_COMMON, "ipc stat param invalid");
+        SendErrorMessage("ipc stat cmd args invalid\n");
+        CmdHelp();
+        return DumpStatus::DUMP_HELP;
     }
-    #endif
-    else {
-        SendErrorMessageIf(opts, optionValue);
-        return DumpStatus::DUMP_FAIL;
+    SetIpcStatParam(opts, param);
+    return DumpStatus::DUMP_OK;
+}
+
+DumpStatus DumpImplement::HandleEventOption(DumperOpts &opts, const std::string &param)
+{
+    if (!opts.isFaultLog_) {
+        return DumpStatus::DUMP_OK;
     }
-    return status;
+    return SetEventParam(opts, param);
 }
 
 std::string DumpImplement::GetTime()
@@ -491,17 +668,6 @@ std::string DumpImplement::GetTime()
     };
 
     return currentTime;
-}
-
-bool DumpImplement::ParseEventCmdOption(DumperOpts &opts, const std::string& param)
-{
-    if (!opts.isFaultLog_) {
-        return false;
-    }
-    static const std::unordered_set<std::string> validParams = {
-        "list", "print", "since", "until"
-    };
-    return validParams.find(param) != validParams.end();
 }
 
 DumpStatus DumpImplement::SetEventParam(DumperOpts &opts, const std::string& param)
@@ -544,130 +710,15 @@ DumpStatus DumpImplement::SetEventParam(DumperOpts &opts, const std::string& par
     return DumpStatus::DUMP_FAIL;
 }
 
-bool DumpImplement::ParseSubLongCmdOption(int argc, DumperOpts &opts, const struct option longOptions[],
-                                          const int &optionIndex, char *argv[])
-{
-    bool hiviewEnable = false;
-#ifdef HIDUMPER_HIVIEWDFX_HIVIEW_ENABLE
-    hiviewEnable = true;
-#endif
-    if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "cpufreq")) {
-        opts.isDumpCpuFreq_ = true;
-        dumperSysEventParams_->opt = "cpufreq";
-    } else if (hiviewEnable && StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "cpuusage")) {
-        opts.isDumpCpuUsage_ = true;
-        dumperSysEventParams_->opt = "cpuusage";
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem")) {
-        opts.isDumpMem_ = true;
-        dumperSysEventParams_->opt = "mem";
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "net")) {
-        opts.isDumpNet_ = true;
-        dumperSysEventParams_->opt = "net";
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "storage")) {
-        opts.isDumpStorage_ = true;
-        dumperSysEventParams_->opt = "storage";
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "zip")) {
-        opts.path_ = ZIP_FOLDER + GetTime() + ".zip";
-    } else {
-        return false;
-    }
-
-    return true;
-}
-
-DumpStatus DumpImplement::ParseLongCmdOption(int argc, DumperOpts &opts, const struct option longOptions[],
-                                             const int &optionIndex, char *argv[])
-{
-    if (ParseSubLongCmdOption(argc, opts, longOptions, optionIndex, argv)) {
-        return DumpStatus::DUMP_OK;
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-smaps")) {
-        DumpStatus status = SetMemSmapsParam(opts, argc, argv);
-        if (status != DumpStatus::DUMP_OK) {
-            return status;
-        }
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "show-ashmem")) {
-        opts.showAshmem_ = true;
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "show-dmabuf")) {
-        opts.showDmaBuf_ = true;
-    } 
-    #ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
-    else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "show-gpumem")) {
-        opts.showGpumem_ = true;
-    } 
-    #endif
-    else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "show-arktsheap")) {
-        opts.showArktsHeap_ = true;
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "show-leakthread")) {
-        return SetShowLeakthreadParam(opts);
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "fd")) {
-        opts.isDumpFd_ = true;
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "thread")) {
-        opts.isDumpThread_ = true;
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-jsheap")) {
-        return SetMemJsheapParam(opts);
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-cjheap")) {
-        return SetMemCjheapParam(opts);
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "mem-heap")) {
-        return SetMemHeapParam(opts);
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "native")) {
-        return SetNativeParam(opts);
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "kotlin")) {
-        return SetKotlinParam(opts);
-    }
-    #ifdef HIDUMPER_HIVIEWDFX_PLUGIN_ENABLE
-    else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "jsvm")) {
-        return SetJsvmParam(opts);
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "arkweb-js")) {
-        return SetArkwebJsParam(opts);
-    }
-    #endif
-    else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "raw")) {
-        return SetRawParam(opts);
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "prune")) {
-        return SetMemPruneParam(opts);
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "gc")) {
-        return SetGCParam(opts);
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "leakobj")) {
-        return SetLeakobjParam(opts);
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "single")) {
-        return SetHeapCombineParam(opts);
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "clean")) {
-        return SetCleanParam(opts);
-    } else if (StringUtils::GetInstance().IsSameStr(longOptions[optionIndex].name, "ipc")) {
-        opts.isDumpIpc_ = true;
-        dumperSysEventParams_->opt = "ipc";
-        if (IPC_STAT_ARG_NUMS != argc) {
-            DUMPER_HILOGE(MODULE_COMMON, "ipc stat cmd args invalid");
-            SendErrorMessage("ipc stat cmd args invalid\n");
-            CmdHelp();
-            return DumpStatus::DUMP_HELP;
-        }
-    } else if (SetIpcStatParam(opts, longOptions[optionIndex].name)) {
-        if (!opts.isDumpIpc_) {
-            DUMPER_HILOGE(MODULE_COMMON, "ipc stat param invalid");
-            SendErrorMessage("ipc stat cmd args invalid\n");
-            CmdHelp();
-            return DumpStatus::DUMP_HELP;
-        }
-    } else if (ParseEventCmdOption(opts, longOptions[optionIndex].name)) {
-        return SetEventParam(opts, longOptions[optionIndex].name);
-    } else {
-        DUMPER_HILOGE(MODULE_COMMON, "ParseLongCmdOption %{public}s", longOptions[optionIndex].name);
-    }
-    return DumpStatus::DUMP_OK;
-}
-
-DumpStatus DumpImplement::SetMemSmapsParam(DumperOpts &opt, int argc, char *argv[])
+DumpStatus DumpImplement::SetMemSmapsParam(DumperOpts &opt)
 {
     opt.isShowSmaps_ = true;
     dumperSysEventParams_->opt = "mem-smaps";
-    DumpStatus status;
-    if (ARG_INDEX_OFFSET_LAST_OPTION < 0 || ARG_INDEX_OFFSET_LAST_OPTION >= argc) {
-        status = DumpStatus::DUMP_FAIL;
-    } else {
-        status = SetCmdIntegerParameter(argv[ARG_INDEX_OFFSET_LAST_OPTION], opt.memPid_);
+    if (optarg == nullptr || strlen(optarg) == 0) {
+        DUMPER_HILOGE(MODULE_COMMON, "mem-smaps nullptr");
+        return DumpStatus::DUMP_FAIL;
     }
-    return status;
+    return SetCmdIntegerParameter(optarg, opt.memPid_);
 }
 
 DumpStatus DumpImplement::SetMemJsheapParam(DumperOpts &opt)
@@ -696,6 +747,9 @@ DumpStatus DumpImplement::SetMemHeapParam(DumperOpts &opt)
 {
     opt.isDumpHeapMem_ = true;
     dumperSysEventParams_->opt = "mem-heap";
+    if (optarg != nullptr) {
+        return SetCmdIntegerParameter(optarg, opt.dumpHeapMemPid_);
+    }
     return DumpStatus::DUMP_OK;
 }
 
@@ -705,7 +759,11 @@ DumpStatus DumpImplement::SetNativeParam(DumperOpts &opt)
     if (opt.isDumpHeapMem_) {
         DUMPER_HILOGI(MODULE_COMMON, "SetNativeParam success");
         opt.isDumpHeapNative_ = true;
-        status = DumpStatus::DUMP_OK;
+        if (optarg != nullptr) {
+            status = SetCmdIntegerParameter(optarg, opt.dumpHeapArgPid_);
+        } else {
+            status = DumpStatus::DUMP_OK;
+        }
     } else {
         DUMPER_HILOGE(MODULE_COMMON, "native param invalid");
         SendErrorMessage("native param invalid\n");
@@ -721,7 +779,11 @@ DumpStatus DumpImplement::SetKotlinParam(DumperOpts &opt)
     if (opt.isDumpHeapMem_) {
         DUMPER_HILOGI(MODULE_COMMON, "SetKotlinParam success");
         opt.isDumpHeapKotlin_ = true;
-        status = DumpStatus::DUMP_OK;
+        if (optarg != nullptr) {
+            status = SetCmdIntegerParameter(optarg, opt.dumpHeapArgPid_);
+        } else {
+            status = DumpStatus::DUMP_OK;
+        }
     } else {
         DUMPER_HILOGE(MODULE_COMMON, "kotlin param invalid");
         SendErrorMessage("kotlin param invalid\n");
@@ -737,7 +799,11 @@ DumpStatus DumpImplement::SetJsvmParam(DumperOpts &opt)
     if (opt.isDumpHeapMem_) {
         DUMPER_HILOGI(MODULE_COMMON, "SetJsvmParam success");
         opt.isDumpHeapJsvm_ = true;
-        status = DumpStatus::DUMP_OK;
+        if (optarg != nullptr) {
+            status = SetCmdIntegerParameter(optarg, opt.dumpHeapArgPid_);
+        } else {
+            status = DumpStatus::DUMP_OK;
+        }
     } else {
         DUMPER_HILOGE(MODULE_COMMON, "jsvm param invalid");
         SendErrorMessage("jsvm param invalid\n");
@@ -753,7 +819,11 @@ DumpStatus DumpImplement::SetArkwebJsParam(DumperOpts &opt)
     if (opt.isDumpHeapMem_) {
         DUMPER_HILOGI(MODULE_COMMON, "SetArkwebJsParam success");
         opt.isDumpHeapArkwebJs_ = true;
-        status = DumpStatus::DUMP_OK;
+        if (optarg != nullptr) {
+            status = SetCmdIntegerParameter(optarg, opt.dumpHeapArgPid_);
+        } else {
+            status = DumpStatus::DUMP_OK;
+        }
     } else {
         DUMPER_HILOGE(MODULE_COMMON, "arkweb-js param invalid");
         SendErrorMessage("arkweb-js param invalid\n");
@@ -906,47 +976,87 @@ DumpStatus DumpImplement::ParseCmdOptionForA(DumperOpts &opts, char *argv[])
     return DumpStatus::DUMP_OK;
 }
 
+DumpStatus DumpImplement::SetOptionWithIntegerParam(char optChar, int& value)
+{
+    if (optarg != nullptr) {
+        dumperSysEventParams_->opt += optChar;
+        return SetCmdIntegerParameter(optarg, value);
+    }
+    return DumpStatus::DUMP_OK;
+}
+
+void DumpImplement::SetSimpleDumpOption(char optChar, bool& flag)
+{
+    flag = true;
+    dumperSysEventParams_->opt += optChar;
+}
+
+DumpStatus DumpImplement::SetOptionWithShowCount(char optChar, int& value)
+{
+    if (optarg != nullptr) {
+        dumperSysEventParams_->opt += optChar;
+        return SetShowCount(optarg, value);
+    }
+    return DumpStatus::DUMP_OK;
+}
+
+DumpStatus DumpImplement::HandleDefaultOption(DumperOpts &opts, int argc, char *argv[])
+{
+    if (optind < 1 || optind > argc) {
+        return DumpStatus::DUMP_FAIL;
+    }
+    std::string optionValue = argv[optind - 1];
+    if (IsSADumperOption(argv)) {
+        opts.abilitieNames_.push_back(optionValue);
+        dumperSysEventParams_->target += optionValue;
+    } else {
+        SendErrorMessageIf(opts, optionValue);
+        return DumpStatus::DUMP_FAIL;
+    }
+    return DumpStatus::DUMP_OK;
+}
+
 DumpStatus DumpImplement::ParseShortCmdOption(int c, DumperOpts &opts, int argc, char *argv[])
 {
     switch (c) {
-        case 'a': {
-            DumpStatus status = ParseCmdOptionForA(opts, argv);
-            if (status != DumpStatus::DUMP_OK) {
-                return status;
-            }
-            break;
-        }
+        case 'a':
+            return ParseCmdOptionForA(opts, argv);
         case 'c':
-            opts.isDumpSystem_ = true;
-            dumperSysEventParams_->opt += "c";
+            SetSimpleDumpOption('c', opts.isDumpSystem_);
+            if (optarg != nullptr) {
+                opts.systemArgs_.push_back(optarg);
+                dumperSysEventParams_->subOpt = optarg;
+            }
             break;
         case 'e':
             opts.isFaultLog_ = true;
             dumperSysEventParams_->opt = "e";
             break;
         case 'l':
-            opts.isDumpList_ = true;
-            dumperSysEventParams_->opt += "l";
+            SetSimpleDumpOption('l', opts.isDumpList_);
             break;
         case 's':
-            opts.isDumpSystemAbility_ = true;
-            dumperSysEventParams_->opt += "s";
+            SetSimpleDumpOption('s', opts.isDumpSystemAbility_);
             break;
         case 'p':
             opts.isDumpProcesses_ = true;
             dumperSysEventParams_->opt = "p";
+            if (optarg != nullptr) {
+                return SetCmdIntegerParameter(optarg, opts.processPid_);
+            }
             break;
         case 'v':
             opts.isShowSmapsInfo_ = true;
             dumperSysEventParams_->subOpt = "v";
             break;
-        default: {
-            DumpStatus status = SetCmdParameter(argc, argv, opts);
-            if (status != DumpStatus::DUMP_OK) {
-                return status;
-            }
-            break;
-        }
+        case 'T':
+            return SetOptionWithIntegerParam('T', opts.threadId_);
+        case 't':
+            return SetOptionWithIntegerParam('t', opts.timeInterval_);
+        case 'n':
+            return SetOptionWithShowCount('n', opts.showEventCount_);
+        default:
+            return HandleDefaultOption(opts, argc, argv);
     }
     return DumpStatus::DUMP_OK;
 }
@@ -1231,8 +1341,14 @@ bool DumpImplement::CheckGroupName(std::string &lastName, const std::string &cur
 
 void DumpImplement::CheckIncorrectCmdOption(const char *optStr, char *argv[])
 {
-    if (optopt == 0) {
-        std::string optLongStr = RemoveCharacterFromStr(argv[optind - 1], '-');
+    if (optopt >= static_cast<int>(OptionType::CPUFREQ)) {
+        std::string optLongStr;
+        for (const struct option *opt = LONG_OPTIONS; opt->name != nullptr; ++opt) {
+            if (opt->val == optopt) {
+                optLongStr = opt->name;
+                break;
+            }
+        }
         if (optLongStr == "since" || optLongStr == "until") {
             SendErrorMessage(requireError_ + optLongStr);
             return;
@@ -1593,13 +1709,15 @@ bool DumpImplement::CheckUnableToDumpAll(int argc, DumperOpts& opt)
 
 bool DumpImplement::CheckDumpHeapMemParameter(int argc, DumperOpts& opt)
 {
-    if (argc < ARG_COUNT_HEAP_MEM) {
+    (void)argc;
+    int argCount = opt.isDumpHeapNative_ + opt.isDumpHeapKotlin_ + opt.isDumpHeapJsvm_ + opt.isDumpHeapArkwebJs_;
+    bool hasPid = (opt.dumpHeapMemPid_ > 0) || (opt.dumpHeapArgPid_ > 0);
+    if (argCount == 0 || (argCount == 1 && !hasPid)) {
         SendErrorMessage("Error [ARGUMENT]: Insufficient arguments for '--mem-heap' (requires at least pid and ARG).");
         SendErrorMessage("Fix: Set '--mem-heap <pid> <ARG>' where <ARG> is one of "
             "--native, --kotlin, --jsvm, --arkweb-js.");
         return false;
     }
-    int argCount = opt.isDumpHeapNative_ + opt.isDumpHeapKotlin_ + opt.isDumpHeapJsvm_ + opt.isDumpHeapArkwebJs_;
     if (argCount != 1) {
         SendErrorMessage("Error [ARGUMENT]: Invalid ARG for '--mem-heap' (must specify exactly one ARG).");
         SendErrorMessage("Fix: Add one of --native, --kotlin, --jsvm, --arkweb-js after the pid.");
@@ -1760,5 +1878,138 @@ bool DumpImplement::CheckMemDetailParamSupported(const DumperOpts &opt)
     return true;
 #endif
 }
+
+bool DumpImplement::IsLongOption(const char *arg)
+{
+    return arg && arg[0] == '-' && arg[1] == '-' && arg[LONG_OPTION_PREFIX_LEN] != '\0';
+}
+
+bool DumpImplement::IsShortOption(const char *arg)
+{
+    return arg && arg[0] == '-' && arg[SHORT_OPTION_PREFIX_LEN] != '-' &&
+        arg[SHORT_OPTION_PREFIX_LEN] != '\0';
+}
+
+bool DumpImplement::IsOption(const char *arg)
+{
+    return arg && arg[0] == '-';
+}
+
+bool DumpImplement::LongOptionNeedsArg(const char *optionName, const struct option *longOptions)
+{
+    const struct option *opt = longOptions;
+    while (opt->name != nullptr) {
+        if (strcmp(opt->name, optionName) == 0) {
+            return opt->has_arg == required_argument || opt->has_arg == optional_argument;
+        }
+        ++opt;
+    }
+    return false;
+}
+
+std::string DumpImplement::ExtractLongOptionName(const char *arg)
+{
+    const char *start = arg + LONG_OPTION_PREFIX_LEN;
+    const char *end = strchr(start, '=');
+    if (end != nullptr) {
+        return std::string(start, end - start);
+    }
+    return std::string(start);
+}
+
+bool DumpImplement::ShortOptionNeedsArg(char optionChar, const char *optStr)
+{
+    int len = strlen(optStr);
+    for (int i = 0; i < len; i++) {
+        if (optStr[i] == optionChar) {
+            if (i + 1 < len && optStr[i + 1] == OPTION_ARG_MARKER) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+char DumpImplement::ExtractShortOptionChar(const char *arg)
+{
+    if (!IsShortOption(arg)) {
+        return '\0';
+    }
+    return arg[SHORT_OPTION_PREFIX_LEN];
+}
+
+bool DumpImplement::PreprocessArguments(int originalArgc, char *const originalArgv[], const struct option *longOptions,
+                                        int& newArgc, char **&newArgv)
+{
+    if (originalArgc > MAX_CMD_ARGS) {
+        return false;
+    }
+    processedArgs_.clear();
+    argPtrs_.clear();
+    processedArgs_.reserve(static_cast<size_t>(originalArgc));
+    processedArgs_.push_back(originalArgv[0]);
+
+    for (int i = 1; i < originalArgc; i++) {
+        const char *currentArg = originalArgv[i];
+        if (TryMergeLongOption(currentArg, i, originalArgc, originalArgv, longOptions)) {
+            continue;
+        }
+        if (TryMergeShortOption(currentArg, i, originalArgc, originalArgv)) {
+            continue;
+        }
+        processedArgs_.push_back(currentArg);
+    }
+    argPtrs_.reserve(processedArgs_.size() + 1);
+    for (auto &s : processedArgs_) {
+        argPtrs_.push_back(const_cast<char *>(s.c_str()));
+    }
+    argPtrs_.push_back(nullptr);
+    newArgc = static_cast<int>(argPtrs_.size()) - 1;
+    newArgv = argPtrs_.data();
+    return true;
+}
+
+bool DumpImplement::TryMergeLongOption(const char *currentArg, int &index, int originalArgc,
+                                       char *const originalArgv[], const struct option *longOptions)
+{
+    if (!IsLongOption(currentArg)) {
+        return false;
+    }
+    std::string optionName = ExtractLongOptionName(currentArg);
+    bool hasArg = strchr(currentArg + LONG_OPTION_PREFIX_LEN, '=') != nullptr;
+    if (hasArg || !LongOptionNeedsArg(optionName.c_str(), longOptions)) {
+        processedArgs_.push_back(currentArg);
+        return true;
+    }
+    if (index + 1 >= originalArgc || IsOption(originalArgv[index + 1])) {
+        processedArgs_.push_back(currentArg);
+        return true;
+    }
+    processedArgs_.push_back(std::string(currentArg) + "=" + originalArgv[index + 1]);
+    index++;
+    return true;
+}
+
+bool DumpImplement::TryMergeShortOption(const char *currentArg, int &index, int originalArgc,
+                                        char *const originalArgv[])
+{
+    if (!IsShortOption(currentArg)) {
+        return false;
+    }
+    char optionChar = ExtractShortOptionChar(currentArg);
+    bool hasArg = currentArg[SHORT_OPTION_PREFIX_LEN + 1] != '\0';
+    if (hasArg || !ShortOptionNeedsArg(optionChar, OPT_STR)) {
+        processedArgs_.push_back(currentArg);
+        return true;
+    }
+    if (index + 1 >= originalArgc || IsOption(originalArgv[index + 1])) {
+        processedArgs_.push_back(currentArg);
+        return true;
+    }
+    processedArgs_.push_back(std::string(currentArg) + originalArgv[index + 1]);
+    index++;
+    return true;
+}
+
 } // namespace HiviewDFX
 } // namespace OHOS

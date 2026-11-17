@@ -16,6 +16,8 @@
 #define DUMP_IMPLEMENT_H
 #include <map>
 #include <memory>
+#include <functional>
+#include <unordered_map>
 #include <getopt.h>
 #include <mutex>
 #include "if_system_ability_manager.h"
@@ -30,6 +32,45 @@
 
 namespace OHOS {
 namespace HiviewDFX {
+enum class OptionType {
+    CPUFREQ = 1000,
+    CPUUSAGE,
+    MEM,
+    NET,
+    STORAGE,
+    ZIP,
+    MEM_SMAPS,
+    MEM_JSHEAP,
+    MEM_CJHEAP,
+    MEM_HEAP,
+    NATIVE,
+    KOTLIN,
+    JSVM,
+    ARKWEB_JS,
+    GC,
+    LEAKOBJ,
+    CLEAN,
+    RAW,
+    SINGLE,
+    PRUNE,
+    SHOW_ASHMEM,
+    SHOW_DMABUF,
+    SHOW_GPUMEM,
+    SHOW_ARKTSHEAP,
+    SHOW_LEAKTHREAD,
+    IPC,
+    START_STAT,
+    STOP_STAT,
+    STAT,
+    LIST,
+    PRINT,
+    SINCE,
+    UNTIL,
+    FD,
+    THREAD,
+    UNKNOWN
+};
+
 class DumpImplement : public Singleton<DumpImplement> {
 public:
     DumpImplement();
@@ -52,11 +93,11 @@ private:
     DumpStatus CmdParseWithParameter(int argc, char* argv[], DumperOpts& opts);
     DumpStatus CmdParseWithParameter(std::shared_ptr<DumperParameter>& dumpParameter,
         int argc, char* argv[], DumperOpts& opts);
-    DumpStatus SetCmdParameter(int argc, char* argv[], DumperOpts& opts);
-    DumpStatus HandleOptionParameter(const std::string &optionName,
-        const std::string &optionValue, DumperOpts &opts, char *argv[]);
     DumpStatus SetCmdIntegerParameter(const std::string& str, int& value);
     DumpStatus SetShowCount(const std::string &str, int &value);
+    DumpStatus SetOptionWithIntegerParam(char optChar, int& value);
+    DumpStatus SetOptionWithShowCount(char optChar, int& value);
+    void SetSimpleDumpOption(char optChar, bool& flag);
     void PrintCommonUsage(std::string& str);
     void CmdHelp();
     void setExecutorList(std::vector<std::shared_ptr<HidumperExecutor>>& executors,
@@ -84,15 +125,10 @@ private:
     void SendReleaseVersionErrorMessage(const std::string& opt);
     void SendPermissionCheckErrorMessage(const std::string& opt, bool isProfileable,
         bool isInhouse, bool isDeveloperMode);
-    bool ParseSubLongCmdOption(int argc, DumperOpts &opts, const struct option longOptions[],
-        const int &optionIndex, char *argv[]);
-    bool ParseEventCmdOption(DumperOpts &opts, const std::string& param);
-    DumpStatus ParseLongCmdOption(int argc, DumperOpts& opts, const struct option longOptions[],
-        const int& optionIndex, char* argv[]);
-    DumpStatus ParseShortCmdOption(int c, DumperOpts& opts, int argc, char* argv[]);
-    void CheckIncorrectCmdOption(const char* optStr, char* argv[]);
-    std::string RemoveCharacterFromStr(const std::string& str, const char character);
-    bool IsSADumperOption(char* argv[]);
+    DumpStatus ParseShortCmdOption(int c, DumperOpts &opts, int argc, char *argv[]);
+    void CheckIncorrectCmdOption(const char *optStr, char *argv[]);
+    std::string RemoveCharacterFromStr(const std::string &str, const char character);
+    bool IsSADumperOption(char *argv[]);
     DumpStatus CheckProcessAlive(const DumperOpts& opts);
     void RemoveDuplicateString(DumperOpts& opts);
 #ifdef HIDUMPER_HIVIEWDFX_HISYSEVENT_ENABLE
@@ -114,7 +150,7 @@ private:
     bool SetIpcStatParam(DumperOpts &opt, const std::string& param);
     DumpStatus ParseCmdOptionForA(DumperOpts &opt, char *argv[]);
     void ProcessDumpOptions(int clientPid, std::shared_ptr<DumperParameter> &dumpParameter, DumperOpts &opts);
-    DumpStatus SetMemSmapsParam(DumperOpts &opt, int argc, char *argv[]);
+    DumpStatus SetMemSmapsParam(DumperOpts &opt);
     DumpStatus SetMemJsheapParam(DumperOpts &opt);
     DumpStatus SetMemCjheapParam(DumperOpts &opt);
     DumpStatus SetMemHeapParam(DumperOpts &opt);
@@ -136,10 +172,39 @@ private:
     bool IsNewStructSupport(std::shared_ptr<DumperParameter> ptrDumperParameter);
     bool CheckJsHeapSingleParam(const DumperOpts &opt);
     bool CheckMemDetailParamSupported(const DumperOpts &opt);
+    bool IsLongOption(const char *arg);
+    bool IsShortOption(const char *arg);
+    bool IsOption(const char *arg);
+    bool LongOptionNeedsArg(const char *optionName, const struct option *longOptions);
+    bool ShortOptionNeedsArg(char optionChar, const char *optStr);
+    std::string ExtractLongOptionName(const char *arg);
+    char ExtractShortOptionChar(const char *arg);
+    DumpStatus ParseOptions(int processedArgc, char **processedArgv, char **originalArgv, DumperOpts &opts);
+    DumpStatus ValidateParsedOptions(int argc, DumperOpts &opts);
+    DumpStatus HandleLongOption(OptionType optType, DumperOpts &opts, int argc, char *argv[]);
+    DumpStatus HandleDumpOptionWithPid(DumperOpts &opts, bool &flag, int &pid, const std::string &optName);
+    DumpStatus HandleSimpleOption(DumperOpts &opts, bool &flag, const std::string &optName);
+    DumpStatus HandleMemOption(DumperOpts &opts);
+    DumpStatus HandleNetOption(DumperOpts &opts);
+    DumpStatus HandleStorageOption(DumperOpts &opts);
+    DumpStatus HandleIpcOption(DumperOpts &opts, int argc);
+    DumpStatus HandleListOption(DumperOpts &opts);
+    DumpStatus HandlePrintOption(DumperOpts &opts);
+    DumpStatus HandleIpcStatOption(DumperOpts &opts, const std::string &param);
+    DumpStatus HandleEventOption(DumperOpts &opts, const std::string &param);
+    DumpStatus HandleDefaultOption(DumperOpts &opts, int argc, char *argv[]);
+    bool PreprocessArguments(int originalArgc, char *const originalArgv[],
+                             const struct option *longOptions,
+                             int &newArgc, char **&newArgv);
+    bool TryMergeLongOption(const char *currentArg, int &index, int originalArgc,
+                             char *const originalArgv[], const struct option *longOptions);
+    bool TryMergeShortOption(const char *currentArg, int &index, int originalArgc,
+                              char *const originalArgv[]);
 
 private:
     using ExecutorFactoryMap = std::map<int, std::shared_ptr<ExecutorFactory>>;
-    static const int ARG_INDEX_OFFSET_LAST_OPTION = 2;
+    using LongOptionHandler = std::function<DumpStatus(DumperOpts &, int, char *[])>;
+    using LongOptionHandlerMap = std::unordered_map<OptionType, LongOptionHandler>;
     const std::string unrecognizedError_ = "hidumper: option pid missed. ";
     const std::string invalidError_ = "hidumper: invalid arg: ";
     const std::string requireError_ = "hidumper: option requires an argument: ";
@@ -156,6 +221,12 @@ private:
     static const int ARG_COUNT_WITH_ZIP = 2;
     static const int ARG_COUNT_HEAP_MEM = 4;
     static thread_local std::unique_ptr<DumperSysEventParams> dumperSysEventParams_;
+    static constexpr int LONG_OPTION_PREFIX_LEN = 2;
+    static constexpr int SHORT_OPTION_PREFIX_LEN = 1;
+    static constexpr char OPTION_ARG_MARKER = ':';
+    static const LongOptionHandlerMap longOptionHandlers_;
+    std::vector<std::string> processedArgs_;
+    std::vector<char *> argPtrs_;
 };
 } // namespace HiviewDFX
 } // namespace OHOS
