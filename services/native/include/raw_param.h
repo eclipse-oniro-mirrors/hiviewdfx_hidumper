@@ -14,6 +14,7 @@
  */
 #ifndef HIDUMPER_SERVICES_DUMP_RAW_PARAM_H
 #define HIDUMPER_SERVICES_DUMP_RAW_PARAM_H
+#include <atomic>
 #include <set>
 #include <string_ex.h>
 #include <vector>
@@ -55,13 +56,13 @@ private:
     void SetCallerPpid(const std::string &ppid);
     class ClientDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
-        ClientDeathRecipient(uint32_t reqId, bool& deathed);
+        ClientDeathRecipient(uint32_t reqId, std::atomic<bool>& deathed);
         virtual ~ClientDeathRecipient() = default;
     public:
         virtual void OnRemoteDied(const wptr<IRemoteObject>& remote);
     private:
         uint32_t reqId_;
-        bool& deathed_;
+        std::atomic<bool>& deathed_;
     };
 private:
     struct ArgValue {
@@ -71,7 +72,7 @@ private:
     int uid_ {-1};
     int pid_ {-1};
     int callerPpid_ {-1};
-    bool canceled_ {false};
+    std::atomic<bool> canceled_ {false};
     bool finished_ {false};
     bool hasError_ {false};
     uint32_t reqId_ {0};

@@ -182,7 +182,8 @@ DumpStatus DumpImplement::Main(int argc, char *argv[], const std::shared_ptr<Raw
     }
 
     reqCtl->SetProgressEnabled(isZip);
-    isZip ? reqCtl->SetTitle(",The result is:" + path_) : reqCtl->SetTitle("");
+    // use the per-request copy in DumperOpts instead of the shared member to avoid cross-request race
+    isZip ? reqCtl->SetTitle(",The result is:" + ptrDumperParameter->GetOpts().path_) : reqCtl->SetTitle("");
     HidumperExecutor::StringMatrix dumpDatas = std::make_shared<std::vector<std::vector<std::string>>>();
     ret = DumpDatas(hidumperExecutors, ptrDumperParameter, dumpDatas);
     std::lock_guard<std::mutex> lock(mutexCmdLock_); // lock for dumperSysEventParams_
@@ -433,8 +434,7 @@ const DumpImplement::LongOptionHandlerMap DumpImplement::longOptionHandlers_ = {
         return DumpImplement::GetInstance().HandleStorageOption(opts);
     }},
     {OptionType::ZIP, [](DumperOpts &opts, int, char *[]) {
-        DumpImplement::GetInstance().path_ = ZIP_FOLDER + DumpImplement::GetInstance().GetTime() + ".zip";
-        opts.path_ = DumpImplement::GetInstance().path_;
+        opts.path_ = ZIP_FOLDER + DumpImplement::GetInstance().GetTime() + ".zip";
         return DumpStatus::DUMP_OK;
     }},
     {OptionType::MEM_SMAPS, [](DumperOpts &opts, int, char *[]) {

@@ -213,7 +213,6 @@ private:
     mutable std::mutex mutexCmdLock_;
     std::shared_ptr<RawParam> ptrReqCtl_;
     std::string GetTime();
-    std::string path_;
     static const int IPC_STAT_ARG_NUMS = 4;
     static const int HIVIEW_UID = 1201;
     // uid of application process is greater than APP_UID_LIMIT

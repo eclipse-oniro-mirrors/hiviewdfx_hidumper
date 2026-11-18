@@ -76,6 +76,9 @@ private:
 private:
     bool Init();
     std::shared_ptr<RawParam> AddRequestRawParam(std::vector<std::u16string> &args, int outfd);
+    std::shared_ptr<RawParam> AddRequestRawParamLocked(std::vector<std::u16string> &args, int outfd);
+    std::shared_ptr<RawParam> TryAddRequest(std::vector<std::u16string> &args, int outfd,
+        int32_t &errorCode, std::string &errorMsg, bool &initLog);
     void EraseRequestRawParam(const std::shared_ptr<RawParam> rawParam);
     void CancelAllRequest();
     int GetRequestSum();
