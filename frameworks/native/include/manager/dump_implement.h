@@ -146,6 +146,7 @@ private:
     bool IsApplicationPid(int pid);
     bool CheckArkwebJsParameter(DumperOpts& opt);
     bool CheckKmpParameter(DumperOpts& opt);
+    bool CheckJsvmParameter(DumperOpts& opt);
     bool ValidateRenderProcessAndFindMainPid(int renderPid, DumperOpts& opt);
     bool SetIpcStatParam(DumperOpts &opt, const std::string& param);
     DumpStatus ParseCmdOptionForA(DumperOpts &opt, char *argv[]);

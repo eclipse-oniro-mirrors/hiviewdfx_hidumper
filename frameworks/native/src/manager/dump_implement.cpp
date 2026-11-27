@@ -1602,6 +1602,9 @@ void DumpImplement::ReportMemheap(const DumperOpts &opts)
     } else if (opts.isDumpHeapNative_) {
         strType = "hidumperNativeHeap";
     } else if (opts.isDumpHeapJsvm_) {
+        if (opts.isDumpHeapMemGc_) {
+            return; // gc only, no dump
+        }
         strType = "hidumperJsvmHeap";
         if (opts.dumpRawHeap_) {
             strType = "hidumperJsvmRawHeap";
@@ -1737,6 +1740,9 @@ bool DumpImplement::CheckDumpHeapMemParameter(int argc, DumperOpts& opt)
     if (opt.isDumpHeapKotlin_) {
         return CheckKmpParameter(opt);
     }
+    if (opt.isDumpHeapJsvm_) {
+        return CheckJsvmParameter(opt);
+    }
     return true;
 }
 
@@ -1761,6 +1767,17 @@ bool DumpImplement::IsApplicationPid(int pid)
     }
     if (pidInfo.uid_ <= APP_UID_LIMIT) {
         DUMPER_HILOGD(MODULE_COMMON, "pid %{public}d is not an application, uid:%{public}d", pid, pidInfo.uid_);
+        return false;
+    }
+    return true;
+}
+
+bool DumpImplement::CheckJsvmParameter(DumperOpts& opt)
+{
+    if (opt.isDumpHeapMemGc_ && opt.dumpRawHeap_) {
+        DUMPER_HILOGE(MODULE_COMMON, "raw and gc cannot be used together for jsvm");
+        SendErrorMessage("Error [CONFLICT]: '--raw' and '--gc' cannot be used together with '--jsvm'.");
+        SendErrorMessage("Fix: Remove either '--raw' or '--gc' from the command.");
         return false;
     }
     return true;
